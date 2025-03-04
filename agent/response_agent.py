@@ -1,4 +1,3 @@
-import json
 import os
 import openai
 from typing import Literal, Optional
@@ -11,7 +10,7 @@ class ResponseAgent:
         if not self.api_key:
             raise ValueError("OpenAI API key must be provided or set as OPENAI_API_KEY environment variable")
         
-        self.client = openai.Client(api_key=self.api_key)
+        self.async_client = openai.AsyncClient(api_key=self.api_key)
         
         self.system_prompt = """
         You are an assistant that helps determine the appropriate response to an agent's message.
@@ -28,9 +27,9 @@ class ResponseAgent:
         Respond ONLY with one of these two options.
         """
     
-    def determine_response(self, agent_message: str) -> ResponseType:
+    async def determine_response(self, agent_message: str) -> ResponseType:
         try:
-            response = self.client.chat.completions.create(
+            response = await self.async_client.chat.completions.create(
                 model="gpt-4o",
                 messages=[
                     {"role": "system", "content": self.system_prompt},
