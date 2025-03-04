@@ -11,7 +11,7 @@ A Python SDK for interacting with HUD environments and evaluation benchmarks for
 
 ## Quick start
 
-To set get started with an agent, see the [Claude Computer use example](https://github.com/Human-Data/hud-sdk/tree/main/examples).
+[RECOMMENDED] To set get started with an agent, see the [Claude Computer use example](https://github.com/Human-Data/hud-sdk/tree/main/examples).
 
 
 Otherwise, install the package with Python>=3.9:
