@@ -1,0 +1,127 @@
+[project]
+name = "hud-so"
+version = "0.1.0"
+description = "SDK for the HUD evaluation platform."
+readme = "README.md"
+requires-python = ">=3.9, <3.14"
+authors = [
+{ name = "Human Union Data SDK", email = "founders@hud.so" },
+]
+license = { file = "LICENSE" }
+dependencies = [
+    "httpx>=0.23.0, <1",
+    "pydantic>=2,<3",
+    "pydantic-settings>=2,<3",
+    "pillow>=11, <12",
+    "eval-type-backport>=0.2.2",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/humanuniondata/hud-so"
+"Bug Tracker" = "https://github.com/humanuniondata/hud-so/issues"
+"Documentation" = "https://docs.hud.so"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.sdist]
+exclude = ["*/tests/"]
+
+[tool.hatch.build.targets.wheel]
+include = ["hud"]
+packages = ["hud"]
+
+# Ensure py.typed is included in the package
+[tool.hatch.build.targets.wheel.force-include]
+"hud/py.typed" = "hud/py.typed"
+
+# Examples will be included in the source distribution (sdist)
+# but not in the wheel (binary distribution)
+[tool.hatch.envs.examples]
+dependencies = [
+  "ipykernel",
+  "jupyter",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff ==0.9.8",
+    "pytest >=8.1.1,<9",
+    "pyright==1.1.364",
+    "ipykernel",
+    "ipython <9",
+    "jupyter_client",
+    "jupyter_core",
+    "openai",
+    "anthropic",
+]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+lint.extend-select = [
+    "I",       # isort
+    "F",       # pyflakes
+    "ANN",     # flake8-annotations
+    "Q",       # flake8-quotes
+    "ASYNC",   # flake8-async
+    "TID",     # flake8-tidy
+    "RSE",     # flake8-raise
+    "G",       # flake8-logging-format
+    "B",       # flake8-bugbear
+    "E",       # pycodestyle errors
+    "W",       # pycodestyle warnings
+    "PIE",     # flake8-pie
+    "S",       # flake8-bandit
+    "PERF",    # Perflint
+    "PLC",     # Pylint
+    "UP",      # pyupgrade
+    "SIM",     # flake8-simplify
+    "INP",     # flake8-no-pep420
+    "T20",     # flake8-print
+    "PYI",     # flake8-pyi
+    "TCH",     # Flake-8 TCH
+    "T10",     # flake-8 debugger
+    "RUF",     # Ruff-specific
+]
+lint.ignore = [
+    "ANN401", # Allow Any.
+]
+
+[tool.ruff.lint.extend-per-file-ignores]
+"**/tests/**/*.py" = ["PYI", "B", "S", "ANN"]
+"**/sdk_example*.py" = ["ALL"] # Disables all rules for example modules
+"*.ipynb" = ["ALL"] # Disables all rules for Jupyter.
+"**/openai_adapter*.py" = ["ALL"] # Disables all rules for example modules
+"**/examples/**/*.py" = ["ALL"]
+"**/agent/**/*.py" = ["ALL"]
+
+
+[tool.ruff.format]
+docstring-code-format = true
+
+[tool.ruff.lint.isort]
+required-imports = ["from __future__ import annotations"]
+
+[tool.pyright]
+include = ["hud"]
+exclude = [
+    "**/node_modules",
+    "**/__pycache__",
+    "src/experimental",
+    "src/typestubs",
+    "**/venv",
+]
+pythonVersion = "3.9"
+typeCheckingMode = "basic"

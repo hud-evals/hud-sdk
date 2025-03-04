@@ -1,0 +1,13 @@
+# Include examples in source distribution
+include examples/*.py
+include examples/README.md
+
+# Include license and documentation
+include LICENSE
+include README.md
+include .env.example
+
+# Exclude tests and development files
+exclude tests/
+exclude .github/
+exclude *.ipynb 

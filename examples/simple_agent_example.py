@@ -1,61 +1,20 @@
-# HUD-SO: Human Union Data SDK
+#!/usr/bin/env python3
+"""
+Example of creating a custom agent with the HUD-SO SDK.
 
-A Python SDK for interacting with HUD environments and evaluation benchmarks.
+This example demonstrates how to:
+1. Create a custom agent that outputs actions
+2. Create a custom adapter that converts actions to CLA format
+3. Run the agent in a loop to interact with a task
+"""
 
-[![PyPI version](https://badge.fury.io/py/hud-so.svg)](https://badge.fury.io/py/hud-so)
-[![CI](https://github.com/humanuniondata/hud-so/actions/workflows/ci.yml/badge.svg)](https://github.com/humanuniondata/hud-so/actions/workflows/ci.yml)
-
-## Installation
-
-```bash
-pip install hud-so
-```
-
-## Quick Start
-
-```python
 import asyncio
-from hud import HUDClient
-from hud.settings import settings
+import os
+import sys
+from typing import Any, Tuple
 
-async def main():
-    # Initialize client with API key from settings
-    client = HUDClient(api_key=settings.api_key)
-    
-    # Load gym and evalset
-    gym = await client.load_gym(id="OSWorld-Ubuntu")
-    evalset = await client.load_evalset(id="OSWorld-Ubuntu")
-    
-    # Create a run and get tasks
-    run = client.create_run(name="example-run", gym=gym, evalset=evalset)
-    tasks = await run.fetch_task_ids()
-    
-    # Create environment and wait for it to be ready
-    env = await run.make(metadata={"agent_id": "example"})
-    while True:
-        if await env.get_env_state() in ["running", "error"]:
-            break
-        await asyncio.sleep(2)
-    
-    # Run a task
-    if tasks:
-        obs = await env.reset(tasks[0], metadata={"run": "example"})
-        print(f"Task: {obs.text}")
-    
-    # Close when done
-    await env.close()
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-## Custom Agent Loop
-
-Here's how to create a custom agent that interfaces with the HUD environment:
-
-```python
-import asyncio
-from typing import Any, Dict, Tuple
+# Add the parent directory to the path (if running from examples/)
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from hud import HUDClient
 from hud.adapters.common import Adapter
@@ -118,114 +77,86 @@ class SimpleAdapter(Adapter):
 
 async def main():
     # Initialize client with API key from settings
-    client = HUDClient(api_key=settings.api_key)
+    api_key = settings.api_key
+    if api_key is None:
+        print("Error: HUD_API_KEY environment variable is not set")
+        return
+
+    # Initialize client
+    client = HUDClient(api_key=api_key)
+    print("Initialized HUD client")
     
     # Load gym and evalset
     gym = await client.load_gym(id="OSWorld-Ubuntu")
     evalset = await client.load_evalset(id="OSWorld-Ubuntu")
+    print(f"Loaded gym and evalset: {gym.id}")
     
     # Create the run
     run = client.create_run(name="simple-agent-run", gym=gym, evalset=evalset)
     tasks = await run.fetch_task_ids()
+    print(f"Found {len(tasks)} tasks")
     
     # Initialize the agent and adapter
     agent = SimpleAgent()
     adapter = SimpleAdapter()
     
     # Create environment with the adapter
-    env = await run.make(adapter=adapter, metadata={"agent_id": "simple-agent"})
+    env = await run.make(metadata={"agent_id": "simple-agent"})
+    print("Created environment, waiting for it to be ready...")
     
     # Wait for environment to be ready
     while True:
-        if await env.get_env_state() in ["running", "error"]:
+        state = await env.get_env_state()
+        print(f"Environment state: {state}")
+        if state == "running" or state == "error":
             break
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
     
-    # Reset to a task
-    if tasks:
-        obs = await env.reset(tasks[0], metadata={"run": "simple-agent-run"})
+    # Only proceed if the environment is running
+    if state == "running" and tasks:
+        # Reset to a task (using the first task for this example)
+        task_id = tasks[0]
+        obs = await env.reset(task_id, metadata={"run": "simple-agent-run"})
+        print(f"Task description: {obs.text}")
         
         # Agent interaction loop
         max_steps = 5
+        print(f"Running agent for up to {max_steps} steps")
+        
         for i in range(max_steps):
+            print(f"Step {i+1}/{max_steps}")
+            # Rescale screenshot
+            screenshot = adapter.rescale(obs.screenshot)
+            
             # Get agent's prediction
-            response = await agent.predict(obs.screenshot, obs.text)
+            response = await agent.predict(screenshot, obs.text)
+            print(f"Agent response: {response}")
             
             # Process the response
             done, action = agent.process_response(response)
+            print(f"Processed action: {action}")
             
             if done:
                 # This is a final response
                 env.final_response = str(action)
+                print(f"Final response: {env.final_response}")
                 break
             
             # Step the environment with the action
             obs, reward, terminated, info = await env.step(adapter.adapt_list([action]))
+            print(f"Reward: {reward}, Terminated: {terminated}")
             
             if terminated:
                 break
         
         # Evaluate the result
         result = await env.evaluate()
-        print(f"Evaluation result: {result}")
+        print(f"Final evaluation result: {result}")
     
     # Close the environment
     await env.close()
+    print("Environment closed")
+
 
 if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-## Key Features
-
-- Connect to HUD evaluation environments
-- Run benchmarks across various tasks
-- Support for different agent adapters
-- Asynchronous API for efficient interaction
-
-## Environment Variables
-
-The SDK uses environment variables for configuration. You can set these in your environment or in a `.env` file in your project root:
-
-```
-# .env file
-HUD_API_KEY=your-api-key-here
-```
-
-Required:
-- `HUD_API_KEY`: Your HUD API key (required)
-
-## Examples
-
-See the `examples/` directory for more detailed examples of:
-- Basic API usage
-- Custom agent implementation
-- Claude agent integration
-
-## Development
-
-```bash
-# Create a virtual environment (option 1: venv)
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Create a virtual environment (option 2: uv)
-uv venv
-# Activate according to your shell (e.g., .venv\Scripts\activate on Windows)
-
-# Install in development mode with pip
-pip install -e ".[dev]"
-
-# Or with uv (recommended)
-uv pip install -e ".[dev]"
-
-# Run tests
-pytest
-
-# Lint code
-ruff check .
-```
-
-## License
-
-[MIT License](LICENSE)
+    asyncio.run(main()) 

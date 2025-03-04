@@ -1,0 +1,19 @@
+.venv
+venv
+.env
+__pycache__
+*.pyc
+.pytest_cache
+dist/
+build/
+*.egg-info/
+uv.lock
+
+# Media files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.bmp
+*.tiff
+*.ico

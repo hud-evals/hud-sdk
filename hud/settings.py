@@ -1,0 +1,42 @@
+from __future__ import annotations
+
+import os
+from typing import Optional
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    """
+    Global settings for the HUD SDK.
+    
+    This class manages configuration values loaded from environment variables
+    and provides global access to settings throughout the application.
+    """
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="allow"
+    )
+
+    base_url: str = Field(
+        default="https://orchestrator.hud.live/hud-gym/api/v1",
+        description="Base URL for the HUD API",
+        validation_alias="base_url"
+    )
+    
+    api_key: Optional[str] = Field(
+        default=None,
+        description="API key for authentication with the HUD API",
+        validation_alias="HUD_API_KEY"
+    )
+
+
+# Create a singleton instance
+settings = Settings()
+
+# Add utility functions for backwards compatibility
+def get_settings() -> Settings:
+    """Get the global settings instance."""
+    return settings
