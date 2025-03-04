@@ -8,7 +8,7 @@ Visit [hud.so](https://hud.so) for more information about HUD.
 
 [![PyPI version](https://img.shields.io/pypi/v/hud-python)](https://pypi.org/project/hud-python/)
 
-[📚 Documentation](https://docs.hud.so) | [🏠 Homepage](https://hud.so)
+[📚 Documentation](https://documentation.hud.so) | [🏠 Homepage](https://hud.so)
 
 ## Quick Start
 
