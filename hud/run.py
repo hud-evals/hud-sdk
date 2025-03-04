@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -10,7 +11,7 @@ from .server import make_request
 from .settings import settings
 
 if TYPE_CHECKING:
-    from datetime import datetime
+    import datetime
 
     from .gym import Gym
 
@@ -61,7 +62,7 @@ class RunAnalyticsResponse(BaseModel):
     total_tasks: int
     completed_tasks: int
     running_time: float | None = None  # runtime in seconds if available
-    created_at: datetime
+    created_at: datetime.datetime
     raw_data: dict[str, list[dict[str, Any]]] = Field(
         default_factory=lambda: {"tasks": [], "environments": []}
     )
