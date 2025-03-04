@@ -1,0 +1,161 @@
+---
+title: 'Adapters API'
+description: 'API reference for the adapter classes'
+---
+
+# Adapters API Reference
+
+## Base Adapter Class
+
+The `Adapter` class is the base class for all adapters in the HUD SDK.
+
+### Constructor
+
+```python
+Adapter() -> Adapter
+```
+
+Creates a new adapter.
+
+### Methods
+
+#### convert
+
+```python
+convert(data: Any) -> Any
+```
+
+Converts an action from the agent's format to the CLA format.
+
+**Parameters:**
+- `data` (Any): The action data to convert
+
+**Returns:**
+- `Any`: The converted action in CLA format
+
+#### adapt_list
+
+```python
+adapt_list(actions: list[Any]) -> list[Any]
+```
+
+Adapts a list of actions.
+
+**Parameters:**
+- `actions` (list[Any]): The list of actions to adapt
+
+**Returns:**
+- `list[Any]`: The adapted list of actions
+
+## Common Action Types
+
+### ClickAction
+
+Represents a mouse click action.
+
+```python
+ClickAction(point: Point, button: str = "left") -> ClickAction
+```
+
+**Parameters:**
+- `point` (Point): The point to click
+- `button` (str, optional): The mouse button to use ("left", "right", "double")
+
+### TypeAction
+
+Represents a keyboard typing action.
+
+```python
+TypeAction(text: str, enter_after: bool = False) -> TypeAction
+```
+
+**Parameters:**
+- `text` (str): The text to type
+- `enter_after` (bool, optional): Whether to press Enter after typing
+
+### ScrollAction
+
+Represents a scrolling action.
+
+```python
+ScrollAction(delta_x: int = 0, delta_y: int = 0) -> ScrollAction
+```
+
+**Parameters:**
+- `delta_x` (int, optional): The horizontal scroll amount
+- `delta_y` (int, optional): The vertical scroll amount
+
+### DragAction
+
+Represents a drag-and-drop action.
+
+```python
+DragAction(start: Point, end: Point, button: str = "left") -> DragAction
+```
+
+**Parameters:**
+- `start` (Point): The starting point
+- `end` (Point): The ending point
+- `button` (str, optional): The mouse button to use
+
+### Point
+
+Represents a point on the screen.
+
+```python
+Point(x: int, y: int) -> Point
+```
+
+**Parameters:**
+- `x` (int): The x-coordinate
+- `y` (int): The y-coordinate
+
+## Claude Adapter
+
+The `ClaudeAdapter` class is an adapter for Anthropic's Claude models.
+
+### Constructor
+
+```python
+ClaudeAdapter() -> ClaudeAdapter
+```
+
+Creates a new Claude adapter.
+
+### Methods
+
+#### convert
+
+```python
+convert(data: Any) -> Any
+```
+
+Converts a Claude action to the CLA format.
+
+**Parameters:**
+- `data` (Any): The Claude action data
+
+**Returns:**
+- `Any`: The converted action in CLA format
+
+## Usage Example
+
+```python
+from hud.adapters.common import Adapter
+from hud.adapters.common.types import ClickAction, Point
+
+# Create a custom adapter
+class MyAdapter(Adapter):
+    def convert(self, data: Any) -> Any:
+        if isinstance(data, dict) and "type" in data:
+            if data["type"] == "click":
+                return ClickAction(
+                    point=Point(x=data["x"], y=data["y"]),
+                    button=data.get("button", "left")
+                )
+        return super().convert(data)
+
+# Use the adapter
+adapter = MyAdapter()
+env = await run.make(adapter=adapter, metadata={"agent_id": "my-agent"})
+``` 

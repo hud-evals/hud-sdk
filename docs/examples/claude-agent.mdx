@@ -1,0 +1,306 @@
+---
+title: 'Claude Agent'
+description: 'How to use Claude with the HUD SDK'
+---
+
+# Using Claude with HUD
+
+This guide shows how to integrate Anthropic's Claude model with the HUD SDK to create an AI agent that can interact with environments.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+1. Installed the HUD SDK: `pip install hud-python`
+2. Installed the Anthropic Python library: `pip install anthropic`
+3. Set up your API keys:
+   - `HUD_API_KEY` for HUD
+   - `ANTHROPIC_API_KEY` for Anthropic
+
+## Setting Up the Claude Client
+
+First, set up the Claude client:
+
+```python
+import anthropic
+from hud.settings import settings
+
+# Create the Claude client
+claude_client = anthropic.Anthropic(
+    api_key=os.environ.get("ANTHROPIC_API_KEY")
+)
+```
+
+## Creating a Claude Agent
+
+Create a simple class to interact with Claude:
+
+```python
+from base64 import b64encode
+from io import BytesIO
+from PIL import Image
+
+class ClaudeAgent:
+    def __init__(self, client):
+        self.client = client
+        self.messages = []
+        self.system_prompt = """
+        You are a helpful AI assistant that can control a computer to help users accomplish tasks.
+        You will be given a screenshot of a computer screen and a task to complete.
+        Respond with actions to take, such as clicking at specific coordinates or typing text.
+        """
+        
+    async def predict(self, screenshot, text):
+        # Convert the screenshot to a data URL for Claude
+        img_bytes = BytesIO()
+        screenshot_pil = Image.open(BytesIO(b64decode(screenshot)))
+        screenshot_pil.save(img_bytes, format="PNG")
+        img_bytes = img_bytes.getvalue()
+        image_url = f"data:image/png;base64,{b64encode(img_bytes).decode('utf-8')}"
+        
+        # Create the message history
+        if not self.messages:
+            self.messages = [
+                {
+                    "role": "system",
+                    "content": self.system_prompt
+                }
+            ]
+        
+        # Add the user message with image
+        self.messages.append({
+            "role": "user",
+            "content": [
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/png",
+                        "data": b64encode(img_bytes).decode('utf-8')
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": f"Task: {text}\n\nProvide your next action."
+                }
+            ]
+        })
+        
+        # Get Claude's response
+        response = self.client.messages.create(
+            model="claude-3-opus-20240229",
+            max_tokens=1000,
+            messages=self.messages
+        )
+        
+        # Add Claude's response to the message history
+        self.messages.append({
+            "role": "assistant",
+            "content": response.content
+        })
+        
+        # Parse the response
+        action_text = response.content[0].text
+        
+        # Extract action (example parsing - you may need to adjust based on Claude's response format)
+        if "click" in action_text.lower():
+            # Simple regex to extract coordinates
+            import re
+            coords = re.findall(r'(\d+),\s*(\d+)', action_text)
+            if coords:
+                x, y = map(int, coords[0])
+                return {"action": "click_point", "x": x, "y": y}
+        elif "type" in action_text.lower():
+            # Extract the text to type
+            match = re.search(r'type "(.*?)"', action_text)
+            if match:
+                type_text = match.group(1)
+                return {"action": "type_text", "text": type_text}
+        
+        # Default action if parsing fails
+        return {"action": "unknown", "text": action_text}
+```
+
+## Using the Claude Adapter
+
+HUD SDK provides a built-in Claude adapter to simplify integration:
+
+```python
+from hud.adapters.claude import ClaudeAdapter
+
+# Create the adapter
+adapter = ClaudeAdapter()
+```
+
+## Complete Example
+
+Here's a complete example of using Claude with HUD:
+
+```python
+import asyncio
+import os
+from base64 import b64decode, b64encode
+from io import BytesIO
+import re
+
+import anthropic
+from PIL import Image
+
+from hud import HUDClient
+from hud.adapters.claude import ClaudeAdapter
+from hud.settings import settings
+
+class ClaudeAgent:
+    def __init__(self, client):
+        self.client = client
+        self.messages = []
+        self.system_prompt = """
+        You are a helpful AI assistant that can control a computer to help users accomplish tasks.
+        You will be given a screenshot of a computer screen and a task to complete.
+        Respond with actions to take, such as clicking at specific coordinates or typing text.
+        """
+        
+    async def predict(self, screenshot, text):
+        # Convert the screenshot to a data URL for Claude
+        img_bytes = BytesIO()
+        screenshot_pil = Image.open(BytesIO(b64decode(screenshot)))
+        screenshot_pil.save(img_bytes, format="PNG")
+        img_bytes = img_bytes.getvalue()
+        
+        # Create the message history
+        if not self.messages:
+            self.messages = [
+                {
+                    "role": "system",
+                    "content": self.system_prompt
+                }
+            ]
+        
+        # Add the user message with image
+        self.messages.append({
+            "role": "user",
+            "content": [
+                {
+                    "type": "image",
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/png",
+                        "data": b64encode(img_bytes).decode('utf-8')
+                    }
+                },
+                {
+                    "type": "text",
+                    "text": f"Task: {text}\n\nProvide your next action."
+                }
+            ]
+        })
+        
+        # Get Claude's response
+        response = self.client.messages.create(
+            model="claude-3-opus-20240229",
+            max_tokens=1000,
+            messages=self.messages
+        )
+        
+        # Add Claude's response to the message history
+        self.messages.append({
+            "role": "assistant",
+            "content": response.content
+        })
+        
+        # Parse the response
+        action_text = response.content[0].text
+        
+        # Extract action
+        if "click" in action_text.lower():
+            coords = re.findall(r'(\d+),\s*(\d+)', action_text)
+            if coords:
+                x, y = map(int, coords[0])
+                return {"action": "click_point", "x": x, "y": y}
+        elif "type" in action_text.lower():
+            match = re.search(r'type "(.*?)"', action_text)
+            if match:
+                type_text = match.group(1)
+                return {"action": "type_text", "text": type_text}
+        
+        return {"action": "unknown", "text": action_text}
+
+async def main():
+    # Initialize clients
+    hud_client = HUDClient(api_key=settings.api_key)
+    claude_client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+    
+    # Load gym and evalset
+    gym = await hud_client.load_gym(id="OSWorld-Ubuntu")
+    evalset = await hud_client.load_evalset(id="OSWorld-Ubuntu")
+    
+    # Create agent and adapter
+    agent = ClaudeAgent(claude_client)
+    adapter = ClaudeAdapter()
+    
+    # Create the run
+    run = hud_client.create_run(name="claude-agent-run", gym=gym, evalset=evalset)
+    tasks = await run.fetch_task_ids()
+    
+    # Create environment
+    env = await run.make(adapter=adapter, metadata={"agent_id": "claude-agent"})
+    
+    # Wait for environment to be ready
+    while True:
+        if await env.get_env_state() in ["running", "error"]:
+            break
+        await asyncio.sleep(2)
+    
+    # Reset to a task
+    if tasks:
+        obs = await env.reset(tasks[0], metadata={"run": "claude-agent-run"})
+        
+        # Agent interaction loop
+        max_steps = 10
+        for i in range(max_steps):
+            # Get Claude's prediction
+            response = await agent.predict(obs.screenshot, obs.text)
+            
+            # Process the response
+            if response["action"] == "unknown":
+                # Final response
+                env.final_response = response["text"]
+                break
+            
+            # Convert the response to an action
+            if response["action"] == "click_point":
+                action = {"action": "left_click", "coordinate": [response["x"], response["y"]]}
+            elif response["action"] == "type_text":
+                action = {"action": "type", "text": response["text"]}
+            else:
+                action = response
+            
+            # Step the environment
+            obs, reward, terminated, info = await env.step(adapter.adapt_list([action]))
+            
+            if terminated:
+                break
+        
+        # Evaluate the result
+        result = await env.evaluate()
+        print(f"Evaluation result: {result}")
+    
+    # Close the environment
+    await env.close()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## Tips for Using Claude
+
+1. **System Prompt**: Craft a clear system prompt that explains the task and expected format of responses.
+2. **Image Quality**: Ensure screenshots are high quality to help Claude understand the UI.
+3. **Response Parsing**: Implement robust parsing of Claude's responses to extract actions.
+4. **Message History**: Manage the message history to provide context for Claude's decisions.
+5. **Error Handling**: Add error handling for cases where Claude's response doesn't match expected formats.
+
+## Further Reading
+
+For more information on using Claude, refer to:
+- [Anthropic API Documentation](https://docs.anthropic.com/claude/reference/getting-started-with-the-api)

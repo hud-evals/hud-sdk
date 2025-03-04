@@ -1,0 +1,91 @@
+---
+title: 'Environment'
+description: 'Understanding HUD Environments'
+---
+
+# Environment
+
+An `Env` in the HUD SDK represents a running instance of a gym where an agent can interact with tasks. It provides methods for observation, action, and evaluation.
+
+## Initialization
+
+Environments are created from a run:
+
+```python
+from hud import HUDClient
+
+client = HUDClient(api_key="your-api-key")
+gym = await client.load_gym(id="OSWorld-Ubuntu")
+evalset = await client.load_evalset(id="OSWorld-Ubuntu")
+run = client.create_run(name="example-run", gym=gym, evalset=evalset)
+
+# Create environment
+env = await run.make(metadata={"agent_id": "example"})
+
+# Wait for environment to be ready
+while True:
+    if await env.get_env_state() in ["running", "error"]:
+        break
+    await asyncio.sleep(2)
+```
+
+## Key Methods
+
+The `Env` class provides several key methods:
+
+### Reset
+
+Resets the environment to a specific task:
+
+```python
+observation = await env.reset(task_id, metadata={"run": "example"})
+```
+
+### Step
+
+Takes an action in the environment and returns the new state:
+
+```python
+observation, reward, terminated, info = await env.step(action)
+```
+
+### Evaluate
+
+Evaluates the current task:
+
+```python
+result = await env.evaluate()
+```
+
+### Close
+
+Closes the environment:
+
+```python
+await env.close()
+```
+
+## Observations
+
+Observations from the environment include:
+
+- `screenshot`: A base64-encoded PNG image of the current screen
+- `text`: Text observation, if available
+
+## Environment States
+
+An environment can be in one of several states:
+
+- `creating`: The environment is being created
+- `running`: The environment is running and ready for interaction
+- `error`: An error occurred during environment creation or execution
+- `closed`: The environment has been closed
+
+## VNC Access
+
+For debugging purposes, you can access the environment directly via VNC:
+
+```python
+vnc_url = await env.get_vnc_url()
+print(f"Connect to VNC at: {vnc_url}")
+``` 

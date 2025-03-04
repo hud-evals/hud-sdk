@@ -1,0 +1,74 @@
+---
+title: 'Adapter'
+description: 'Understanding HUD Adapters'
+---
+
+# Adapter
+
+An `Adapter` in the HUD SDK is responsible for translating between your agent's action format and the Common Language for Action (CLA) format used by the HUD environment.
+
+## Purpose
+
+Adapters serve as a bridge between:
+- Your agent's custom action format
+- The standardized CLA format expected by HUD environments
+
+This allows you to use different agent implementations without changing how they interact with the environment.
+
+## Built-in Adapters
+
+The HUD SDK includes several built-in adapters:
+
+- **Claude Adapter**: For integrating with Anthropic's Claude models
+- **OpenAI Adapter**: For integrating with OpenAI's models
+- **Common Adapter**: A base adapter that can be extended for custom implementations
+
+## Creating a Custom Adapter
+
+You can create your own adapter by extending the base `Adapter` class:
+
+```python
+from hud.adapters.common import Adapter
+from hud.adapters.common.types import ClickAction, Point, TypeAction
+
+class SimpleAdapter(Adapter):
+    def __init__(self):
+        super().__init__()
+        self.agent_width = 1024
+        self.agent_height = 768
+        
+    def convert(self, data: Any) -> Any:
+        # Convert the action dict to CLA format
+        action_type = data.get("action")
+        
+        if action_type == "type":
+            return TypeAction(text=data.get("text", ""), enter_after=False)
+            
+        elif action_type == "left_click":
+            coord = data.get("coordinate", [0, 0])
+            return ClickAction(point=Point(x=coord[0], y=coord[1]), button="left")
+            
+        # Fall back to parent's implementation
+        return super().convert(data)
+```
+
+## Using Adapters
+
+Adapters are used when creating an environment:
+
+```python
+# Initialize the adapter
+adapter = SimpleAdapter()
+
+# Create environment with the adapter
+env = await run.make(adapter=adapter, metadata={"agent_id": "simple-agent"})
+```
+
+## Common Action Types
+
+The CLA format supports several action types:
+
+- **ClickAction**: For mouse clicks (left, right, double)
+- **TypeAction**: For keyboard input
+- **ScrollAction**: For scrolling the screen
+- **DragAction**: For drag-and-drop operations

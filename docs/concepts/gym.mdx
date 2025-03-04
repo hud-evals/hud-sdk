@@ -1,0 +1,49 @@
+---
+title: 'Gym'
+description: 'Understanding HUD Gyms'
+---
+
+# Gym
+
+A `Gym` in the HUD SDK represents a specific environment where tasks can be executed. It defines the operating system, available tools, and constraints for the agent.
+
+## Initialization
+
+Gyms are typically loaded from the HUD API:
+
+```python
+from hud import HUDClient
+
+client = HUDClient(api_key="your-api-key")
+gym = await client.load_gym(id="OSWorld-Ubuntu")
+```
+
+## Available Gyms
+
+The HUD platform offers several gyms, including:
+
+- **OSWorld-Ubuntu**: A Linux Ubuntu environment for general OS tasks
+
+You can list all available gyms using:
+
+```python
+gyms = await client.list_gyms()
+print(gyms)  # List of available gym IDs
+```
+
+## Gym Properties
+
+Each gym has the following properties:
+
+- `id`: Unique identifier for the gym
+- `name`: Human-readable name of the gym
+
+## Using Gyms
+
+Gyms are used when creating a run:
+
+```python
+run = client.create_run(name="my-run", gym=gym, evalset=evalset)
+```
+
+This associates the run with the specific environment defined by the gym. 

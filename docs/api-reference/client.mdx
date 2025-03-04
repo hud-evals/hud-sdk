@@ -1,0 +1,159 @@
+---
+title: 'HUDClient API'
+description: 'API reference for the HUDClient class'
+---
+
+# HUDClient API Reference
+
+The `HUDClient` class is the main entry point for interacting with the HUD API.
+
+## Constructor
+
+```python
+HUDClient(api_key: str) -> HUDClient
+```
+
+Creates a new HUD client with the specified API key.
+
+**Parameters:**
+- `api_key` (str): Your HUD API key
+
+**Example:**
+```python
+from hud import HUDClient
+
+client = HUDClient(api_key="your-api-key")
+```
+
+## Methods
+
+### load_gym
+
+```python
+async load_gym(id: str) -> Gym
+```
+
+Loads a gym by ID from the HUD API.
+
+**Parameters:**
+- `id` (str): The ID of the gym to load
+
+**Returns:**
+- `Gym`: The loaded gym
+
+**Example:**
+```python
+gym = await client.load_gym(id="OSWorld-Ubuntu")
+```
+
+### load_evalset
+
+```python
+async load_evalset(id: str) -> EvalSet
+```
+
+Loads an evaluation set by ID from the HUD API.
+
+**Parameters:**
+- `id` (str): The ID of the evaluation set to load
+
+**Returns:**
+- `EvalSet`: The loaded evaluation set
+
+**Example:**
+```python
+evalset = await client.load_evalset(id="OSWorld-Ubuntu")
+```
+
+### list_gyms
+
+```python
+async list_gyms() -> list[str]
+```
+
+Lists all available gyms.
+
+**Returns:**
+- `list[str]`: A list of gym IDs
+
+**Example:**
+```python
+gyms = await client.list_gyms()
+print(gyms)  # ["OSWorld-Ubuntu", "OSWorld-Windows", ...]
+```
+
+### get_runs
+
+```python
+async get_runs() -> list[Run]
+```
+
+Gets all runs associated with the API key.
+
+**Returns:**
+- `list[Run]`: A list of runs
+
+**Example:**
+```python
+runs = await client.get_runs()
+for run in runs:
+    print(f"Run: {run.name} (ID: {run.id})")
+```
+
+### load_run
+
+```python
+async load_run(id: str, adapter: Adapter | None = None) -> Run | None
+```
+
+Loads a run by ID from the HUD API.
+
+**Parameters:**
+- `id` (str): The ID of the run to load
+- `adapter` (Adapter, optional): An adapter to use with the run
+
+**Returns:**
+- `Run | None`: The loaded run, or None if not found
+
+**Example:**
+```python
+run = await client.load_run(id="run-123")
+if run:
+    print(f"Loaded run: {run.name}")
+```
+
+### create_run
+
+```python
+create_run(
+    name: str,
+    gym: Gym,
+    evalset: EvalSet,
+    config: dict[str, Any] | None = None,
+    metadata: dict[str, Any] | None = None,
+    adapter: Adapter | None = None,
+) -> Run
+```
+
+Creates a new run.
+
+**Parameters:**
+- `name` (str): The name of the run
+- `gym` (Gym): The gym to use for the run
+- `evalset` (EvalSet): The evaluation set to use for the run
+- `config` (dict, optional): Configuration parameters for the run
+- `metadata` (dict, optional): Metadata for the run
+- `adapter` (Adapter, optional): An adapter to use with the run
+
+**Returns:**
+- `Run`: The created run
+
+**Example:**
+```python
+run = client.create_run(
+    name="example-run",
+    gym=gym,
+    evalset=evalset,
+    metadata={"agent_id": "example"}
+)
+``` 
