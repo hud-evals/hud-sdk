@@ -85,9 +85,9 @@ class RunAnalyticsResponse(BaseModel):
             f"Run: {self.name} (ID: {self.id})",
             f"Created: {self.created_at.strftime('%Y-%m-%d %H:%M:%S')}",
             "-" * 60,
-            f"Progress: {self.completed_tasks}/{self.total_tasks} tasks completed ({
+            f"""Progress: {self.completed_tasks}/{self.total_tasks} tasks completed ({
                 (self.completion_rate if self.completion_rate is not None else 0):.1f
-                }% completion rate)",
+                }% completion rate)""",
             "",
         ]
 

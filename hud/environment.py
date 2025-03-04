@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import enum
+import logging
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
@@ -12,6 +13,7 @@ from hud.settings import settings
 if TYPE_CHECKING:
     from .adapters.common import Adapter
 
+logger = logging.getLogger("hud.environment")
 
 class Observation(BaseModel):
     """
@@ -247,7 +249,7 @@ class Environment:
                 EnvironmentStatus.ERROR.value,
                 EnvironmentStatus.COMPLETED.value,
             ):
-                print(f"Environment {self.id} {status_messages.get(state)}")
+                logger.info(f"Environment {self.id} {status_messages.get(state)}")
                 break
             await asyncio.sleep(10)
 

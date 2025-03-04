@@ -120,10 +120,10 @@ async def make_request(
         except httpx.HTTPStatusError as e:
             raise RequestError.from_http_error(e) from None
         except httpx.RequestError as e:
-            raise RequestError(f"Network error: {str(e)}") from None
+            raise RequestError(f"Network error: {e!s}") from None
         except Exception as e:
             # Catch-all for unexpected errors
-            raise RequestError(f"Unexpected error: {str(e)}") from None
+            raise RequestError(f"Unexpected error: {e!s}") from None
 
 
 def make_sync_request(
@@ -160,7 +160,7 @@ def make_sync_request(
         except httpx.HTTPStatusError as e:
             raise RequestError.from_http_error(e) from None
         except httpx.RequestError as e:
-            raise RequestError(f"Network error: {str(e)}") from None
+            raise RequestError(f"Network error: {e!s}") from None
         except Exception as e:
             # Catch-all for unexpected errors
-            raise RequestError(f"Unexpected error: {str(e)}") from None
+            raise RequestError(f"Unexpected error: {e!s}") from None

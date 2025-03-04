@@ -191,7 +191,8 @@ class HUDClient:
         html_content = f"""
         <div style="width: 960px; height: 540px; overflow: hidden;">
             <div style="transform: scale(0.5); transform-origin: top left;">
-                <iframe src="{live_url}" width="1920" height="1080" style="border: 1px solid #ddd;"></iframe>
+                <iframe src="{live_url}" width="1920" height="1080" style="border: 1px solid #ddd;">
+                </iframe>
             </div>
         </div>
         """
