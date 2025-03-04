@@ -1,0 +1,25 @@
+---
+title: 'Client'
+description: 'Understanding the HUDClient'
+---
+
+# HUDClient
+
+The `HUDClient` is the main entry point for interacting with the HUD API. It provides methods to load gyms, evalsets, and create runs.
+
+## Initialization
+
+```python
+from hud import HUDClient
+
+client = HUDClient(api_key="your-api-key")
+```
+
+## Key Methods
+
+- `load_gym(id)`: Load a gym by ID from the HUD API
+- `load_evalset(id)`: Load an evalset by ID from the HUD API
+- `list_gyms()`: List all available gyms
+- `get_runs()`: Get all runs associated with the API key
+- `load_run(id)`: Load a run by ID from the HUD API
+- `create_run(name, gym, evalset)`: Create a new run 

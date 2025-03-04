@@ -1,0 +1,66 @@
+---
+title: 'Installation'
+description: 'Learn how to install the HUD-SO SDK'
+---
+
+# Installation
+
+You can install the HUD-SO SDK using pip:
+
+```bash
+pip install hud-so
+```
+
+## Requirements
+
+- Python 3.9 or higher
+- An API key from Human Union Data
+
+## Environment Setup
+
+The SDK uses environment variables for configuration. You can set these in your environment or in a `.env` file in your project root:
+
+```bash
+# .env file
+HUD_API_KEY=your-api-key-here
+```
+
+### Environment Variables
+
+| Variable | Description | Required |
+| --- | --- | --- |
+| `HUD_API_KEY` | Your HUD API key | Yes |
+
+## Development Installation
+
+If you want to contribute to the SDK or install it in development mode:
+
+```bash
+# Clone the repository
+git clone https://github.com/humanuniondata/hud-so.git
+cd hud-so
+
+# Create a virtual environment (using venv)
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Or using uv (recommended)
+uv venv
+# Activate according to your shell
+
+# Install in development mode
+pip install -e ".[dev]"
+```
+
+## Verification
+
+To verify your installation, try running a simple example:
+
+```python
+import hud
+
+# Print the version number
+print(f"HUD-SO SDK version: {hud.__version__}")
+```
+
+You should see the version number of the installed SDK without any errors. 

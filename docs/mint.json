@@ -1,0 +1,84 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "HUD-SO SDK",
+  "logo": {
+    "dark": "/logo/HUD_black.png",
+    "light": "/logo/HUD.svg"
+  },
+  "favicon": "/favicon.png",
+  "colors": {
+    "primary": "#4F46E5",
+    "light": "#818CF8",
+    "dark": "#3730A3"
+  },
+  "topbarLinks": [
+    {
+      "name": "GitHub",
+      "url": "https://github.com/humanuniondata/hud-so"
+    }
+  ],
+  "topbarCtaButton": {
+    "name": "Get Started",
+    "url": "/introduction"
+  },
+  "tabs": [
+    {
+      "name": "API Reference",
+      "url": "api-reference"
+    },
+    {
+      "name": "Examples",
+      "url": "examples"
+    }
+  ],
+  "anchors": [
+    {
+      "name": "Installation",
+      "icon": "download",
+      "url": "installation"
+    },
+    {
+      "name": "Quickstart",
+      "icon": "bolt",
+      "url": "quickstart"
+    }
+  ],
+  "navigation": [
+    {
+      "group": "Getting Started",
+      "pages": [
+        "introduction",
+        "installation",
+        "quickstart"
+      ]
+    },
+    {
+      "group": "Core Concepts",
+      "pages": [
+        "concepts/client",
+        "concepts/gym",
+        "concepts/adapter",
+        "concepts/environment"
+      ]
+    },
+    {
+      "group": "API Reference",
+      "pages": [
+        "api-reference/client",
+        "api-reference/env",
+        "api-reference/adapters"
+      ]
+    },
+    {
+      "group": "Examples",
+      "pages": [
+        "examples/basic",
+        "examples/custom-agent",
+        "examples/claude-agent"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/humanuniondata/hud-so"
+  }
+} 

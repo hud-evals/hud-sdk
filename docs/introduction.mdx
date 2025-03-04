@@ -1,0 +1,50 @@
+---
+title: 'HUD-SO SDK Documentation'
+description: 'A Python SDK for interacting with HUD environments and evaluation benchmarks'
+---
+
+# HUD-SO SDK
+
+A Python SDK for interacting with HUD environments and evaluation benchmarks.
+
+## Overview
+
+HUD-SO provides a powerful interface for:
+
+- Connecting to Human Union Data evaluation environments
+- Running benchmarks across various tasks
+- Supporting different agent adapters
+- Providing an asynchronous API for efficient interactions
+
+## Key Features
+
+- **Environment Connection**: Connect to HUD evaluation environments seamlessly
+- **Benchmarking**: Run standardized benchmarks across a variety of tasks
+- **Adapter System**: Support for different agent adapters including Claude
+- **Asynchronous API**: Efficient asynchronous interface for all operations
+
+## Get Started
+
+Follow our [Installation Guide](/installation) to get set up, then check out the [Quickstart Guide](/quickstart) to run your first example.
+
+```python
+import asyncio
+from hud import HUDClient
+from hud.settings import settings
+
+async def main():
+    # Initialize client with API key from settings
+    client = HUDClient(api_key=settings.api_key)
+    
+    # Load gym and evalset
+    gym = await client.load_gym(id="OSWorld-Ubuntu")
+    evalset = await client.load_evalset(id="OSWorld-Ubuntu")
+    
+    # Create a run
+    run = client.create_run(name="example-run", gym=gym, evalset=evalset)
+    
+    # And more...
+
+if __name__ == "__main__":
+    asyncio.run(main())
+``` 

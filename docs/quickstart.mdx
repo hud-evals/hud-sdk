@@ -1,0 +1,81 @@
+---
+title: 'Quickstart'
+description: 'Get started quickly with the HUD-SO SDK'
+---
+
+# Quickstart Guide
+
+This guide will help you quickly get started with the HUD-SO SDK.
+
+## Prerequisites
+
+Before you begin, make sure you have:
+- Installed the SDK (see [Installation](/installation))
+- Set up your API key (via environment variable or `.env` file)
+
+## Basic Usage
+
+Here's a complete example to connect to the HUD environment, create a run, and start a task:
+
+```python
+import asyncio
+from hud import HUDClient
+from hud.settings import settings
+
+async def main():
+    # Initialize client with API key from settings
+    client = HUDClient(api_key=settings.api_key)
+    
+    # Load gym and evalset
+    gym = await client.load_gym(id="OSWorld-Ubuntu")
+    evalset = await client.load_evalset(id="OSWorld-Ubuntu")
+    
+    # Create a run and get tasks
+    run = client.create_run(name="example-run", gym=gym, evalset=evalset)
+    tasks = await run.fetch_task_ids()
+    
+    # Create environment and wait for it to be ready
+    env = await run.make(metadata={"agent_id": "example"})
+    while True:
+        if await env.get_env_state() in ["running", "error"]:
+            break
+        await asyncio.sleep(2)
+    
+    # Run a task
+    if tasks:
+        obs = await env.reset(tasks[0], metadata={"run": "example"})
+        print(f"Task: {obs.text}")
+    
+    # Close when done
+    await env.close()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## Creating a Custom Agent
+
+You can create your own agent to interact with the environment:
+
+```python
+class SimpleAgent:
+    def __init__(self):
+        self.messages = []
+        
+    async def predict(self, screenshot, text):
+        # Your agent's logic here
+        return {"action": "type_text", "text": "Hello, world!"}
+    
+    def process_response(self, response):
+        # Process the agent's response
+        # Return (is_final_response, action)
+        return False, {"action": "type", "text": response.get("text", "")}
+```
+
+For a complete example of implementing a custom agent, check out the [Custom Agent Guide](/examples/custom-agent).
+
+## Next Steps
+
+- Explore the [Core Concepts](/concepts/client) to understand the SDK architecture
+- Check out the [Example](/examples/basic) section for more detailed examples
+- Review the [API Reference](/api-reference/client) for comprehensive documentation 
