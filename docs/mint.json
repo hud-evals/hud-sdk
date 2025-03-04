@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/schema.json",
-  "name": "HUD-SO SDK",
+  "name": "HUD SDK",
   "logo": {
     "dark": "/logo/HUD_black.png",
     "light": "/logo/HUD.svg"
@@ -14,7 +14,7 @@
   "topbarLinks": [
     {
       "name": "GitHub",
-      "url": "https://github.com/humanuniondata/hud-so"
+      "url": "https://github.com/humanuniondata/hud-python"
     }
   ],
   "topbarCtaButton": {
@@ -79,6 +79,6 @@
     }
   ],
   "footerSocials": {
-    "github": "https://github.com/humanuniondata/hud-so"
+    "github": "https://github.com/humanuniondata/hud-python"
   }
 } 

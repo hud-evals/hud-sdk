@@ -1,5 +1,5 @@
 [project]
-name = "hud-so"
+name = "hud-python"
 version = "0.1.0"
 description = "SDK for the HUD evaluation platform."
 readme = "README.md"
@@ -27,9 +27,9 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/humanuniondata/hud-so"
-"Bug Tracker" = "https://github.com/humanuniondata/hud-so/issues"
-"Documentation" = "https://docs.hud.so"
+"Homepage" = "https://github.com/Human-Data/hud-sdk"
+"Bug Tracker" = "https://github.com/Human-Data/hud-sdk/issues"
+"Documentation" = "https://hud.so"
 
 [build-system]
 requires = ["hatchling"]

@@ -1,23 +1,24 @@
-# HUD-SO: Human Union Data SDK (Alpha Release)
+# HUD SDK (Alpha Release)
 
 A Python SDK for interacting with HUD environments and evaluation benchmarks.
 
-> **Note**: This is an alpha release (v0.1.0-alpha). APIs may change significantly in future releases.
+> **Alpha Release Notice**: This SDK is currently in alpha status (v0.1.0-alpha). The API is still evolving and may change in future releases as we gather feedback and improve functionality.
 
-[![PyPI version](https://badge.fury.io/py/hud-so.svg)](https://badge.fury.io/py/hud-so)
-[![CI](https://github.com/humanuniondata/hud-so/actions/workflows/ci.yml/badge.svg)](https://github.com/humanuniondata/hud-so/actions/workflows/ci.yml)
+[![PyPI version](https://img.shields.io/pypi/v/hud-python)](https://pypi.org/project/hud-python/)
+[![CI](https://github.com/humanuniondata/hud-python/actions/workflows/ci.yml/badge.svg)](https://github.com/humanuniondata/hud-python/actions/workflows/ci.yml)
+[📚 Documentation](https://hud.so) | [🏠 Homepage](https://hud.so)
 
 ## Installation
 
 ```bash
 # Install the latest stable release
-pip install hud-so
+pip install hud-python
 
 # Install the latest alpha release (may include breaking changes)
-pip install --pre hud-so
+pip install --pre hud-python
 
 # Install a specific alpha version
-pip install hud-so==0.1.0-alpha
+pip install hud-python==0.1.0-alpha
 ```
 
 ## Quick Start
