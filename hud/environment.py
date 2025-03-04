@@ -249,7 +249,7 @@ class Environment:
                 EnvironmentStatus.ERROR.value,
                 EnvironmentStatus.COMPLETED.value,
             ):
-                logger.info(f"Environment {self.id} {status_messages.get(state)}")
+                logger.info("Environment %s %s", self.id, status_messages.get(state))
                 break
             await asyncio.sleep(10)
 
