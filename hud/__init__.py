@@ -9,7 +9,7 @@ from hud.environment import Environment, EvalSet, Observation, TaskResult
 from hud.gym import Gym
 from hud.run import Run
 
-__version__ = "0.1.0b1"
+__version__ = "0.1.0b2"
 
 __all__ = [
     "Environment",
