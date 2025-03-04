@@ -46,7 +46,7 @@ class Env:
     This class handles the environment state and interactions, including
     creating the environment, retrieving state, and executing actions.
     """
-    
+
     def __init__(
         self,
         run_id: str,
@@ -92,7 +92,7 @@ class Env:
         )
         self.id = data["id"]
         return self.id
-    
+
     async def get_vnc_url(self) -> str:
         """
         Get the VNC URL for the environment.
@@ -223,7 +223,7 @@ class EvalSet:
         name: Human-readable name
         tasks: List of task IDs in this evalset
     """
-    
+
     def __init__(
         self,
         id: str,

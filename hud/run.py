@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
-from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
 
@@ -11,6 +10,8 @@ from .server import make_request
 from .settings import settings
 
 if TYPE_CHECKING:
+    from datetime import datetime
+
     from .gym import Gym
 
 
@@ -54,14 +55,14 @@ class RunAnalyticsResponse(BaseModel):
     """
     id: str
     name: str
-    status_counts: Dict[str, int]  # e.g. {"completed": 5, "running": 2, "error": 1}
-    avg_score: Optional[float] = None
-    completion_rate: Optional[float] = None  # percentage of tasks completed
+    status_counts: dict[str, int]  # e.g. {"completed": 5, "running": 2, "error": 1}
+    avg_score: float | None = None
+    completion_rate: float | None = None  # percentage of tasks completed
     total_tasks: int
     completed_tasks: int
-    running_time: Optional[float] = None  # runtime in seconds if available
+    running_time: float | None = None  # runtime in seconds if available
     created_at: datetime
-    raw_data: Dict[str, List[Dict[str, Any]]] = Field(
+    raw_data: dict[str, list[dict[str, Any]]] = Field(
         default_factory=lambda: {"tasks": [], "environments": []}
     )
 
@@ -73,7 +74,7 @@ class Run:
     This class provides methods to fetch task IDs, create environments,
     and access analytics for the run.
     """
-    
+
     def __init__(
         self,
         id: str,

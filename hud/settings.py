@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-import os
-from typing import Optional
-
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -25,8 +22,8 @@ class Settings(BaseSettings):
         description="Base URL for the HUD API",
         validation_alias="base_url"
     )
-    
-    api_key: Optional[str] = Field(
+
+    api_key: str | None = Field(
         default=None,
         description="API key for authentication with the HUD API",
         validation_alias="HUD_API_KEY"

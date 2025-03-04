@@ -9,7 +9,7 @@ class Gym:
         id: Unique identifier for the gym
         name: Human-readable name of the gym
     """
-    
+
     def __init__(self, id: str, name: str) -> None:
         """
         Initialize a gym.

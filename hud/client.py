@@ -22,7 +22,7 @@ class HUDClient:
     This is the main entry point for the SDK, providing methods to load gyms,
     evalsets, and create runs.
     """
-    
+
     def __init__(self, api_key: str) -> None:
         """
         Initialize the HUD client with an API key.

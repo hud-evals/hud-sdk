@@ -120,7 +120,7 @@ class ClaudeAdapter(Adapter):
 
             elif action_type == "cursor_position":
                 return PositionFetch()
-            
+
             elif action_type == "wait":
                 assert "duration" in data
                 return WaitAction(time=data["duration"])
