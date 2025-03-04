@@ -2,19 +2,18 @@ import os
 import json
 from agent.base import Agent
 from anthropic import Anthropic
+from anthropic.types import Message
 
-
-class Claude(Agent):
-    def __init__(self):
-        super().__init__()
-        self.client = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+class ClaudeAgent(Agent):
+    def __init__(self, client: Anthropic):
+        super().__init__(client)
         self.model = "claude-3-7-sonnet-20250219"
         self.max_tokens = 4096
         self.tool_version = "20250124"
         self.thinking_budget = 1024
         self.conversation = []  # Store the full conversation history including Claude's responses
 
-    async def predict(self, base64_image: str | None = None, input_text: str | None = None):
+    async def predict(self, base64_image: str | None = None, input_text: str | None = None) -> tuple[bool, str | object | None]:
         message = self._create_message(base64_image, input_text)
 
         # Only append the message if it's not empty
@@ -33,7 +32,10 @@ class Claude(Agent):
         self.conversation.append(assistant_message)
 
         self.responses.append(response)
-        return response
+
+        done, processed = await self.process_response(response)
+
+        return done, processed
 
     def _create_message(self, base64_image: str | None = None, input_text: str | None = None):
         """Create appropriate message based on context and inputs"""
@@ -120,19 +122,17 @@ class Claude(Agent):
         except Exception as e:
             raise
 
-    def process_response(self, response: dict) -> tuple[bool, str | None]:
+    async def process_response(self, response: Message) -> tuple[bool, str | object | None]:
         # Check if response contains a computer tool use
-        has_computer_tool_use = False
         computer_action = None
-        for block in response["content"]:
+        for block in response.content:
             if block.type == "tool_use" and block.name == "computer":
-                has_computer_tool_use = True
                 computer_action = block.input
                 break
 
-        if not has_computer_tool_use:
+        if response.content[-1].type == "text":
             # No computer tool use, treat as final response
-            return True, str(response["content"][-1].text)
+            return True, str(response.content[-1].text)
 
         # If we have a computer action, adapt it to environment actions
         if computer_action:

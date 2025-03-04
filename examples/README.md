@@ -1,22 +1,44 @@
-# Examples
+## Claude Computer Use evaluation on OSWorld
 
-Basic usage:
+### 1. Setup
+
+Step 1: Install from the source repository:
+
 ```bash
-# Set your API key
-export HUD_API_KEY=your_api_key_here
-
-# Run example
-python basic_usage.py
+# Clone the repository
+git clone https://github.com/Human-Data/hud-sdk.git
+cd hud-sdk
 ```
 
-Claude agent example:
+Step 2: Create a virtual environment:
 ```bash
-pip install anthropic
-python claude_agent_example.py
+# Option 1: using venv
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+
+# Option 2: using uv (recommended)
+uv venv
+# Then activate according to your shell
 ```
 
-Simple custom agent:
+Step 3: Install in development mode with all dependencies:
 ```bash
-# Create your own agent without external dependencies
-python simple_agent_example.py
-``` 
+# Option 1: using pip
+pip install -e ".[dev]"
+
+# Option 2: using uv (recommended)
+uv pip install -e ".[dev]"
+```
+
+### 2. Set up environment variables
+
+```bash
+HUD_API_KEY=<your-api-key>
+ANTHROPIC_API_KEY=<your-api-key>
+```
+
+### 3. Run the OSWorld example
+
+Explore the [claude_osworld.ipynb](https://github.com/Human-Data/hud-sdk/blob/main/examples/claude_osworld.ipynb) notebook from this folder in Jupyter Notebook.
+
+

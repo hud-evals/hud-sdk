@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import asyncio
+import enum
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
@@ -38,8 +40,29 @@ class TaskResult(BaseModel):
     terminated: bool
     info: dict[str, Any]
 
+class EnvironmentStatus(str, enum.Enum):
+    """
+    Status of the environment.
 
-class Env:
+    Attributes:
+        INITIALIZING: The environment is initializing
+        RUNNING: The environment is running
+        COMPLETED: The environment is completed
+        ERROR: The environment is in an error state
+    """
+    INITIALIZING = "initializing"
+    RUNNING = "running"
+    COMPLETED = "completed"
+    ERROR = "error"
+
+
+status_messages = {
+    EnvironmentStatus.RUNNING.value: "is running",
+    EnvironmentStatus.ERROR.value: "had an error initializing",
+    EnvironmentStatus.COMPLETED.value: "completed",
+}
+
+class Environment:
     """
     Environment interface for agent interactions.
     
@@ -192,7 +215,9 @@ class Env:
             api_key=settings.api_key,
         )
 
-    async def reset(self, task_id: str, metadata: dict[str, Any] | None = None) -> Observation:
+    async def reset(
+        self, task_id: str, metadata: dict[str, Any] | None = None
+    ) -> Observation:
         """
         Reset the environment to the task.
         
@@ -213,6 +238,18 @@ class Env:
         )
         return Observation(**data["observation"])
 
+    async def wait_for_ready(self) -> None:
+        """Wait for the environment to be ready"""
+        while True:
+            state = await self.get_env_state()
+            if state in (
+                EnvironmentStatus.RUNNING.value,
+                EnvironmentStatus.ERROR.value,
+                EnvironmentStatus.COMPLETED.value,
+            ):
+                print(f"Environment {self.id} {status_messages.get(state)}")
+                break
+            await asyncio.sleep(10)
 
 class EvalSet:
     """
