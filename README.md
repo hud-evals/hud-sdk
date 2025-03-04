@@ -1,6 +1,8 @@
 # HUD SDK (Alpha Release)
 
-A Python SDK for interacting with HUD environments and evaluation benchmarks.
+A Python SDK for interacting with HUD environments and evaluation benchmarks for browser use and computer use models.
+
+Visit [hud.so](https://hud.so) for more information about HUD.
 
 > **Alpha Release Notice**: This SDK is currently in alpha status (v0.1.0-alpha). The API is still evolving and may change in future releases as we gather feedback and improve functionality.
 
