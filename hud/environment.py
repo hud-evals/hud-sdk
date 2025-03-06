@@ -76,6 +76,7 @@ class Environment:
         self,
         run_id: str,
         adapter: Adapter,
+        id: str | None = None,
         config: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> None:
@@ -99,7 +100,7 @@ class Environment:
         # task_run_id is created when the environment is created (create_environment)
         # or provided if env already exists.
         self.final_response: None | str = None
-        self.id = None
+        self.id = id
         self.vnc_url = None
 
     async def create_environment(self) -> str:
