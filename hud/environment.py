@@ -74,8 +74,9 @@ class Environment:
 
     def __init__(
         self,
-        run_id: str,
         adapter: Adapter,
+        run_id: str | None = None,
+        id: str | None = None,
         config: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> None:
@@ -83,8 +84,9 @@ class Environment:
         Initialize an environment.
         
         Args:
-            run_id: ID of the run this environment belongs to
             adapter: Adapter for converting actions
+            run_id: Optional ID of the run this environment belongs to
+            id: Optional ID of an existing environment
             config: Optional configuration parameters
             metadata: Optional metadata for the environment
         """
@@ -99,7 +101,7 @@ class Environment:
         # task_run_id is created when the environment is created (create_environment)
         # or provided if env already exists.
         self.final_response: None | str = None
-        self.id = None
+        self.id = id
         self.vnc_url = None
 
     async def create_environment(self) -> str:
