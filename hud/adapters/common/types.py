@@ -23,6 +23,7 @@ class ClickAction(CLAAction):
     selector: str | None = None
     button: Literal["left", "right", "wheel", "back", "forward"] = "left"
     pattern: list[int] | None = None  # [delay_1, delay_2, ...]
+    hold_keys: list[str] | None = None
 
 
 # PRESS ACTION for key presses/hotkeys
@@ -43,6 +44,7 @@ class ScrollAction(CLAAction):
     type: Literal["scroll"] = "scroll"
     point: Point | None = None
     scroll: Point | None = None
+    hold_keys: list[str] | None = None
 
 
 # MOVE ACTION for mouse movement
@@ -51,7 +53,7 @@ class MoveAction(CLAAction):
     point: Point | None = None
     selector: str | None = None
     offset: Point | None = None
-
+    hold_keys: list[str] | None = None
 
 # WAIT ACTION
 class WaitAction(CLAAction):
@@ -64,7 +66,7 @@ class DragAction(CLAAction):
     type: Literal["drag"] = "drag"
     path: list[Point]
     pattern: list[int] | None = None  # [delay_1, delay_2, ...]
-
+    hold_keys: list[str] | None = None
 
 # SCREENSHOT ACTION
 class ScreenshotFetch(CLAAction):
