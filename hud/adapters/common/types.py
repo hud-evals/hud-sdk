@@ -23,13 +23,13 @@ class ClickAction(CLAAction):
     selector: str | None = None
     button: Literal["left", "right", "wheel", "back", "forward"] = "left"
     pattern: list[int] | None = None  # [delay_1, delay_2, ...]
-    hold_keys: list[str] | None = None
+    hold_keys: list[CLAKey] | None = None
 
 
 # PRESS ACTION for key presses/hotkeys
 class PressAction(CLAAction):
     type: Literal["press"] = "press"
-    keys: list[str]
+    keys: list[CLAKey]
 
 
 # TYPE ACTION for text typing
@@ -44,7 +44,7 @@ class ScrollAction(CLAAction):
     type: Literal["scroll"] = "scroll"
     point: Point | None = None
     scroll: Point | None = None
-    hold_keys: list[str] | None = None
+    hold_keys: list[CLAKey] | None = None
 
 
 # MOVE ACTION for mouse movement
@@ -53,7 +53,7 @@ class MoveAction(CLAAction):
     point: Point | None = None
     selector: str | None = None
     offset: Point | None = None
-    hold_keys: list[str] | None = None
+
 
 # WAIT ACTION
 class WaitAction(CLAAction):
@@ -66,7 +66,8 @@ class DragAction(CLAAction):
     type: Literal["drag"] = "drag"
     path: list[Point]
     pattern: list[int] | None = None  # [delay_1, delay_2, ...]
-    hold_keys: list[str] | None = None
+    hold_keys: list[CLAKey] | None = None
+
 
 # SCREENSHOT ACTION
 class ScreenshotFetch(CLAAction):
@@ -91,4 +92,39 @@ CLA = Annotated[
         PositionFetch,
     ],
     Field(discriminator="type"),
+]
+
+
+CLAKey = Literal[
+    # Control keys
+    "backspace", "tab", "enter", "shift", "shiftleft", "shiftright", "ctrl", "ctrlleft", "ctrlright",
+    "alt", "altleft", "altright", "pause", "capslock", "esc", "escape", "space", "pageup", "pagedown",
+    "end", "home", "left", "up", "right", "down", "select", "print", "execute", "printscreen", "prtsc",
+    "insert", "delete", "help", "sleep",
+
+    # Special keys
+    "numlock", "scrolllock", "clear", "separator", "modechange", "apps", "browserback", "browserfavorites",
+    "browserforward", "browserhome", "browserrefresh", "browsersearch", "browserstop", "launchapp1",
+    "launchapp2", "launchmail", "launchmediaselect", "playpause", "stop", "prevtrack", "nexttrack",
+    "volumemute", "volumeup", "volumedown", "zoom",
+
+    # Modifier keys
+    "win", "winleft", "winright", "command", "option", "optionleft", "optionright", "fn",
+
+    # Numpad keys
+    "num0", "num1", "num2", "num3", "num4", "num5", "num6", "num7", "num8", "num9",
+    "multiply", "add", "subtract", "decimal", "divide",
+
+    # Function keys
+    "f1", "f2", "f3", "f4", "f5", "f6", "f7", "f8", "f9", "f10", "f11", "f12", "f13", "f14",
+    "f15", "f16", "f17", "f18", "f19", "f20", "f21", "f22", "f23", "f24",
+
+    # Language-specific keys
+    "hanguel", "hangul", "hanja", "kana", "kanji", "junja", "convert", "nonconvert", "yen",
+
+    # Characters
+    "\t", "\n", "\r", " ", "!", '"', "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/",
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@", "[", "\\",
+    "]", "^", "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p",
+    "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~",
 ]
