@@ -25,7 +25,6 @@ class RunResponse(BaseModel):
         name: Human-readable name of the run
         gym: Dictionary containing gym information
         evalset: Dictionary containing evalset information
-        adapter: Dictionary containing adapter information
         config: Dictionary containing configuration parameters
         metadata: Dictionary containing metadata
     """
@@ -33,7 +32,6 @@ class RunResponse(BaseModel):
     name: str
     gym: dict[str, Any]
     evalset: dict[str, Any]
-    adapter: dict[str, Any]
     config: dict[str, Any]
     metadata: dict[str, Any]
 
