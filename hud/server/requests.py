@@ -4,14 +4,16 @@ HTTP request utilities for the HUD API.
 
 from __future__ import annotations
 
-import asyncio
 import logging
-import time
-from typing import Any, Dict, List, Optional
+import asyncio
+from typing import Any, Optional, Dict
 
 import httpx
 
+
+# Set up logger
 logger = logging.getLogger("hud.http")
+logger.setLevel(logging.DEBUG)
 
 
 class RequestError(Exception):
@@ -50,7 +52,9 @@ class RequestError(Exception):
         return " | ".join(parts)
 
     @classmethod
-    def from_http_error(cls, error: httpx.HTTPStatusError, context: str = "") -> "RequestError":
+    def from_http_error(
+        cls, error: httpx.HTTPStatusError, context: str = ""
+    ) -> "RequestError":
         """Create a RequestError from an HTTP error response"""
         response = error.response
         status_code = response.status_code
@@ -68,7 +72,9 @@ class RequestError(Exception):
             else:
                 # If no detail field but we have JSON, include a summary
                 message = f"Request failed with status {status_code}"
-                if len(response_json) <= 5:  # If it's a small object, include it in the message
+                if (
+                    len(response_json) <= 5
+                ):  # If it's a small object, include it in the message
                     message += f" - JSON response: {response_json}"
         except Exception:
             # Fallback to simple message if JSON parsing fails
@@ -114,13 +120,8 @@ async def make_request(
     url: str,
     json: Any | None = None,
     api_key: str | None = None,
-    params: Optional[Dict[str, Any]] = None,
-    data: Any = None,
-    files: Any = None,
-    timeout: float = 240.0,
-    max_retries: int = 3,
+    max_retries: int = 4,
     retry_delay: float = 1.0,
-    retry_status_codes: Optional[List[int]] = None,
 ) -> dict[str, Any]:
     """
     Make an asynchronous HTTP request to the HUD API.
@@ -130,15 +131,8 @@ async def make_request(
         url: Full URL for the request
         json: Optional JSON serializable data
         api_key: API key for authentication
-        params: Optional query parameters
-        data: Optional form data or plain text payload
-        files: Optional files to upload
-        timeout: Request timeout in seconds (default: 4 minutes)
-        max_retries: Maximum number of retry attempts (default: 3)
-        retry_delay: Initial delay between retries in seconds (default: 1.0)
-                     This will be exponentially increased with each retry
-        retry_status_codes: List of HTTP status codes to retry (default: [502, 503, 504])
-
+        max_retries: Maximum number of retries
+        retry_delay: Delay between retries
     Returns:
         dict: JSON response from the server
 
@@ -150,7 +144,7 @@ async def make_request(
 
     # Initialize parameters
     headers = {"Authorization": f"Bearer {api_key}"}
-    retry_status_codes = retry_status_codes or [502, 503, 504]
+    retry_status_codes = [502, 503, 504]
 
     # Track attempts
     attempt = 0
@@ -159,16 +153,16 @@ async def make_request(
         attempt += 1
 
         try:
-            # Make the request
-            async with httpx.AsyncClient(timeout=timeout) as client:
+            async with httpx.AsyncClient(
+                timeout=240.0,
+                limits=httpx.Limits(
+                    max_connections=1000,
+                    max_keepalive_connections=1000,
+                    keepalive_expiry=10.0,
+                ),
+            ) as client:
                 response = await client.request(
-                    method=method,
-                    url=url,
-                    headers=headers,
-                    params=params,
-                    json=json,
-                    data=data,
-                    files=files,
+                    method=method, url=url, json=json, headers=headers
                 )
 
             # Check if we got a retriable status code
@@ -182,14 +176,11 @@ async def make_request(
                 )
                 continue
 
-            # Raise exception for other error status codes
             response.raise_for_status()
-
-            return response.json()
-
+            result = response.json()
+            return result
         except httpx.HTTPStatusError as e:
             raise RequestError.from_http_error(e) from None
-
         except httpx.RequestError as e:
             if attempt <= max_retries:
                 await _handle_retry(
@@ -198,9 +189,6 @@ async def make_request(
                 continue
             else:
                 raise RequestError(f"Network error: {e!s}") from None
-
         except Exception as e:
             raise RequestError(f"Unexpected error: {e!s}") from None
-
-    # If we've exhausted all retries
     raise RequestError(f"Request failed after {max_retries} retries with unknown error")
