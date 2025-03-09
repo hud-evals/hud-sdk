@@ -45,7 +45,7 @@ async def main():
     evalset = await client.load_evalset(id="OSWorld-Ubuntu")
     
     # Create a run
-    run = client.create_run(name="example-run", gym=gym, evalset=evalset)
+    run = await client.create_run(name="example-run", gym=gym, evalset=evalset)
     
     # And more...
 

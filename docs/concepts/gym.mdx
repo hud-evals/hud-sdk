@@ -43,7 +43,7 @@ Each gym has the following properties:
 Gyms are used when creating a run:
 
 ```python
-run = client.create_run(name="my-run", gym=gym, evalset=evalset)
+run = await client.create_run(name="my-run", gym=gym, evalset=evalset)
 ```
 
 This associates the run with the specific environment defined by the gym. 

@@ -132,7 +132,7 @@ class HUDClient:
             )
         return None
 
-    def create_run(
+    async def create_run(
         self,
         name: str,
         gym: Gym,
@@ -161,7 +161,7 @@ class HUDClient:
             metadata = {}
         if config is None:
             config = {}
-        data = make_sync_request(
+        data = await make_request(
             method="POST",
             url=f"{settings.base_url}/runs",
             json={

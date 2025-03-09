@@ -17,7 +17,7 @@ from hud import HUDClient
 client = HUDClient(api_key="your-api-key")
 gym = await client.load_gym(id="OSWorld-Ubuntu")
 evalset = await client.load_evalset(id="OSWorld-Ubuntu")
-run = client.create_run(name="example-run", gym=gym, evalset=evalset)
+run = await client.create_run(name="example-run", gym=gym, evalset=evalset)
 
 # Create environment
 env = await run.make(metadata={"agent_id": "example"})
