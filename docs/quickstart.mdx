@@ -31,7 +31,7 @@ async def main():
     evalset = await client.load_evalset(id="OSWorld-Ubuntu")
     
     # Create a run and get tasks
-    run = client.create_run(name="example-run", gym=gym, evalset=evalset)
+    run = await client.create_run(name="example-run", gym=gym, evalset=evalset)
     tasks = await run.fetch_task_ids()
     
     # Create environment and wait for it to be ready

@@ -96,7 +96,7 @@ async def main():
     evalset = await client.load_evalset(id="OSWorld-Ubuntu")
     
     # Create the run
-    run = client.create_run(name="simple-agent-run", gym=gym, evalset=evalset)
+    run = await client.create_run(name="simple-agent-run", gym=gym, evalset=evalset)
     tasks = await run.fetch_task_ids()
     
     # Initialize the agent and adapter

@@ -125,7 +125,7 @@ if run:
 ### create_run
 
 ```python
-create_run(
+async create_run(
     name: str,
     gym: Gym,
     evalset: EvalSet,
@@ -150,7 +150,7 @@ Creates a new run.
 
 **Example:**
 ```python
-run = client.create_run(
+run = await client.create_run(
     name="example-run",
     gym=gym,
     evalset=evalset,
