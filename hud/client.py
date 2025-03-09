@@ -11,7 +11,7 @@ from .adapters.common import Adapter
 from .environment import EvalSet
 from .gym import Gym
 from .run import Run, RunResponse
-from .server import make_request, make_sync_request
+from .server import make_request
 from .settings import settings
 
 
