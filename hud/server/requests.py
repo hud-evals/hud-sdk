@@ -11,15 +11,17 @@ import httpx
 
 logger = logging.getLogger("hud.http")
 
+
 class RequestError(Exception):
     """Custom exception for API request errors"""
+
     def __init__(
         self,
         message: str,
         status_code: int | None = None,
         response_text: str | None = None,
         response_json: dict[str, Any] | None = None,
-        response_headers: dict[str, str] | None = None
+        response_headers: dict[str, str] | None = None,
     ) -> None:
         self.message = message
         self.status_code = status_code
@@ -60,9 +62,7 @@ class RequestError(Exception):
             else:
                 # If no detail field but we have JSON, include a summary
                 message = f"Request failed with status {status_code}"
-                if (
-                    len(response_json) <= 5
-                ):  # If it's a small object, include it in the message
+                if len(response_json) <= 5:  # If it's a small object, include it in the message
                     message += f" - JSON response: {response_json}"
         except Exception:
             # Fallback to simple message if JSON parsing fails
@@ -75,7 +75,7 @@ class RequestError(Exception):
             response.url,
             status_code,
             response_text[:500],
-            "..." if len(response_text) > 500 else ""
+            "..." if len(response_text) > 500 else "",
         )
 
         return cls(
@@ -86,21 +86,22 @@ class RequestError(Exception):
             response_headers=response_headers,
         )
 
+
 async def make_request(
     method: str, url: str, json: Any | None = None, api_key: str | None = None
 ) -> dict[str, Any]:
     """
     Make an asynchronous HTTP request to the HUD API.
-    
+
     Args:
         method: HTTP method (GET, POST, etc.)
         url: Full URL for the request
         json: Optional JSON serializable data
         api_key: API key for authentication
-        
+
     Returns:
         dict: JSON response from the server
-        
+
     Raises:
         RequestError: If API key is missing or request fails
     """
@@ -111,9 +112,7 @@ async def make_request(
 
     async with httpx.AsyncClient(timeout=240.0) as client:
         try:
-            response = await client.request(
-                method=method, url=url, json=json, headers=headers
-            )
+            response = await client.request(method=method, url=url, json=json, headers=headers)
             response.raise_for_status()
             result = response.json()
             return result
@@ -131,16 +130,16 @@ def make_sync_request(
 ) -> dict[str, Any]:
     """
     Make a synchronous HTTP request to the HUD API.
-    
+
     Args:
         method: HTTP method (GET, POST, etc.)
         url: Full URL for the request
         json: Optional JSON serializable data
         api_key: API key for authentication
-        
+
     Returns:
         dict: JSON response from the server
-        
+
     Raises:
         RequestError: If API key is missing or request fails
     """
@@ -151,9 +150,7 @@ def make_sync_request(
 
     with httpx.Client(timeout=240.0) as client:
         try:
-            response = client.request(
-                method=method, url=url, json=json, headers=headers
-            )
+            response = client.request(method=method, url=url, json=json, headers=headers)
             response.raise_for_status()
             result = response.json()
             return result
