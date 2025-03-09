@@ -4,9 +4,9 @@ HTTP request utilities for the HUD API.
 
 from __future__ import annotations
 
-import logging
 import asyncio
-from typing import Any, Optional, Dict
+import logging
+from typing import Any
 
 import httpx
 
@@ -22,11 +22,11 @@ class RequestError(Exception):
     def __init__(
         self,
         message: str,
-        status_code: Optional[int] = None,
-        response_text: Optional[str] = None,
-        response_json: Optional[Dict[str, Any]] = None,
-        response_headers: Optional[Dict[str, str]] = None,
-    ):
+        status_code: int | None = None,
+        response_text: str | None = None,
+        response_json: dict[str, Any] | None = None,
+        response_headers: dict[str, str] | None = None,
+    ) -> None:
         self.message = message
         self.status_code = status_code
         self.response_text = response_text
@@ -54,13 +54,12 @@ class RequestError(Exception):
     @classmethod
     def from_http_error(
         cls, error: httpx.HTTPStatusError, context: str = ""
-    ) -> "RequestError":
+    ) -> RequestError:
         """Create a RequestError from an HTTP error response"""
         response = error.response
         status_code = response.status_code
         response_text = response.text
         response_headers = dict(response.headers)
-        url = str(response.url)
 
         # Try to get detailed error info from JSON if available
         response_json = None
@@ -185,7 +184,7 @@ async def make_request(
         except httpx.RequestError as e:
             if attempt <= max_retries:
                 await _handle_retry(
-                    attempt, max_retries, retry_delay, url, f"Network error: {str(e)}"
+                    attempt, max_retries, retry_delay, url, f"Network error: {e}"
                 )
                 continue
             else:
