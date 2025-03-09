@@ -109,8 +109,12 @@ async def _handle_retry(
     """Helper function to handle retry logic and logging."""
     retry_time = retry_delay * (2 ** (attempt - 1))  # Exponential backoff
     logger.warning(
-        f"{error_msg} from {url}, "
-        f"retrying in {retry_time:.2f} seconds (attempt {attempt}/{max_retries})"
+        "%s from %s, retrying in %.2f seconds (attempt %d/%d)",
+        error_msg,
+        url,
+        retry_time,
+        attempt,
+        max_retries,
     )
     await asyncio.sleep(retry_time)
 
