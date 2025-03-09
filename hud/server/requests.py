@@ -121,7 +121,7 @@ async def make_request(
     json: Any | None = None,
     api_key: str | None = None,
     max_retries: int = 4,
-    retry_delay: float = 1.0,
+    retry_delay: float = 2.0,
 ) -> dict[str, Any]:
     """
     Make an asynchronous HTTP request to the HUD API.
@@ -142,11 +142,8 @@ async def make_request(
     if not api_key:
         raise RequestError("API key is required but not provided")
 
-    # Initialize parameters
     headers = {"Authorization": f"Bearer {api_key}"}
     retry_status_codes = [502, 503, 504]
-
-    # Track attempts
     attempt = 0
 
     while attempt <= max_retries:
