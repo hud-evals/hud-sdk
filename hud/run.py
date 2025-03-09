@@ -19,7 +19,7 @@ if TYPE_CHECKING:
 class RunResponse(BaseModel):
     """
     Response model for run data from the API.
-    
+
     Attributes:
         id: Unique identifier for the run
         name: Human-readable name of the run
@@ -28,6 +28,7 @@ class RunResponse(BaseModel):
         config: Dictionary containing configuration parameters
         metadata: Dictionary containing metadata
     """
+
     id: str
     name: str
     gym: dict[str, Any]
@@ -39,7 +40,7 @@ class RunResponse(BaseModel):
 class RunAnalyticsResponse(BaseModel):
     """
     Model for Run analytics data.
-    
+
     Attributes:
         id: Unique identifier for the run
         name: Human-readable name of the run
@@ -52,6 +53,7 @@ class RunAnalyticsResponse(BaseModel):
         created_at: When the run was created
         raw_data: Detailed data about tasks and environments
     """
+
     id: str
     name: str
     status_counts: dict[str, int]  # e.g. {"completed": 5, "running": 2, "error": 1}
@@ -67,7 +69,7 @@ class RunAnalyticsResponse(BaseModel):
 
     def __str__(self) -> str:
         return self.visualize()
-    
+
     def visualize(self) -> str:
         """
         Generate an ASCII bar chart visualization of run analytics.
@@ -80,9 +82,7 @@ class RunAnalyticsResponse(BaseModel):
         """
         max_width = 50
 
-        completion_rate = (
-            self.completion_rate if self.completion_rate is not None else 0
-        )
+        completion_rate = self.completion_rate if self.completion_rate is not None else 0
 
         result = [
             f"Run: {self.name} (ID: {self.id})",
@@ -121,7 +121,7 @@ class RunAnalyticsResponse(BaseModel):
 class Run:
     """
     A run represents a collection of tasks and environments.
-    
+
     This class provides methods to fetch task IDs, create environments,
     and access analytics for the run.
     """
@@ -138,7 +138,7 @@ class Run:
     ) -> None:
         """
         Initialize a run.
-        
+
         Args:
             id: Unique identifier
             name: Human-readable name
@@ -165,7 +165,7 @@ class Run:
     async def fetch_task_ids(self) -> list[str]:
         """
         Fetch task IDs for this run from the evalset.
-        
+
         Returns:
             list[str]: List of task IDs
         """
@@ -174,10 +174,10 @@ class Run:
     async def make(self, metadata: dict[str, Any] | None = None) -> Environment:
         """
         Create a new environment for this run.
-        
+
         Args:
             metadata: Metadata for the environment
-            
+
         Returns:
             Environment: The created environment
         """
@@ -195,7 +195,7 @@ class Run:
     async def get_analytics(self) -> RunAnalyticsResponse:
         """
         Get analytics for this run.
-        
+
         Returns:
             RunAnalyticsResponse: Analytics data including status counts,
                                 average score, and other metrics

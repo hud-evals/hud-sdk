@@ -38,7 +38,7 @@ async def main():
     evalset = await client.load_evalset(id="OSWorld-Ubuntu")
     
     # Create a run and environment
-    run = client.create_run(name="example-run", gym=gym, evalset=evalset)
+    run = await client.create_run(name="example-run", gym=gym, evalset=evalset)
     env = await run.make(metadata={"agent_id": "OSWORLD-1"})
     await env.wait_for_ready()
     

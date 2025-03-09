@@ -15,14 +15,16 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("hud.environment")
 
+
 class Observation(BaseModel):
     """
     Observation from the environment.
-    
+
     Attributes:
         screenshot: Base64 encoded PNG string of the screen
         text: Text observation, if available
     """
+
     screenshot: str | None = None  # base64 string png
     text: str | None = None
 
@@ -30,17 +32,19 @@ class Observation(BaseModel):
 class TaskResult(BaseModel):
     """
     Result of a task step.
-    
+
     Attributes:
         observation: The current observation
         reward: Reward value from the step
         terminated: Whether the task is complete
         info: Additional information from the environment
     """
+
     observation: Observation
     reward: float
     terminated: bool
     info: dict[str, Any]
+
 
 class EnvironmentStatus(str, enum.Enum):
     """
@@ -52,6 +56,7 @@ class EnvironmentStatus(str, enum.Enum):
         COMPLETED: The environment is completed
         ERROR: The environment is in an error state
     """
+
     INITIALIZING = "initializing"
     RUNNING = "running"
     COMPLETED = "completed"
@@ -64,10 +69,11 @@ status_messages = {
     EnvironmentStatus.COMPLETED.value: "completed",
 }
 
+
 class Environment:
     """
     Environment interface for agent interactions.
-    
+
     This class handles the environment state and interactions, including
     creating the environment, retrieving state, and executing actions.
     """
@@ -82,7 +88,7 @@ class Environment:
     ) -> None:
         """
         Initialize an environment.
-        
+
         Args:
             adapter: Adapter for converting actions
             run_id: ID of the run this environment belongs to
@@ -105,7 +111,7 @@ class Environment:
     async def create_environment(self) -> str:
         """
         Initialize the environment and return the task_run_id.
-        
+
         Returns:
             str: The environment ID
         """
@@ -121,7 +127,7 @@ class Environment:
     async def get_vnc_url(self) -> str:
         """
         Get the VNC URL for the environment.
-        
+
         Returns:
             str: The VNC URL for remote viewing/control
         """
@@ -136,7 +142,7 @@ class Environment:
     async def get_env_state(self) -> str:
         """
         Get the state of the environment.
-        
+
         Returns:
             str: The current state (e.g., "running", "error")
         """
@@ -152,10 +158,10 @@ class Environment:
     ) -> tuple[Observation, float, bool, dict[str, Any]]:
         """
         Send action to environment and get result.
-        
+
         Args:
             action: The action to take, or None for no action
-            
+
         Returns:
             tuple: (observation, reward, terminated, info)
         """
@@ -181,10 +187,10 @@ class Environment:
     def translate_action(self, action: Any) -> list:
         """
         Translate action to the correct format.
-        
+
         Args:
             action: The action to translate
-            
+
         Returns:
             list: List of translated actions in the CLA format
         """
@@ -196,7 +202,7 @@ class Environment:
     async def evaluate(self) -> float:
         """
         Get final evaluation score.
-        
+
         Returns:
             float: The evaluation score
         """
@@ -217,16 +223,14 @@ class Environment:
             api_key=settings.api_key,
         )
 
-    async def reset(
-        self, task_id: str, metadata: dict[str, Any] | None = None
-    ) -> Observation:
+    async def reset(self, task_id: str, metadata: dict[str, Any] | None = None) -> Observation:
         """
         Reset the environment to the task.
-        
+
         Args:
             task_id: ID of the task to reset to
             metadata: Optional metadata for the reset
-            
+
         Returns:
             Observation: Initial observation for the task
         """
@@ -253,10 +257,11 @@ class Environment:
                 break
             await asyncio.sleep(10)
 
+
 class EvalSet:
     """
     Evaluation set containing tasks for benchmarking.
-    
+
     Attributes:
         id: Unique identifier for the evalset
         name: Human-readable name
@@ -271,7 +276,7 @@ class EvalSet:
     ) -> None:
         """
         Initialize an evaluation set.
-        
+
         Args:
             id: Unique identifier
             name: Human-readable name
@@ -284,7 +289,7 @@ class EvalSet:
     async def fetch_tasks(self) -> list[str]:
         """
         Fetch all tasks in this evalset from the API.
-        
+
         Returns:
             list[str]: List of task IDs
         """

@@ -11,14 +11,14 @@ from .adapters.common import Adapter
 from .environment import EvalSet
 from .gym import Gym
 from .run import Run, RunResponse
-from .server import make_request, make_sync_request
+from .server import make_request
 from .settings import settings
 
 
 class HUDClient:
     """
     Client for interacting with the HUD API.
-    
+
     This is the main entry point for the SDK, providing methods to load gyms,
     evalsets, and create runs.
     """
@@ -26,7 +26,7 @@ class HUDClient:
     def __init__(self, api_key: str | None = None) -> None:
         """
         Initialize the HUD client with an API key.
-        
+
         Args:
             api_key: API key for authentication with the HUD API
         """
@@ -36,10 +36,10 @@ class HUDClient:
     async def load_gym(self, id: str) -> Gym:
         """
         Load a gym by ID from the HUD API.
-        
+
         Args:
             id: The ID of the gym to load
-            
+
         Returns:
             Gym: The loaded gym object
         """
@@ -54,10 +54,10 @@ class HUDClient:
     async def load_evalset(self, id: str) -> EvalSet:
         """
         Load an evalset by ID from the HUD API.
-        
+
         Args:
             id: The ID of the evalset to load
-            
+
         Returns:
             EvalSet: The loaded evalset object
         """
@@ -72,7 +72,7 @@ class HUDClient:
     async def list_gyms(self) -> list[str]:
         """
         List all available gyms.
-        
+
         Returns:
             list[str]: List of gym IDs
         """
@@ -85,7 +85,7 @@ class HUDClient:
     async def get_runs(self) -> list[Run]:
         """
         Get all runs associated with the API key.
-        
+
         Returns:
             list[Run]: List of run objects
         """
@@ -98,11 +98,11 @@ class HUDClient:
     async def load_run(self, id: str, adapter: Adapter | None = None) -> Run | None:
         """
         Load a run by ID from the HUD API.
-        
+
         Args:
             id: The ID of the run to load
             adapter: Optional adapter for action conversion
-            
+
         Returns:
             Run: The loaded run object, or None if not found
         """
@@ -132,7 +132,7 @@ class HUDClient:
             )
         return None
 
-    def create_run(
+    async def create_run(
         self,
         name: str,
         gym: Gym,
@@ -143,7 +143,7 @@ class HUDClient:
     ) -> Run:
         """
         Create a new run in the HUD system.
-        
+
         Args:
             name: Name of the run
             gym: Gym to use for the run
@@ -151,7 +151,7 @@ class HUDClient:
             config: Optional configuration parameters
             metadata: Optional metadata for the run
             adapter: Optional adapter for action conversion
-            
+
         Returns:
             Run: The created run object
         """
@@ -161,7 +161,7 @@ class HUDClient:
             metadata = {}
         if config is None:
             config = {}
-        data = make_sync_request(
+        data = await make_request(
             method="POST",
             url=f"{settings.base_url}/runs",
             json={
@@ -188,6 +188,7 @@ class HUDClient:
         Display a stream in the HUD system.
         """
         from IPython.display import HTML, display
+
         html_content = f"""
         <div style="width: 960px; height: 540px; overflow: hidden;">
             <div style="transform: scale(0.5); transform-origin: top left;">
