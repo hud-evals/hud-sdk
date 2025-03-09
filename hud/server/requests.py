@@ -10,7 +10,6 @@ from typing import Any
 
 import httpx
 
-
 # Set up logger
 logger = logging.getLogger("hud.http")
 logger.setLevel(logging.DEBUG)
