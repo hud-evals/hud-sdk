@@ -9,7 +9,7 @@ authors = [
 ]
 license = { file = "LICENSE" }
 dependencies = [
-    "httpx>=0.23.0, <1",
+    "httpx>=0.23.0,<1",
     "pydantic>=2,<3",
     "pydantic-settings>=2,<3",
     "pillow>=11, <12",
