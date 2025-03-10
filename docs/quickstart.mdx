@@ -3,79 +3,148 @@ title: 'Quickstart'
 description: 'Get started quickly with the HUD SDK'
 ---
 
-# Quickstart Guide
-
-This guide will help you quickly get started with the HUD SDK.
-
-## Prerequisites
+# Prerequisites
 
 Before you begin, make sure you have:
-- Installed the SDK (see [Installation](/installation))
-- Set up your API key (via environment variable or `.env` file)
+
+* Installed the SDK (see [Installation](/installation))
+
+* Set up your API key (via environment variable or `.env` file)
 
 ## Basic Usage
 
 Here's a complete example to connect to the HUD environment, create a run, and start a task:
 
 ```python
-import asyncio
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from hud import HUDClient
-from hud.settings import settings
 
 async def main():
-    # Initialize client with API key from settings
-    client = HUDClient(api_key=settings.api_key)
+    # initialize HUD client
+    client = HUDClient(api_key=os.getenv("HUD_API_KEY"))
     
-    # Load gym and evalset
+    # load OSWorld environment
     gym = await client.load_gym(id="OSWorld-Ubuntu")
+    
+    # load OSWorld evalset
     evalset = await client.load_evalset(id="OSWorld-Ubuntu")
     
-    # Create a run and get tasks
+    # fetch all task ids from the run
     run = await client.create_run(name="example-run", gym=gym, evalset=evalset)
     tasks = await run.fetch_task_ids()
     
-    # Create environment and wait for it to be ready
-    env = await run.make(metadata={"agent_id": "example"})
-    while True:
-        if await env.get_env_state() in ["running", "error"]:
-            break
-        await asyncio.sleep(2)
+    # make a HUD environment
+    env = await run.make()
+    await env.wait_for_ready()
     
-    # Run a task
+    # run a task
     if tasks:
-        obs = await env.reset(tasks[0], metadata={"run": "example"})
+        obs = await env.reset(tasks[0])
         print(f"Task: {obs.text}")
     
-    # Close when done
+    #
+    # ! define your agent loop here !
+    #
+    
+    # evaluate environment state
+    result = await env.evaluate()
+    print(f"Evaluation result: {result}")
+    
+    # close when done
     await env.close()
 
 if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Creating a Custom Agent
+## Example agent: Claude Computer Use&#x20;
 
-You can create your own agent to interact with the environment:
+To try Claude Computer Use, clone the full github repo with the agent folder that includes a sample implementation.
 
 ```python
-class SimpleAgent:
-    def __init__(self):
-        self.messages = []
-        
-    async def predict(self, screenshot, text):
-        # Your agent's logic here
-        return {"action": "type_text", "text": "Hello, world!"}
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+from hud import HUDClient
+from hud.adapters.claude.adapter import ClaudeAdapter
+from agent.claude import ClaudeAgent
+
+from anthropic import Anthropic
+
+async def main():
+    # initialize HUD client
+    client = HUDClient(api_key=os.getenv("HUD_API_KEY"))
     
-    def process_response(self, response):
-        # Process the agent's response
-        # Return (is_final_response, action)
-        return False, {"action": "type", "text": response.get("text", "")}
+    # load OSWorld environment
+    gym = await client.load_gym(id="OSWorld-Ubuntu")
+    
+    # load OSWorld evalset
+    evalset = await client.load_evalset(id="OSWorld-Ubuntu")
+    
+    # fetch all task ids from the run
+    run = await client.create_run(name="example-run", gym=gym, evalset=evalset)
+    tasks = await run.fetch_task_ids()
+    
+    # make a HUD environment
+    env = await run.make()
+    await env.wait_for_ready()
+    
+    # initalize Claude Computer Use agent
+    anthropic = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
+    agent = ClaudeAgent(anthropic)
+    
+    # initialize adapter to interact with the environment
+    cua_adapter = ClaudeAdapter()
+    
+    # run a task
+    if tasks:
+        obs = await env.reset(tasks[0])
+        print(f"Task: {obs.text}")
+    
+    # agent loop
+    for i in range(8):  
+        # rescale screenshot to Claude's resolution
+        screenshot = cua_adapter.rescale(obs.screenshot)
+        
+        # agent's next action
+        done, response = await agent.predict(screenshot, obs.text)
+        if done:
+            env.final_response = str(response)
+            break
+        
+        # convert to HUD action space
+        actions = cua_adapter.adapt_list([response])
+        print(f"Agent's action: {response}")
+    
+        # step the environment forward
+        obs, reward, terminated, info = await env.step(actions)
+    
+        # drop out if terminated
+        if terminated:
+            break
+        print(f"Step {i+1} completed")
+        
+    # evaluate environment state
+    result = await env.evaluate()
+    print(f"Evaluation result: {result}")
+    
+    # close when done
+    await env.close()
+
+if __name__ == "__main__":
+    asyncio.run(main())
 ```
 
 For a complete example of implementing a custom agent, check out the [Custom Agent Guide](/examples/custom-agent).
 
 ## Next Steps
 
-- Explore the [Core Concepts](/concepts/client) to understand the SDK architecture
-- Check out the [Example](/examples/basic) section for more detailed examples
-- Review the [API Reference](/api-reference/client) for comprehensive documentation 
+* Explore the [Core Concepts](/concepts/client) to understand the SDK architecture
+
+* Check out the [Example](/examples/basic) section for more detailed examples
+
+* Review the [API Reference](/api-reference/client) for comprehensive documentation

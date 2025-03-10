@@ -1,54 +1,24 @@
 ---
-title: 'HUD SDK Documentation'
-description: 'A Python SDK for interacting with HUD environments and evaluation benchmarks for browser use and computer use models.'
+title: "HUD SDK | Docs"
+description: "A Python SDK for interacting with HUD environments and evaluation benchmarks for browser use and computer use models."
 ---
 
-# HUD SDK (Alpha Release)
+> **Alpha Release Notice**: This SDK is currently in beta status (v0.1.0-beta). The API is still evolving and may change in future releases as we gather feedback and improve functionality.
 
-A Python SDK for interacting with HUD environments and evaluation benchmarks for browser use and computer use models.
-
-> **Alpha Release Notice**: This SDK is currently in alpha status (v0.1.0-alpha). The API is still evolving and may change in future releases as we gather feedback and improve functionality.
-
-[Visit our homepage →](https://hud.so)
+[Visit our homepage hud.so →](https://hud.so)
 
 ## Overview
 
-HUD provides a powerful interface for:
+HUD provides an interface for:
 
-- Connecting to Human Union Data evaluation environments
-- Running benchmarks across various tasks
-- Supporting different agent adapters
-- Providing an asynchronous API for efficient interactions
+* Connecting to HUD evaluation environments such as OSWorld
 
-## Key Features
+* Running benchmarks across various tasks
 
-- **Environment Connection**: Connect to HUD evaluation environments seamlessly
-- **Benchmarking**: Run standardized benchmarks across a variety of tasks
-- **Adapter System**: Support for different agent adapters including Claude
-- **Asynchronous API**: Efficient asynchronous interface for all operations
+* Supporting different agent adapters
+
+* Providing an asynchronous API for efficient interactions
 
 ## Get Started
 
 Follow our [Installation Guide](/installation) to get set up, then check out the [Quickstart Guide](/quickstart) to run your first example.
-
-```python
-import asyncio
-from hud import HUDClient
-from hud.settings import settings
-
-async def main():
-    # Initialize client with API key from settings
-    client = HUDClient(api_key=settings.api_key)
-    
-    # Load gym and evalset
-    gym = await client.load_gym(id="OSWorld-Ubuntu")
-    evalset = await client.load_evalset(id="OSWorld-Ubuntu")
-    
-    # Create a run
-    run = await client.create_run(name="example-run", gym=gym, evalset=evalset)
-    
-    # And more...
-
-if __name__ == "__main__":
-    asyncio.run(main())
-``` 

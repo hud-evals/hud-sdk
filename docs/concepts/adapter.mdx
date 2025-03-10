@@ -10,8 +10,10 @@ An `Adapter` in the HUD SDK is responsible for translating between your agent's 
 ## Purpose
 
 Adapters serve as a bridge between:
-- Your agent's custom action format
-- The standardized CLA format expected by HUD environments
+
+* Your agent's custom action format
+
+* The standardized CLA format expected by HUD environments
 
 This allows you to use different agent implementations without changing how they interact with the environment.
 
@@ -19,9 +21,9 @@ This allows you to use different agent implementations without changing how they
 
 The HUD SDK includes several built-in adapters:
 
-- **Claude Adapter**: For integrating with Anthropic's Claude models
-- **OpenAI Adapter**: For integrating with OpenAI's models
-- **Common Adapter**: A base adapter that can be extended for custom implementations
+* **Claude Adapter**: For integrating with Anthropic's Claude models
+
+* **Common Adapter**: A base adapter that can be extended for custom implementations
 
 ## Creating a Custom Adapter
 
@@ -64,11 +66,4 @@ adapter = SimpleAdapter()
 env = await run.make(adapter=adapter, metadata={"agent_id": "simple-agent"})
 ```
 
-## Common Action Types
-
-The CLA format supports several action types:
-
-- **ClickAction**: For mouse clicks (left, right, double)
-- **TypeAction**: For keyboard input
-- **ScrollAction**: For scrolling the screen
-- **DragAction**: For drag-and-drop operations
+See [Common Action Types](/api-reference/adapters)

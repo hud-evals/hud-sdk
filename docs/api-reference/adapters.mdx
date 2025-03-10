@@ -28,12 +28,14 @@ convert(data: Any) -> Any
 Converts an action from the agent's format to the CLA format.
 
 **Parameters:**
-- `data` (Any): The action data to convert
+
+* `data` (Any): The action data to convert
 
 **Returns:**
-- `Any`: The converted action in CLA format
 
-#### adapt_list
+* `Any`: The converted action in CLA format
+
+#### adapt\_list
 
 ```python
 adapt_list(actions: list[Any]) -> list[Any]
@@ -42,10 +44,12 @@ adapt_list(actions: list[Any]) -> list[Any]
 Adapts a list of actions.
 
 **Parameters:**
-- `actions` (list[Any]): The list of actions to adapt
+
+* `actions` (list\[Any]): The list of actions to adapt
 
 **Returns:**
-- `list[Any]`: The adapted list of actions
+
+* `list[Any]`: The adapted list of actions
 
 ## Common Action Types
 
@@ -58,8 +62,10 @@ ClickAction(point: Point, button: str = "left") -> ClickAction
 ```
 
 **Parameters:**
-- `point` (Point): The point to click
-- `button` (str, optional): The mouse button to use ("left", "right", "double")
+
+* `point` (Point): The point to click
+
+* `button` (str, optional): The mouse button to use ("left", "right", "wheel")
 
 ### TypeAction
 
@@ -70,8 +76,10 @@ TypeAction(text: str, enter_after: bool = False) -> TypeAction
 ```
 
 **Parameters:**
-- `text` (str): The text to type
-- `enter_after` (bool, optional): Whether to press Enter after typing
+
+* `text` (str): The text to type
+
+* `enter_after` (bool, optional): Whether to press Enter after typing
 
 ### ScrollAction
 
@@ -82,8 +90,10 @@ ScrollAction(delta_x: int = 0, delta_y: int = 0) -> ScrollAction
 ```
 
 **Parameters:**
-- `delta_x` (int, optional): The horizontal scroll amount
-- `delta_y` (int, optional): The vertical scroll amount
+
+* `delta_x` (int, optional): The horizontal scroll amount
+
+* `delta_y` (int, optional): The vertical scroll amount
 
 ### DragAction
 
@@ -94,9 +104,12 @@ DragAction(start: Point, end: Point, button: str = "left") -> DragAction
 ```
 
 **Parameters:**
-- `start` (Point): The starting point
-- `end` (Point): The ending point
-- `button` (str, optional): The mouse button to use
+
+* `start` (Point): The starting point
+
+* `end` (Point): The ending point
+
+* `button` (str, optional): The mouse button to use
 
 ### Point
 
@@ -107,8 +120,10 @@ Point(x: int, y: int) -> Point
 ```
 
 **Parameters:**
-- `x` (int): The x-coordinate
-- `y` (int): The y-coordinate
+
+* `x` (int): The x-coordinate
+
+* `y` (int): The y-coordinate
 
 ## Claude Adapter
 
@@ -133,10 +148,12 @@ convert(data: Any) -> Any
 Converts a Claude action to the CLA format.
 
 **Parameters:**
-- `data` (Any): The Claude action data
+
+* `data` (Any): The Claude action data
 
 **Returns:**
-- `Any`: The converted action in CLA format
+
+* `Any`: The converted action in CLA format
 
 ## Usage Example
 
@@ -158,4 +175,4 @@ class MyAdapter(Adapter):
 # Use the adapter
 adapter = MyAdapter()
 env = await run.make(adapter=adapter, metadata={"agent_id": "my-agent"})
-``` 
+```

@@ -3,8 +3,6 @@ title: 'Gym'
 description: 'Understanding HUD Gyms'
 ---
 
-# Gym
-
 A `Gym` in the HUD SDK represents a specific environment where tasks can be executed. It defines the operating system, available tools, and constraints for the agent.
 
 ## Initialization
@@ -22,7 +20,7 @@ gym = await client.load_gym(id="OSWorld-Ubuntu")
 
 The HUD platform offers several gyms, including:
 
-- **OSWorld-Ubuntu**: A Linux Ubuntu environment for general OS tasks
+* **OSWorld-Ubuntu**: A Linux Ubuntu environment for general OS tasks
 
 You can list all available gyms using:
 
@@ -35,8 +33,9 @@ print(gyms)  # List of available gym IDs
 
 Each gym has the following properties:
 
-- `id`: Unique identifier for the gym
-- `name`: Human-readable name of the gym
+* `id`: Unique identifier for the gym
+
+* `name`: Human-readable name of the gym
 
 ## Using Gyms
 
@@ -46,4 +45,4 @@ Gyms are used when creating a run:
 run = await client.create_run(name="my-run", gym=gym, evalset=evalset)
 ```
 
-This associates the run with the specific environment defined by the gym. 
+This associates the run with the specific environment defined by the gym.
