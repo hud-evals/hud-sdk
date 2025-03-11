@@ -18,7 +18,7 @@ Install the package with Python>=3.9:
 pip install hud-python
 ```
 
-Make sure to setup your account with us (email team@hud.so) and add your API key to the environment variables:
+Make sure to setup your account with us (email founders@hud.so) and add your API key to the environment variables:
 ```bash
 HUD_API_KEY=<your-api-key>
 ```
