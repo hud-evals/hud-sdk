@@ -2,7 +2,7 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "HUD SDK",
   "logo": {
-    "dark": "/logo/HUD_black.png",
+    "dark": "/logo/HUD-dark.png",
     "light": "/logo/HUD.svg"
   },
   "favicon": "/favicon.png",
