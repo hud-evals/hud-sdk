@@ -1,5 +1,9 @@
 from __future__ import annotations
+from typing import Any
 
+from hud.client import HUDClient
+from hud.environment import Environment
+from hud.run import Run
 
 class Gym:
     """
@@ -10,7 +14,7 @@ class Gym:
         name: Human-readable name of the gym
     """
 
-    def __init__(self, id: str, name: str) -> None:
+    def __init__(self, id: str, name: str, client: HUDClient) -> None:
         """
         Initialize a gym.
 
@@ -20,3 +24,19 @@ class Gym:
         """
         self.id = id
         self.name = name
+        self.client = client
+
+    async def make(self, metadata: dict[str, Any] | None = None) -> Environment:
+        """
+        Create a new environment for this gym.
+
+        Args:
+            metadata: Metadata for the environment
+
+        Returns:
+            Environment: The newly created environment
+        """
+
+        run = await self.client.create_run(name=self.name, gym=self, metadata=metadata)
+
+        return await run.make()

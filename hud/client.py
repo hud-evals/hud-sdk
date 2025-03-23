@@ -49,7 +49,7 @@ class HUDClient:
             url=f"{settings.base_url}/gyms/{id}",
             api_key=self.api_key,
         )
-        return Gym(id=data["id"], name=data["name"])
+        return Gym(id=data["id"], name=data["name"], client=self)
 
     async def load_evalset(self, id: str) -> EvalSet:
         """
@@ -115,7 +115,7 @@ class HUDClient:
         )
         if data:
             response = RunResponse(**data)
-            gym = Gym(id=response.gym["id"], name=response.gym["name"])
+            gym = Gym(id=response.gym["id"], name=response.gym["name"], client=self)
             evalset = EvalSet(
                 id=response.evalset["id"],
                 name=response.evalset["name"],

@@ -297,7 +297,7 @@ class EvalSet:
         """
         data = await make_request(
             method="GET",
-            url=f"{settings.base_url}/evalsets/{self.id}/tasks",
+            url=f"{settings.base_url}/evalsets/{self.id}/tasks", # TODO backend
             api_key=settings.api_key,
         )
         self.tasks = data["tasks"]
