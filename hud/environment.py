@@ -223,12 +223,12 @@ class Environment:
             api_key=settings.api_key,
         )
 
-    async def reset(self, task_id: str, metadata: dict[str, Any] | None = None) -> Observation:
+    async def reset(self, setup: dict[str, Any] | None = None, metadata: dict[str, Any] | None = None) -> Observation:
         """
         Reset the environment to the task.
 
         Args:
-            task_id: ID of the task to reset to
+            setup: Setup for the task
             metadata: Optional metadata for the reset
 
         Returns:
@@ -236,10 +236,12 @@ class Environment:
         """
         if metadata is None:
             metadata = {}
+        if setup is None:
+            setup = {}
         data = await make_request(
             method="POST",
             url=f"{settings.base_url}/environments/{self.id}/reset",
-            json={"task_id": task_id, "metadata": metadata},
+            json={"setup": setup, "metadata": metadata}, # TODO backend
             api_key=settings.api_key,
         )
         return Observation(**data["observation"])

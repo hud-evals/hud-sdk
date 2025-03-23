@@ -131,7 +131,7 @@ class Run:
         id: str,
         name: str,
         gym: Gym,
-        evalset: EvalSet,
+        evalset: EvalSet | None = None,
         config: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
         adapter: Adapter | None = None,
@@ -169,7 +169,9 @@ class Run:
         Returns:
             list[str]: List of task IDs
         """
-        return await self.evalset.fetch_tasks()
+        if self.evalset:
+            return await self.evalset.fetch_tasks()
+        return []
 
     async def make(self, metadata: dict[str, Any] | None = None) -> Environment:
         """
@@ -190,6 +192,9 @@ class Run:
         )
         await env.create_environment()
         self.environments.append(env)
+
+        await env.wait_for_ready()
+        
         return env
 
     async def get_analytics(self) -> RunAnalyticsResponse:

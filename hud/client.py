@@ -136,7 +136,7 @@ class HUDClient:
         self,
         name: str,
         gym: Gym,
-        evalset: EvalSet,
+        evalset: EvalSet | None = None,
         config: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
         adapter: Adapter | None = None,
@@ -167,7 +167,7 @@ class HUDClient:
             json={
                 "name": name,
                 "gym_id": gym.id,
-                "evalset_id": evalset.id,
+                "evalset_id": evalset.id if evalset else None, # TODO backend
                 "config": json.dumps(config),
                 "metadata": json.dumps(metadata),
             },

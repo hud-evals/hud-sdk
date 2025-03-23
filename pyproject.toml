@@ -14,6 +14,7 @@ dependencies = [
     "pydantic-settings>=2,<3",
     "pillow>=11, <12",
     "eval-type-backport>=0.2.2",
+    "textdistance>=4.5.0,<5",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

@@ -17,3 +17,6 @@ uv.lock
 *.bmp
 *.tiff
 *.ico
+
+test.ipynb
+TODO.md
