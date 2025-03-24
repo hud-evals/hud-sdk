@@ -1,9 +1,7 @@
 from __future__ import annotations
 from typing import Any
 
-from hud.client import HUDClient
 from hud.environment import Environment
-from hud.run import Run
 
 class Gym:
     """
@@ -14,7 +12,7 @@ class Gym:
         name: Human-readable name of the gym
     """
 
-    def __init__(self, id: str, name: str, client: HUDClient) -> None:
+    def __init__(self, id: str, name: str, client: Any) -> None:
         """
         Initialize a gym.
 

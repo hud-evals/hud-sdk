@@ -9,6 +9,7 @@ from pydantic import BaseModel
 
 from hud.server import make_request
 from hud.settings import settings
+from hud.task import Task
 
 if TYPE_CHECKING:
     from .adapters.common import Adapter
@@ -212,6 +213,26 @@ class Environment:
             api_key=settings.api_key,
         )
         return data["reward"]
+    
+    async def extract(self, extract: dict[str, Any] | None = None) -> dict[str, Any]:
+        """
+        Extract some content from the environment.
+
+        Args:
+            extract: The extraction parameters
+
+        Returns:
+            dict: The extracted content
+        """
+        if extract is None:
+            extract = {}
+        data = await make_request(
+            method="POST",
+            url=f"{settings.base_url}/environments/{self.id}/extract",
+            json=extract,
+            api_key=settings.api_key,
+        )
+        return data
 
     async def close(self) -> None:
         """
@@ -223,12 +244,13 @@ class Environment:
             api_key=settings.api_key,
         )
 
-    async def reset(self, setup: dict[str, Any] | None = None, metadata: dict[str, Any] | None = None) -> Observation:
+    async def reset(self, setup: dict[str, Any] | None = {}, task_id: str | None = None, metadata: dict[str, Any] | None = None) -> Observation:
         """
         Reset the environment to the task.
 
         Args:
             setup: Setup for the task
+            task_id: ID of the task to reset to
             metadata: Optional metadata for the reset
 
         Returns:
@@ -236,14 +258,13 @@ class Environment:
         """
         if metadata is None:
             metadata = {}
-        if setup is None:
-            setup = {}
         data = await make_request(
             method="POST",
             url=f"{settings.base_url}/environments/{self.id}/reset",
-            json={"setup": setup, "metadata": metadata}, # TODO backend
+            json={"task_id": task_id, "setup": setup, "metadata": metadata}, # TODO backend
             api_key=settings.api_key,
         )
+        self.task_id = data["task_id"]
         return Observation(**data["observation"])
 
     async def wait_for_ready(self) -> None:
@@ -274,7 +295,7 @@ class EvalSet:
         self,
         id: str,
         name: str,
-        tasks: list[str] | None = None,
+        tasks: list[Task] | None = None,
     ) -> None:
         """
         Initialize an evaluation set.
@@ -288,17 +309,38 @@ class EvalSet:
         self.name = name
         self.tasks = tasks or []
 
-    async def fetch_tasks(self) -> list[str]:
+    def __getitem__(self, index: int) -> Task:
+        """
+        Get task by index.
+        
+        Args:
+            index: Index of the task
+            
+        Returns:
+            Task ID at the specified index
+        """
+        return self.tasks[index]
+        
+    def __len__(self) -> int:
+        """
+        Get the number of tasks.
+        
+        Returns:
+            Number of tasks in the evaluation set
+        """
+        return len(self.tasks)
+        
+    async def fetch_tasks(self) -> list[Task]:
         """
         Fetch all tasks in this evalset from the API.
 
         Returns:
-            list[str]: List of task IDs
+            list[Task]: List of tasks
         """
         data = await make_request(
             method="GET",
-            url=f"{settings.base_url}/evalsets/{self.id}/tasks", # TODO backend
+            url=f"{settings.base_url}/evalsets/{self.id}/tasks",
             api_key=settings.api_key,
         )
-        self.tasks = data["tasks"]
+        self.tasks = [Task(**task) for task in data["tasks"]]
         return self.tasks

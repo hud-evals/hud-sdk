@@ -8,3 +8,8 @@ class Agent:
 
     def predict(self):
         raise NotImplementedError("Subclasses must implement this method")
+
+    def clear_history(self):
+        self.messages = []
+        self.responses = []
+

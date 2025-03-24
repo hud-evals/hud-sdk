@@ -67,7 +67,9 @@ class HUDClient:
             url=f"{settings.base_url}/evalsets/{id}",
             api_key=self.api_key,
         )
-        return EvalSet(id=data["id"], name=data["name"])
+        self.evalset = EvalSet(id=data["id"], name=data["name"])
+        await self.evalset.fetch_tasks()
+        return self.evalset
 
     async def list_gyms(self) -> list[str]:
         """
