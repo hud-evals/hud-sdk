@@ -38,6 +38,11 @@ class Evaluator(ABC):
             - mode: mode used for matching (optional)
         """
 
+    @abstractmethod
+    def to_dict(self) -> dict[str, Any]:
+        """Convert the evaluator to a dictionary."""
+
+
 class Passthrough(Evaluator):
     """Evaluator that passes through the response as is."""
 
@@ -48,11 +53,23 @@ class Passthrough(Evaluator):
             try:
                 score = min(max(float(response), 0.0), 1.0)
             except ValueError:
-                score = 1.0
+                score = -1.0
+        elif isinstance(response, dict):
+            if "reward" in response:
+                score = response["reward"]
+            elif "score" in response:
+                score = response["score"]
+            else:
+                score = -1.0
         else:
-            score = 1.0
+            score = -1.0
         return EvaluationResult(
             score=score,
             reason="Evaluated at environment level"
         )
+    
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": "Passthrough",
+        }
 

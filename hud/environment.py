@@ -261,7 +261,7 @@ class Environment:
         data = await make_request(
             method="POST",
             url=f"{settings.base_url}/environments/{self.id}/reset",
-            json={"task_id": task_id, "setup": setup, "metadata": metadata}, # TODO backend
+            json={"task_id": task_id, "setup": setup, "metadata": metadata},
             api_key=settings.api_key,
         )
         self.task_id = data["task_id"]
@@ -329,6 +329,20 @@ class EvalSet:
             Number of tasks in the evaluation set
         """
         return len(self.tasks)
+    
+    async def fetch_task_ids(self) -> list[str]:
+        """
+        Fetch all task IDs in this evalset from the API.
+        
+        Returns:
+            list[str]: List of task IDs
+        """
+        data = await make_request(
+            method="GET",
+            url=f"{settings.base_url}/evalsets/{self.id}/tasks",
+            api_key=settings.api_key,
+        )
+        return [task["id"] for task in data["tasks"]]
         
     async def fetch_tasks(self) -> list[Task]:
         """
@@ -342,5 +356,7 @@ class EvalSet:
             url=f"{settings.base_url}/evalsets/{self.id}/tasks",
             api_key=settings.api_key,
         )
-        self.tasks = [Task(**task) for task in data["tasks"]]
+        self.tasks = []
+        for task in data["tasks"]:
+            self.tasks.append(Task(**task))
         return self.tasks

@@ -170,7 +170,7 @@ class Run:
             list[str]: List of task IDs
         """
         if self.evalset:
-            return await self.evalset.fetch_tasks()
+            return await self.evalset.fetch_task_ids()
         return []
 
     async def make(self, metadata: dict[str, Any] | None = None) -> Environment:

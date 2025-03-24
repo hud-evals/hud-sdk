@@ -2,11 +2,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from hud.evaluators.base import Passthrough
+from hud.evaluators import Passthrough, Match, Judge
 
 if TYPE_CHECKING:
     from hud.evaluators.base import EvaluationResult, Evaluator
 
+EVALUATORS = {
+    "LLM": Judge,
+    "VLM": Judge,
+    "Match": Match,
+}
 
 class Task:
     """A task that can be executed and evaluated.
@@ -22,9 +27,10 @@ class Task:
         self,
         prompt: str,
         setup: dict[str, Any] | None = None,
+        config: dict[str, Any] | None = None,
         extract: dict[str, Any] | None = None,
         evaluator: Evaluator | None = None,
-        config: dict[str, Any] | None = None,
+        evaluator_config: dict[str, Any] | None = None,
         **kwargs: Any
     ) -> None:
         """Initialize a task.
@@ -35,12 +41,25 @@ class Task:
             extract: Optional configuration for extracting response
             evaluator: Optional evaluator for assessing responses
             config: Optional configuration for the task
+            evaluator_name: Optional name of the evaluator
+            evaluator_config: Optional configuration for the evaluator
             **kwargs: Additional keyword arguments
         """
         self.prompt = prompt
         self.setup = setup or config or None
         self.extract = extract
-        self.evaluator = evaluator or Passthrough()
+        if evaluator:
+            self.evaluator = evaluator
+        else:
+            self.evaluator = self._load_evaluator(evaluator_config)
+
+    def _load_evaluator(self, evaluator_config: dict[str, Any] | None) -> Evaluator:
+        if evaluator_config is None:
+            evaluator_config = {}
+        if "name" in evaluator_config:
+            return EVALUATORS[evaluator_config["name"]](**evaluator_config)
+        else:
+            return Passthrough()
     
     def evaluate(self, response: Any) -> EvaluationResult:
         """Evaluate a response using the task's evaluator.
@@ -66,12 +85,11 @@ class Task:
         Returns:
             Task instance
         """
-        # Note: The evaluator needs to be created separately and passed in
         return cls(
             prompt=data["prompt"],
             setup=data.get("setup", {}),
             extract=data.get("extract"),
-            evaluator=data.get("evaluator")
+            evaluator_config=data.get("evaluator_config"),
         )
         
     def to_dict(self) -> dict[str, Any]:
@@ -80,15 +98,12 @@ class Task:
         Returns:
             Dictionary representation of the task
         """
-        result = {
+        return {
             "prompt": self.prompt,
             "setup": self.setup,
+            "extract": self.extract,
+            "evaluator_config": self.evaluator.to_dict(),
         }
-        
-        if self.extract:
-            result["extract"] = self.extract
-            
-        return result
     
     def __str__(self) -> str:
         return self.prompt

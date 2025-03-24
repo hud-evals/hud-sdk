@@ -23,7 +23,8 @@ class Judge(Evaluator):
         self,
         answer: str | list[str] | bytes,
         criteria: list[str] | list[Criterion] | None = None,
-        mode: Literal["auto", "LLM", "VLM"] = "auto"
+        mode: Literal["auto", "LLM", "VLM"] = "auto",
+        **kwargs: Any
     ) -> None:
         """Initialize a Judge evaluator.
         
@@ -38,6 +39,14 @@ class Judge(Evaluator):
         self.answer = answer
         self.criteria = criteria or []
         self.mode = mode
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": "Judge",
+            "answer": self.answer,
+            "criteria": self.criteria,
+            "mode": self.mode,
+        }
 
     def evaluate(self, response: Any) -> EvaluationResult:
         """Judge a response based on the specified criteria by calling the run_eval endpoint.

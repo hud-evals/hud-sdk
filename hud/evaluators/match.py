@@ -15,7 +15,8 @@ class Match(Evaluator):
     def __init__(
         self,
         answer: int | str | list[str],
-        mode: Literal["auto", "single", "all", "fuzz", "regex", "diff"] = "auto"
+        mode: Literal["auto", "single", "all", "fuzz", "regex", "diff"] = "auto",
+        **kwargs: Any
     ) -> None:
         """Initialize a Match evaluator.
         
@@ -31,6 +32,13 @@ class Match(Evaluator):
         """
         self.answer = answer
         self.mode = mode
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": "Match",
+            "answer": self.answer,
+            "mode": self.mode,
+        }
 
     def evaluate(self, response: Any) -> EvaluationResult:
         """Evaluate if the response matches the expected answer.
