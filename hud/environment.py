@@ -244,7 +244,7 @@ class Environment:
             api_key=settings.api_key,
         )
 
-    async def reset(self, setup: dict[str, Any] | None = {}, task_id: str | None = None, metadata: dict[str, Any] | None = None) -> Observation:
+    async def reset(self, setup: str | list[str | dict[str, Any]] | dict[str, Any] | None = {}, task_id: str | None = None, metadata: dict[str, Any] | None = None) -> Observation:
         """
         Reset the environment to the task.
 
