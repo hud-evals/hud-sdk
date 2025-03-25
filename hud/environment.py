@@ -342,7 +342,7 @@ class EvalSet:
             url=f"{settings.base_url}/evalsets/{self.id}/tasks",
             api_key=settings.api_key,
         )
-        return [task["id"] for task in data["tasks"]]
+        return [task_id for task_id in data["tasks"]]
         
     async def fetch_tasks(self) -> list[Task | str]:
         """
@@ -359,7 +359,7 @@ class EvalSet:
         self.tasks = []
         if "evalset" in data:
             for task in data["evalset"]:
-                self.tasks.append(Task(id=task["id"]))
+                self.tasks.append(Task(**task))
         else:
             for task in data["tasks"]:
                 self.tasks.append(Task(id=task))
