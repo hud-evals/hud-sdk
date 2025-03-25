@@ -25,7 +25,8 @@ class Task:
     
     def __init__(
         self,
-        prompt: str,
+        id: str | None = None,
+        prompt: str | None = None,
         setup: dict[str, Any] | None = None,
         config: dict[str, Any] | None = None,
         extract: dict[str, Any] | None = None,
@@ -36,6 +37,7 @@ class Task:
         """Initialize a task.
         
         Args:
+            id: The ID of the task in the database
             prompt: The task prompt or instruction
             setup: Optional environment setup configuration
             extract: Optional configuration for extracting response
@@ -45,6 +47,8 @@ class Task:
             evaluator_config: Optional configuration for the evaluator
             **kwargs: Additional keyword arguments
         """
+        self.id = id
+
         self.prompt = prompt
         self.setup = setup or config or None
         self.extract = extract

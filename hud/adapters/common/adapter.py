@@ -61,7 +61,7 @@ class Adapter:
             observation: Image data, which can be:
                 - numpy array
                 - PIL Image
-                - base64 string (PNG)
+                - base64 string (PNG) # TODO: JPG
 
         Returns:
             Base64-encoded string of the resized image (PNG format)

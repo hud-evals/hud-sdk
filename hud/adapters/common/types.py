@@ -31,6 +31,7 @@ class PressAction(CLAAction):
     type: Literal["press"] = "press"
     keys: list[CLAKey]
 
+# TODO: KEYUP/KEYDOWN
 
 # TYPE ACTION for text typing
 class TypeAction(CLAAction):

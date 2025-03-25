@@ -344,12 +344,12 @@ class EvalSet:
         )
         return [task["id"] for task in data["tasks"]]
         
-    async def fetch_tasks(self) -> list[Task]:
+    async def fetch_tasks(self) -> list[Task | str]:
         """
         Fetch all tasks in this evalset from the API.
 
         Returns:
-            list[Task]: List of tasks
+            list[Task | str]: List of tasks or their IDs in the database
         """
         data = await make_request(
             method="GET",
@@ -357,6 +357,7 @@ class EvalSet:
             api_key=settings.api_key,
         )
         self.tasks = []
-        for task in data["tasks"]:
+        category = "evalset" if "evalset" in data else "tasks"
+        for task in data[category]:
             self.tasks.append(Task(**task))
         return self.tasks
