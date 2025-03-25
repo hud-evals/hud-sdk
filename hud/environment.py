@@ -214,7 +214,7 @@ class Environment:
         )
         return data["reward"]
     
-    async def extract(self, extract: dict[str, Any] | None = None) -> dict[str, Any]:
+    async def extract(self, extract: str | list[str | dict[str, Any]] | dict[str, Any] | None = None) -> dict[str, Any]:
         """
         Extract some content from the environment.
 
