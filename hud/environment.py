@@ -357,7 +357,10 @@ class EvalSet:
             api_key=settings.api_key,
         )
         self.tasks = []
-        category = "evalset" if "evalset" in data else "tasks"
-        for task in data[category]:
-            self.tasks.append(Task(**task))
+        if "evalset" in data:
+            for task in data["evalset"]:
+                self.tasks.append(Task(id=task["id"]))
+        else:
+            for task in data["tasks"]:
+                self.tasks.append(Task(id=task))
         return self.tasks
