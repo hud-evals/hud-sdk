@@ -92,6 +92,8 @@ CLA = Annotated[
     Union[
         ClickAction,
         PressAction,
+        KeyDownAction,
+        KeyUpAction,
         TypeAction,
         ScrollAction,
         MoveAction,
