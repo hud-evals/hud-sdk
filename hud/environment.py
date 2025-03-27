@@ -234,6 +234,29 @@ class Environment:
         )
         return data
 
+    async def execute(
+        self, command_list: list[str]) -> dict[str, Any]:
+        """
+        Execute a command in the environment.
+        Args:
+            command_list: List of args
+        Returns:
+            dict["stdout"]: The standard output from the command
+            dict["stderr"]: The standard error from the command
+            dict["exit_code"]: The exit code from the command
+        """
+        data = await make_request(
+            method="POST",
+            url=f"{settings.base_url}/environments/{self.id}/execute",
+            json=command_list,
+            api_key=settings.api_key,
+        )
+        return {
+            "stdout": data["stdout"],
+            "stderr": data["stderr"],
+            "exit_code": data["exit_code"],
+        }
+
     async def close(self) -> None:
         """
         Close the environment.
