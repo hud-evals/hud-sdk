@@ -31,7 +31,15 @@ class PressAction(CLAAction):
     type: Literal["press"] = "press"
     keys: list[CLAKey]
 
-# TODO: KEYUP/KEYDOWN
+# KEYDOWN ACTION for key presses/hotkeys
+class KeyDownAction(CLAAction):
+    type: Literal["keydown"] = "keydown"
+    keys: list[CLAKey]
+
+# KEYUP ACTION for key presses/hotkeys
+class KeyUpAction(CLAAction):
+    type: Literal["keyup"] = "keyup"
+    keys: list[CLAKey]
 
 # TYPE ACTION for text typing
 class TypeAction(CLAAction):
@@ -84,6 +92,8 @@ CLA = Annotated[
     Union[
         ClickAction,
         PressAction,
+        KeyDownAction,
+        KeyUpAction,
         TypeAction,
         ScrollAction,
         MoveAction,
