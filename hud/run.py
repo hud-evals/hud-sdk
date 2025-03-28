@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import datetime
 import json
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import BaseModel, Field
 
 from .adapters.common import Adapter
-from .environment import Environment, EvalSet
+from .environment import Environment
+from .evalset import EvalSet
 from .server import make_request
 from .settings import settings
 
@@ -113,7 +114,42 @@ class RunAnalyticsResponse(BaseModel):
         return "\n".join(result)
 
 
-async def create_run(
+async def load_run(id: str, *, api_key: Optional[str]=None) -> Optional[Run]:
+    """
+    Load a run by ID from the HUD API.
+
+    Args:
+        id: The ID of the run to load
+        adapter: Optional adapter for action conversion
+
+    Returns:
+        Run: The loaded run object, or None if not found
+    """
+    if api_key is None:
+        api_key = settings.api_key
+    
+    
+    # API call to get run info
+    data = await make_request(
+        method="GET",
+        url=f"{settings.base_url}/runs/{id}",
+        api_key=api_key,
+    )
+    if data:
+        response = RunResponse(**data)
+        evalset = EvalSet(
+            id=response.evalset["id"],
+            name=response.evalset["name"],
+            tasks=response.evalset["tasks"],
+        )
+        return Run(
+            id=response.id,
+            name=response.name,
+            metadata=response.metadata,
+        )
+    return None
+
+async def make_run(
     name: str,
     gym_id: str,
     evalset_id: str,
@@ -122,6 +158,20 @@ async def create_run(
     metadata: dict[str, Any] | None = None,
     api_key: str | None = None,
 ):
+    """
+    Create a new run in the HUD system.
+
+    Args:
+        name: Name of the run
+        gym: Gym to use for the run
+        evalset: Evalset to use for the run
+        config: Optional configuration parameters
+        metadata: Optional metadata for the run
+        adapter: Optional adapter for action conversion
+
+    Returns:
+        Run: The created run object
+    """
     if api_key is None:
         api_key = settings.api_key
 
@@ -189,3 +239,4 @@ class Run:
             api_key=settings.api_key,
         )
         return RunAnalyticsResponse(**data)
+

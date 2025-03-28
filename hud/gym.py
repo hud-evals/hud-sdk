@@ -1,10 +1,35 @@
 from typing import Any, Optional
+from hud.settings import settings
 from hud.environment import Environment
 from hud.run import make_run
 import datetime
 
+from hud.server import make_request
 
-async def make(id: str, *, metadata: Optional[dict[str, Any]] = None, run_id: Optional[str] = None) -> Environment:
+
+async def list_environments(*, api_key: Optional[str]) -> list[str]:
+    """
+    List all available gyms.
+
+    Returns:
+        list[str]: List of gym IDs
+    """
+    if api_key is None:
+        api_key = settings.api_key
+        
+    # API call to get gyms
+    data = await make_request(
+        method="GET", url=f"{settings.base_url}/gyms", api_key=api_key
+    )
+    return data["gyms"]
+
+async def make(
+    id: str,
+    *, 
+    config: Optional[dict[str, Any]] = None, 
+    metadata: Optional[dict[str, Any]] = None, 
+    run_id: Optional[str] = None
+) -> Environment:
     """
     Create a new Environment.
 
@@ -23,9 +48,8 @@ async def make(id: str, *, metadata: Optional[dict[str, Any]] = None, run_id: Op
 
     env = Environment(
         run_id=run_id,
-        config=self.config,
-        adapter=self.adapter,
-        metadata=metadata or {},
+        config=config,
+        metadata=metadata,
     )
     await env.create_environment()
 
