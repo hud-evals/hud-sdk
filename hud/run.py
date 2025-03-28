@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import datetime
+import json
 from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field
@@ -9,12 +10,6 @@ from .adapters.common import Adapter
 from .environment import Environment, EvalSet
 from .server import make_request
 from .settings import settings
-
-if TYPE_CHECKING:
-    import datetime
-
-    from .gym import Gym
-
 
 class RunResponse(BaseModel):
     """
@@ -118,6 +113,38 @@ class RunAnalyticsResponse(BaseModel):
         return "\n".join(result)
 
 
+async def create_run(
+    name: str,
+    gym_id: str,
+    evalset_id: str,
+    *,
+    config: dict[str, Any] | None = None,
+    metadata: dict[str, Any] | None = None,
+    api_key: str | None = None,
+):
+    if api_key is None:
+        api_key = settings.api_key
+
+    data = await make_request(
+        method="POST",
+        url=f"{settings.base_url}/runs",
+        json={
+            "name": name,
+            "gym_id": gym_id,
+            "evalset_id": evalset_id,
+            "config": json.dumps(config),
+            "metadata": json.dumps(metadata),
+        },
+        api_key=api_key,
+    )
+    
+    # TODO: determine which fields are necessary here
+    return Run(
+        id=data["id"],
+        name=data["name"],
+        metadata=data["metadata"],
+    )
+
 class Run:
     """
     A run represents a collection of tasks and environments.
@@ -130,11 +157,7 @@ class Run:
         self,
         id: str,
         name: str,
-        gym: Gym,
-        evalset: EvalSet | None = None,
-        config: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
-        adapter: Adapter | None = None,
     ) -> None:
         """
         Initialize a run.
@@ -148,54 +171,9 @@ class Run:
             metadata: Optional metadata
             adapter: Optional adapter for action conversion
         """
-        adapter = adapter or Adapter()
-        if metadata is None:
-            metadata = {}
-        if config is None:
-            config = {}
         self.id = id
         self.name = name
-        self.gym = gym
-        self.evalset = evalset
-        self.adapter = adapter
-        self.config = config
         self.metadata = metadata
-        self.environments: list[Environment] = []
-
-    async def fetch_task_ids(self) -> list[str]:
-        """
-        Fetch task IDs for this run from the evalset.
-
-        Returns:
-            list[str]: List of task IDs
-        """
-        if self.evalset:
-            return await self.evalset.fetch_task_ids()
-        return []
-
-    async def make(self, metadata: dict[str, Any] | None = None) -> Environment:
-        """
-        Create a new environment for this run.
-
-        Args:
-            metadata: Metadata for the environment
-
-        Returns:
-            Environment: The created environment
-        """
-        # Make the env class
-        env = Environment(
-            run_id=self.id,
-            config=self.config,
-            adapter=self.adapter,
-            metadata=metadata or {},
-        )
-        await env.create_environment()
-        self.environments.append(env)
-
-        await env.wait_for_ready()
-        
-        return env
 
     async def get_analytics(self) -> RunAnalyticsResponse:
         """

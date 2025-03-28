@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+from base64 import b64decode, b64encode
 import enum
 import logging
 from typing import TYPE_CHECKING, Any
@@ -111,7 +112,7 @@ class Environment:
 
     async def create_environment(self) -> str:
         """
-        Initialize the environment and return the task_run_id.
+        Initialize the environment and return the trajectory_id.
 
         Returns:
             str: The environment ID
@@ -252,10 +253,54 @@ class Environment:
             api_key=settings.api_key,
         )
         return {
-            "stdout": data["stdout"],
-            "stderr": data["stderr"],
+            "stdout": b64decode(data["stdout"]),
+            "stderr": b64decode(data["stderr"]),
             "exit_code": data["exit_code"],
         }
+
+    async def copy_from(
+        self, path: str
+    ) -> bytes:
+        """
+        Copy a file from the environment to the client.
+        Args:
+            str: List of args
+        Returns:
+            content of the file
+        """
+        data = await make_request(
+            method="POST",
+            url=f"{settings.base_url}/environments/{self.id}/copy_from",
+            json={"path": path},
+            api_key=settings.api_key,
+        )
+        
+        # convert from base64 to bytes
+        return b64decode(data["content"])
+        
+    async def copy_to(
+        self, 
+        path: str,
+        content: bytes,
+    ) -> None:
+        """
+        Execute a command in the environment.
+        Args:
+            path: Path to the file
+            content: content of the file
+        Returns:
+            None
+        """
+        data = await make_request(
+            method="POST",
+            url=f"{settings.base_url}/environments/{self.id}/copy_to",
+            json= {
+                "path": path,
+                "content": b64encode(content).decode("utf-8"),
+            },
+            api_key=settings.api_key,
+        )
+        
 
     async def close(self) -> None:
         """
