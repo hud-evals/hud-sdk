@@ -45,6 +45,7 @@ class KeyUpAction(CLAAction):
 class TypeAction(CLAAction):
     type: Literal["type"] = "type"
     text: str
+    selector: str | None = None
     enter_after: bool | None = False
 
 
@@ -77,6 +78,9 @@ class DragAction(CLAAction):
     pattern: list[int] | None = None  # [delay_1, delay_2, ...]
     hold_keys: list[CLAKey] | None = None
 
+class CustomAction(CLAAction):
+    type: Literal["custom"] = "custom"
+    script: str
 
 # SCREENSHOT ACTION
 class ScreenshotFetch(CLAAction):
@@ -99,6 +103,7 @@ CLA = Annotated[
         MoveAction,
         WaitAction,
         DragAction,
+        CustomAction,
         ScreenshotFetch,
         PositionFetch,
     ],
