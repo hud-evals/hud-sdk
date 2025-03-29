@@ -152,8 +152,8 @@ async def load_run(id: str, *, api_key: Optional[str]=None) -> Optional[Run]:
 async def make_run(
     name: str,
     gym_id: str,
-    evalset_id: str,
     *,
+    evalset_id: Optional[str] = None,
     config: dict[str, Any] | None = None,
     metadata: dict[str, Any] | None = None,
     api_key: str | None = None,
@@ -174,6 +174,10 @@ async def make_run(
     """
     if api_key is None:
         api_key = settings.api_key
+    if config is None:
+        config = {}
+    if metadata is None:
+        metadata = {}
 
     data = await make_request(
         method="POST",
@@ -187,12 +191,11 @@ async def make_run(
         },
         api_key=api_key,
     )
-    
     # TODO: determine which fields are necessary here
     return Run(
         id=data["id"],
-        name=data["name"],
-        metadata=data["metadata"],
+        name=name,
+        metadata=metadata,
     )
 
 class Run:
