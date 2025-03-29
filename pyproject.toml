@@ -3,7 +3,7 @@ name = "hud-python"
 version = "0.1.0b3"
 description = "SDK for the HUD evaluation platform."
 readme = "README.md"
-requires-python = ">=3.10, <3.14"
+requires-python = ">=3.9, <3.14"
 authors = [
 { name = "Human Union Data SDK", email = "founders@hud.so" },
 ]
@@ -15,6 +15,7 @@ dependencies = [
     "pillow>=11, <12",
     "eval-type-backport>=0.2.2",
     "textdistance>=4.5.0,<5",
+    "inspect-ai>=0.3.80",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
