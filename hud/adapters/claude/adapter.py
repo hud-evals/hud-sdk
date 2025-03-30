@@ -152,7 +152,6 @@ class ClaudeAdapter(Adapter):
             elif action_type == "wait":
                 assert "duration" in data
                 return WaitAction(time=data["duration"])
-
             else:
                 raise ValueError(f"Unsupported action type: {action_type}")
         except AssertionError:

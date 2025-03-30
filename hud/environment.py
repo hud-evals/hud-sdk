@@ -13,6 +13,17 @@ from hud.settings import settings
 if TYPE_CHECKING:
     from .adapters.common import Adapter
 
+
+class BaseResponseWithLogs(BaseModel):
+    """Base model for API responses that include logs."""
+    logs: str | None = None
+    error: str | None = None
+
+
+class RewardResponse(BaseResponseWithLogs):
+    reward: float
+
+
 logger = logging.getLogger("hud.environment")
 
 
@@ -199,19 +210,19 @@ class Environment:
             return self.adapter.adapt_list(action)
         return [self.adapter.adapt(action)]
 
-    async def evaluate(self) -> float:
+    async def evaluate(self) -> RewardResponse:
         """
         Get final evaluation score.
 
         Returns:
-            float: The evaluation score
+            RewardResponse: The evaluation response containing reward, logs, and possible error
         """
         data = await make_request(
             method="POST",
             url=f"{settings.base_url}/evaluation/{self.id}",
             api_key=settings.api_key,
         )
-        return data["reward"]
+        return RewardResponse(**data)
 
     async def close(self) -> None:
         """
@@ -273,6 +284,7 @@ class EvalSet:
         id: str,
         name: str,
         tasks: list[str] | None = None,
+        configs: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize an evaluation set.
@@ -285,6 +297,7 @@ class EvalSet:
         self.id = id
         self.name = name
         self.tasks = tasks or []
+        self.configs = configs or {}
 
     async def fetch_tasks(self) -> list[str]:
         """
@@ -298,5 +311,7 @@ class EvalSet:
             url=f"{settings.base_url}/evalsets/{self.id}/tasks",
             api_key=settings.api_key,
         )
+        # Extracts a list of task ids and list of config objects for the evalset
         self.tasks = data["tasks"]
+        self.configs = data["evalset"]
         return self.tasks
