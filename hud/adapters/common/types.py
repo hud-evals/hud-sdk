@@ -78,9 +78,6 @@ class PositionFetch(CLAAction):
     type: Literal["position"] = "position"
 
 
-class FailAction(CLAAction):
-    type: Literal["fail"] = "fail"
-    
 class CustomAction(CLAAction):
     type: Literal["custom"] = "custom"
     action: str
@@ -97,7 +94,6 @@ CLA = Annotated[
         DragAction,
         ScreenshotFetch,
         PositionFetch,
-        FailAction,
         CustomAction,
     ],
     Field(discriminator="type"),
