@@ -17,3 +17,6 @@ uv.lock
 *.bmp
 *.tiff
 *.ico
+
+# DS-Store
+.DS_Store
