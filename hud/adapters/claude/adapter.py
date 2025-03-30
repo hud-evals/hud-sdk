@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, ClassVar
 
 from hud.adapters.common import CLA, Adapter
 from hud.adapters.common.types import (
@@ -21,7 +21,7 @@ from hud.adapters.common.types import (
 
 
 class ClaudeAdapter(Adapter):
-    KEY_MAP: dict[str, CLAKey] = {"Return": "enter"}
+    KEY_MAP: ClassVar[dict[str, CLAKey]] = {"Return": "enter"}
 
     def __init__(self) -> None:
         super().__init__()
