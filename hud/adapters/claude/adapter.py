@@ -34,8 +34,10 @@ class ClaudeAdapter(Adapter):
                 if "+" in data["text"]:
                     keys = data["text"].split("+")
                     assert len(keys) > 0
+                    # make all keys lowercase
+                    keys = [key.lower() for key in keys]
                     return PressAction(keys=keys)
-                return PressAction(keys=[data["text"]])
+                return PressAction(keys=[data["text"].lower()])
 
             elif action_type == "type":
                 assert "text" in data
@@ -66,12 +68,19 @@ class ClaudeAdapter(Adapter):
                 assert len(coord) == 2
                 if (
                     len(self.memory) == 0
-                    or (self.memory[-1] is not MoveAction and self.memory[-1] is not ClickAction)
+                    or (
+                        self.memory[-1] is not MoveAction
+                        and self.memory[-1] is not ClickAction
+                    )
                     or self.memory[-1].point is None
                 ):
-                    raise ValueError("Left click drag must be preceded by a move or click action")
+                    raise ValueError(
+                        "Left click drag must be preceded by a move or click action"
+                    )
                 else:
-                    return DragAction(path=[self.memory[-1].point, Point(x=coord[0], y=coord[1])])
+                    return DragAction(
+                        path=[self.memory[-1].point, Point(x=coord[0], y=coord[1])]
+                    )
 
             elif action_type == "right_click":
                 assert "coordinate" in data
@@ -123,7 +132,8 @@ class ClaudeAdapter(Adapter):
                     raise ValueError(f"Unsupported scroll direction: {direction}")
 
                 return ScrollAction(
-                    point=Point(x=data["coordinate"][0], y=data["coordinate"][1]), scroll=scroll
+                    point=Point(x=data["coordinate"][0], y=data["coordinate"][1]),
+                    scroll=scroll,
                 )
 
             elif action_type == "screenshot":
@@ -135,7 +145,6 @@ class ClaudeAdapter(Adapter):
             elif action_type == "wait":
                 assert "duration" in data
                 return WaitAction(time=data["duration"])
-
             else:
                 raise ValueError(f"Unsupported action type: {action_type}")
         except AssertionError:
