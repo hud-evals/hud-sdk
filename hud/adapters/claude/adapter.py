@@ -96,6 +96,17 @@ class ClaudeAdapter(Adapter):
                     point=Point(x=coord[0], y=coord[1]), button="left", pattern=[100]
                 )
 
+            elif action_type == "triple_click":
+                assert "coordinate" in data
+                coord = data["coordinate"]
+                assert isinstance(coord, list)
+                assert len(coord) == 2
+                return ClickAction(
+                    point=Point(x=coord[0], y=coord[1]),
+                    button="left",
+                    pattern=[100, 100],
+                )
+
             elif action_type == "scroll":
                 assert "scroll_direction" in data
                 direction = data["scroll_direction"]
