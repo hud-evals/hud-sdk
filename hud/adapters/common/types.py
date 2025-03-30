@@ -80,6 +80,10 @@ class PositionFetch(CLAAction):
 
 class FailAction(CLAAction):
     type: Literal["fail"] = "fail"
+    
+class CustomAction(CLAAction):
+    type: Literal["custom"] = "custom"
+    action: str
 
 # Union of all possible actions
 CLA = Annotated[
@@ -94,6 +98,7 @@ CLA = Annotated[
         ScreenshotFetch,
         PositionFetch,
         FailAction,
+        CustomAction,
     ],
     Field(discriminator="type"),
 ]
