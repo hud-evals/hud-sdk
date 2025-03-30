@@ -284,6 +284,7 @@ class EvalSet:
         id: str,
         name: str,
         tasks: list[str] | None = None,
+        configs: dict[str, Any] | None = None,
     ) -> None:
         """
         Initialize an evaluation set.
@@ -296,6 +297,7 @@ class EvalSet:
         self.id = id
         self.name = name
         self.tasks = tasks or []
+        self.configs = configs or {}
 
     async def fetch_tasks(self) -> list[str]:
         """
@@ -309,5 +311,7 @@ class EvalSet:
             url=f"{settings.base_url}/evalsets/{self.id}/tasks",
             api_key=settings.api_key,
         )
+        # Extracts a list of task ids and list of config objects for the evalset
         self.tasks = data["tasks"]
+        self.configs = data["evalset"]
         return self.tasks
