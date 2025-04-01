@@ -6,6 +6,7 @@ from typing import Any
 
 from hud.adapters.common import CLA, Adapter
 from hud.adapters.common.types import (
+    CLAKey,
     ClickAction,
     DragAction,
     MoveAction,
@@ -20,11 +21,19 @@ from hud.adapters.common.types import (
 
 
 class ClaudeAdapter(Adapter):
+    KEY_MAP: dict[str, CLAKey] = {
+        "Return": "enter"
+    }
+
     def __init__(self) -> None:
         super().__init__()
         self.agent_width = 1024  # Claude's preferred width
         self.agent_height = 768  # Claude's preferred height
 
+    def _map_key(self, key: str) -> CLAKey:
+        """Map a key to its standardized form."""
+        return self.KEY_MAP.get(key, key.lower())  # type: ignore
+    
     def convert(self, data: Any) -> CLA:
         try:
             action_type = data.get("action")
@@ -32,10 +41,10 @@ class ClaudeAdapter(Adapter):
             if action_type == "key":
                 assert "text" in data
                 if "+" in data["text"]:
-                    keys = data["text"].split("+")
+                    keys = [self._map_key(k) for k in data["text"].split("+")]
                     assert len(keys) > 0
                     return PressAction(keys=keys)
-                return PressAction(keys=[data["text"]])
+                return PressAction(keys=[self._map_key(data["text"])])
 
             elif action_type == "type":
                 assert "text" in data

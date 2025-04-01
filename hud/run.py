@@ -1,20 +1,16 @@
 from __future__ import annotations
 
 import datetime
-from typing import TYPE_CHECKING, Any
+import json
+from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import BaseModel, Field
 
 from .adapters.common import Adapter
-from .environment import Environment, EvalSet
+from .environment import Environment
+from .evalset import EvalSet
 from .server import make_request
 from .settings import settings
-
-if TYPE_CHECKING:
-    import datetime
-
-    from .gym import Gym
-
 
 class RunResponse(BaseModel):
     """
@@ -118,6 +114,90 @@ class RunAnalyticsResponse(BaseModel):
         return "\n".join(result)
 
 
+async def load_run(id: str, *, api_key: Optional[str]=None) -> Optional[Run]:
+    """
+    Load a run by ID from the HUD API.
+
+    Args:
+        id: The ID of the run to load
+        adapter: Optional adapter for action conversion
+
+    Returns:
+        Run: The loaded run object, or None if not found
+    """
+    if api_key is None:
+        api_key = settings.api_key
+    
+    
+    # API call to get run info
+    data = await make_request(
+        method="GET",
+        url=f"{settings.base_url}/runs/{id}",
+        api_key=api_key,
+    )
+    if data:
+        response = RunResponse(**data)
+        evalset = EvalSet(
+            id=response.evalset["id"],
+            name=response.evalset["name"],
+            tasks=response.evalset["tasks"],
+        )
+        return Run(
+            id=response.id,
+            name=response.name,
+            metadata=response.metadata,
+        )
+    return None
+
+async def make_run(
+    name: str,
+    gym_id: str,
+    *,
+    evalset_id: Optional[str] = None,
+    config: dict[str, Any] | None = None,
+    metadata: dict[str, Any] | None = None,
+    api_key: str | None = None,
+):
+    """
+    Create a new run in the HUD system.
+
+    Args:
+        name: Name of the run
+        gym: Gym to use for the run
+        evalset: Evalset to use for the run
+        config: Optional configuration parameters
+        metadata: Optional metadata for the run
+        adapter: Optional adapter for action conversion
+
+    Returns:
+        Run: The created run object
+    """
+    if api_key is None:
+        api_key = settings.api_key
+    if config is None:
+        config = {}
+    if metadata is None:
+        metadata = {}
+
+    data = await make_request(
+        method="POST",
+        url=f"{settings.base_url}/runs",
+        json={
+            "name": name,
+            "gym_id": gym_id,
+            "evalset_id": evalset_id,
+            "config": json.dumps(config),
+            "metadata": json.dumps(metadata),
+        },
+        api_key=api_key,
+    )
+    # TODO: determine which fields are necessary here
+    return Run(
+        id=data["id"],
+        name=name,
+        metadata=metadata,
+    )
+
 class Run:
     """
     A run represents a collection of tasks and environments.
@@ -130,11 +210,7 @@ class Run:
         self,
         id: str,
         name: str,
-        gym: Gym,
-        evalset: EvalSet | None = None,
-        config: dict[str, Any] | None = None,
         metadata: dict[str, Any] | None = None,
-        adapter: Adapter | None = None,
     ) -> None:
         """
         Initialize a run.
@@ -148,17 +224,8 @@ class Run:
             metadata: Optional metadata
             adapter: Optional adapter for action conversion
         """
-        adapter = adapter or Adapter()
-        if metadata is None:
-            metadata = {}
-        if config is None:
-            config = {}
         self.id = id
         self.name = name
-        self.gym = gym
-        self.evalset = evalset
-        self.adapter = adapter
-        self.config = config
         self.metadata = metadata
         self.environments: list[Environment] = []
 
@@ -215,3 +282,4 @@ class Run:
             api_key=settings.api_key,
         )
         return RunAnalyticsResponse(**data)
+

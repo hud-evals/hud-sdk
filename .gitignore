@@ -18,5 +18,7 @@ uv.lock
 *.tiff
 *.ico
 
-test.ipynb
+# Ignore all top level notebooks
+/*.ipynb
+
 TODO.md
