@@ -185,10 +185,12 @@ class HUDClient:
             metadata=metadata,
         )
 
-    def display_stream(self, live_url: str) -> None:
+    def display_stream(self, live_url: str | None = None) -> None:
         """
         Display a stream in the HUD system.
         """
+        if live_url is None:
+            raise ValueError("live_url cannot be None")
         from IPython.display import HTML, display
 
         html_content = f"""

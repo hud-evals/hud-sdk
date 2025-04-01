@@ -107,7 +107,8 @@ class Environment:
         self.metadata = metadata
         self.final_response: None | str = None
         self.id = id
-        self.vnc_url = None
+        self.url: None | str = None
+        self.live_url: None | str = None
 
     async def create_environment(self) -> str:
         """
@@ -125,20 +126,28 @@ class Environment:
         self.id = data["id"]
         return self.id
 
-    async def get_vnc_url(self) -> str:
+    async def get_vnc_url(self) -> str | None:
         """
         Get the VNC URL for the environment.
 
         Returns:
             str: The VNC URL for remote viewing/control
         """
+        return self.live_url
+    
+    async def get_urls(self) -> dict[str, str]:
+        """
+        Get the live URL for the environment.
+
+        Returns:
+            dict[str, str]: The live URL for remote viewing/control
+        """
         data = await make_request(
             method="GET",
-            url=f"{settings.base_url}/environment/{self.id}/vnc",
+            url=f"{settings.base_url}/environment/{self.id}/urls",
             api_key=settings.api_key,
         )
-        self.vnc_url = data["vm_url"]
-        return self.vnc_url
+        return data
 
     async def get_env_state(self) -> str:
         """

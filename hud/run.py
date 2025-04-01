@@ -194,6 +194,10 @@ class Run:
         self.environments.append(env)
 
         await env.wait_for_ready()
+
+        urls = await env.get_urls()
+        env.live_url = urls["live_url"]
+        env.url = urls["url"]
         
         return env
 
