@@ -227,6 +227,46 @@ class Run:
         self.id = id
         self.name = name
         self.metadata = metadata
+        self.environments: list[Environment] = []
+
+    async def fetch_task_ids(self) -> list[str]:
+        """
+        Fetch task IDs for this run from the evalset.
+
+        Returns:
+            list[str]: List of task IDs
+        """
+        if self.evalset:
+            return await self.evalset.fetch_task_ids()
+        return []
+
+    async def make(self, metadata: dict[str, Any] | None = None) -> Environment:
+        """
+        Create a new environment for this run.
+
+        Args:
+            metadata: Metadata for the environment
+
+        Returns:
+            Environment: The created environment
+        """
+        # Make the env class
+        env = Environment(
+            run_id=self.id,
+            config=self.config,
+            adapter=self.adapter,
+            metadata=metadata or {},
+        )
+        await env.create_environment()
+        self.environments.append(env)
+
+        await env.wait_for_ready()
+
+        urls = await env.get_urls()
+        env.live_url = urls["live_url"]
+        env.url = urls["url"]
+        
+        return env
 
     async def get_analytics(self) -> RunAnalyticsResponse:
         """
