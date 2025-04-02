@@ -20,3 +20,8 @@ uv.lock
 
 # DS-Store
 .DS_Store
+
+# Test files
+/*.ipynb
+test.json
+TODO.md
