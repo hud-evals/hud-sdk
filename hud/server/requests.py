@@ -153,7 +153,7 @@ async def make_request(
 
         try:
             async with httpx.AsyncClient(
-                timeout=240.0,
+                timeout=600.0, # Long running requests can take up to 10 minutes
                 limits=httpx.Limits(
                     max_connections=1000,
                     max_keepalive_connections=1000,
