@@ -9,6 +9,9 @@ build/
 *.egg-info/
 uv.lock
 
+# IDE Files
+.vscode/
+
 # Media files
 *.png
 *.jpg
