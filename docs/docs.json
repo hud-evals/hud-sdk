@@ -1,0 +1,71 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "linden",
+  "name": "HUD SDK",
+  "colors": {
+    "primary": "#4F46E5",
+    "light": "#818CF8",
+    "dark": "#3730A3"
+  },
+  "favicon": "/favicon.png",
+  "navigation": {
+    "groups": [
+      {
+        "group": "Getting Started",
+        "pages": [
+          "introduction",
+          "installation",
+          "quickstart"
+        ]
+      },
+      {
+        "group": "Core Concepts",
+        "pages": [
+          "concepts/environment",
+          "concepts/task",
+          "concepts/trajectory",
+          "concepts/job",
+          "concepts/adapter"
+        ]
+      },
+      {
+        "group": "API Reference",
+        "pages": [
+              "api-reference/env",
+              "api-reference/gym",
+              "api-reference/task",
+              "api-reference/taskset",
+              "api-reference/trajectory",
+              "api-reference/job",
+              "api-reference/adapters"
+            ]
+      },
+      {
+        "group": "Examples",
+        "pages": [
+          "examples/basic",
+          "examples/custom-agent",
+          "examples/claude-agent"
+        ]
+      }
+    ]
+  },
+  "logo": {
+    "light": "/logo/HUD-dark.png",
+    "dark": "/logo/HUD.svg"
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/Human-Data/hud-sdk"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/Human-Data/hud-sdk",
+      "website": "https://hud.so"
+    }
+  }
+}

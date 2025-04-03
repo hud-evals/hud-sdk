@@ -1,140 +1,138 @@
 ---
 title: 'Quickstart'
 description: 'Get started quickly with the HUD SDK'
+icon: 'bolt'
 ---
 
 # Prerequisites
 
 Before you begin, make sure you have:
-
 * Installed the SDK (see [Installation](/installation))
-
 * Set up your API key (via environment variable or `.env` file)
 
 ## Basic Usage
 
-Here's a complete example to connect to the HUD environment, create a run, and start a task:
+Here's a complete example to create an environment, run a task, and record a trajectory:
 
 ```python
 import os
+import asyncio
 from dotenv import load_dotenv
 load_dotenv()
 
-from hud import HUDClient
+import hud
+from hud import gym
 
 async def main():
-    # initialize HUD client
-    client = HUDClient(api_key=os.getenv("HUD_API_KEY"))
-    
-    # load OSWorld environment
-    gym = await client.load_gym(id="OSWorld-Ubuntu")
-    
-    # load OSWorld evalset
-    evalset = await client.load_evalset(id="OSWorld-Ubuntu")
-    
-    # fetch all task ids from the run
-    run = await client.create_run(name="example-run", gym=gym, evalset=evalset)
-    tasks = await run.fetch_task_ids()
-    
-    # make a HUD environment
-    env = await run.make()
+    # Create an environment instance using the gym module
+    env = gym.make("OSWorld-Ubuntu")
     await env.wait_for_ready()
     
-    # run a task
-    if tasks:
-        obs = await env.reset(tasks[0])
-        print(f"Task: {obs.text}")
+    # Load a TaskSet containing tasks
+    taskset = hud.TaskSet.load("osworld_tasks")
+    
+    # Get the first task from the TaskSet
+    task = taskset.tasks[0]
+    
+    # Initialize the environment with the task
+    obs = await env.reset(task=task)
+    print(f"Task: {obs.text}")
     
     #
     # ! define your agent loop here !
     #
     
-    # evaluate environment state
+    # Evaluate environment state
     result = await env.evaluate()
     print(f"Evaluation result: {result}")
     
-    # close when done
+    # When finished, a trajectory is created automatically
+    trajectory = await env.get_trajectory()
+    
+    # Generate a video of the agent's interactions
+    video_url = await trajectory.get_video()
+    print(f"Video available at: {video_url}")
+    
+    # Close when done
     await env.close()
-
+    
 if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-## Example agent: Claude Computer Use&#x20;
+## Example agent: Claude Computer Use
 
 To try Claude Computer Use, clone the full github repo with the agent folder that includes a sample implementation.
 
 ```python
 import os
+import asyncio
 from dotenv import load_dotenv
 load_dotenv()
 
-from hud import HUDClient
+import hud
+from hud import gym
 from hud.adapters.claude.adapter import ClaudeAdapter
 from agent.claude import ClaudeAgent
-
 from anthropic import Anthropic
 
 async def main():
-    # initialize HUD client
-    client = HUDClient(api_key=os.getenv("HUD_API_KEY"))
-    
-    # load OSWorld environment
-    gym = await client.load_gym(id="OSWorld-Ubuntu")
-    
-    # load OSWorld evalset
-    evalset = await client.load_evalset(id="OSWorld-Ubuntu")
-    
-    # fetch all task ids from the run
-    run = await client.create_run(name="example-run", gym=gym, evalset=evalset)
-    tasks = await run.fetch_task_ids()
-    
-    # make a HUD environment
-    env = await run.make()
+    # Create an environment instance using the gym module
+    env = gym.make("OSWorld-Ubuntu")
     await env.wait_for_ready()
     
-    # initalize Claude Computer Use agent
+    # Load a TaskSet containing tasks
+    taskset = hud.TaskSet.load("osworld_tasks")
+    
+    # Get the first task from the TaskSet
+    task = taskset.tasks[0]
+    
+    # Initialize the environment with the task
+    obs = await env.reset(task=task)
+    print(f"Task: {obs.text}")
+    
+    # Initialize Claude Computer Use agent
     anthropic = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
     agent = ClaudeAgent(anthropic)
     
-    # initialize adapter to interact with the environment
+    # Initialize adapter to interact with the environment
     cua_adapter = ClaudeAdapter()
     
-    # run a task
-    if tasks:
-        obs = await env.reset(tasks[0])
-        print(f"Task: {obs.text}")
-    
-    # agent loop
+    # Agent loop
     for i in range(8):  
-        # rescale screenshot to Claude's resolution
+        # Rescale screenshot to Claude's resolution
         screenshot = cua_adapter.rescale(obs.screenshot)
         
-        # agent's next action
+        # Agent's next action
         done, response = await agent.predict(screenshot, obs.text)
         if done:
             env.final_response = str(response)
             break
         
-        # convert to HUD action space
+        # Convert to HUD action space
         actions = cua_adapter.adapt_list([response])
         print(f"Agent's action: {response}")
     
-        # step the environment forward
+        # Step the environment forward
         obs, reward, terminated, info = await env.step(actions)
     
-        # drop out if terminated
+        # Drop out if terminated
         if terminated:
             break
         print(f"Step {i+1} completed")
         
-    # evaluate environment state
+    # Evaluate environment state
     result = await env.evaluate()
     print(f"Evaluation result: {result}")
     
-    # close when done
+    # Generate a trajectory video
+    trajectory = await env.get_trajectory()
+    video_url = await trajectory.get_video()
+    print(f"Video available at: {video_url}")
+    
+    # Close when done
     await env.close()
-
+    
 if __name__ == "__main__":
     asyncio.run(main())
 ```
@@ -143,8 +141,6 @@ For a complete example of implementing a custom agent, check out the [Custom Age
 
 ## Next Steps
 
-* Explore the [Core Concepts](/concepts/client) to understand the SDK architecture
-
+* Explore the [Core Concepts](/concepts/environment) to understand the SDK architecture
 * Check out the [Example](/examples/basic) section for more detailed examples
-
-* Review the [API Reference](/api-reference/client) for comprehensive documentation
+* Review the [API Reference](/api-reference/env) for comprehensive documentation

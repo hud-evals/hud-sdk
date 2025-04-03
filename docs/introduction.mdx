@@ -1,6 +1,7 @@
 ---
 title: "HUD SDK | Docs"
 description: "A Python SDK for interacting with HUD environments and evaluation benchmarks for browser use and computer use models."
+icon: "book-open"
 ---
 
 > **Alpha Release Notice**: This SDK is currently in beta status (v0.1.0-beta). The API is still evolving and may change in future releases as we gather feedback and improve functionality.
@@ -11,13 +12,25 @@ description: "A Python SDK for interacting with HUD environments and evaluation 
 
 HUD provides an interface for:
 
-* Connecting to HUD evaluation environments such as OSWorld
+* Creating and running evaluation environments for browser and computer use agents
 
-* Running benchmarks across various tasks
+* Recording agent interactions through detailed trajectories
+
+* Managing evaluation jobs across multiple tasks
 
 * Supporting different agent adapters
 
-* Providing an asynchronous API for efficient interactions
+* Providing telemetry to track agent performance
+
+## Key Concepts
+
+* **Environment** - A running instance where an agent can interact with code execution capabilities and built-in telemetry
+
+* **Task** - Configuration for reproducibly creating an evaluation environment with a defined problem statement
+
+* **Trajectory** - Record of agent actions, observations, and environment states during a runthrough
+
+* **Job** - Collection of related trajectories for evaluating agent performance across multiple tasks
 
 ## Get Started
 
