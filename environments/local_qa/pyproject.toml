@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "local-qa-env"
+version = "0.1.0"
+description = "A simple text-based question answering environment"
+authors = [
+    {name = "hud team", email = "founders@hud.so"}
+]
+requires-python = ">=3.8"
+dependencies = [
+    "nltk>=3.7",
+]
+
+[tool.setuptools.packages.find]
+include = ["utils", "setup", "evaluate"]

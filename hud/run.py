@@ -6,11 +6,12 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from pydantic import BaseModel, Field
 
-from .adapters.common import Adapter
+import hud.gym
+
 from .environment import Environment
-from .evalset import EvalSet
 from .server import make_request
 from .settings import settings
+
 
 class RunResponse(BaseModel):
     """
@@ -114,7 +115,7 @@ class RunAnalyticsResponse(BaseModel):
         return "\n".join(result)
 
 
-async def load_run(id: str, *, api_key: Optional[str]=None) -> Optional[Run]:
+async def load_run(id: str, *, api_key: str | None = None) -> Run:
     """
     Load a run by ID from the HUD API.
 
@@ -128,7 +129,6 @@ async def load_run(id: str, *, api_key: Optional[str]=None) -> Optional[Run]:
     if api_key is None:
         api_key = settings.api_key
     
-    
     # API call to get run info
     data = await make_request(
         method="GET",
@@ -137,27 +137,22 @@ async def load_run(id: str, *, api_key: Optional[str]=None) -> Optional[Run]:
     )
     if data:
         response = RunResponse(**data)
-        evalset = EvalSet(
-            id=response.evalset["id"],
-            name=response.evalset["name"],
-            tasks=response.evalset["tasks"],
-        )
         return Run(
             id=response.id,
             name=response.name,
             metadata=response.metadata,
         )
-    return None
+    raise ValueError(f"Run {id} not found")
 
 async def make_run(
     name: str,
     gym_id: str,
     *,
-    evalset_id: Optional[str] = None,
+    evalset_id: str | None = None,
     config: dict[str, Any] | None = None,
     metadata: dict[str, Any] | None = None,
     api_key: str | None = None,
-):
+) -> Run:
     """
     Create a new run in the HUD system.
 
@@ -174,10 +169,9 @@ async def make_run(
     """
     if api_key is None:
         api_key = settings.api_key
-    if config is None:
-        config = {}
-    if metadata is None:
-        metadata = {}
+
+    config = config or {}
+    metadata = metadata or {}
 
     data = await make_request(
         method="POST",
@@ -211,6 +205,7 @@ class Run:
         id: str,
         name: str,
         metadata: dict[str, Any] | None = None,
+        api_key: str | None = None,
     ) -> None:
         """
         Initialize a run.
@@ -224,23 +219,13 @@ class Run:
             metadata: Optional metadata
             adapter: Optional adapter for action conversion
         """
+        self.api_key = settings.api_key if api_key is None else api_key
         self.id = id
         self.name = name
         self.metadata = metadata
         self.environments: list[Environment] = []
 
-    async def fetch_task_ids(self) -> list[str]:
-        """
-        Fetch task IDs for this run from the evalset.
-
-        Returns:
-            list[str]: List of task IDs
-        """
-        if self.evalset:
-            return await self.evalset.fetch_task_ids()
-        return []
-
-    async def make(self, metadata: dict[str, Any] | None = None) -> Environment:
+    async def make(self, id_or_name: str, config: dict[str, Any] | None = None, metadata: dict[str, Any] | None = None) -> Environment:
         """
         Create a new environment for this run.
 
@@ -250,16 +235,30 @@ class Run:
         Returns:
             Environment: The created environment
         """
-        # Make the env class
+
+        data = await make_request(
+            method="GET",
+            url=f"{settings.base_url}/gyms/{id_or_name}",
+            api_key=self.api_key,
+        )
+        
+        id = data["id"]
+        
+        run = await make_run(
+            name=f"env-{id}-{datetime.datetime.now().isoformat()}",
+            gym_id=id,
+            config=config,
+            metadata=metadata,
+        )
+
         env = Environment(
-            run_id=self.id,
-            config=self.config,
-            adapter=self.adapter,
-            metadata=metadata or {},
+            run_id=run_id,
+            id=id,
+            config=config,
+            metadata=metadata,
         )
         await env.create_environment()
         self.environments.append(env)
-
         await env.wait_for_ready()
 
         urls = await env.get_urls()

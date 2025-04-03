@@ -16,6 +16,7 @@ dependencies = [
     "eval-type-backport>=0.2.2",
     "textdistance>=4.5.0,<5",
     "inspect-ai>=0.3.80",
+    "paramiko>=3.3.1,<4",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
