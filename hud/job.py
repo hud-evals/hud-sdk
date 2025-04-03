@@ -53,7 +53,7 @@ async def fetch(filters: Optional[Dict[str, Any]] = None) -> List[Job]:
     data = await make_request(
         method="GET",
         url=f"{settings.base_url}/jobs",
-        params=params,
+        json=params,
         api_key=api_key,
     )
     

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+from base64 import b64decode, b64encode
 import json
 import logging
 from typing import Any, Optional

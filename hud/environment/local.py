@@ -10,6 +10,7 @@ import uuid
 from typing import Any, Optional
 
 import docker
+import docker.errors
 from docker.errors import DockerException, ImageNotFound
 
 from .base import Environment, EvaluateConfig, SetupConfig, process_config
@@ -570,6 +571,7 @@ except Exception as e:
         except Exception as e:
             logger.error("Failed to remove container: %s", e)
             raise
+    
     async def wait_for_ready(self) -> None:
         """Wait for the environment to be ready."""
         return
