@@ -1,0 +1,37 @@
+---
+title: 'hud.gym'
+description: 'API reference for the gym module'
+---
+
+# hud.gym
+
+The `hud.gym` module provides functions for creating and managing environments.
+
+## Module Functions
+
+### make
+
+```python
+make(env_id: str, job_id: str, **kwargs) -> Env
+```
+
+Creates a new environment instance.
+
+**Parameters:**
+- `env_id` (str): The ID of the environment to create
+- `job_id` (str): The ID of the job to associate with the environment
+- `**kwargs`: Additional keyword arguments to pass to the environment constructor
+
+**Returns:**
+- `Env`: A new environment instance
+
+### list_available_environments
+
+```python
+list_available_environments() -> list[str]
+```
+
+Returns a list of available environment IDs.
+
+**Returns:**
+- `list[str]`: A list of environment IDs

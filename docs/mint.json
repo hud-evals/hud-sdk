@@ -2,8 +2,8 @@
   "$schema": "https://mintlify.com/schema.json",
   "name": "HUD SDK",
   "logo": {
-    "dark": "/logo/HUD-dark.png",
-    "light": "/logo/HUD.svg"
+    "light": "/logo/HUD-dark.png",
+    "dark": "/logo/HUD.svg"
   },
   "favicon": "/favicon.png",
   "colors": {
@@ -21,28 +21,7 @@
     "name": "Get Started",
     "url": "/introduction"
   },
-  "tabs": [
-    {
-      "name": "API Reference",
-      "url": "api-reference"
-    },
-    {
-      "name": "Examples",
-      "url": "examples"
-    }
-  ],
-  "anchors": [
-    {
-      "name": "Installation",
-      "icon": "download",
-      "url": "installation"
-    },
-    {
-      "name": "Quickstart",
-      "icon": "bolt",
-      "url": "quickstart"
-    }
-  ],
+
   "navigation": [
     {
       "group": "Getting Started",
@@ -55,18 +34,28 @@
     {
       "group": "Core Concepts",
       "pages": [
-        "concepts/client",
-        "concepts/gym",
-        "concepts/adapter",
-        "concepts/environment"
+        "concepts/environment",
+        "concepts/task",
+        "concepts/trajectory",
+        "concepts/job",
+        "concepts/adapter"
       ]
     },
     {
       "group": "API Reference",
       "pages": [
-        "api-reference/client",
-        "api-reference/env",
-        "api-reference/adapters"
+        {
+          "group": "Modules",
+          "pages": [
+            "api-reference/env",
+            "api-reference/gym", 
+            "api-reference/task",
+            "api-reference/taskset",
+            "api-reference/trajectory",
+            "api-reference/job",
+            "api-reference/adapters"
+          ]
+        }
       ]
     },
     {
@@ -82,4 +71,4 @@
     "github": "https://github.com/Human-Data/hud-sdk",
     "website": "https://hud.so"
   }
-} 
+}

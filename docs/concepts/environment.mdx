@@ -3,40 +3,52 @@ title: 'Environment'
 description: 'Understanding HUD Environments'
 ---
 
-An `Env` in the HUD SDK represents a running instance of a gym where an agent can interact with tasks. It provides methods for observation, action, and evaluation.
+# Environment
+
+An `Environment` in the HUD SDK represents a running instance where an agent can interact with a task. It provides methods for observation, action, and built-in telemetry to record the agent's interactions.
+
+## Overview
+
+Environments are the core runtime instances where agents perform tasks. Key features include:
+
+- Gymnasium-compatible interface for agent interaction
+- Built-in telemetry to record actions and observations
+- Methods to evaluate agent performance
+- Support for video generation of agent interactions
+- Automatic trajectory creation for later analysis
 
 ## Initialization
 
-Environments are created from a run:
+Environments are created using the gym module:
 
 ```python
-from hud import HUDClient
+import hud
+from hud import gym
 
-client = HUDClient(api_key="your-api-key")
-gym = await client.load_gym(id="OSWorld-Ubuntu")
-evalset = await client.load_evalset(id="OSWorld-Ubuntu")
-run = await client.create_run(name="example-run", gym=gym, evalset=evalset)
+# Create a job to group related trajectories
+job = await hud.Job.create(name="example-job")
 
-# Create environment
-env = await run.make(metadata={"agent_id": "example"})
+# Create an environment instance
+env = gym.make("OSWorld-Ubuntu", job_id=job.id)
 
 # Wait for environment to be ready
-while True:
-    if await env.get_env_state() in ["running", "error"]:
-        break
-    await asyncio.sleep(2)
+await env.wait_for_ready()
+
+# Load a task and reset the environment
+task = await hud.Task.get("osworld_task_id")
+observation = await env.reset(task_id=task.id)
 ```
 
 ## Key Methods
 
-The `Env` class provides several key methods:
+The `Environment` class provides several key methods:
 
 ### Reset
 
 Resets the environment to a specific task:
 
 ```python
-observation = await env.reset(task_id, metadata={"run": "example"})
+observation = await env.reset(task_id="task-123", metadata={"agent_version": "1.0"})
 ```
 
 ### Step
@@ -55,6 +67,15 @@ Evaluates the current task:
 result = await env.evaluate()
 ```
 
+### Get Trajectory
+
+Retrieves the trajectory record of the agent's interactions:
+
+```python
+trajectory = await env.get_trajectory()
+video_url = await trajectory.get_video()
+```
+
 ### Close
 
 Closes the environment:
@@ -68,19 +89,16 @@ await env.close()
 Observations from the environment include:
 
 * `screenshot`: A base64-encoded PNG image of the current screen
-
-* `text`: Text observation, if available
+* `text`: Text observation from the environment
+* `state`: Additional state information specific to the environment type
 
 ## Environment States
 
 An environment can be in one of several states:
 
 * `creating`: The environment is being created
-
 * `running`: The environment is running and ready for interaction
-
 * `error`: An error occurred during environment creation or execution
-
 * `closed`: The environment has been closed
 
 ## VNC Access
@@ -89,5 +107,11 @@ For debugging purposes, you can view the environment directly via VNC:
 
 ```python
 live_url = await env.get_vnc_url()
-client.display_stream(live_url)
+print(f"Connect to the environment via VNC at: {live_url}")
 ```
+
+## Related Concepts
+
+- [Task](/concepts/task) - The configuration that defines what the agent needs to accomplish
+- [Trajectory](/concepts/trajectory) - The record of agent interactions in the environment
+- [Job](/concepts/job) - Groups of related trajectories across multiple tasks

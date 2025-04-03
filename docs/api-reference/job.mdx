@@ -1,0 +1,89 @@
+---
+title: 'hud.job'
+description: 'API reference for the job module'
+---
+
+# hud.job
+
+The `hud.job` module provides the Job class and functions for working with collections of trajectories.
+
+## Module Functions
+
+### fetch
+
+```python
+async def fetch(filters: Optional[Dict[str, Any]] = None) -> List[Job]:
+    ...
+```
+
+Lists jobs, optionally filtered by metadata.
+
+**Parameters:**
+- `filters` (Dict[str, Any], optional): Metadata filters to apply
+
+**Returns:**
+- `List[Job]`: A list of jobs matching the filters
+
+## Classes
+
+### Job
+
+The `Job` class represents a collection of related trajectories. Jobs should be created using the `create` class method rather than being constructed directly.
+
+#### Class Methods
+
+##### create
+
+```python
+@classmethod
+async def create(cls, name: str, metadata: Optional[Dict[str, Any]] = None) -> Job:
+    ...
+```
+
+Creates a new job.
+
+**Parameters:**
+- `name` (str): The name of the job
+- `metadata` (Dict[str, Any], optional): Metadata for the job
+
+**Returns:**
+- `Job`: The created job
+
+##### get
+
+```python
+@classmethod
+async def get(cls, job_id: str) -> Job:
+    ...
+```
+
+Retrieves a job by its ID.
+
+**Parameters:**
+- `job_id` (str): The ID of the job to retrieve
+
+**Returns:**
+- `Job`: The retrieved job
+
+#### Instance Methods
+
+##### load_trajectories
+
+```python
+async def load_trajectories(self) -> List[Trajectory]:
+    ...
+```
+
+Loads the trajectories associated with this job.
+
+**Returns:**
+- `List[Trajectory]`: The trajectories in the job
+
+#### Properties
+
+- `id` (str): Unique identifier for the job
+- `name` (str): Name of the job
+- `created_at` (datetime): When the job was created
+- `completed_at` (datetime, optional): When the job was completed
+- `status` (str): Status of the job (e.g., "running", "completed", "error")
+- `metadata` (Dict[str, Any]): Metadata associated with the job

@@ -1,0 +1,83 @@
+---
+title: 'hud.taskset'
+description: 'API reference for the taskset module'
+---
+
+# hud.taskset
+
+The `hud.taskset` module provides the TaskSet class for working with collections of tasks.
+
+## Classes
+
+### TaskSet
+
+The `TaskSet` class represents a collection of related tasks. TaskSets are typically loaded using the `load` class method rather than being constructed directly.
+
+#### Class Methods
+
+##### load
+
+```python
+@classmethod
+def load(cls, taskset_id: str) -> TaskSet:
+    ...
+```
+
+Loads a TaskSet by its ID.
+
+**Parameters:**
+- `taskset_id` (str): The ID of the taskset to load
+
+**Returns:**
+- `TaskSet`: The loaded taskset
+
+##### from_inspect_dataset
+
+```python
+@classmethod
+def from_inspect_dataset(cls, dataset: Any) -> TaskSet:
+    ...
+```
+
+Creates a TaskSet from an inspect-ai dataset.
+
+**Parameters:**
+- `dataset` (Any): An inspect-ai dataset
+
+**Returns:**
+- `TaskSet`: A new TaskSet instance
+
+#### Instance Methods
+
+##### __getitem__
+
+```python
+def __getitem__(self, index: int) -> Task:
+    ...
+```
+
+Returns the task at the specified index.
+
+**Parameters:**
+- `index` (int): The index of the task to retrieve
+
+**Returns:**
+- `Task`: The task at the specified index
+
+##### __len__
+
+```python
+def __len__(self) -> int:
+    ...
+```
+
+Returns the number of tasks in the taskset.
+
+**Returns:**
+- `int`: The number of tasks
+
+#### Properties
+
+- `id` (str): Unique identifier for the taskset
+- `description` (str): Description of the taskset
+- `tasks` (List[Task]): List of Task objects in the taskset

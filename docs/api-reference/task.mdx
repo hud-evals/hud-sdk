@@ -1,0 +1,41 @@
+---
+title: 'hud.task'
+description: 'API reference for the task module'
+---
+
+# hud.task
+
+The `hud.task` module provides the Task class for working with HUD tasks.
+
+## Classes
+
+### Task
+
+The `Task` class represents a single evaluation task with specific configuration. Tasks are typically accessed through TaskSet instances rather than being constructed directly.
+
+#### Class Methods
+
+##### from_inspect_sample
+
+```python
+@classmethod
+def from_inspect_sample(cls, sample: Any) -> Task:
+    ...
+```
+
+Creates a Task instance from an inspect-ai sample.
+
+**Parameters:**
+- `sample` (Any): An inspect-ai sample
+
+**Returns:**
+- `Task`: A new Task instance
+
+#### Properties
+
+- `id` (str): Unique identifier for the task
+- `envconfig` (Dict): Environment configuration
+- `setup` (str): Setup instructions for the environment
+- `evaluator` (str): Evaluator specification
+- `problem_statement` (str): The text prompt
+- `config` (Dict[str, Any]): Additional configuration parameters

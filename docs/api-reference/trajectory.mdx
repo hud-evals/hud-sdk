@@ -1,0 +1,58 @@
+---
+title: 'hud.trajectory'
+description: 'API reference for the trajectory module'
+---
+
+# hud.trajectory
+
+The `hud.trajectory` module provides the Trajectory class for working with task execution records.
+
+## Classes
+
+### Trajectory
+
+The `Trajectory` class represents a record of a task execution, including actions, observations, and evaluations. Trajectories are typically accessed via the `load` class method or through `Job.load_trajectories()` rather than being constructed directly.
+
+#### Class Methods
+
+##### load
+
+```python
+@classmethod
+async def load(cls, trajectory_id: str) -> Trajectory:
+    ...
+```
+
+Loads a trajectory by its ID.
+
+**Parameters:**
+- `trajectory_id` (str): The ID of the trajectory to load
+
+**Returns:**
+- `Trajectory`: The loaded trajectory
+
+#### Instance Methods
+
+##### get_video
+
+```python
+async def get_video(self) -> bytes:
+    ...
+```
+
+Retrieves the video recording of the trajectory.
+
+**Returns:**
+- `bytes`: The video data
+
+#### Properties
+
+- `id` (str): Unique identifier for the trajectory
+- `task_id` (str): ID of the task that was executed
+- `job_id` (str): ID of the job the trajectory belongs to
+- `actions` (List[Any]): List of actions taken during the trajectory
+- `observations` (List[Observation]): List of observations received during the trajectory
+- `states` (List[Any]): List of environment states during the trajectory
+- `evaluation` (float): Evaluation score for the trajectory
+- `created_at` (datetime): When the trajectory was created
+- `duration` (float): Duration of the trajectory in seconds
