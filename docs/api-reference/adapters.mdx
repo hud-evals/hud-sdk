@@ -3,19 +3,17 @@ title: 'hud.adapters'
 description: 'API reference for the adapters module'
 ---
 
-# hud.adapters
-
 The `hud.adapters` module provides adapter classes for converting between different action formats.
 
-## Classes
+# Classes
 
-### Adapter
+## Adapter
 
 The `Adapter` class is a base class for adapters that convert between different action formats.
 
-#### Methods
+### Methods
 
-##### convert
+#### convert
 
 ```python
 def convert(self, data: Any) -> Dict[str, Any]:
@@ -30,7 +28,7 @@ Converts data from one format to another.
 **Returns:**
 - `Dict[str, Any]`: The converted data
 
-##### adapt_list
+#### adapt_list
 
 ```python
 def adapt_list(self, actions: List[Any]) -> List[Dict[str, Any]]:
@@ -45,13 +43,13 @@ Converts a list of actions from one format to another.
 **Returns:**
 - `List[Dict[str, Any]]`: The converted actions
 
-### ClaudeAdapter
+## ClaudeAdapter
 
 The `ClaudeAdapter` class is an adapter for converting Claude model outputs to HUD actions.
 
-#### Methods
+### Methods
 
-##### convert
+#### convert
 
 ```python
 def convert(self, data: str) -> Dict[str, Any]:
@@ -66,9 +64,9 @@ Converts Claude output to HUD actions.
 **Returns:**
 - `Dict[str, Any]`: The corresponding HUD action
 
-## Common Action Types
+# Common Action Types
 
-### ClickAction
+## ClickAction
 
 ```python
 ClickAction(x: int, y: int) -> Dict[str, Any]
@@ -83,7 +81,7 @@ Creates a click action at the specified coordinates.
 **Returns:**
 - `Dict[str, Any]`: A click action
 
-### TypeAction
+## TypeAction
 
 ```python
 TypeAction(text: str) -> Dict[str, Any]
@@ -97,7 +95,7 @@ Creates a typing action with the specified text.
 **Returns:**
 - `Dict[str, Any]`: A type action
 
-### ScrollAction
+## ScrollAction
 
 ```python
 ScrollAction(dx: int, dy: int) -> Dict[str, Any]
@@ -112,7 +110,7 @@ Creates a scroll action with the specified deltas.
 **Returns:**
 - `Dict[str, Any]`: A scroll action
 
-### DragAction
+## DragAction
 
 ```python
 DragAction(start: Point, end: Point) -> Dict[str, Any]
@@ -127,7 +125,7 @@ Creates a drag action from the start point to the end point.
 **Returns:**
 - `Dict[str, Any]`: A drag action
 
-### Point
+## Point
 
 ```python
 Point(x: int, y: int) -> Dict[str, Any]

@@ -31,9 +31,6 @@
       {
         "group": "API Reference",
         "pages": [
-          {
-            "group": "Modules",
-            "pages": [
               "api-reference/env",
               "api-reference/gym",
               "api-reference/task",
@@ -42,8 +39,6 @@
               "api-reference/job",
               "api-reference/adapters"
             ]
-          }
-        ]
       },
       {
         "group": "Examples",
