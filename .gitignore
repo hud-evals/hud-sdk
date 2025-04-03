@@ -18,6 +18,9 @@ uv.lock
 *.tiff
 *.ico
 
+# Ignore IDE files
+.vscode
+
 # Ignore all top level notebooks
 /*.ipynb
 
