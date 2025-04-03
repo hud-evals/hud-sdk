@@ -121,7 +121,7 @@ class LocalEnvironment(Environment):
     def __init__(
         self,
         id: str,
-        metadata: dict[str, Any] | None = None,
+        metadata: Optional[dict[str, Any]] = None,
         mount_code: bool = True,
     ) -> None:
         """Initialize a local environment.
@@ -272,7 +272,7 @@ class LocalEnvironment(Environment):
             
         logger.debug("initialize() method completed successfully")
     
-    async def setup(self, setup_config: SetupConfig | None = None) -> Any:
+    async def setup(self, setup_config: Optional[SetupConfig] = None) -> Any:
         """Run a setup function in the environment.
         
         Args:
@@ -321,7 +321,7 @@ class LocalEnvironment(Environment):
         logger.debug("Executing step command: %s", command)
         return await self._run_function("step.step", command)
         
-    async def evaluate(self, evaluate_config: EvaluateConfig | None = None) -> Any:
+    async def evaluate(self, evaluate_config: Optional[EvaluateConfig] = None) -> Any:
         """Run an evaluation function in the environment.
         
         Args:

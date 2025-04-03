@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any
+from typing import Any, Optional
 import time
 
 import httpx
@@ -22,10 +22,10 @@ class RequestError(Exception):
     def __init__(
         self,
         message: str,
-        status_code: int | None = None,
-        response_text: str | None = None,
-        response_json: dict[str, Any] | None = None,
-        response_headers: dict[str, str] | None = None,
+        status_code: Optional[int] = None,
+        response_text: Optional[str] = None,
+        response_json: Optional[dict[str, Any]] = None,
+        response_headers: Optional[dict[str, str]] = None,
     ) -> None:
         self.message = message
         self.status_code = status_code
@@ -121,8 +121,8 @@ async def _handle_retry(
 async def make_request(
     method: str,
     url: str,
-    json: Any | None = None,
-    api_key: str | None = None,
+    json: Optional[Any] = None,
+    api_key: Optional[str] = None,
     max_retries: int = 4,
     retry_delay: float = 2.0,
 ) -> dict[str, Any]:
@@ -197,8 +197,8 @@ async def make_request(
 def make_request_sync(
     method: str,
     url: str,
-    json: Any | None = None,
-    api_key: str | None = None,
+    json: Optional[Any] = None,
+    api_key: Optional[str] = None,
     max_retries: int = 4,
     retry_delay: float = 2.0,
 ) -> dict[str, Any]:

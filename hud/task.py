@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import json
-from typing import Any, Union
+from typing import Any, Optional, Union
 
 # Define types for configuration
 SetupConfig = Union[str, dict[str, Any], list[Any]]
@@ -33,10 +33,10 @@ class Task:
         self,
         gym: str,
         prompt: str,
-        setup: SetupConfig | None = None,
-        evaluate: EvaluateConfig | None = None,
-        id: str | None = None,
-        metadata: dict[str, Any] | None = None,
+        setup: Optional[SetupConfig] = None,
+        evaluate: Optional[EvaluateConfig] = None,
+        id: Optional[str] = None,
+        metadata: Optional[dict[str, Any]] = None,
         **kwargs: Any
     ) -> None:
         """Initialize a task.

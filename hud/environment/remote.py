@@ -35,8 +35,8 @@ class RemoteEnvironment(Environment):
     
     def __init__(
         self,
-        id: str | None = None,
-        metadata: dict[str, Any] | None = None,
+        id: Optional[str] = None,
+        metadata: Optional[dict[str, Any]] = None,
     ) -> None:
         """
         Initialize an environment.
@@ -86,7 +86,7 @@ class RemoteEnvironment(Environment):
         self.id = data["id"]
         return self.id
     
-    async def get_vnc_url(self) -> str | None:
+    async def get_vnc_url(self) -> Optional[str]:
         """
         Get the VNC URL for the environment.
         
@@ -129,7 +129,7 @@ class RemoteEnvironment(Environment):
         )
         return data["state"]
     
-    async def setup(self, setup_config: SetupConfig | None = None) -> Any:
+    async def setup(self, setup_config: Optional[SetupConfig] = None) -> Any:
         """Run a setup function in the environment.
         
         Args:
@@ -194,7 +194,7 @@ class RemoteEnvironment(Environment):
             task_result.info,
         )
     
-    async def evaluate(self, evaluate_config: EvaluateConfig | None = None) -> Any:
+    async def evaluate(self, evaluate_config: Optional[EvaluateConfig] = None) -> Any:
         """Run an evaluation function in the environment.
         
         Args:

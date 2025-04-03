@@ -23,8 +23,8 @@ class Observation(BaseModel):
         text: Text observation, if available
     """
 
-    screenshot: str | None = None  # base64 string png
-    text: str | None = None
+    screenshot: Optional[str] = None  # base64 string png
+    text: Optional[str] = None
 
 
 class TaskResult(BaseModel):
@@ -169,7 +169,7 @@ class Environment(Protocol):
         """
         ...
     
-    async def setup(self, setup_config: SetupConfig | None = None) -> Any:
+    async def setup(self, setup_config: Optional[SetupConfig] = None) -> Any:
         """Run a setup function in the environment.
         
         Args:
@@ -191,7 +191,7 @@ class Environment(Protocol):
         """
         ...
         
-    async def evaluate(self, evaluate_config: EvaluateConfig | None = None) -> Any:
+    async def evaluate(self, evaluate_config: Optional[EvaluateConfig] = None) -> Any:
         """Run an evaluation function in the environment.
         
         Args:

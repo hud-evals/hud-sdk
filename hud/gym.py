@@ -4,7 +4,7 @@ import asyncio
 import glob
 import logging
 import os
-from typing import Any
+from typing import Any, Optional, Union
 
 from hud.environment import Environment, LocalEnvironment, RemoteEnvironment
 from hud.server import make_request
@@ -66,8 +66,8 @@ def is_local_environment(env_id: str) -> bool:
     return os.path.isdir(env_path)
 
 async def make(
-    env_id_or_task: str | Task,
-    timeout: float | None = None,
+    env_id_or_task: Union[str, Task],
+    timeout: Optional[float] = None,
     **kwargs: Any,
 ) -> Environment:
     """

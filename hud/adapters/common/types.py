@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -19,11 +19,11 @@ class Point(BaseModel):
 # CLICK ACTION (supports extra options)
 class ClickAction(CLAAction):
     type: Literal["click"] = "click"
-    point: Point | None = None
-    selector: str | None = None
+    point: Optional[Point] = None
+    selector: Optional[str] = None
     button: Literal["left", "right", "wheel", "back", "forward"] = "left"
-    pattern: list[int] | None = None  # [delay_1, delay_2, ...]
-    hold_keys: list[CLAKey] | None = None
+    pattern: Optional[list[int]] = None  # [delay_1, delay_2, ...]
+    hold_keys: Optional[list[CLAKey]] = None
 
 
 # PRESS ACTION for key presses/hotkeys
@@ -45,24 +45,24 @@ class KeyUpAction(CLAAction):
 class TypeAction(CLAAction):
     type: Literal["type"] = "type"
     text: str
-    selector: str | None = None
-    enter_after: bool | None = False
+    selector: Optional[str] = None
+    enter_after: Optional[bool] = False
 
 
 # SCROLL ACTION
 class ScrollAction(CLAAction):
     type: Literal["scroll"] = "scroll"
-    point: Point | None = None
-    scroll: Point | None = None
-    hold_keys: list[CLAKey] | None = None
+    point: Optional[Point] = None
+    scroll: Optional[Point] = None
+    hold_keys: Optional[list[CLAKey]] = None
 
 
 # MOVE ACTION for mouse movement
 class MoveAction(CLAAction):
     type: Literal["move"] = "move"
-    point: Point | None = None
-    selector: str | None = None
-    offset: Point | None = None
+    point: Optional[Point] = None
+    selector: Optional[str] = None
+    offset: Optional[Point] = None
 
 
 # WAIT ACTION
@@ -75,8 +75,8 @@ class WaitAction(CLAAction):
 class DragAction(CLAAction):
     type: Literal["drag"] = "drag"
     path: list[Point]
-    pattern: list[int] | None = None  # [delay_1, delay_2, ...]
-    hold_keys: list[CLAKey] | None = None
+    pattern: Optional[list[int]] = None  # [delay_1, delay_2, ...]
+    hold_keys: Optional[list[CLAKey]] = None
 
 class CustomAction(CLAAction):
     type: Literal["custom"] = "custom"

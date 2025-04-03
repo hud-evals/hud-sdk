@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from . import environment
 from . import gym
-from . import run
+from . import job
+from . import taskset
 from . import task
 from . import utils
 
@@ -15,7 +16,8 @@ __version__ = "0.1.0b3"
 __all__ = [
     "environment", 
     "gym",
-    "run",
+    "job",
+    "taskset",
     "task",
     "utils",
 ]

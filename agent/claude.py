@@ -1,5 +1,6 @@
 import os
 import json
+from typing import Optional
 from agent.base import Agent
 from anthropic import Anthropic
 from anthropic.types import Message
@@ -13,7 +14,7 @@ class ClaudeAgent(Agent):
         self.thinking_budget = 1024
         self.conversation = []  # Store the full conversation history including Claude's responses
 
-    async def predict(self, screenshot: str | None = None, text: str | None = None) -> tuple[bool, str | object | None]:
+    async def predict(self, screenshot: Optional[str] = None, text: Optional[str] = None) -> tuple[bool, str | object | None]:
         message = self._create_message(screenshot, text)
 
         # Only append the message if it's not empty
@@ -37,7 +38,7 @@ class ClaudeAgent(Agent):
 
         return done, processed
 
-    def _create_message(self, screenshot: str | None = None, text: str | None = None):
+    def _create_message(self, screenshot: Optional[str] = None, text: Optional[str] = None):
         """Create appropriate message based on context and inputs"""
 
         # Check if the previous response was from assistant and had tool_use

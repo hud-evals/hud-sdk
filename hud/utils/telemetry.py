@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 
-def stream(live_url: str | None = None) -> None:
+def stream(live_url: Optional[str] = None) -> None:
     """
     Display a stream in the HUD system.
     """
