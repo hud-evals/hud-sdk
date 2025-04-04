@@ -249,3 +249,72 @@ class Run:
         )
         return RunTrajectoriesResponse(**data)
 
+
+    @staticmethod
+    def visualize_trajectory(task_trajectory: Trajectory) -> None:
+        """
+        Prints a visualization of a single task's trajectory to the console.
+
+        Args:
+            task_trajectory: The Trajectory object containing the data for one task.
+        """
+        print(f"Task ID: {task_trajectory.id}")
+        reward_str = f"{task_trajectory.reward:.4f}" if task_trajectory.reward is not None else "N/A"
+        print(f"Task Reward: {reward_str}")
+        print("-" * 40)
+
+        if not task_trajectory.trajectory:
+            print("  No steps in this task's trajectory.")
+            return
+
+        for i, step in enumerate(task_trajectory.trajectory):
+            print(f"  Step {i + 1}:")
+
+            # Observation
+            if step.observation_url:
+                print(f"    Observation Image: {step.observation_url}")
+            if step.observation_text:
+                print(f"    Observation Text: {step.observation_text}")
+            if not step.observation_url and not step.observation_text:
+                 print("    No observation provided.")
+
+            # Actions
+            print(f"    Actions: {step.actions}")
+
+            # Duration
+            duration_str = "N/A"
+            if step.start_timestamp and step.end_timestamp:
+                try:
+                    # Attempt to parse timestamps (assuming ISO format)
+                    start_dt = datetime.datetime.fromisoformat(step.start_timestamp.replace('Z', '+00:00'))
+                    end_dt = datetime.datetime.fromisoformat(step.end_timestamp.replace('Z', '+00:00'))
+                    duration = end_dt - start_dt
+                    total_seconds = duration.total_seconds()
+                    minutes = int(total_seconds // 60)
+                    seconds = total_seconds % 60
+                    duration_str = f"{minutes}m {seconds:.2f}s"
+                except ValueError:
+                    duration_str = "Error parsing timestamps" # Handle potential format issues
+            print(f"    Step Duration: {duration_str}")
+            print("-" * 20) # Separator between steps
+
+    @staticmethod
+    def visualize_trajectories(response: RunTrajectoriesResponse) -> None:
+        """
+        Prints a visualization of all run trajectories to the console.
+
+        Args:
+            response: The RunTrajectoriesResponse object containing the data.
+        """
+        print(f"Run ID: {response.id}")
+        print(f"Run Name: {response.name}")
+        print(f"Average Reward: {response.average_reward:.4f}")
+        print("=" * 60)
+
+        if not response.trajectories:
+            print("No trajectories found for this run.")
+            return
+
+        for task_trajectory in response.trajectories:
+            Run.visualize_trajectory(task_trajectory) # Call the single trajectory visualizer
+            print("=" * 40) # Separator between tasks
