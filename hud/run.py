@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -35,6 +35,33 @@ class RunResponse(BaseModel):
     evalset: dict[str, Any]
     config: dict[str, Any]
     metadata: dict[str, Any]
+
+
+class TrajectoryStep(BaseModel):
+    """Model representing a single step in a task run's trajectory."""
+
+    observation_url: str | None = None
+    observation_text: str | None = None
+    actions: List[dict]
+    start_timestamp: str | None = None
+    end_timestamp: str | None = None
+
+
+class Trajectory(BaseModel):
+    """Model representing a single task run's trajectory information."""
+
+    id: str # Task ID
+    reward: Optional[float] = None
+    trajectory: List[TrajectoryStep] = Field(default_factory=list)
+
+
+class RunTrajectoriesResponse(BaseModel):
+    """Response model for listing trajectories for a run."""
+
+    id: str # Run ID
+    name: str
+    average_reward: float 
+    trajectories: List[Trajectory]
 
 
 class RunAnalyticsResponse(BaseModel):
@@ -161,6 +188,7 @@ class Run:
         self.config = config
         self.metadata = metadata
         self.environments: list[Environment] = []
+        self.trajectories: list[Trajectory] = []
 
     async def fetch_task_ids(self) -> list[str]:
         """
@@ -206,3 +234,18 @@ class Run:
             api_key=settings.api_key,
         )
         return RunAnalyticsResponse(**data)
+
+    async def get_trajectories(self) -> RunTrajectoriesResponse:
+        """
+        Get trajectories for this run.
+
+        Returns:
+            RunTrajectoriesResponse: Trajectory data for each task in the run.
+        """
+        data = await make_request(
+            method="GET",
+            url=f"{settings.base_url}/runs/{self.id}/trajectories",
+            api_key=settings.api_key,
+        )
+        return RunTrajectoriesResponse(**data)
+
