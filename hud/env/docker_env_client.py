@@ -1,12 +1,41 @@
+import tarfile
+import tempfile
 import uuid
 from aiodocker.stream import Stream
 from aiohttp import ClientTimeout
-from typing import Optional
+from typing import IO, Optional, Union
+from io import BytesIO
 from hud.env.env_client import EnvClient
 from hud.utils import ExecuteResult
 import io
 import aiodocker
 from hud.env.env_client import EnvironmentStatus
+
+
+def mktar_from_dockerfile(fileobj: Union[BytesIO, IO[bytes]]) -> IO[bytes]:
+    """
+    Create a zipped tar archive from a Dockerfile
+    **Remember to close the file object**
+    Args:
+        fileobj: a Dockerfile
+    Returns:
+        a NamedTemporaryFile() object
+    """
+
+    f = tempfile.NamedTemporaryFile()
+    t = tarfile.open(mode="w:gz", fileobj=f)
+
+    if isinstance(fileobj, io.BytesIO):
+        dfinfo = tarfile.TarInfo("Dockerfile")
+        dfinfo.size = len(fileobj.getvalue())
+        fileobj.seek(0)
+    else:
+        dfinfo = t.gettarinfo(fileobj=fileobj, arcname="Dockerfile")
+
+    t.addfile(dfinfo, fileobj)
+    t.close()
+    f.seek(0)
+    return f
 
 
 class DockerEnvClient(EnvClient):
@@ -34,10 +63,14 @@ class DockerEnvClient(EnvClient):
         # Create fileobj for the Dockerfile
         dockerfile_fileobj = io.BytesIO(dockerfile.encode("utf-8"))
 
+        # Create a tar file from the dockerfile
+        dockerfile_tar = mktar_from_dockerfile(dockerfile_fileobj)
+
         # Build the image
         print(f"Building Docker image {image_tag}...")
         build_stream = await docker_client.images.build(
-            fileobj=dockerfile_fileobj,
+            fileobj=dockerfile_tar,
+            encoding="gzip",
             tag=image_tag,
             rm=True,
             pull=True,
@@ -80,11 +113,21 @@ class DockerEnvClient(EnvClient):
         super().__init__()
         
         # Store container ID instead of container object
-        self.container_id = container_id
+        self._container_id = container_id
         
         # Docker client will be initialized when needed
         self._docker = docker_conn
         
+    @property
+    def container_id(self) -> str:
+        """Get the container ID."""
+        return self._container_id
+
+    @container_id.setter
+    def container_id(self, value: str) -> None:
+        """Set the container ID."""
+        self._container_id = value
+    
     async def _get_container(self):
         """Get the container object from aiodocker."""
         return await self._docker.containers.get(self.container_id)

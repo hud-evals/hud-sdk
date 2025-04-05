@@ -3,7 +3,7 @@
 import socket
 from typing import Any
 
-from .utils.state import save_state, load_state
+from qa_controller.utils.state import save_state, load_state
 
 
 def get_urls() -> dict[str, Any]:

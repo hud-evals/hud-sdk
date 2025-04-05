@@ -1,12 +1,8 @@
 """Text matching evaluation functions."""
 
 from typing import Any
-import sys
-import os
 
-# Add the parent directory to sys.path to make relative imports work
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from utils.state import get_last_answer, load_state
+from qa_controller.utils.state import get_last_answer, load_state
 
 # Try to import nltk for better evaluation
 try:

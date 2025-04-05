@@ -37,7 +37,8 @@ def directory_to_tar_bytes(directory_path: Path) -> bytes:
         for file_path in directory_path.rglob('*'):
             if file_path.is_file():
                 # Calculate relative path for the archive
-                rel_path = file_path.relative_to(directory_path.parent)
+                rel_path = file_path.relative_to(directory_path)
+                print(f"Adding {rel_path} to tar archive")
                 tar.add(file_path, arcname=str(rel_path))
     
     # Get the bytes from the BytesIO object

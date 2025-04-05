@@ -192,7 +192,7 @@ class Environment(BaseModel):
         if len(stdout_parts) > 1:
             result = json.loads(stdout_parts[1])
         else:
-            raise InvokeError(stderr)
+            raise InvokeError(stdout, stderr)
 
         return result, stdout, stderr
 

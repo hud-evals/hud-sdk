@@ -10,37 +10,26 @@ import toml
 
 
 
-class EnvClient(BaseModel, abc.ABC):
+class EnvClient(BaseModel):
     """
     Base class for environment clients.
     
     Handles updating the environment when local files change.
     """
     
-    def __init__(self):
-        """Initialize the base environment controller."""
-        # Last known pyproject.toml content
-        self.last_pyproject_toml_str = None
-        
-        # Track the last update time and file modification times
-        self.last_update_time = 0
-        self.last_file_mtimes: Dict[str, float] = {}
-        
-        # Source path and env_id are initially None
-        self._source_path = None
-        self._env_id = None
-        self._is_configured = False
-        self._package_name = None
-        
+    _last_pyproject_toml_str: Optional[str] = None
+    _last_update_time: int = 0
+    _last_file_mtimes: Dict[str, float] = {}
+    _is_configured: bool = False
+    _source_path: Optional[Path] = None
+    _package_name: Optional[str] = None
+    
+
+
     @property
     def source_path(self) -> Optional[Path]:
         """Get the source path."""
         return self._source_path
-    
-    @property
-    def env_id(self) -> Optional[str]:
-        """Get the environment ID."""
-        return self._env_id
     
     @property
     def package_name(self) -> str:
@@ -131,11 +120,11 @@ class EnvClient(BaseModel, abc.ABC):
         Returns:
             Dict[str, float]: Dictionary mapping file paths to modification times
         """
-        if not self.source_path:
+        if not self._source_path:
             return {}
             
         file_mtimes = {}
-        for root, _, files in os.walk(self.source_path):
+        for root, _, files in os.walk(self._source_path):
             for file in files:
                 file_path = Path(root) / file
                 try:
@@ -161,12 +150,12 @@ class EnvClient(BaseModel, abc.ABC):
         current_mtimes = self._get_all_file_mtimes()
         
         # If we don't have previous modification times, we need an update
-        if not self.last_file_mtimes:
+        if not self._last_file_mtimes:
             return True
         
         # Check for new or modified files
         for file_path, mtime in current_mtimes.items():
-            if file_path not in self.last_file_mtimes or mtime > self.last_file_mtimes[file_path]:
+            if file_path not in self._last_file_mtimes or mtime > self._last_file_mtimes[file_path]:
                 return True
                 
         return False
@@ -177,34 +166,34 @@ class EnvClient(BaseModel, abc.ABC):
         For controllers with no source path, this is a no-op.
         """
         # If no source path, nothing to update
-        if not self.source_path:
+        if not self._source_path:
             return
         
         # Save current file modification times
-        self.last_file_mtimes = self._get_all_file_mtimes()
+        self._last_file_mtimes = self._get_all_file_mtimes()
         
         # Create tar archive of the source code and send it to the container
-        tar_bytes = directory_to_tar_bytes(self.source_path)
+        tar_bytes = directory_to_tar_bytes(self._source_path)
         await self.execute(["mkdir", "-p", "/root/controller"], workdir=None, timeout=5)        
         await self.put_archive("/root/controller", tar_bytes)
         
         # Check if pyproject.toml exists and parse it
-        pyproject_path = self.source_path / "pyproject.toml"
+        pyproject_path = self._source_path / "pyproject.toml"
         if not pyproject_path.exists():
-            raise FileNotFoundError(f"pyproject.toml not found in {self.source_path}")
+            raise FileNotFoundError(f"pyproject.toml not found in {self._source_path}")
             
         # Read and parse the current content of pyproject.toml
         current_pyproject_content = pyproject_path.read_text()
-        if self.last_pyproject_toml_str is None or self.last_pyproject_toml_str != current_pyproject_content:
+        if self._last_pyproject_toml_str is None or self._last_pyproject_toml_str != current_pyproject_content:
             # Update package name if pyproject.toml changed
             pyproject_data = toml.loads(current_pyproject_content)
             self._package_name = pyproject_data.get("project", {}).get("name")
             if not self._package_name:
                 raise ValueError("Could not find package name in pyproject.toml")
-                
+            print(f"Installing {self._package_name} in /root/controller")
             await self.execute(["pip", "install", "-e", "."], workdir="/root/controller", timeout=60)
             # Save current pyproject.toml content
-            self.last_pyproject_toml_str = current_pyproject_content
+            self._last_pyproject_toml_str = current_pyproject_content
     
     
     @abc.abstractmethod

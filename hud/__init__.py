@@ -11,6 +11,7 @@ from . import taskset
 from . import task
 from . import utils
 from . import types
+from . import settings
 __version__ = "0.1.0b3"
 
 __all__ = [
@@ -21,4 +22,5 @@ __all__ = [
     "task",
     "utils",
     "types",
+    "settings",
 ]

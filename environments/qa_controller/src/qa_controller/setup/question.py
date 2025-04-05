@@ -1,12 +1,8 @@
 """Question management functions for the QA environment."""
 
-import os
-import sys
 from typing import Any
 
-# Add the parent directory to sys.path to make relative imports work
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from utils.state import load_state, save_state
+from qa_controller.utils.state import load_state, save_state
     
 
 def set_question(question: str) -> dict[str, Any]:
