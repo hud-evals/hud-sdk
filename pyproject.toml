@@ -66,6 +66,7 @@ dev = [
     "openai",
     "anthropic",
     "dotenv",
+    "requests>=2.32.3",
 ]
 
 [tool.ruff]
