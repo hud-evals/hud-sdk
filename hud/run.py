@@ -3,6 +3,12 @@ from __future__ import annotations
 import datetime
 from typing import TYPE_CHECKING, Any, List, Optional
 
+# Required imports for image display
+import io
+import requests
+from PIL import Image
+from IPython.display import display, Markdown
+
 from pydantic import BaseModel, Field
 
 from .adapters.common import Adapter
@@ -249,11 +255,11 @@ class Run:
         )
         return RunTrajectoriesResponse(**data)
 
-
     @staticmethod
     def visualize_trajectory(task_trajectory: Trajectory) -> None:
         """
-        Prints a visualization of a single task's trajectory to the console.
+        Prints a visualization of a single task's trajectory to the console,
+        displaying images if run in a compatible environment (like Jupyter).
 
         Args:
             task_trajectory: The Trajectory object containing the data for one task.
@@ -266,20 +272,51 @@ class Run:
         if not task_trajectory.trajectory:
             print("  No steps in this task's trajectory.")
             return
+        
+        # Get start time of first step
+        start_time = task_trajectory.trajectory[0].start_timestamp or datetime.datetime.now().isoformat()
+        trajectory_start_dt = datetime.datetime.fromisoformat(start_time.replace('Z', '+00:00'))
 
         for i, step in enumerate(task_trajectory.trajectory):
-            print(f"  Step {i + 1}:")
+            # Use Markdown for better step separation in Jupyter
+            display(Markdown(f"### Step {i + 1}"))
 
-            # Observation
+            # Observation Image
             if step.observation_url:
-                print(f"    Observation Image: {step.observation_url}")
+                try:
+                    # Fetch image data
+                    response = requests.get(step.observation_url, stream=True, timeout=10) # Added timeout
+                    response.raise_for_status()  # Check for HTTP errors
+
+                    # Open image using Pillow
+                    img = Image.open(io.BytesIO(response.content))
+
+                    # Resize for display (optional, adjust max_width as needed)
+                    max_width = 800
+                    aspect_ratio = img.height / img.width
+                    new_height = int(max_width * aspect_ratio)
+                    img.thumbnail((max_width, new_height)) # thumbnail resizes in-place
+
+                    # Display in Jupyter/IPython environment
+                    display(Markdown(f"**Observation Image:**"))
+                    print(step.observation_url)
+                    display(img)
+
+                except requests.exceptions.RequestException as e:
+                    print(f"    [Error fetching image from {step.observation_url}: {e}]")
+                except Exception as e:
+                    # Catch other potential errors (PIL issues, etc.)
+                    print(f"    [Error processing image: {e}]")
+            elif not step.observation_text: # Only print if no image AND no text
+                 print("    No visual or text observation provided.")
+
+
+            # Observation Text
             if step.observation_text:
                 print(f"    Observation Text: {step.observation_text}")
-            if not step.observation_url and not step.observation_text:
-                 print("    No observation provided.")
 
             # Actions
-            print(f"    Actions: {step.actions}")
+            print(f"\n    Actions: {step.actions}") # Added newline for spacing
 
             # Duration
             duration_str = "N/A"
@@ -293,28 +330,37 @@ class Run:
                     minutes = int(total_seconds // 60)
                     seconds = total_seconds % 60
                     duration_str = f"{minutes}m {seconds:.2f}s"
+
+                    # Calculate the total duration up to this step
+                    total_duration = end_dt - trajectory_start_dt
+                    total_minutes = int(total_duration.total_seconds() // 60)
+                    total_seconds = total_duration.total_seconds() % 60
+                    total_duration_str = f"{total_minutes}m {total_seconds:.2f}s"
                 except ValueError:
                     duration_str = "Error parsing timestamps" # Handle potential format issues
             print(f"    Step Duration: {duration_str}")
-            print("-" * 20) # Separator between steps
-
+            print(f"    Total Duration: {total_duration_str}")
+            display(Markdown("---")) # Use Markdown horizontal rule
     @staticmethod
     def visualize_trajectories(response: RunTrajectoriesResponse) -> None:
         """
-        Prints a visualization of all run trajectories to the console.
+        Prints a visualization of all run trajectories, displaying images
+        if run in a compatible environment (like Jupyter).
 
         Args:
             response: The RunTrajectoriesResponse object containing the data.
         """
-        print(f"Run ID: {response.id}")
-        print(f"Run Name: {response.name}")
+        # Use Markdown for Run Title
+        display(Markdown(f"# Run Trajectories: {response.name} ({response.id})"))
         print(f"Average Reward: {response.average_reward:.4f}")
-        print("=" * 60)
+        display(Markdown("---")) # Main separator
 
         if not response.trajectories:
             print("No trajectories found for this run.")
             return
 
         for task_trajectory in response.trajectories:
+            # Use Markdown for Task Title
+            display(Markdown(f"## Task Trajectory: {task_trajectory.id}"))
             Run.visualize_trajectory(task_trajectory) # Call the single trajectory visualizer
-            print("=" * 40) # Separator between tasks
+            display(Markdown("---")) # Separator between tasks
