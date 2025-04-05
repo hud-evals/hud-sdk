@@ -299,8 +299,8 @@ class Run:
 
                     # Display in Jupyter/IPython environment
                     display(Markdown(f"**Observation Image:**"))
-                    print(step.observation_url)
                     display(img)
+                    display(Markdown(f"[Image Link]({step.observation_url})"))
 
                 except requests.exceptions.RequestException as e:
                     print(f"    [Error fetching image from {step.observation_url}: {e}]")
