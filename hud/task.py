@@ -8,6 +8,8 @@ import uuid
 from inspect_ai.dataset import Sample
 from pydantic import BaseModel
 
+from hud.utils import ExpandedConfig
+
 # Environment specifications:
 # These represent the environment as a whole, including both the controller and the environment type (eg, what os, which services are running)
 
@@ -36,6 +38,21 @@ class PublicEnvSpec(BaseModel):
 # permits either a private or public environment specification
 EnvSpec = Union[PrivateEnvSpec, PublicEnvSpec]
 
+
+def convert_inspect_setup(setup: str) -> list[ExpandedConfig]:
+    """
+    Inspect setup is a single bash string to run in the environment.
+    We convert this into a single ExpandedConfig using the exec command
+    """
+    return [
+        ExpandedConfig(
+            module=[],
+            function="bash",
+            args=[setup]
+        )
+    ]
+
+
 class Task(BaseModel):
     """A task that can be executed and evaluated.
     
@@ -62,8 +79,8 @@ class Task(BaseModel):
     """
     id: Optional[str] = None
     prompt: str
-    setup: Optional[list[str]] = None
-    evaluate: Optional[list[str]] = None
+    setup: list[ExpandedConfig] = []
+    evaluate: Optional[list[str]] = []
     metadata: Optional[dict[str, Any]] = None
     choices: Optional[List[str]] = None
     target: Optional[Union[str, List[str]]] = None
@@ -122,12 +139,12 @@ class Task(BaseModel):
             dockerfile=dockerfile or UBUNTU_DOCKERFILE,
             location="local",
             controller="https://hud.so/registry/controllers/hud/ubuntu.tar"
-        )        
+        )
         
         return cls(
             id=str(sample.id) if sample.id else None,
             prompt=prompt,
-            setup=[sample.setup] if sample.setup else None,
+            setup=convert_inspect_setup(sample.setup) if sample.setup else [],
             metadata=sample.metadata,
             choices=sample.choices,
             target=sample.target,

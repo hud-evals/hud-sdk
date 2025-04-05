@@ -41,9 +41,8 @@ def invoke_template(config: ExpandedConfig, package_name: str, divider: str) -> 
     """
     Return a python script to run the given config.
     """
-    module = [package_name] + config["function"][:-1]
-    module_str = ".".join(module)
-    func_str = config["function"][-1]
+    module_str = ".".join([package_name] + config["module"])
+    func_str = config["function"]
     return f"""
 from {module_str} import {func_str}
 args = json.loads({json.dumps(config["args"])})
@@ -59,13 +58,12 @@ class InvokeError(Exception):
     """
     pass
 
-class Environment(BaseModel, abc.ABC):
+class Environment(BaseModel):
     """
     Environment base class that provides common functionality for all environment implementations.
     This class uses the primitives provided by EnvClient to implement core environment operations.
     """
 
-    id: str
     metadata: dict[str, Any]
     client: EnvClient
     _preloaded_setup: list[ExpandedConfig] = []
@@ -132,10 +130,11 @@ class Environment(BaseModel, abc.ABC):
         Returns:
             Any: Result of the step execution
         """
-        observation, stdout, stderr = await self.invoke({
-            "function": ["step"],
-            "args": [action]
-        })
+        observation, stdout, stderr = await self.invoke(ExpandedConfig(
+            module=[],
+            function="step",
+            args=[action]
+        ))
         if stdout:
             logger.info("Step produced stdout: %s", stdout.decode())
         if stderr:
