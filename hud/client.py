@@ -95,7 +95,7 @@ class HUDClient:
         )
         return data["runs"]
 
-    async def load_run(self, id: str, adapter: Adapter | None = None) -> Run | None:
+    async def load_run(self, id: str, adapter: Adapter | None = None) -> Run:
         """
         Load a run by ID from the HUD API.
 
@@ -113,24 +113,22 @@ class HUDClient:
             url=f"{settings.base_url}/runs/{id}",
             api_key=self.api_key,
         )
-        if data:
-            response = RunResponse(**data)
-            gym = Gym(id=response.gym["id"], name=response.gym["name"])
-            evalset = EvalSet(
-                id=response.evalset["id"],
-                name=response.evalset["name"],
-                tasks=response.evalset["tasks"],
-            )
-            return Run(
-                id=response.id,
-                name=response.name,
-                gym=gym,
-                evalset=evalset,
-                adapter=adapter,
-                config=response.config,
-                metadata=response.metadata,
-            )
-        return None
+        response = RunResponse(**data)
+        gym = Gym(id=response.gym["id"], name=response.gym["name"])
+        evalset = EvalSet(
+            id=response.evalset["id"],
+            name=response.evalset["name"],
+            tasks=response.evalset["tasks"],
+        )
+        return Run(
+            id=response.id,
+            name=response.name,
+            gym=gym,
+            evalset=evalset,
+            adapter=adapter,
+            config=response.config,
+            metadata=response.metadata,
+        )
 
     async def create_run(
         self,
