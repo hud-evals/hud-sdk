@@ -41,11 +41,13 @@ def invoke_template(config: ExpandedConfig, package_name: str, divider: str) -> 
     """
     Return a python script to run the given config.
     """
+
+    # the reason we json dumps twice is to escape the json string
     module_str = ".".join([package_name] + config["module"])
     func_str = config["function"]
-    return f"""
+    return f"""import json
 from {module_str} import {func_str}
-args = json.loads({json.dumps(config["args"])})
+args = json.loads({json.dumps(json.dumps(config["args"]))})
 result = {func_str}(*args)
 result_str = json.dumps(result)
 print("{divider}")
@@ -177,10 +179,17 @@ class Environment(BaseModel):
             config: The configuration to invoke
         """
 
+        if await self.client.needs_update():
+            logger.info("Environment needs update, updating")
+            await self.client.update()
+
         # generate a random uuid as a divider   
         divider = str(uuid.uuid4())
 
-        result = await self.client.execute(["python", "-c", invoke_template(config, self.client.package_name, divider)])
+        template = invoke_template(config, self.client.package_name, divider)
+        logger.debug("Invoking template: %s", template)
+
+        result = await self.client.execute(["python", "-c", template])
 
         # parse the result
         # we take the whole stderr as the stderr, and the stdout is the result pre-divider

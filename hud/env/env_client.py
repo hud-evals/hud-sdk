@@ -7,8 +7,9 @@ from hud.types import EnvironmentStatus
 from hud.utils import ExecuteResult
 from hud.utils.common import directory_to_tar_bytes
 import toml
+import logging
 
-
+logger = logging.getLogger("hud.env.env_client")
 
 class EnvClient(BaseModel):
     """
@@ -169,6 +170,8 @@ class EnvClient(BaseModel):
         if not self._source_path:
             return
         
+        logger.info("Updating environment")
+
         # Save current file modification times
         self._last_file_mtimes = self._get_all_file_mtimes()
         
@@ -190,7 +193,7 @@ class EnvClient(BaseModel):
             self._package_name = pyproject_data.get("project", {}).get("name")
             if not self._package_name:
                 raise ValueError("Could not find package name in pyproject.toml")
-            print(f"Installing {self._package_name} in /root/controller")
+            logger.info(f"Installing {self._package_name} in /root/controller")
             await self.execute(["pip", "install", "-e", "."], workdir="/root/controller", timeout=60)
             # Save current pyproject.toml content
             self._last_pyproject_toml_str = current_pyproject_content
