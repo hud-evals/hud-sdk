@@ -1,11 +1,11 @@
 import asyncio
 from typing import Optional
-from hud.env import EnvClient
+from hud.env.env_client import EnvClient
 from hud.utils import ExecuteResult
 from base64 import b64decode, b64encode
 from hud.server import make_request
 from hud.settings import settings
-from hud.env.env_client import EnvironmentStatus
+from hud.types import EnvironmentStatus
 
 
 class RemoteEnvClient(EnvClient):

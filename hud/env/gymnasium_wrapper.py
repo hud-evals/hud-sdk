@@ -1,5 +1,5 @@
 import gymnasium
-from hud.environment import Environment
+from hud.env.environment import Environment
 from typing import Any, Dict, Optional, Tuple, Union
 from hud.server import make_request_sync
 from hud.settings import settings

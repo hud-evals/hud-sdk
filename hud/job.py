@@ -6,9 +6,8 @@ from typing import Dict, List, Any, Optional
 
 from pydantic import BaseModel
 
-from .environment import Environment
-from .server import make_request
-from .settings import settings
+from hud.server import make_request
+from hud.settings import settings
 
 
 class JobResponse(BaseModel):
@@ -94,7 +93,6 @@ class Job:
         self.created_at = created_at or datetime.datetime.now()
         self.completed_at = completed_at
         self.status = status
-        self.environments: list[Environment] = []
     
     @classmethod
     async def create(cls, name: str, metadata: Optional[Dict[str, Any]] = None) -> Job:

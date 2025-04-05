@@ -10,9 +10,9 @@ from typing import Any, Optional, Union
 
 from pydantic import BaseModel
 
-from hud.env import EnvironmentStatus
 from hud.env.env_client import EnvClient
-from hud.utils import ExecuteResult, HudStyleConfig, expand_config
+from hud.types import EnvironmentStatus
+from hud.utils import HudStyleConfig, expand_config
 from hud.utils.config import ExpandedConfig
 
 logger = logging.getLogger("hud.environment")

@@ -1,10 +1,11 @@
 from pathlib import Path
 from typing import Union, Any
 
-from ipykernel import control
-from hud.env import DockerEnvClient, RemoteEnvClient
-from hud.task import EnvSpec, PrivateEnvSpec, Task
-from hud.env import Environment
+from hud.env.docker_env_client import DockerEnvClient
+from hud.env.remote_env_client import RemoteEnvClient
+from hud.task import Task
+from hud.types import PrivateEnvSpec, EnvSpec
+from hud.env.environment import Environment
 
 
 async def make(env_src: Union[str, EnvSpec, Task], *, metadata: dict[str, Any] = {}) -> Environment:

@@ -1,41 +1,12 @@
-import enum
 from pathlib import Path
-import tempfile
-import uuid
-from aiodocker.stream import Stream
-from aiohttp import ClientTimeout
 from pydantic import BaseModel
 import abc
 import os
-import time
-import asyncio
-from typing import Literal, Optional, Union, Dict, Any
+from typing import Optional, Dict
+from hud.types import EnvironmentStatus
 from hud.utils import ExecuteResult
 from hud.utils.common import directory_to_tar_bytes
-import io
-import aiodocker
-from base64 import b64decode, b64encode
-from hud.server import make_request
-from hud.settings import settings
 import toml
-
-# Environment Controllers
-class EnvironmentStatus(str, enum.Enum):
-    """
-    Status of the environment.
-
-    Attributes:
-        INITIALIZING: The environment is initializing
-        RUNNING: The environment is running
-        COMPLETED: The environment is completed
-        ERROR: The environment is in an error state
-    """
-
-    INITIALIZING = "initializing"
-    RUNNING = "running"
-    COMPLETED = "completed"
-    ERROR = "error"
-
 
 
 

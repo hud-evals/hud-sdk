@@ -2,7 +2,7 @@ import uuid
 from aiodocker.stream import Stream
 from aiohttp import ClientTimeout
 from typing import Optional
-from hud.env import EnvClient
+from hud.env.env_client import EnvClient
 from hud.utils import ExecuteResult
 import io
 import aiodocker

@@ -8,35 +8,13 @@ import uuid
 from inspect_ai.dataset import Sample
 from pydantic import BaseModel
 
+from hud.types import EnvSpec, PublicEnvSpec
 from hud.utils import ExpandedConfig
 
 # Environment specifications:
 # These represent the environment as a whole, including both the controller and the environment type (eg, what os, which services are running)
 
 UBUNTU_DOCKERFILE = "ubuntu:latest"
-
-class PrivateEnvSpec(BaseModel):
-    """Private environment specification identified by an id."""
-    type: Literal["private"] = "private"
-    id: str
-
-
-class PublicEnvSpec(BaseModel):
-    """
-    Public environment specification with a dockerfile and controller.
-    
-    If the controller is remote, the env will be created on the server.
-    If the controller is dev, the env will be created locally via docker.
-    """
-    type: Literal["public"] = "public"
-    dockerfile: str
-    location: Literal["local", "remote"]
-    # If path, then it is a development environment on the local computer
-    # If str, then it is an environment id (which is a URL to a .tar file)
-    controller: Union[Path, str]
-
-# permits either a private or public environment specification
-EnvSpec = Union[PrivateEnvSpec, PublicEnvSpec]
 
 
 def convert_inspect_setup(setup: str) -> list[ExpandedConfig]:
