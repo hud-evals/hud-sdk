@@ -1,9 +1,14 @@
 from __future__ import annotations
 
 from typing import Optional, Any
+
+from pydantic import BaseModel
+
 from hud.settings import settings
 from hud.server import make_request
 from hud.task import Task
+
+from inspect_ai.dataset import Dataset
 
 
 async def fetch_task_ids(taskset_id: str, *, api_key: Optional[str] = None) -> list[str]:
@@ -25,7 +30,7 @@ async def fetch_task_ids(taskset_id: str, *, api_key: Optional[str] = None) -> l
     return [task_id for task_id in data["tasks"]]
     
 
-class TaskSet:
+class TaskSet(BaseModel):
     """
     Collection of related tasks for benchmarking.
 
@@ -34,25 +39,10 @@ class TaskSet:
         description: Description of the taskset
         tasks: List of Task objects in the taskset
     """
-
-    def __init__(
-        self,
-        id: str,
-        tasks: list[Task],
-        description: str = "",
-    ) -> None:
-        """
-        Initialize a task set.
-
-        Args:
-            id: Unique identifier
-            tasks: List of Task objects
-            description: Optional description of the taskset
-        """
-        self.id = id
-        self.tasks = tasks
-        self.description = description
-
+    id: Optional[str] = None
+    description: Optional[str] = None
+    tasks: list[Task] = []
+    
     @classmethod
     async def load(cls, taskset_id: str, api_key: Optional[str] = None) -> TaskSet:
         """
@@ -75,12 +65,8 @@ class TaskSet:
             api_key=api_key,
         )
         tasks = []
-        if "evalset" in data:
-            for task in data["evalset"]:
-                tasks.append(Task(**task))
-        else:
-            for task in data["tasks"]:
-                tasks.append(Task(id=task))
+        for task in data["evalset"]:
+            tasks.append(Task(**task))
         
         return cls(
             id=taskset_id,
@@ -88,7 +74,7 @@ class TaskSet:
         )
     
     @classmethod
-    def from_inspect_dataset(cls, dataset: Any) -> TaskSet:
+    def from_inspect_dataset(cls, dataset: Dataset) -> TaskSet:
         """
         Creates a TaskSet from an inspect-ai dataset.
 
@@ -98,26 +84,10 @@ class TaskSet:
         Returns:
             TaskSet: A new TaskSet instance
         """
-        # Implementation would go here
-        raise NotImplementedError("from_inspect_dataset is not yet implemented")
-
-    def __getitem__(self, index: int) -> Task:
-        """
-        Returns the task at the specified index.
-        
-        Args:
-            index: The index of the task to retrieve
-            
-        Returns:
-            Task: The task at the specified index
-        """
-        return self.tasks[index]
-        
-    def __len__(self) -> int:
-        """
-        Returns the number of tasks in the taskset.
-        
-        Returns:
-            int: The number of tasks
-        """
-        return len(self.tasks)
+        tasks = [Task.from_inspect_sample(sample) for sample in dataset ]
+    
+        return cls(
+            id=None,
+            tasks=tasks,
+            description=None,
+        )
