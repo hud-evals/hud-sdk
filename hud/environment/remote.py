@@ -35,6 +35,7 @@ class RemoteEnvironment(Environment):
     
     def __init__(
         self,
+        gym_id: str | None = None,
         id: str | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> None:
@@ -49,7 +50,8 @@ class RemoteEnvironment(Environment):
         self.metadata = metadata or {}
         self.url = None
         self.live_url = None
-        
+        self.gym_id = gym_id
+
         # For preloaded setup and evaluate configurations
         self._preloaded_setup = None
         self._preloaded_evaluate = None
@@ -80,7 +82,7 @@ class RemoteEnvironment(Environment):
         data = await make_request(
             method="POST",
             url=f"{settings.base_url}/create_environment",
-            json={"metadata": self.metadata},
+            json={"metadata": self.metadata, "gym_id": self.gym_id},
             api_key=settings.api_key,
         )
         self.id = data["id"]
@@ -127,6 +129,9 @@ class RemoteEnvironment(Environment):
             url=f"{settings.base_url}/get_env_state/{self.id}",
             api_key=settings.api_key,
         )
+        if "urls" in data:
+            self.url = data["urls"]["url"]
+            self.live_url = data["urls"]["live_url"]
         return data["state"]
     
     async def setup(self, setup_config: SetupConfig | None = None) -> Any:
