@@ -2,8 +2,58 @@ from __future__ import annotations
 import logging
 import re
 from typing import Any, TypedDict, Union, cast, Dict
+from lark import Lark, Transformer
 
 logger = logging.getLogger("hud.utils.config")
+
+# Grammar for parsing function calls
+FUNC_CALL_GRAMMAR = r"""
+    ?start: funccall
+
+    funccall: funcname "(" [funcargs] ")"
+    funcname: CNAME ("." CNAME)*
+    funcargs: funcarg ("," funcarg)* [","]
+    funcarg: NUMBER -> number
+           | STRING -> string
+           | "[" [funcargs] "]" -> list
+           | funccall -> nested_call
+
+    %import common.CNAME
+    %import common.NUMBER
+    %import common.WS
+    %import common.ESCAPED_STRING -> STRING
+    %ignore WS
+"""
+
+class FuncCallTransformer(Transformer):
+    def funccall(self, items):
+        funcname = items[0]
+        args = items[1] if len(items) > 1 else []
+        return {"module": funcname[:-1], "function": funcname[-1], "args": args}
+    
+    def funcname(self, items):
+        return [str(token) for token in items]
+    
+    def funcargs(self, items):
+        return list(items)
+    
+    def number(self, items):
+        return float(items[0].value)
+    
+    def string(self, items):
+        return items[0].value[1:-1]  # Remove quotes
+    
+    def list(self, items):
+        return items[0] if items else []
+    
+    def nested_call(self, items):
+        return items[0]
+    
+    def CNAME(self, token):
+        return str(token)
+
+# Create the parser
+func_call_parser = Lark(FUNC_CALL_GRAMMAR, parser='lalr', transformer=FuncCallTransformer())
 
 class ExpandedConfig(TypedDict):
     module: list[str]
@@ -60,17 +110,15 @@ def _split_and_validate_path(path: Union[str, list[str]]) -> tuple[list[str], st
     return parts[:-1], parts[-1]
 
 def _process_string_config(config: str) -> list[ExpandedConfig]:
-    """Process a string configuration into ExpandedConfig format."""
-    parts = config.split(maxsplit=1)
-    if len(parts) == 1:
-        # Just a function name, no args
-        module, function = _split_and_validate_path(parts[0])
-        return [{"module": module, "function": function, "args": []}]
-    else:
-        # Function with space-separated args
-        func_name, args_str = parts
-        module, function = _split_and_validate_path(func_name)
-        return [{"module": module, "function": function, "args": [args_str]}]
+    """Process a string configuration into ExpandedConfig format.
+    
+    The string should be in the format of a function call, e.g.:
+    - "chrome.maximize()"
+    - "browser.open('https://example.com')"
+    - "app.set_position([100, 200])"
+    """
+    result = func_call_parser.parse(config)
+    return [cast(ExpandedConfig, result)]
 
 def _process_dict_config(config: Union[SemiExpandedConfig, ExpandedConfig]) -> list[ExpandedConfig]:
     """Process a dictionary configuration into ExpandedConfig format."""
@@ -102,8 +150,8 @@ def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
     
     Args:
         config: The configuration, which can be:
-            - String (function name): "chrome.maximize"
-            - String (function with args): "chrome.activate_tab 5"
+            - String (function name): "chrome.maximize()"
+            - String (function with args): "chrome.activate_tab(5)"
             - SemiExpandedConfig: {"function": "chrome.maximize", "args": []}
             - ExpandedConfig: {"module": ["chrome"], "function": "maximize", "args": []}
             - List of any of the above

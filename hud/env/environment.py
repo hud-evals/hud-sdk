@@ -42,7 +42,7 @@ def invoke_template(config: ExpandedConfig, package_name: str, divider: str) -> 
     Return a python script to run the given config.
     """
 
-    # the reason we json dumps twice is to escape the json string
+    # the reason we call `json.dumps` twice is to escape the json string
     module_str = ".".join([package_name] + config["module"])
     func_str = config["function"]
     return f"""import json

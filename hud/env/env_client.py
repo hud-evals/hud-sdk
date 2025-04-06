@@ -194,7 +194,11 @@ class EnvClient(BaseModel):
             if not self._package_name:
                 raise ValueError("Could not find package name in pyproject.toml")
             logger.info(f"Installing {self._package_name} in /root/controller")
-            await self.execute(["pip", "install", "-e", "."], workdir="/root/controller", timeout=60)
+            result = await self.execute(["pip", "install", "-e", "."], workdir="/root/controller", timeout=60)
+            if result["stdout"]:
+                logger.info(f"STDOUT:\n{result['stdout']}")
+            if result["stderr"]:
+                logger.warning(f"STDERR:\n{result['stderr']}")
             # Save current pyproject.toml content
             self._last_pyproject_toml_str = current_pyproject_content
     
