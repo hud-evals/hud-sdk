@@ -210,7 +210,7 @@ class Environment:
             return self.adapter.adapt_list(action)
         return [self.adapter.adapt(action)]
 
-    async def evaluate(self) -> RewardResponse:
+    async def evaluate(self, final_response: str | None = None) -> RewardResponse:
         """
         Get final evaluation score.
 
@@ -220,6 +220,7 @@ class Environment:
         data = await make_request(
             method="POST",
             url=f"{settings.base_url}/evaluation/{self.id}",
+            json={"final_response": final_response},
             api_key=settings.api_key,
         )
         return RewardResponse(**data)
