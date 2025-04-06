@@ -84,15 +84,15 @@ async def make(
     # Extract env_id and task if provided
     if isinstance(env_id_or_task, Task):
         task = env_id_or_task
-        env_id = task.gym
+        gym_id = task.gym
     else:
         task = None
-        env_id = env_id_or_task
+        gym_id = env_id_or_task
         
-    logger.info("Creating environment: %s", env_id)
+    logger.info("Creating environment: %s", gym_id)
     
     # Determine if this is a local or remote environment
-    is_local = is_local_environment(env_id)
+    is_local = is_local_environment(gym_id)
     
     # Create the appropriate environment type
     if is_local:
@@ -101,14 +101,14 @@ async def make(
             timeout = 60  # seconds
             
         # Create local environment without container ID
-        env = LocalEnvironment(id=env_id, metadata=kwargs.get("metadata", {}))
+        env = LocalEnvironment(gym_id=gym_id, metadata=kwargs.get("metadata", {}))
     else:
         # Set default timeout for remote environments
         if timeout is None:
             timeout = 300  # seconds
             
         # Create remote environment
-        env = RemoteEnvironment(id=None, metadata=kwargs.get("metadata", {}))
+        env = RemoteEnvironment(gym_id=gym_id, metadata=kwargs.get("metadata", {}))
     
     try:
         # If we have a task, preload the setup and evaluate configurations
@@ -127,7 +127,7 @@ async def make(
         return env
     except asyncio.TimeoutError:
         await env.close()
-        raise TimeoutError(f"Environment {env_id} timed out during initialization")
+        raise TimeoutError(f"Environment {gym_id} timed out during initialization")
 
 def list_local_environments() -> list[str]:
     """Simple function to list local environments by directory check only.

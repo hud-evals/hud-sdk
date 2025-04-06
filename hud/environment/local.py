@@ -120,7 +120,8 @@ class LocalEnvironment(Environment):
     
     def __init__(
         self,
-        id: str,
+        id: str | None = None,
+        gym_id: str | None = None,
         metadata: dict[str, Any] | None = None,
         mount_code: bool = True,
     ) -> None:
@@ -131,7 +132,8 @@ class LocalEnvironment(Environment):
             metadata: Optional metadata
             mount_code: Whether to mount code directory (default: True)
         """
-        self.id = id
+        self.id = id or ""
+        self.gym_id = gym_id or ""
         self.metadata = metadata or {}
         self.container_id = None
         self.mount_code = mount_code
@@ -175,7 +177,7 @@ class LocalEnvironment(Environment):
         loop = asyncio.get_event_loop()
         self.container_id = await loop.run_in_executor(
             None,
-            lambda: _build_and_run_docker(self.id, mount_code=self.mount_code)
+            lambda: _build_and_run_docker(self.gym_id, mount_code=self.mount_code)
         )
         if self.container_id is None:
             raise RuntimeError("Failed to create container")
@@ -185,7 +187,7 @@ class LocalEnvironment(Environment):
         try:
             # Set a timeout for the initialize method
             await asyncio.wait_for(self._initialize(), timeout=30)
-            logger.info("Local environment %s initialized", self.id)
+            logger.info("Local environment %s initialized", self.gym_id)
         except asyncio.TimeoutError as e:
             logger.error("Environment initialization timed out after 30 seconds")
             # Try to clean up
