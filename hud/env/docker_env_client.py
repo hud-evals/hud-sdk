@@ -3,13 +3,44 @@ import tempfile
 import uuid
 from aiodocker.stream import Stream
 from aiohttp import ClientTimeout
-from typing import IO, Optional, Union
+from typing import IO, Any, Optional, Union
 from io import BytesIO
 from hud.env.env_client import EnvClient
 from hud.utils import ExecuteResult
 import io
 import aiodocker
 from hud.env.env_client import EnvironmentStatus
+import json
+import logging
+
+from hud.utils.config import ExpandedConfig
+
+logger = logging.getLogger("hud.env.docker_env_client")
+
+
+def invoke_template(config: ExpandedConfig, package_name: str, divider: str) -> str:
+    """
+    Return a python script to run the given config.
+    """
+    func_parts = config["function"].split(".")
+    module_str = ".".join([package_name] + func_parts[:-1])
+    func_str = func_parts[-1]
+
+    # the reason we call `json.dumps` twice is to escape the json string
+    return f"""import json
+from {module_str} import {func_str}
+args = json.loads({json.dumps(json.dumps(config["args"]))})
+result = {func_str}(*args)
+result_str = json.dumps(result)
+print("{divider}")
+print(result_str)
+"""
+
+class InvokeError(Exception):
+    """
+    Error raised when an invoke fails.
+    """
+    pass
 
 
 def mktar_from_dockerfile(fileobj: Union[BytesIO, IO[bytes]]) -> IO[bytes]:
@@ -203,6 +234,37 @@ class DockerEnvClient(EnvClient):
             # TODO: Get the exit code from the output
             exit_code=0
         )
+    
+    async def invoke(self, config: ExpandedConfig) -> tuple[Any, bytes, bytes]:
+        """
+        Invoke a function in the container.
+        """
+        
+        if await self.needs_update():
+            logger.info("Environment needs update, updating")
+            await self.update()
+
+        # generate a random uuid as a divider   
+        divider = str(uuid.uuid4())
+
+        template = invoke_template(config, self.package_name, divider)
+        logger.debug("Invoking template: %s", template)
+
+        result = await self.execute(["python", "-c", template])
+
+        # parse the result
+        # we take the whole stderr as the stderr, and the stdout is the result pre-divider
+        stderr = result["stderr"]
+        stdout_parts = result["stdout"].split(divider.encode())
+        stdout = stdout_parts[0]
+
+        # parse the json part of the stdout (if it exists)
+        if len(stdout_parts) > 1:
+            result = json.loads(stdout_parts[1])
+        else:
+            raise InvokeError(stdout, stderr)
+
+        return result, stdout, stderr
     
     async def get_archive(self, path: str) -> bytes:
         """

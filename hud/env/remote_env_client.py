@@ -1,12 +1,16 @@
 import asyncio
-from typing import Optional
+from typing import Any, Optional
 from hud.env.env_client import EnvClient
 from hud.utils import ExecuteResult
 from base64 import b64decode, b64encode
 from hud.server import make_request
 from hud.settings import settings
 from hud.types import EnvironmentStatus
+import logging
 
+from hud.utils.config import ExpandedConfig
+
+logger = logging.getLogger("hud.env.remote_env_client")
 
 class RemoteEnvClient(EnvClient):
     """
@@ -16,23 +20,39 @@ class RemoteEnvClient(EnvClient):
     """
     
     @classmethod
-    async def create(cls, dockerfile: str) -> 'RemoteEnvClient':
+    async def create(cls, *, dockerfile: Optional[str] = None, gym_id: Optional[str] = None, metadata: dict[str, Any] = {}) -> 'RemoteEnvClient':
         """
-        Creates a remote environment client from a dockerfile.
+        Creates a remote environment client from a dockerfile or gym_id.
         
         Args:
             dockerfile: The dockerfile content to build the environment
+            gym_id: The gym_id of the environment to create
+            metadata: Metadata to associate with the environment
             
         Returns:
             RemoteEnvClient: An instance of the remote environment client
         """
+
+        # Validate arguments
+        if dockerfile is None and gym_id is None:
+            raise ValueError("Either dockerfile or gym_id must be provided")
+        
+        if dockerfile is not None and gym_id is not None:
+            raise ValueError("Only one of dockerfile or gym_id can be provided")
+        
+        request_data = {}
+        if dockerfile is not None:
+            request_data["dockerfile"] = dockerfile
+        if gym_id is not None:
+            request_data["gym_id"] = gym_id
+        if metadata:
+            request_data["metadata"] = metadata
+
         # Create a new environment via the HUD API
         response = await make_request(
             method="POST",
-            url=f"{settings.base_url}/environments",
-            json={
-                "dockerfile": dockerfile,
-            },
+            url=f"{settings.base_url}/create_environment",
+            json=request_data,
             api_key=settings.api_key,
         )
         
@@ -44,21 +64,11 @@ class RemoteEnvClient(EnvClient):
         # Create the controller instance
         controller = cls(env_id)
         
-        # Wait for the environment to be ready
-        max_retries = 30
-        for i in range(max_retries):
-            try:
-                # Check if the environment is ready by executing a simple command
-                result = await controller.execute(["echo", "ready"], workdir=None)
-                if result["stdout"].strip() == b"ready":
-                    break
-            except Exception as e:
-                if i == max_retries - 1:
-                    raise TimeoutError(f"Environment creation timed out after {max_retries} retries") from e
-                await asyncio.sleep(2)  # Wait before retrying
+        await controller.wait_for_ready()
         
         return controller
-    
+
+
     def __init__(self, env_id: str):
         """
         Initialize the RemoteEnvClient.
@@ -67,8 +77,15 @@ class RemoteEnvClient(EnvClient):
             env_id: ID of the remote environment to control
         """
         super().__init__()
-        self.set_env_id(env_id)
-    
+        self._env_id = env_id
+        
+    @property
+    def env_id(self) -> str:
+        """The ID of the remote environment."""
+        return self._env_id
+
+
+
     async def get_status(self) -> EnvironmentStatus:
         """
         Get the current status of the remote environment.
@@ -103,6 +120,7 @@ class RemoteEnvClient(EnvClient):
     async def execute(self, command: list[str], *, workdir: Optional[str] = None, timeout: Optional[float] = None) -> ExecuteResult:
         """
         Execute a command in the environment.
+        No-op in some environments (like browser use).
         
         Args:
             command: Command to execute
@@ -124,9 +142,23 @@ class RemoteEnvClient(EnvClient):
             exit_code=data["exit_code"]
         )
     
+    async def invoke(self, config: ExpandedConfig) -> tuple[Any, bytes, bytes]:
+        """
+        Invoke a function in the environment.
+        """
+        data = await make_request(
+            method="POST",
+            url=f"{settings.base_url}/environments/{self.env_id}/invoke",
+            json=config,
+            api_key=settings.api_key,
+        )
+        
+        return data["result"], b64decode(data["stdout"]), b64decode(data["stderr"])
+
     async def get_archive(self, path: str) -> bytes:
         """
         Get an archive of a path from the environment.
+        May not be supported for all environments.
         
         Args:
             path: Path in the environment to archive
@@ -136,7 +168,7 @@ class RemoteEnvClient(EnvClient):
         """
         data = await make_request(
             method="POST",
-            url=f"{settings.base_url}/environments/{self.env_id}/copy_from",
+            url=f"{settings.base_url}/environments/{self.env_id}/get_archive",
             json={"path": path},
             api_key=settings.api_key,
         )
@@ -147,6 +179,7 @@ class RemoteEnvClient(EnvClient):
     async def put_archive(self, path: str, data: bytes) -> bool:
         """
         Put an archive of data at a path in the environment.
+        May not be supported for all environments.
         
         Args:
             path: Path in the environment to extract the archive to
@@ -157,7 +190,7 @@ class RemoteEnvClient(EnvClient):
         """
         await make_request(
             method="POST",
-            url=f"{settings.base_url}/environments/{self.env_id}/copy_to",
+            url=f"{settings.base_url}/environments/{self.env_id}/put_archive",
             json={
                 "path": path,
                 "content": b64encode(data).decode("utf-8"),
@@ -171,12 +204,8 @@ class RemoteEnvClient(EnvClient):
         """
         Close the remote environment by making a request to the server.
         """
-        try:
-            await make_request(
-                method="POST",
-                url=f"{settings.base_url}/environments/{self.env_id}/close",
-                api_key=settings.api_key,
-            )
-        except Exception as e:
-            # Log the error but don't raise it since this is cleanup
-            print(f"Error closing remote environment: {e}")
+        await make_request(
+            method="POST",
+            url=f"{settings.base_url}/close/{self.env_id}",
+            api_key=settings.api_key,
+        )

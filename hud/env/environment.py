@@ -15,6 +15,7 @@ from hud.types import EnvironmentStatus
 from hud.utils import HudStyleConfig, expand_config
 from hud.utils.config import ExpandedConfig
 
+
 logger = logging.getLogger("hud.environment")
 
 
@@ -31,35 +32,6 @@ class Observation(BaseModel):
     text: Optional[str] = None
 
 
-status_messages = {
-    EnvironmentStatus.RUNNING.value: "is running",
-    EnvironmentStatus.ERROR.value: "had an error initializing",
-    EnvironmentStatus.COMPLETED.value: "completed",
-}
-
-def invoke_template(config: ExpandedConfig, package_name: str, divider: str) -> str:
-    """
-    Return a python script to run the given config.
-    """
-
-    # the reason we call `json.dumps` twice is to escape the json string
-    module_str = ".".join([package_name] + config["module"])
-    func_str = config["function"]
-    return f"""import json
-from {module_str} import {func_str}
-args = json.loads({json.dumps(json.dumps(config["args"]))})
-result = {func_str}(*args)
-result_str = json.dumps(result)
-print("{divider}")
-print(result_str)
-"""
-
-class InvokeError(Exception):
-    """
-    Error raised when an invoke fails.
-    """
-    pass
-
 class Environment(BaseModel):
     """
     Environment base class that provides common functionality for all environment implementations.
@@ -70,6 +42,8 @@ class Environment(BaseModel):
     client: EnvClient
     _preloaded_setup: list[ExpandedConfig] = []
     _preloaded_evaluate: list[ExpandedConfig] = []
+    url: Optional[str] = None
+    live_url: Optional[str] = None
 
     def preload_setup(self, setup_config: HudStyleConfig) -> None:
         """Preload setup configuration from a Task.
@@ -113,7 +87,7 @@ class Environment(BaseModel):
         # Execute each config and collect results
         results = []
         for config in configs:
-            result, stdout, stderr = await self.invoke(config)
+            result, stdout, stderr = await self.client.invoke(config)
             if stdout:
                 logger.info("Setup produced stdout: %s", stdout.decode())
             if stderr:
@@ -132,8 +106,7 @@ class Environment(BaseModel):
         Returns:
             Any: Result of the step execution
         """
-        observation, stdout, stderr = await self.invoke(ExpandedConfig(
-            module=[],
+        observation, stdout, stderr = await self.client.invoke(ExpandedConfig(
             function="step",
             args=[action]
         ))
@@ -162,7 +135,7 @@ class Environment(BaseModel):
         # Execute each config and collect results
         results = []
         for config in configs:
-            result, stdout, stderr = await self.invoke(config)
+            result, stdout, stderr = await self.client.invoke(config)
             if stdout:
                 logger.info("Evaluation produced stdout: %s", stdout.decode())
             if stderr:
@@ -172,39 +145,33 @@ class Environment(BaseModel):
         # Return list of results
         return results
 
-    async def invoke(self, config: ExpandedConfig) -> tuple[Any, bytes, bytes]:
-        """Invoke a function in the environment.
-        
-        Args:
-            config: The configuration to invoke
+    def get_vnc_url(self) -> Optional[str]:
         """
-
-        if await self.client.needs_update():
-            logger.info("Environment needs update, updating")
-            await self.client.update()
-
-        # generate a random uuid as a divider   
-        divider = str(uuid.uuid4())
-
-        template = invoke_template(config, self.client.package_name, divider)
-        logger.debug("Invoking template: %s", template)
-
-        result = await self.client.execute(["python", "-c", template])
-
-        # parse the result
-        # we take the whole stderr as the stderr, and the stdout is the result pre-divider
-        stderr = result["stderr"]
-        stdout_parts = result["stdout"].split(divider.encode())
-        stdout = stdout_parts[0]
-
-        # parse the json part of the stdout (if it exists)
-        if len(stdout_parts) > 1:
-            result = json.loads(stdout_parts[1])
-        else:
-            raise InvokeError(stdout, stderr)
-
-        return result, stdout, stderr
-
+        Get the VNC URL for the environment.
+        
+        Returns:
+            str: The VNC URL for remote viewing/control
+        """
+        return self.live_url
+    
+    async def get_urls(self) -> dict[str, Any]:
+        """Get URLs for the environment.
+        
+        Returns:
+            dict: Dictionary of URLs for accessing the environment
+        """
+        data, _, _ = await self.client.invoke(ExpandedConfig(
+            function="get_urls",
+            args=[]
+        ));
+        
+        self.url = data.get("url")
+        self.live_url = data.get("live_url")
+        
+        return {
+            "url": self.url,
+            "live_url": self.live_url,
+        }
 
     async def close(self) -> None:
         """Close the environment.

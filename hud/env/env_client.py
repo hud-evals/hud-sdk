@@ -1,15 +1,27 @@
+import asyncio
+import json
 from pathlib import Path
+import uuid
 from pydantic import BaseModel
 import abc
 import os
-from typing import Optional, Dict
+from typing import Any, Optional, Dict
 from hud.types import EnvironmentStatus
 from hud.utils import ExecuteResult
 from hud.utils.common import directory_to_tar_bytes
 import toml
 import logging
 
+from hud.utils.config import ExpandedConfig
+
 logger = logging.getLogger("hud.env.env_client")
+
+STATUS_MESSAGES = {
+    EnvironmentStatus.RUNNING.value: "is running",
+    EnvironmentStatus.ERROR.value: "had an error initializing",
+    EnvironmentStatus.COMPLETED.value: "completed",
+}
+
 
 class EnvClient(BaseModel):
     """
@@ -21,11 +33,8 @@ class EnvClient(BaseModel):
     _last_pyproject_toml_str: Optional[str] = None
     _last_update_time: int = 0
     _last_file_mtimes: Dict[str, float] = {}
-    _is_configured: bool = False
     _source_path: Optional[Path] = None
     _package_name: Optional[str] = None
-    
-
 
     @property
     def source_path(self) -> Optional[Path]:
@@ -43,16 +52,16 @@ class EnvClient(BaseModel):
     def set_source_path(self, source_path: Path) -> None:
         """
         Set the source path for this environment controller.
-        Can only be set once, and cannot be set if env_id is already set.
+        Can only be set once, and cannot be set if source_path is already set.
         
         Args:
             source_path: Path to the source code to use in the environment
             
         Raises:
-            ValueError: If source_path or env_id has already been set
+            ValueError: If source_path has already been set
         """
-        if self._is_configured:
-            raise ValueError("Source path or environment ID has already been set")
+        if self._source_path:
+            raise ValueError("Source path has already been set")
         
         # Validate source path
         if not source_path.exists():
@@ -71,24 +80,6 @@ class EnvClient(BaseModel):
             raise ValueError("Could not find package name in pyproject.toml")
         
         self._source_path = source_path
-        self._is_configured = True
-    
-    def set_env_id(self, env_id: str) -> None:
-        """
-        Set the environment ID for this environment controller.
-        Can only be set once, and cannot be set if source_path is already set.
-        
-        Args:
-            env_id: ID of the environment to control
-            
-        Raises:
-            ValueError: If source_path or env_id has already been set
-        """
-        if self._is_configured:
-            raise ValueError("Source path or environment ID has already been set")
-        
-        self._env_id = env_id
-        self._is_configured = True
     
     @classmethod
     @abc.abstractmethod
@@ -205,17 +196,68 @@ class EnvClient(BaseModel):
     
     @abc.abstractmethod
     async def execute(self, command: list[str], *, workdir: Optional[str] = None, timeout: Optional[float] = None) -> ExecuteResult:
-        """Execute a command in the environment."""
+        """
+        Execute a command in the environment. May not be supported by all environments.
+        
+        Args:
+            command: The command to execute
+            workdir: The working directory to execute the command in
+            timeout: The timeout for the command
+            
+        Returns:
+            ExecuteResult: The result of the command
+        """
         pass
     
     @abc.abstractmethod
+    async def invoke(self, config: ExpandedConfig) -> tuple[Any, bytes, bytes]:
+        """
+        Invoke a function in the environment. Supported by all environments.
+        
+        Args:
+            config: The configuration to invoke
+
+        Returns:
+            tuple[Any, bytes, bytes]: The result of the invocation, stdout, and stderr
+        """
+        pass
+
+    async def wait_for_ready(self) -> None:
+        """Wait for the environment to be ready."""
+        while True:
+            state = await self.get_status()
+            if state in (
+                EnvironmentStatus.RUNNING.value,
+                EnvironmentStatus.ERROR.value,
+                EnvironmentStatus.COMPLETED.value,
+            ):
+                logger.info("Environment %s", STATUS_MESSAGES.get(state))
+                break
+            await asyncio.sleep(5)
+
+
+    @abc.abstractmethod
     async def get_archive(self, path: str) -> bytes:
-        """Get an archive of a path from the environment."""
+        """
+        Get an archive of a path from the environment.
+        May not be supported by all environments. (notably browser environments)
+        Args:
+            path: The path to get the archive of
+            
+        Returns:
+            bytes: The archive of the path
+        """
         pass
     
     @abc.abstractmethod
     async def put_archive(self, path: str, data: bytes) -> bool:
-        """Put an archive of data at a path in the environment."""
+        """
+        Put an archive of data at a path in the environment.
+        May not be supported by all environments. (notably browser environments)
+        Args:
+            path: The path to put the archive at
+            data: The data to put in the archive
+        """
         pass
 
     @abc.abstractmethod

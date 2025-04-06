@@ -1,7 +1,7 @@
 from __future__ import annotations
 import logging
 import re
-from typing import Any, TypedDict, Union, cast, Dict
+from typing import Any, TypedDict, Union, cast
 from lark import Lark, Transformer
 
 logger = logging.getLogger("hud.utils.config")
@@ -29,7 +29,7 @@ class FuncCallTransformer(Transformer):
     def funccall(self, items):
         funcname = items[0]
         args = items[1] if len(items) > 1 else []
-        return {"module": funcname[:-1], "function": funcname[-1], "args": args}
+        return {"function": ".".join(funcname), "args": args}
     
     def funcname(self, items):
         return [str(token) for token in items]
@@ -56,48 +56,31 @@ class FuncCallTransformer(Transformer):
 func_call_parser = Lark(FUNC_CALL_GRAMMAR, parser='lalr', transformer=FuncCallTransformer())
 
 class ExpandedConfig(TypedDict):
-    module: list[str]
-    function: str
-    args: list[Any]
+    function: str  # Format: "x.y.z"
+    args: list[Any]  # Must be json serializable
 
-class SemiExpandedConfig(TypedDict):
-    # function can be a str (x.y.foo) or a list of str (["x", "y", "foo"])
-    function: Union[str, list[str]]
-    args: list[Any]
-
-HudStyleConfig = Union[str, SemiExpandedConfig, ExpandedConfig, list[str],list[SemiExpandedConfig], list[ExpandedConfig]]
+HudStyleConfig = Union[str, ExpandedConfig, list[str], list[ExpandedConfig]]
 
 def _is_valid_python_name(name: str) -> bool:
     """Check if a string is a valid Python identifier."""
     return bool(re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', name))
 
-def _validate_expanded_config(config: Dict[str, Any]) -> ExpandedConfig:
+def _validate_expanded_config(config: dict) -> ExpandedConfig:
     """Validate and convert a dictionary to an ExpandedConfig."""
-    if not isinstance(config.get("module"), list):
-        raise ValueError("module must be a list")
     if not isinstance(config.get("function"), str):
         raise ValueError("function must be a string")
     if not isinstance(config.get("args"), list):
         raise ValueError("args must be a list")
     
-    # Validate module path components
-    for part in config["module"]:
-        if not _is_valid_python_name(part):
-            raise ValueError(f"Invalid Python identifier in module path: {part}")
-    
-    # Validate function name
-    if not _is_valid_python_name(config["function"]):
-        raise ValueError(f"Invalid Python identifier for function: {config['function']}")
+    # Validate function path components
+    _split_and_validate_path(config["function"])
     
     return cast(ExpandedConfig, config)
 
-def _split_and_validate_path(path: Union[str, list[str]]) -> tuple[list[str], str]:
-    """Split a function path into module and function parts, validating each component."""
-    if isinstance(path, str):
-        parts = path.split(".")
-    else:
-        parts = path
-    
+def _split_and_validate_path(path: str) -> None:
+    """Split a function path into components, validating each part."""
+    parts = path.split(".")
+
     if not parts:
         raise ValueError("Empty function path")
     
@@ -105,9 +88,6 @@ def _split_and_validate_path(path: Union[str, list[str]]) -> tuple[list[str], st
     for part in parts:
         if not _is_valid_python_name(part):
             raise ValueError(f"Invalid Python identifier in path: {part}")
-    
-    # Last part is the function name, rest is module path
-    return parts[:-1], parts[-1]
 
 def _process_string_config(config: str) -> list[ExpandedConfig]:
     """Process a string configuration into ExpandedConfig format.
@@ -120,30 +100,6 @@ def _process_string_config(config: str) -> list[ExpandedConfig]:
     result = func_call_parser.parse(config)
     return [cast(ExpandedConfig, result)]
 
-def _process_dict_config(config: Union[SemiExpandedConfig, ExpandedConfig]) -> list[ExpandedConfig]:
-    """Process a dictionary configuration into ExpandedConfig format."""
-    # Convert to regular dict for easier handling
-    config_dict = dict(config)
-    
-    if "module" in config_dict and "function" in config_dict:
-        # Already in ExpandedConfig format, just validate
-        return [_validate_expanded_config(config_dict)]
-    
-    # SemiExpandedConfig format
-    if "function" not in config_dict:
-        raise ValueError("Configuration must contain 'function' key")
-    
-    func_name = config_dict["function"]
-    if not isinstance(func_name, (str, list)):
-        raise ValueError("function must be either a string or a list of strings")
-    
-    args = config_dict.get("args", [])
-    if not isinstance(args, list):
-        args = [args]
-    
-    module, function = _split_and_validate_path(cast(Union[str, list[str]], func_name))
-    return [{"module": module, "function": function, "args": args}]
-
 def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
     """
     Process a configuration into a standardized list of ExpandedConfig formats.
@@ -152,12 +108,11 @@ def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
         config: The configuration, which can be:
             - String (function name): "chrome.maximize()"
             - String (function with args): "chrome.activate_tab(5)"
-            - SemiExpandedConfig: {"function": "chrome.maximize", "args": []}
-            - ExpandedConfig: {"module": ["chrome"], "function": "maximize", "args": []}
+            - ExpandedConfig: {"function": "chrome.maximize", "args": []}
             - List of any of the above
             
     Returns:
-        list[ExpandedConfig]: List of standardized configurations with module, function and args
+        list[ExpandedConfig]: List of standardized configurations with function and args
         
     Raises:
         ValueError: If the configuration format is not recognized or contains invalid Python identifiers
@@ -175,9 +130,9 @@ def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
     if isinstance(config, str):
         return _process_string_config(config)
     
-    # Handle dictionary configurations
+    # Validate dictionary configurations
     if isinstance(config, dict):
-        return _process_dict_config(config)
+        return [_validate_expanded_config(cast(dict, config))]
     
     # Unknown configuration type
     error_msg = f"Unknown configuration type: {type(config)}"
