@@ -78,10 +78,6 @@ class DragAction(CLAAction):
     pattern: Optional[list[int]] = None  # [delay_1, delay_2, ...]
     hold_keys: Optional[list[CLAKey]] = None
 
-class CustomAction(CLAAction):
-    type: Literal["custom"] = "custom"
-    script: str
-
 # SCREENSHOT ACTION
 class ScreenshotFetch(CLAAction):
     type: Literal["screenshot"] = "screenshot"

@@ -2,17 +2,14 @@
 
 from __future__ import annotations
 
-import abc
-import json
 import logging
-import uuid
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 from pydantic import BaseModel
 
 from hud.adapters.common.types import CLAAction
 from hud.env.env_client import EnvClient
-from hud.types import EnvironmentStatus
+from hud.task import Task
 from hud.utils import HudStyleConfig, expand_config
 from hud.utils.config import ExpandedConfig
 
@@ -48,6 +45,7 @@ class Environment(BaseModel):
 
     def preload_setup(self, setup_config: HudStyleConfig) -> None:
         """Preload setup configuration from a Task.
+        This will be run when the environment is reset.
         
         Args:
             setup_config: The setup configuration, which can be:
@@ -60,7 +58,7 @@ class Environment(BaseModel):
 
     def preload_evaluate(self, evaluate_config: HudStyleConfig) -> None:
         """Preload evaluation configuration from a Task.
-        
+        This will be run when the environment is evaluated.
         Args:
             evaluate_config: The evaluation configuration, which can be:
                 - String (function name): "chrome.is_open"
@@ -70,10 +68,11 @@ class Environment(BaseModel):
         """
         self._preloaded_evaluate = expand_config(evaluate_config)  
 
-    async def setup(self, setup_config: Optional[HudStyleConfig] = None) -> Any:
-        """Run a setup function in the environment.
+    async def reset(self, *, task_id: Optional[str] = None, setup_config: Optional[HudStyleConfig] = None) -> tuple[Observation, dict[str, Any]]:
+        """Reset the environment.
         
         Args:
+            task_id: The task id to include in the reset
             setup_config: The setup configuration to run
             
         Returns:
@@ -83,7 +82,6 @@ class Environment(BaseModel):
         
         if not configs:
             logger.warning("Empty setup configuration")
-            return []
             
         # Execute each config and collect results
         results = []
@@ -94,9 +92,21 @@ class Environment(BaseModel):
             if stderr:
                 logger.warning("Setup produced stderr: %s", stderr.decode())
             results.append(result)
-            
+        
+        # now reset
+        obs, stdout, stderr = await self.client.invoke(ExpandedConfig(function="reset", args=[task_id]))
+        if stdout:
+            logger.info("Reset produced stdout: %s", stdout.decode())
+        if stderr:
+            logger.warning("Reset produced stderr: %s", stderr.decode())
+
+        info = {
+            "results": results,
+        }
+
         # Return list of results
-        return results
+        return obs, info
+
 
     async def step(self, actions: list[CLAAction]) -> tuple[Observation, float, bool, dict[str, Any]]:
         """Execute a step in the environment.
