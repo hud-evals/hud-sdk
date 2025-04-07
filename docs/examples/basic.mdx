@@ -1,0 +1,140 @@
+---
+title: "Basic Example"
+description: "A basic example of using the HUD SDK"
+---
+
+This example demonstrates how to use the HUD SDK with a simple agent to interact with an environment.
+
+## Setup
+
+First, import the necessary components:
+
+```python
+import asyncio
+from hud import HUDClient
+from hud.settings import settings
+from agent.base import Agent
+from hud.adapters.common import Adapter
+from hud.adapters.common.types import ClickAction, Point, TypeAction
+```
+
+## Create a Simple Agent
+
+```python
+class SimpleAgent(Agent):
+    def __init__(self):
+        self.messages = []
+        
+    async def predict(self, screenshot, text):
+        # Simple logic to decide actions based on text
+        if "type" in text.lower():
+            return {"action": "type", "text": "Hello, world!"}
+        else:
+            # Default: click in the center of the screen
+            return {"action": "left_click", "coordinate": [500, 500]}
+    
+    def process_response(self, response):
+        # Convert the agent's response to an action
+        if "action" not in response:
+            return True, "I don't know how to help with that."
+            
+        return False, response
+```
+
+## Create a Simple Adapter
+
+```python
+class SimpleAdapter(Adapter):
+    def __init__(self):
+        super().__init__()
+        self.agent_width = 1024
+        self.agent_height = 768
+        
+    def convert(self, data):
+        action_type = data.get("action")
+        
+        if action_type == "type":
+            return TypeAction(text=data.get("text", ""), enter_after=False)
+            
+        elif action_type == "left_click":
+            coord = data.get("coordinate", [0, 0])
+            return ClickAction(point=Point(x=coord[0], y=coord[1]), button="left")
+            
+        return super().convert(data)
+```
+
+## Main Loop
+
+```python
+async def main():
+    # Initialize client with API key
+    client = HUDClient(api_key=settings.api_key)
+    
+    # Load gym and evalset
+    gym = await client.load_gym(id="OSWorld-Ubuntu")
+    evalset = await client.load_evalset(id="OSWorld-Ubuntu")
+    
+    # Create the run
+    run = await client.create_run(name="basic-example-run", gym=gym, evalset=evalset)
+    tasks = await run.fetch_task_ids()
+    
+    # Initialize the agent and adapter
+    agent = SimpleAgent()
+    adapter = SimpleAdapter()
+    
+    # Create environment with the adapter
+    env = await run.make(adapter=adapter, metadata={"agent_id": "basic-agent"})
+    
+    # Wait for environment to be ready
+    while True:
+        if await env.get_env_state() in ["running", "error"]:
+            break
+        await asyncio.sleep(2)
+    
+    # Reset to a task
+    if tasks:
+        obs = await env.reset(tasks[0], metadata={"run": "basic-example-run"})
+        
+        # Agent interaction loop
+        max_steps = 5
+        for i in range(max_steps):
+            # Get agent's prediction
+            response = await agent.predict(obs.screenshot, obs.text)
+            
+            # Process the response
+            done, action = agent.process_response(response)
+            
+            if done:
+                # This is a final response
+                env.final_response = str(action)
+                break
+            
+            # Step the environment with the action
+            obs, reward, terminated, info = await env.step(adapter.adapt_list([action]))
+            
+            if terminated:
+                break
+        
+        # Evaluate the result
+        result = await env.evaluate()
+        print(f"Evaluation result: {result}")
+    
+    # Close the environment
+    await env.close()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## Running the Example
+
+1. Make sure you have the HUD SDK installed and configured with your API key
+2. Save the code in a Python file (e.g., `basic_example.py`)
+3. Run the script: `python basic_example.py`
+
+This example demonstrates:
+- Creating a simple agent that can type text and click
+- Using a basic adapter to convert actions to CLA format
+- Setting up and running an environment
+- Handling the agent-environment interaction loop
+- Evaluating the results 

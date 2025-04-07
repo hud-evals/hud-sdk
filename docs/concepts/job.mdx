@@ -1,0 +1,143 @@
+---
+title: 'Job'
+description: 'Understanding Jobs as collections of related trajectories'
+---
+
+# Job
+
+A Job represents a collection of related trajectories grouped together for evaluation purposes. Jobs provide a way to organize and manage multiple agent runs across different tasks.
+
+## Overview
+
+Jobs help organize evaluation data by grouping related trajectories together. Common use cases include:
+
+- Testing an agent across all tasks in an evaluation suite
+- Running multiple trials of the same task for statistical significance
+- Comparing different agent configurations on the same set of tasks
+- Organizing evaluation runs by experiment or project
+
+## Key Properties
+
+| Property | Description |
+| --- | --- |
+| `id` | Unique identifier for the job |
+| `name` | Human-readable name for the job |
+| `created_at` | Timestamp of when the job was created |
+| `completed_at` | Timestamp of when the job was completed (if applicable) |
+| `status` | Current status of the job (e.g., "in_progress", "completed") |
+| `metadata` | Arbitrary data object stored alongside the job for filtering and tracking run parameters |
+
+## Working with Jobs
+
+Jobs are created before starting evaluations and are referenced when creating environments:
+
+```python
+import hud
+from hud import gym
+
+async def main():
+    # Create a new job with metadata
+    job = await hud.Job.create(
+        name="osworld-evaluation-run",
+        metadata={
+            "agent_version": "v1.0.0",
+            "model": "claude-3-sonnet",
+            "experiment_type": "baseline"
+        }
+    )
+    
+    # Create an environment with this job
+    env = gym.make("OSWorld-Ubuntu", job_id=job.id)
+    
+    # Initialize with a task and run your agent...
+    # ...
+    
+    # Load all trajectories associated with this job
+    trajectories = await job.get_trajectories()
+    
+    # Analyze results
+    for trajectory in trajectories:
+        print(f"Task: {trajectory.task_id}")
+        print(f"Success: {trajectory.evaluation.get('success', False)}")
+```
+
+## Querying Job Results
+
+Jobs can be used to retrieve and analyze all related trajectories:
+
+```python
+async def analyze_job_results(job_id):
+    # Load the job by ID
+    job = await hud.Job.get(job_id)
+    
+    # Get all trajectories for this job
+    trajectories = await job.get_trajectories()
+    
+    # Compile overall statistics
+    total_tasks = len(trajectories)
+    successful_tasks = sum(1 for t in trajectories if t.evaluation.get("success", False))
+    average_duration = sum(t.duration for t in trajectories) / total_tasks
+    
+    return {
+        "job_name": job.name,
+        "metadata": job.metadata,
+        "total_tasks": total_tasks,
+        "success_rate": successful_tasks / total_tasks,
+        "average_duration": average_duration
+    }
+```
+
+## Filtering Jobs by Metadata
+
+The metadata parameter enables powerful filtering capabilities when querying jobs:
+
+```python
+import hud
+
+async def compare_model_performance():
+    # Get jobs for different models but same experiment
+    sonnet_jobs = await hud.job.fetch(filters={
+        "model": "claude-3-sonnet",
+        "experiment_type": "baseline"
+    })
+    
+    opus_jobs = await hud.job.fetch(filters={
+        "model": "claude-3-opus",
+        "experiment_type": "baseline"
+    })
+    
+    # Analyze performance across models
+    sonnet_trajectories = []
+    for job in sonnet_jobs:
+        sonnet_trajectories.extend(await job.get_trajectories())
+        
+    opus_trajectories = []
+    for job in opus_jobs:
+        opus_trajectories.extend(await job.get_trajectories())
+    
+    # Compare success rates
+    sonnet_success = sum(1 for t in sonnet_trajectories if t.evaluation.get("success", False))
+    opus_success = sum(1 for t in opus_trajectories if t.evaluation.get("success", False))
+    
+    print(f"Claude 3 Sonnet success rate: {sonnet_success / len(sonnet_trajectories):.2f}")
+    print(f"Claude 3 Opus success rate: {opus_success / len(opus_trajectories):.2f}")
+```
+
+## Best Practices
+
+- Use descriptive job names that indicate the purpose of the evaluation
+- Add metadata to jobs to track important experiment variables:
+  - Agent version
+  - Model name and parameters
+  - Experiment type and group
+  - Environment configurations
+- Create separate jobs for different experiments or agent versions
+- Use jobs to organize large-scale evaluations across many tasks
+- Use consistent metadata keys across related jobs to enable effective filtering
+- Reference job IDs in your experiment documentation for future reference
+
+## Related Concepts
+
+- [Environment](/concepts/environment) - Runtime instances created within a job
+- [Task](/concepts/task) - Configurations that define evaluation scenarios
+- [Trajectory](/concepts/trajectory) - Records of agent interactions grouped by job
