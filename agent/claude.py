@@ -5,6 +5,7 @@ from agent.base import Agent
 from anthropic import Anthropic
 from anthropic.types import Message
 
+
 class ClaudeAgent(Agent):
     def __init__(self, client: Anthropic):
         super().__init__(client)
@@ -12,9 +13,13 @@ class ClaudeAgent(Agent):
         self.max_tokens = 4096
         self.tool_version = "20250124"
         self.thinking_budget = 1024
-        self.conversation = []  # Store the full conversation history including Claude's responses
+        self.conversation = (
+            []
+        )  # Store the full conversation history including Claude's responses
 
-    async def predict(self, screenshot: Optional[str] = None, text: Optional[str] = None) -> tuple[bool, str | object | None]:
+    async def predict(
+        self, screenshot: str | None = None, text: str | None = None
+    ) -> tuple[bool, str | object | None]:
         message = self._create_message(screenshot, text)
 
         # Only append the message if it's not empty
@@ -38,7 +43,7 @@ class ClaudeAgent(Agent):
 
         return done, processed
 
-    def _create_message(self, screenshot: Optional[str] = None, text: Optional[str] = None):
+    def _create_message(self, screenshot: str | None = None, text: str | None = None):
         """Create appropriate message based on context and inputs"""
 
         # Check if the previous response was from assistant and had tool_use
@@ -48,7 +53,11 @@ class ClaudeAgent(Agent):
             # Look for tool_use blocks in the assistant's message
             for block in last_assistant_message["content"]:
                 if hasattr(block, "type") and block.type == "tool_use":
-                    if hasattr(block, "name") and block.name == "computer" and screenshot:
+                    if (
+                        hasattr(block, "name")
+                        and block.name == "computer"
+                        and screenshot
+                    ):
                         # Found the tool_use to respond to
                         return {
                             "role": "user",
@@ -123,7 +132,9 @@ class ClaudeAgent(Agent):
         except Exception as e:
             raise
 
-    async def process_response(self, response: Message) -> tuple[bool, str | object | None]:
+    async def process_response(
+        self, response: Message
+    ) -> tuple[bool, str | object | None]:
         # Check if response contains a computer tool use
         computer_action = None
         for block in response.content:

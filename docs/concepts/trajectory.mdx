@@ -56,10 +56,6 @@ async def main():
     print(f"Trajectory ID: {trajectory.id}")
     print(f"Number of steps: {len(trajectory.actions)}")
     print(f"Final evaluation: {trajectory.evaluation}")
-    
-    # Generate a video of the interaction
-    video_url = await trajectory.get_video()
-    print(f"Video available at: {video_url}")
 ```
 
 ## Analyzing Trajectories
@@ -93,7 +89,6 @@ async def analyze_trajectory(trajectory_id):
 
 - Use trajectories for debugging agent behavior
 - Compare trajectories from different versions of your agent to measure improvement
-- Generate videos from trajectories to visually inspect agent behavior
 - Store trajectory IDs to reference past runs and create benchmarks
 
 ## Related Concepts

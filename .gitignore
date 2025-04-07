@@ -18,10 +18,10 @@ uv.lock
 *.tiff
 *.ico
 
-# Ignore IDE files
-.vscode
+# DS-Store
+.DS_Store
 
-# Ignore all top level notebooks
+# Test files
 /*.ipynb
-
+test.json
 TODO.md

@@ -23,7 +23,9 @@ Tasks encapsulate everything needed to create a consistent evaluation environmen
 | Property | Description |
 | --- | --- |
 | `id` | Unique identifier for the task |
-| `envconfig` | Environment configuration containing: <br> - `EnvType`: either a dockerfile, "browser", or "qa" (question-answer) <br> - `EnvImpl`: either a URL to a zip file or the name of a Python package |
+| `envconfig` | Environment configuration containing: |
+| | - `EnvType`: either a dockerfile, "browser", or "qa" (question-answer) |
+| | - `EnvImpl`: either a URL to a zip file or the name of a Python package |
 | `setup` | Setup instructions for the environment |
 | `evaluator` | Evaluator specification for assessing agent responses |
 | `problem_statement` | The text prompt provided to the agent |

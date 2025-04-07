@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, ClassVar
 
 from hud.adapters.common import CLA, Adapter
 from hud.adapters.common.types import (
@@ -21,9 +21,13 @@ from hud.adapters.common.types import (
 
 
 class ClaudeAdapter(Adapter):
+<<<<<<< HEAD
     KEY_MAP: dict[str, CLAKey] = {
         "Return": "enter"
     }
+=======
+    KEY_MAP: ClassVar[dict[str, CLAKey]] = {"Return": "enter"}
+>>>>>>> main
 
     def __init__(self) -> None:
         super().__init__()
@@ -33,7 +37,11 @@ class ClaudeAdapter(Adapter):
     def _map_key(self, key: str) -> CLAKey:
         """Map a key to its standardized form."""
         return self.KEY_MAP.get(key, key.lower())  # type: ignore
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> main
     def convert(self, data: Any) -> CLA:
         try:
             action_type = data.get("action")
@@ -41,7 +49,13 @@ class ClaudeAdapter(Adapter):
             if action_type == "key":
                 assert "text" in data
                 if "+" in data["text"]:
+<<<<<<< HEAD
                     keys = [self._map_key(k) for k in data["text"].split("+")]
+=======
+                    keys: list[CLAKey] = [
+                        self._map_key(k) for k in (data["text"].split("+"))
+                    ]
+>>>>>>> main
                     assert len(keys) > 0
                     return PressAction(keys=keys)
                 return PressAction(keys=[self._map_key(data["text"])])
@@ -75,12 +89,19 @@ class ClaudeAdapter(Adapter):
                 assert len(coord) == 2
                 if (
                     len(self.memory) == 0
-                    or (self.memory[-1] is not MoveAction and self.memory[-1] is not ClickAction)
+                    or (
+                        self.memory[-1] is not MoveAction
+                        and self.memory[-1] is not ClickAction
+                    )
                     or self.memory[-1].point is None
                 ):
-                    raise ValueError("Left click drag must be preceded by a move or click action")
+                    raise ValueError(
+                        "Left click drag must be preceded by a move or click action"
+                    )
                 else:
-                    return DragAction(path=[self.memory[-1].point, Point(x=coord[0], y=coord[1])])
+                    return DragAction(
+                        path=[self.memory[-1].point, Point(x=coord[0], y=coord[1])]
+                    )
 
             elif action_type == "right_click":
                 assert "coordinate" in data
@@ -105,6 +126,17 @@ class ClaudeAdapter(Adapter):
                     point=Point(x=coord[0], y=coord[1]), button="left", pattern=[100]
                 )
 
+            elif action_type == "triple_click":
+                assert "coordinate" in data
+                coord = data["coordinate"]
+                assert isinstance(coord, list)
+                assert len(coord) == 2
+                return ClickAction(
+                    point=Point(x=coord[0], y=coord[1]),
+                    button="left",
+                    pattern=[100, 100],
+                )
+
             elif action_type == "scroll":
                 assert "scroll_direction" in data
                 direction = data["scroll_direction"]
@@ -121,7 +153,8 @@ class ClaudeAdapter(Adapter):
                     raise ValueError(f"Unsupported scroll direction: {direction}")
 
                 return ScrollAction(
-                    point=Point(x=data["coordinate"][0], y=data["coordinate"][1]), scroll=scroll
+                    point=Point(x=data["coordinate"][0], y=data["coordinate"][1]),
+                    scroll=scroll,
                 )
 
             elif action_type == "screenshot":
@@ -133,7 +166,6 @@ class ClaudeAdapter(Adapter):
             elif action_type == "wait":
                 assert "duration" in data
                 return WaitAction(time=data["duration"])
-
             else:
                 raise ValueError(f"Unsupported action type: {action_type}")
         except AssertionError:
