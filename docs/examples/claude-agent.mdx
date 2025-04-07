@@ -1,0 +1,98 @@
+---
+title: "Claude Agent"
+description: "An example of using the HUD SDK with Claude"
+---
+
+This example demonstrates how to use the HUD SDK with Anthropic's Claude model to interact with an environment.
+
+## Setup
+
+First, import the necessary components:
+
+```python
+import asyncio
+import hud
+from agent.claude import ClaudeAgent
+from hud.adapters.claude import ClaudeAdapter
+from anthropic import Anthropic
+```
+
+## Initialize Claude and Adapter
+
+```python
+# Initialize Anthropic client
+anthropic = Anthropic(api_key="your-anthropic-api-key")
+
+# Initialize Claude agent and adapter
+agent = ClaudeAgent(anthropic)
+env_adapter = ClaudeAdapter()
+```
+
+## Main Loop
+
+```python
+async def main():
+    # Create environment
+    env = await hud.gym.make("Local-OSWorld-Ubuntu")
+    
+    # Reset to a task
+    obs = await env.reset(metadata={"run": "claude-agent-run"})
+    
+    # Agent interaction loop
+    for i in range(8):  # Maximum number of steps
+        # Rescale screenshot for Claude
+        screenshot = env_adapter.rescale(obs.screenshot)
+        
+        # Get agent's prediction
+        if i == 0:
+            # First step: use task prompt
+            done, response = await agent.predict(text=obs.text)
+        else:
+            # Subsequent steps: use screenshot
+            done, response = await agent.predict(screenshot=screenshot)
+        
+        if done:
+            # This is a final response
+            env.final_response = str(response)
+            break
+        
+        # Step the environment with the action
+        actions = env_adapter.adapt(response)
+        obs, reward, terminated, info = await env.step(actions)
+        
+        if terminated:
+            break
+    
+    # Evaluate the result
+    result = await env.evaluate()
+    print(f"Evaluation result: {result}")
+    
+    # Close the environment
+    await env.close()
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+## Running the Example
+
+1. Make sure you have the HUD SDK installed and configured with your API key
+2. Install the Anthropic Python client: `pip install anthropic`
+3. Set up your Anthropic API key
+4. Save the code in a Python file (e.g., `claude_example.py`)
+5. Run the script: `python claude_example.py`
+
+## Key Features
+
+This example demonstrates:
+- Using Claude as an agent for environment interaction
+- Using the Claude-specific adapter for action conversion
+- Handling screenshots and text input for Claude
+- Managing the agent-environment interaction loop
+- Evaluating the results
+
+## Notes
+
+- The Claude adapter is used for rescaling screenshots and adapting responses
+- Screenshots are automatically rescaled to Claude's preferred dimensions (1024x768)
+- The agent maintains conversation history for context 

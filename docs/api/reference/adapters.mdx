@@ -1,0 +1,201 @@
+---
+title: 'Adapters API Reference'
+description: 'API reference for HUD adapters'
+---
+
+# Adapters API Reference
+
+The HUD SDK provides adapters to translate between your agent's action format and the Common Language for Action (CLA) format used by the HUD environment.
+
+## Base Adapter
+
+The base `Adapter` class provides core functionality for all adapters.
+
+### Properties
+
+- `agent_width` (int): The width of the agent's viewport (default: 1920)
+- `agent_height` (int): The height of the agent's viewport (default: 1080)
+- `env_width` (int): The width of the environment's viewport
+- `env_height` (int): The height of the environment's viewport
+
+### Methods
+
+#### `preprocess(action: Any) -> Any`
+Preprocesses an action before conversion.
+
+#### `convert(action: Any) -> CLA`
+Converts an action to the CLA format.
+
+#### `json(action: CLA) -> Any`
+Converts a CLA action to JSON format.
+
+#### `rescale(observation: ImageType) -> str | None`
+Resizes an observation (image) to agent-specific dimensions.
+
+#### `postprocess_action(action: dict[str, Any]) -> dict[str, Any]`
+Rescales action coordinates from agent dimensions to environment dimensions.
+
+#### `adapt(action: Any) -> dict[str, Any]`
+Full adapter pipeline: preprocess -> convert -> json -> postprocess.
+
+#### `adapt_list(actions: list[Any]) -> list[dict[str, Any]]`
+Adapts a list of actions.
+
+## Common Action Types
+
+The following action types are supported in the CLA format:
+
+### `ClickAction`
+Represents a mouse click action.
+
+```python
+ClickAction(
+    point: Point | None = None,
+    selector: str | None = None,
+    button: Literal["left", "right", "wheel", "back", "forward"] = "left",
+    pattern: list[int] | None = None,
+    hold_keys: list[CLAKey] | None = None
+)
+```
+
+### `PressAction`
+Represents a key press or hotkey action.
+
+```python
+PressAction(keys: list[CLAKey])
+```
+
+### `TypeAction`
+Represents a text typing action.
+
+```python
+TypeAction(text: str, enter_after: bool | None = False)
+```
+
+### `ScrollAction`
+Represents a scrolling action.
+
+```python
+ScrollAction(
+    point: Point | None = None,
+    scroll: Point | None = None,
+    hold_keys: list[CLAKey] | None = None
+)
+```
+
+### `MoveAction`
+Represents a mouse movement action.
+
+```python
+MoveAction(
+    point: Point | None = None,
+    selector: str | None = None,
+    offset: Point | None = None
+)
+```
+
+### `WaitAction`
+Represents a waiting action.
+
+```python
+WaitAction(time: int)  # time in milliseconds
+```
+
+### `DragAction`
+Represents a drag action.
+
+```python
+DragAction(
+    path: list[Point],
+    pattern: list[int] | None = None,
+    hold_keys: list[CLAKey] | None = None
+)
+```
+
+### `ScreenshotFetch`
+Represents a screenshot capture action.
+
+```python
+ScreenshotFetch()
+```
+
+### `PositionFetch`
+Represents a cursor position fetch action.
+
+```python
+PositionFetch()
+```
+
+### `CustomAction`
+Represents a custom action.
+
+```python
+CustomAction(action: str)
+```
+
+## Built-in Adapters
+
+### Claude Adapter
+
+The `ClaudeAdapter` is specifically designed to work with Anthropic's Claude models.
+
+#### Properties
+
+- `agent_width` (int): Set to 1024 (Claude's preferred width)
+- `agent_height` (int): Set to 768 (Claude's preferred height)
+
+#### Supported Actions
+
+The Claude adapter supports the following action types:
+
+- `key`: Key press actions
+- `type`: Text typing actions
+- `mouse_move`: Mouse movement actions
+- `left_click`: Left mouse button clicks
+- `left_click_drag`: Left mouse button drag actions
+- `right_click`: Right mouse button clicks
+- `middle_click`: Middle mouse button clicks
+- `double_click`: Double-click actions
+- `triple_click`: Triple-click actions
+- `scroll`: Scrolling actions
+- `screenshot`: Screenshot capture
+- `cursor_position`: Cursor position fetch
+- `wait`: Waiting actions
+
+## Creating Custom Adapters
+
+To create a custom adapter, extend the base `Adapter` class and implement the necessary methods. Here's an example:
+
+```python
+from hud.adapters.common import Adapter
+from hud.adapters.common.types import ClickAction, Point, TypeAction
+
+class SimpleAdapter(Adapter):
+    def __init__(self):
+        super().__init__()
+        self.agent_width = 1024
+        self.agent_height = 768
+        
+    def convert(self, data: Any) -> CLA:
+        action_type = data.get("action")
+        
+        if action_type == "type":
+            return TypeAction(text=data.get("text", ""), enter_after=False)
+            
+        elif action_type == "left_click":
+            coord = data.get("coordinate", [0, 0])
+            return ClickAction(point=Point(x=coord[0], y=coord[1]), button="left")
+            
+        return super().convert(data)
+```
+
+## Using Adapters
+
+Adapters are used when creating an environment:
+
+```python
+# Initialize the adapter
+adapter = SimpleAdapter()
+
+# Create environment with the adapter
+env = await run.make(adapter=adapter, metadata={"agent_id": "simple-agent"}) 

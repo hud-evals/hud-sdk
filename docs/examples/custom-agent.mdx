@@ -87,61 +87,43 @@ Finally, implement the main loop to connect your agent with the environment:
 
 ```python
 import asyncio
-from hud import HUDClient
-from hud.settings import settings
+import hud
 
 async def main():
-    # Initialize client with API key
-    client = HUDClient(api_key=settings.api_key)
-    
-    # Load gym and evalset
-    gym = await client.load_gym(id="OSWorld-Ubuntu")
-    evalset = await client.load_evalset(id="OSWorld-Ubuntu")
-    
-    # Create the run
-    run = await client.create_run(name="simple-agent-run", gym=gym, evalset=evalset)
-    tasks = await run.fetch_task_ids()
-    
     # Initialize the agent and adapter
     agent = SimpleAgent()
     adapter = SimpleAdapter()
     
-    # Create environment with the adapter
-    env = await run.make(adapter=adapter, metadata={"agent_id": "simple-agent"})
-    
-    # Wait for environment to be ready
-    while True:
-        if await env.get_env_state() in ["running", "error"]:
-            break
-        await asyncio.sleep(2)
+    # Create environment
+    env = await hud.gym.make("Local-OSWorld-Ubuntu")
     
     # Reset to a task
-    if tasks:
-        obs = await env.reset(tasks[0], metadata={"run": "simple-agent-run"})
+    obs = await env.reset(metadata={"run": "simple-agent-run"})
+    
+    # Agent interaction loop
+    max_steps = 5
+    for i in range(max_steps):
+        # Get agent's prediction
+        response = await agent.predict(obs.screenshot, obs.text)
         
-        # Agent interaction loop
-        max_steps = 5
-        for i in range(max_steps):
-            # Get agent's prediction
-            response = await agent.predict(obs.screenshot, obs.text)
-            
-            # Process the response
-            done, action = agent.process_response(response)
-            
-            if done:
-                # This is a final response
-                env.final_response = str(action)
-                break
-            
-            # Step the environment with the action
-            obs, reward, terminated, info = await env.step(adapter.adapt_list([action]))
-            
-            if terminated:
-                break
+        # Process the response
+        done, action = agent.process_response(response)
         
-        # Evaluate the result
-        result = await env.evaluate()
-        print(f"Evaluation result: {result}")
+        if done:
+            # This is a final response
+            env.final_response = str(action)
+            break
+        
+        # Step the environment with the action
+        actions = adapter.adapt_list([action])
+        obs, reward, terminated, info = await env.step(actions)
+        
+        if terminated:
+            break
+    
+    # Evaluate the result
+    result = await env.evaluate()
+    print(f"Evaluation result: {result}")
     
     # Close the environment
     await env.close()
@@ -149,5 +131,3 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
-
-See more details on how to work with the subcomponents in /concepts.
