@@ -20,7 +20,7 @@ class RemoteEnvClient(EnvClient):
     """
     
     @classmethod
-    async def create(cls, *, dockerfile: Optional[str] = None, gym_id: Optional[str] = None, metadata: dict[str, Any] = {}) -> 'RemoteEnvClient':
+    async def create(cls, *, dockerfile: Optional[str] = None, gym_id: Optional[str] = None, job_id: Optional[str] = None, metadata: dict[str, Any] = {}) -> 'RemoteEnvClient':
         """
         Creates a remote environment client from a dockerfile or gym_id.
         
@@ -40,13 +40,16 @@ class RemoteEnvClient(EnvClient):
         if dockerfile is not None and gym_id is not None:
             raise ValueError("Only one of dockerfile or gym_id can be provided")
         
-        request_data = {}
+        request_data = {
+            # still named run_id for backwards compatibility
+            "run_id": job_id,
+            "metadata": metadata,
+        }
+        
         if dockerfile is not None:
             request_data["dockerfile"] = dockerfile
         if gym_id is not None:
             request_data["gym_id"] = gym_id
-        if metadata:
-            request_data["metadata"] = metadata
 
         # Create a new environment via the HUD API
         response = await make_request(
@@ -96,12 +99,12 @@ class RemoteEnvClient(EnvClient):
         try:
             response = await make_request(
                 method="GET",
-                url=f"{settings.base_url}/environments/{self.env_id}",
+                url=f"{settings.base_url}/get_env_state/{self.env_id}",
                 api_key=settings.api_key,
             )
-            
-            # Map the API status to our EnvironmentStatus enum
-            status = response.get("status", "").lower()
+            logger.debug(f"Environment status response: {response}")
+
+            status = response.get("state", "").lower()
             
             if status == "running":
                 return EnvironmentStatus.RUNNING
@@ -111,10 +114,12 @@ class RemoteEnvClient(EnvClient):
                 return EnvironmentStatus.COMPLETED
             else:
                 # Any other status is considered an error
+                logger.warning(f"Abnormal environment status response: {response}")
                 return EnvironmentStatus.ERROR
                 
         except Exception:
             # If we can't connect to the API or there's any other error
+            logger.info("(potentially transient) Error getting environment status")
             return EnvironmentStatus.ERROR
     
     async def execute(self, command: list[str], *, workdir: Optional[str] = None, timeout: Optional[float] = None) -> ExecuteResult:

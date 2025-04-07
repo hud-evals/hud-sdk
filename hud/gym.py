@@ -1,16 +1,39 @@
 from pathlib import Path
-from typing import Union, Any
+from typing import Optional, Union, Any
 import logging
+from datetime import datetime
+from datetime import timezone
 
+from hud.settings import settings
 from hud.env.docker_env_client import DockerEnvClient
 from hud.env.remote_env_client import RemoteEnvClient
+from hud.job import Job
+from hud.server.requests import make_request
 from hud.task import Task
 from hud.types import PrivateEnvSpec, EnvSpec, PublicEnvSpec
 from hud.env.environment import Environment
 
 logger = logging.getLogger("hud.gym")
 
-async def make(env_src: Union[str, EnvSpec, Task], *, metadata: dict[str, Any] = {}) -> Environment:
+def _default_job_name() -> str:
+    current_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+    return f"Untitled {current_time}"
+
+
+async def _get_gym_id(gym_name_or_id: str) -> str:
+    """
+    Get the gym ID for a given gym name or ID.
+    """
+    data = await make_request(
+        method="GET",
+        url=f"{settings.base_url}/gyms/{gym_name_or_id}",
+        api_key=settings.api_key,
+    )
+
+    return data["id"]
+
+
+async def make(env_src: Union[str, EnvSpec, Task], *, job_id: Optional[str] = None, metadata: dict[str, Any] = {}) -> Environment:
     """
     Create an environment from an environment ID or a Task object.
     
@@ -28,10 +51,25 @@ async def make(env_src: Union[str, EnvSpec, Task], *, metadata: dict[str, Any] =
         env_spec = env_src.envspec
         setup = env_src.setup
         evaluate = env_src.evaluate
-    
+
+
     if isinstance(env_spec, PrivateEnvSpec):
         logger.info("Creating private environment")
-        client = await RemoteEnvClient.create(gym_id=env_spec.gym_id)        
+
+
+        # Note: the gym_id is a unique identifier, but it is not a true gym_id for the purposes of building the environment
+        # we therefore fetch the gym_id from the HUD API here
+        true_gym_id = await _get_gym_id(env_spec.gym_id)
+
+        # Create a job if one is not provided
+        if job_id is None:
+            job_name = _default_job_name()
+            logger.info("No job ID provided, creating a new job %s", job_name)
+            job = await Job.create(gym_id=true_gym_id, name=job_name)
+            job_id = job.id
+
+        # Create the environment
+        client = await RemoteEnvClient.create(gym_id=true_gym_id, job_id=job_id, metadata=metadata)        
     elif isinstance(env_spec, PublicEnvSpec):
         # Create the environment (depending on location)
         if env_spec.location == "local":
@@ -40,7 +78,7 @@ async def make(env_src: Union[str, EnvSpec, Task], *, metadata: dict[str, Any] =
         elif env_spec.location == "remote":
             logger.info("Creating remote environment")
             raise NotImplementedError("Remote dockerfile environments are not yet supported")
-            client = await RemoteEnvClient.create_from_dockerfile(env_spec.dockerfile)
+            client = await RemoteEnvClient.create_from_dockerfile(env_spec.dockerfile, metadata=metadata)
         else:
             raise ValueError(f"Invalid environment location: {env_spec.location}")
             
@@ -60,5 +98,6 @@ async def make(env_src: Union[str, EnvSpec, Task], *, metadata: dict[str, Any] =
     if evaluate:
         logger.info("Preloading evaluate")
         environment.preload_evaluate(evaluate)
+
 
     return environment

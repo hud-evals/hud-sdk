@@ -24,7 +24,6 @@ def convert_inspect_setup(setup: str) -> list[ExpandedConfig]:
     """
     return [
         ExpandedConfig(
-            module=[],
             function="bash",
             args=[setup]
         )
@@ -55,6 +54,7 @@ class Task(BaseModel):
         files: Files that go along with the task (for Inspect compatibility)
         envspec: Environment specification (for Inspect compatibility)
     """
+    
     id: Optional[str] = None
     prompt: str
     setup: list[ExpandedConfig] = []
@@ -64,6 +64,7 @@ class Task(BaseModel):
     target: Optional[Union[str, List[str]]] = None
     files: Optional[Dict[str, str]] = None
     envspec: Optional[EnvSpec] = None
+    config: Optional[Dict[str, Any]] = None
     
     @classmethod
     def from_inspect_sample(cls, sample: Sample) -> Task:
@@ -116,7 +117,6 @@ class Task(BaseModel):
         envspec = PublicEnvSpec(
             dockerfile=dockerfile or UBUNTU_DOCKERFILE,
             location="local",
-            controller="https://hud.so/registry/controllers/hud/ubuntu.tar"
         )
         
         return cls(

@@ -95,7 +95,7 @@ class Job:
         self.status = status
     
     @classmethod
-    async def create(cls, name: str, metadata: Optional[Dict[str, Any]] = None) -> Job:
+    async def create(cls, gym_id: str, name: str, metadata: Optional[Dict[str, Any]] = None) -> Job:
         """
         Creates a new job.
 
@@ -111,9 +111,10 @@ class Job:
 
         data = await make_request(
             method="POST",
-            url=f"{settings.base_url}/jobs",
+            url=f"{settings.base_url}/runs",
             json={
                 "name": name,
+                "gym_id": gym_id,
                 "metadata": json.dumps(metadata),
             },
             api_key=api_key,

@@ -10,6 +10,7 @@ from typing import Any, Optional, Union
 
 from pydantic import BaseModel
 
+from hud.adapters.common.types import CLAAction
 from hud.env.env_client import EnvClient
 from hud.types import EnvironmentStatus
 from hud.utils import HudStyleConfig, expand_config
@@ -97,7 +98,7 @@ class Environment(BaseModel):
         # Return list of results
         return results
 
-    async def step(self, action: str) -> tuple[Observation, float, bool, dict[str, Any]]:
+    async def step(self, actions: list[CLAAction]) -> tuple[Observation, float, bool, dict[str, Any]]:
         """Execute a step in the environment.
         
         Args:
@@ -106,9 +107,10 @@ class Environment(BaseModel):
         Returns:
             Any: Result of the step execution
         """
+
         observation, stdout, stderr = await self.client.invoke(ExpandedConfig(
             function="step",
-            args=[action]
+            args=[action.model_dump() for action in actions]
         ))
         if stdout:
             logger.info("Step produced stdout: %s", stdout.decode())
@@ -145,13 +147,15 @@ class Environment(BaseModel):
         # Return list of results
         return results
 
-    def get_vnc_url(self) -> Optional[str]:
+    async def get_vnc_url(self) -> Optional[str]:
         """
         Get the VNC URL for the environment.
         
         Returns:
             str: The VNC URL for remote viewing/control
         """
+        if self.live_url is None:
+            await self.get_urls()
         return self.live_url
     
     async def get_urls(self) -> dict[str, Any]:
