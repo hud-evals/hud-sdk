@@ -1,7 +1,8 @@
 from __future__ import annotations
 import logging
 import re
-from typing import Any, TypedDict, Union, cast
+from typing import Any, Union, cast
+from typing_extensions import TypedDict
 from lark import Lark, Transformer
 
 logger = logging.getLogger("hud.utils.config")

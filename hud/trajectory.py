@@ -1,12 +1,8 @@
 import datetime
-import io
 from typing import Optional
 from pydantic import BaseModel, Field
 
-from IPython.display import display, Markdown
-from PIL import Image
-
-import requests
+from IPython.display import display, Markdown, HTML
 
 class TrajectoryStep(BaseModel):
     """Model representing a single task run's trajectory information."""
@@ -37,22 +33,11 @@ class Trajectory(BaseModel):
             # Observation Image
             if step.observation_url:
                 try:
-                    # Fetch image data
-                    response = requests.get(step.observation_url, stream=True, timeout=10) # Added timeout
-                    response.raise_for_status()  # Check for HTTP errors
-
-                    # Open image using Pillow
-                    img = Image.open(io.BytesIO(response.content))
-
-                    # Display in Jupyter/IPython environment
+                    # Display in Jupyter/IPython environment using HTML
                     display(Markdown(f"**Observation Image:**"))
-                    display(img)
+                    display(HTML(f'<img src="{step.observation_url}" style="max-width:100%;"/>'))
                     display(Markdown(f"[Image Link]({step.observation_url})"))
-
-                except requests.exceptions.RequestException as e:
-                    print(f"    [Error fetching image from {step.observation_url}: {e}]")
                 except Exception as e:
-                    # Catch other potential errors (PIL issues, etc.)
                     print(f"    [Error processing image: {e}]")
             elif not step.observation_text: # Only print if no image AND no text
                  print("    No visual or text observation provided.")

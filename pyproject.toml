@@ -16,7 +16,9 @@ dependencies = [
     "textdistance>=4.5.0,<5",
     "inspect-ai>=0.3.80",
     "lark>=1.2.2",
-    "aiodocker>=0.24.0"
+    "aiodocker>=0.24.0",
+    "toml>=0.10.2",
+    "pillow>=11.1.0",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
