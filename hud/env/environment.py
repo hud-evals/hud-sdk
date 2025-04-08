@@ -7,7 +7,7 @@ from typing import Any, Optional
 
 from pydantic import BaseModel
 
-from hud.adapters.common.types import CLAAction
+from hud.adapters.common.types import CLA
 from hud.env.env_client import EnvClient
 from hud.task import Task
 from hud.utils import HudStyleConfig, expand_config
@@ -115,7 +115,7 @@ class Environment(BaseModel):
         return Observation.model_validate(obs), info
 
 
-    async def step(self, actions: list[CLAAction]) -> tuple[Observation, float, bool, dict[str, Any]]:
+    async def step(self, actions: list[CLA]) -> tuple[Observation, float, bool, dict[str, Any]]:
         """Execute a step in the environment.
         
         Args:
