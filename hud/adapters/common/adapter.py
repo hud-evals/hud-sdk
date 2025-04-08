@@ -146,7 +146,7 @@ class Adapter:
 
         return processed_action
 
-    def adapt(self, action: Any) -> dict[str, Any]:
+    def adapt(self, action: Any) -> list[CLA]:
         # any preprocessing steps
         action = self.preprocess(action)
 
@@ -154,14 +154,14 @@ class Adapter:
         action = self.convert(action)
         self.memory.append(action)
 
-        # convert to json
+        # convert to json and apply coordinate rescaling
         action_dict = self.json(action)
-
-        # apply coordinate rescaling
         rescaled_action = self.postprocess_action(action_dict)
-        return rescaled_action
 
-    def adapt_list(self, actions: list[Any]) -> list[dict[str, Any]]:
+        # convert back to CLA
+        return [TypeAdapter(CLA).validate_python(rescaled_action)]
+
+    def adapt_list(self, actions: list[Any]) -> list[CLA]:
         if not isinstance(actions, list):
             raise ValueError("Please provide a list of actions")
-        return [self.adapt(action) for action in actions]
+        return [action for action in actions for action in self.adapt(action)]

@@ -43,6 +43,7 @@ async def make(env_src: Union[str, EnvSpec, Task], *, job_id: Optional[str] = No
     env_spec = None
     setup = None
     evaluate = None
+    task = None
     if isinstance(env_src, str):
         env_spec = PrivateEnvSpec(gym_id=env_src)
     elif isinstance(env_src, EnvSpec):
@@ -51,7 +52,7 @@ async def make(env_src: Union[str, EnvSpec, Task], *, job_id: Optional[str] = No
         env_spec = env_src.envspec
         setup = env_src.setup
         evaluate = env_src.evaluate
-
+        task = env_src
 
     if isinstance(env_spec, PrivateEnvSpec):
         logger.info("Creating private environment")
@@ -92,6 +93,9 @@ async def make(env_src: Union[str, EnvSpec, Task], *, job_id: Optional[str] = No
    # Create the environment itself
     environment =  Environment(client=client, metadata=metadata)
     
+    if task:
+        environment.task = task
+
     if setup:
         logger.info("Preloading setup")
         environment.preload_setup(setup)

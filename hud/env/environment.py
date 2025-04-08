@@ -42,6 +42,8 @@ class Environment(BaseModel):
     _preloaded_evaluate: list[ExpandedConfig] = []
     url: Optional[str] = None
     live_url: Optional[str] = None
+    # The task id to use for the environment reset
+    task: Optional[Task] = None
 
     def preload_setup(self, setup_config: HudStyleConfig) -> None:
         """Preload setup configuration from a Task.
@@ -68,7 +70,7 @@ class Environment(BaseModel):
         """
         self._preloaded_evaluate = expand_config(evaluate_config)  
 
-    async def reset(self, *, task_id: Optional[str] = None, setup_config: Optional[HudStyleConfig] = None) -> tuple[Observation, dict[str, Any]]:
+    async def reset(self, *, setup_config: Optional[HudStyleConfig] = None) -> tuple[Observation, dict[str, Any]]:
         """Reset the environment.
         
         Args:
@@ -94,7 +96,12 @@ class Environment(BaseModel):
             results.append(result)
         
         # now reset
-        obs, stdout, stderr = await self.client.invoke(ExpandedConfig(function="reset", args=[task_id]))
+        obs, stdout, stderr = await self.client.invoke(ExpandedConfig(function="reset", args=[
+            {
+                "task_id": self.task.id,
+            } if self.task else {}
+        ]))
+        
         if stdout:
             logger.info("Reset produced stdout: %s", stdout.decode())
         if stderr:
@@ -105,7 +112,7 @@ class Environment(BaseModel):
         }
 
         # Return list of results
-        return obs, info
+        return Observation.model_validate(obs), info
 
 
     async def step(self, actions: list[CLAAction]) -> tuple[Observation, float, bool, dict[str, Any]]:
@@ -120,14 +127,14 @@ class Environment(BaseModel):
 
         observation, stdout, stderr = await self.client.invoke(ExpandedConfig(
             function="step",
-            args=[action.model_dump() for action in actions]
+            args=[[action.model_dump() for action in actions]]
         ))
         if stdout:
             logger.info("Step produced stdout: %s", stdout.decode())
         if stderr:
             logger.warning("Step produced stderr: %s", stderr.decode())
         
-        return observation, 0, False, {}
+        return Observation.model_validate(observation), 0, False, {}
 
     async def evaluate(self, evaluate_config: Optional[HudStyleConfig] = None) -> Any:
         """Run an evaluation function in the environment.
@@ -142,7 +149,6 @@ class Environment(BaseModel):
         
         if not configs:
             logger.warning("Empty evaluation configuration")
-            return []
             
         # Execute each config and collect results
         results = []
@@ -154,8 +160,18 @@ class Environment(BaseModel):
                 logger.warning("Evaluation produced stderr: %s", stderr.decode())
             results.append(result)
             
-        # Return list of results
-        return results
+        # Now invoke the evaluate command
+        evaluate_result, stdout, stderr = await self.client.invoke(ExpandedConfig(
+            function="evaluate",
+            args=[]
+        ))
+        if stdout:
+            logger.info("Evaluate command produced stdout: %s", stdout.decode())
+        if stderr:
+            logger.warning("Evaluate command produced stderr: %s", stderr.decode())
+            
+        # Return list of results plus the evaluate command result
+        return results + [evaluate_result]
 
     async def get_vnc_url(self) -> Optional[str]:
         """
