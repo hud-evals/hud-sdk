@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Optional
+from typing import Any
 
 from hud.evaluators.base import EvaluationResult
 from hud.server import make_request
@@ -12,7 +12,7 @@ async def _remote_eval_call(
     response: Any,
     answer: Any,
     eval_type: str,
-    config: Optional[dict[str, Any]] = None
+    config: dict[str, Any] | None = None
 ) -> dict[str, Any]:
     """Send an evaluation request to the remote server.
     
@@ -50,7 +50,7 @@ def remote_evaluate(
     response: Any,
     answer: Any,
     eval_type: str = "default",
-    config: Optional[dict[str, Any]] = None
+    config: dict[str, Any] | None = None
 ) -> EvaluationResult:
     """Evaluate a response using remote evaluation services.
     

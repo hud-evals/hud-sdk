@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, Optional, Union
+from typing import Annotated, Literal, Union
 
 from pydantic import BaseModel, Field
 
@@ -19,11 +19,11 @@ class Point(BaseModel):
 # CLICK ACTION (supports extra options)
 class ClickAction(CLAAction):
     type: Literal["click"] = "click"
-    point: Optional[Point] = None
-    selector: Optional[str] = None
+    point: Point | None = None
+    selector: str | None = None
     button: Literal["left", "right", "wheel", "back", "forward"] = "left"
-    pattern: Optional[list[int]] = None  # [delay_1, delay_2, ...]
-    hold_keys: Optional[list[CLAKey]] = None
+    pattern: list[int] | None = None  # [delay_1, delay_2, ...]
+    hold_keys: list[CLAKey] | None = None
 
 
 # PRESS ACTION for key presses/hotkeys
@@ -45,24 +45,24 @@ class KeyUpAction(CLAAction):
 class TypeAction(CLAAction):
     type: Literal["type"] = "type"
     text: str
-    selector: Optional[str] = None
-    enter_after: Optional[bool] = False
+    selector: str | None = None
+    enter_after: bool | None = False
 
 
 # SCROLL ACTION
 class ScrollAction(CLAAction):
     type: Literal["scroll"] = "scroll"
-    point: Optional[Point] = None
-    scroll: Optional[Point] = None
-    hold_keys: Optional[list[CLAKey]] = None
+    point: Point | None = None
+    scroll: Point | None = None
+    hold_keys: list[CLAKey] | None = None
 
 
 # MOVE ACTION for mouse movement
 class MoveAction(CLAAction):
     type: Literal["move"] = "move"
-    point: Optional[Point] = None
-    selector: Optional[str] = None
-    offset: Optional[Point] = None
+    point: Point | None = None
+    selector: str | None = None
+    offset: Point | None = None
 
 
 # WAIT ACTION
@@ -75,8 +75,8 @@ class WaitAction(CLAAction):
 class DragAction(CLAAction):
     type: Literal["drag"] = "drag"
     path: list[Point]
-    pattern: Optional[list[int]] = None  # [delay_1, delay_2, ...]
-    hold_keys: Optional[list[CLAKey]] = None
+    pattern: list[int] | None = None  # [delay_1, delay_2, ...]
+    hold_keys: list[CLAKey] | None = None
 
 # SCREENSHOT ACTION
 class ScreenshotFetch(CLAAction):
@@ -93,7 +93,20 @@ class CustomAction(CLAAction):
 
 # Union of all possible actions
 CLA = Annotated[
-    Union[ClickAction, PressAction, KeyDownAction, KeyUpAction, TypeAction, ScrollAction, MoveAction, WaitAction, DragAction, CustomAction, ScreenshotFetch, PositionFetch],
+    Union[
+        ClickAction,
+        PressAction,
+        KeyDownAction,
+        KeyUpAction,
+        TypeAction,
+        ScrollAction,
+        MoveAction,
+        WaitAction,
+        DragAction,
+        CustomAction,
+        ScreenshotFetch,
+        PositionFetch,
+    ],
     Field(discriminator="type"),
 ]
 

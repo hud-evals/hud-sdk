@@ -75,6 +75,9 @@ dev = [
 [tool.ruff]
 target-version = "py39"
 line-length = 100
+exclude = [
+    "environments/qa_controller",
+]
 lint.extend-select = [
     "I",       # isort
     "F",       # pyflakes

@@ -4,7 +4,7 @@ import logging
 import re
 from typing import Any, Union, cast
 
-from lark import Lark, Transformer
+from lark import Lark, Token, Transformer
 from typing_extensions import TypedDict
 
 logger = logging.getLogger("hud.utils.config")
@@ -29,30 +29,30 @@ FUNC_CALL_GRAMMAR = r"""
 """
 
 class FuncCallTransformer(Transformer):
-    def funccall(self, items):
+    def funccall(self, items: list[Any]) -> dict[str, Any]:
         funcname = items[0]
         args = items[1] if len(items) > 1 else []
         return {"function": ".".join(funcname), "args": args}
     
-    def funcname(self, items):
+    def funcname(self, items: list[Token]) -> list[str]:
         return [str(token) for token in items]
     
-    def funcargs(self, items):
+    def funcargs(self, items: list[Any]) -> list[Any]:
         return list(items)
     
-    def number(self, items):
+    def number(self, items: list[Token]) -> float:
         return float(items[0].value)
     
-    def string(self, items):
+    def string(self, items: list[Token]) -> str:
         return items[0].value[1:-1]  # Remove quotes
     
-    def list(self, items):
+    def list(self, items: list[Any]) -> list[Any]:
         return items[0] if items else []
     
-    def nested_call(self, items):
+    def nested_call(self, items: list[Any]) -> Any:
         return items[0]
     
-    def CNAME(self, token):
+    def CNAME(self, token: Token) -> str:
         return str(token)
 
 # Create the parser
@@ -118,7 +118,8 @@ def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
         list[ExpandedConfig]: List of standardized configurations with function and args
         
     Raises:
-        ValueError: If the configuration format is not recognized or contains invalid Python identifiers
+        ValueError: If the configuration format is not recognized or contains
+            invalid Python identifiers
     """
     logger.debug("Processing config: %s", config)
     

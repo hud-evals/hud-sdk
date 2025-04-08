@@ -2,14 +2,16 @@ from __future__ import annotations
 
 import logging
 from base64 import b64decode, b64encode
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from hud.env.env_client import EnvClient
 from hud.server import make_request
 from hud.settings import settings
 from hud.types import EnvironmentStatus
 from hud.utils import ExecuteResult
-from hud.utils.config import ExpandedConfig
+
+if TYPE_CHECKING:
+    from hud.utils.config import ExpandedConfig
 
 logger = logging.getLogger("hud.env.remote_env_client")
 
@@ -21,7 +23,14 @@ class RemoteEnvClient(EnvClient):
     """
     
     @classmethod
-    async def create(cls, *, dockerfile: Optional[str] = None, gym_id: Optional[str] = None, job_id: Optional[str] = None, metadata: dict[str, Any] = {}) -> RemoteEnvClient:
+    async def create(
+        cls,
+        *,
+        dockerfile: str | None = None,
+        gym_id: str | None = None,
+        job_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> RemoteEnvClient:
         """
         Creates a remote environment client from a dockerfile or gym_id.
         
@@ -35,6 +44,8 @@ class RemoteEnvClient(EnvClient):
         """
 
         # Validate arguments
+        if metadata is None:
+            metadata = {}
         if dockerfile is None and gym_id is None:
             raise ValueError("Either dockerfile or gym_id must be provided")
         
@@ -72,8 +83,7 @@ class RemoteEnvClient(EnvClient):
         
         return controller
 
-
-    def __init__(self, env_id: str):
+    def __init__(self, env_id: str) -> None:
         """
         Initialize the RemoteEnvClient.
         
@@ -88,8 +98,6 @@ class RemoteEnvClient(EnvClient):
         """The ID of the remote environment."""
         return self._env_id
 
-
-
     async def get_status(self) -> EnvironmentStatus:
         """
         Get the current status of the remote environment.
@@ -103,7 +111,7 @@ class RemoteEnvClient(EnvClient):
                 url=f"{settings.base_url}/get_env_state/{self.env_id}",
                 api_key=settings.api_key,
             )
-            logger.debug(f"Environment status response: {response}")
+            logger.debug("Environment status response: %s", response)
 
             status = response.get("state", "").lower()
             
@@ -115,7 +123,7 @@ class RemoteEnvClient(EnvClient):
                 return EnvironmentStatus.COMPLETED
             else:
                 # Any other status is considered an error
-                logger.warning(f"Abnormal environment status response: {response}")
+                logger.warning("Abnormal environment status response: %s", response)
                 return EnvironmentStatus.ERROR
                 
         except Exception:
@@ -123,7 +131,13 @@ class RemoteEnvClient(EnvClient):
             logger.info("(potentially transient) Error getting environment status")
             return EnvironmentStatus.ERROR
     
-    async def execute(self, command: list[str], *, workdir: Optional[str] = None, timeout: Optional[float] = None) -> ExecuteResult:
+    async def execute(
+        self,
+        command: list[str],
+        *,
+        workdir: str | None = None,
+        timeout: float | None = None,
+    ) -> ExecuteResult:
         """
         Execute a command in the environment.
         No-op in some environments (like browser use).

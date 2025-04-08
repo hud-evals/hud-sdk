@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
-from typing import Any, Optional, Protocol, TypedDict
+from typing import Any, Protocol, TypedDict
 
 from hud.evaluators.base import EvaluationResult
 from hud.server import make_request
@@ -105,7 +105,7 @@ def _is_base64_image(data: Any) -> bool:
 def judge(
     response: Any,
     answer: Any,
-    llm: Optional[LLM] = None,
+    llm: LLM | None = None,
     criteria: list[str] | list[dict] | None = None,
 ) -> EvaluationResult:
     """Judge a response against an answer using an LLM.

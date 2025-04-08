@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime, timezone
-from typing import Any, Optional, Union
+from typing import Any
 
 from hud.env.docker_env_client import DockerEnvClient
 from hud.env.environment import Environment
@@ -33,13 +33,20 @@ async def _get_gym_id(gym_name_or_id: str) -> str:
     return data["id"]
 
 
-async def make(env_src: Union[str, EnvSpec, Task], *, job_id: Optional[str] = None, metadata: dict[str, Any] = {}) -> Environment:
+async def make(
+    env_src: str | EnvSpec | Task,
+    *,
+    job_id: str | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> Environment:
     """
     Create an environment from an environment ID or a Task object.
     
     Args:
         env_src: Environment ID or Task object
     """
+    if metadata is None:
+        metadata = {}
     env_spec = None
     setup = None
     evaluate = None
@@ -58,7 +65,8 @@ async def make(env_src: Union[str, EnvSpec, Task], *, job_id: Optional[str] = No
         logger.info("Creating private environment")
 
 
-        # Note: the gym_id is a unique identifier, but it is not a true gym_id for the purposes of building the environment
+        # Note: the gym_id is a unique identifier, but it is not a true
+        # gym_id for the purposes of building the environment
         # we therefore fetch the gym_id from the HUD API here
         true_gym_id = await _get_gym_id(env_spec.gym_id)
 
@@ -78,8 +86,13 @@ async def make(env_src: Union[str, EnvSpec, Task], *, job_id: Optional[str] = No
             client = await DockerEnvClient.create(env_spec.dockerfile)
         elif env_spec.location == "remote":
             logger.info("Creating remote environment")
-            raise NotImplementedError("Remote dockerfile environments are not yet supported")
-            client = await RemoteEnvClient.create_from_dockerfile(env_spec.dockerfile, metadata=metadata)
+            raise NotImplementedError(
+                "Remote dockerfile environments are not yet supported"
+            )
+            client = await RemoteEnvClient.create(
+                dockerfile=env_spec.dockerfile,
+                metadata=metadata,
+            )
         else:
             raise ValueError(f"Invalid environment location: {env_spec.location}")
             

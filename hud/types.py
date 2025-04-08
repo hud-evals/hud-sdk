@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import enum
-from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import TYPE_CHECKING, Literal, Union
 
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class PrivateEnvSpec(BaseModel):
@@ -25,7 +27,7 @@ class PublicEnvSpec(BaseModel):
     location: Literal["local", "remote"]
     # If path, then it is a development environment on the local computer
     # If none, then the controller must be installed in the environment through the dockerfile
-    controller_source_dir: Optional[Path] = None
+    controller_source_dir: Path | None = None
 
 # permits either a private or public environment specification
 EnvSpec = Union[PrivateEnvSpec, PublicEnvSpec]

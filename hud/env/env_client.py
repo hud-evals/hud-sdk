@@ -5,15 +5,17 @@ import asyncio
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any
 
 import toml
 from pydantic import BaseModel
 
 from hud.types import EnvironmentStatus
-from hud.utils import ExecuteResult
 from hud.utils.common import directory_to_tar_bytes
-from hud.utils.config import ExpandedConfig
+
+if TYPE_CHECKING:
+    from hud.utils import ExecuteResult
+    from hud.utils.config import ExpandedConfig
 
 logger = logging.getLogger("hud.env.env_client")
 
@@ -31,14 +33,14 @@ class EnvClient(BaseModel):
     Handles updating the environment when local files change.
     """
     
-    _last_pyproject_toml_str: Optional[str] = None
+    _last_pyproject_toml_str: str | None = None
     _last_update_time: int = 0
-    _last_file_mtimes: Dict[str, float] = {}
-    _source_path: Optional[Path] = None
-    _package_name: Optional[str] = None
+    _last_file_mtimes: dict[str, float] = {}
+    _source_path: Path | None = None
+    _package_name: str | None = None
 
     @property
-    def source_path(self) -> Optional[Path]:
+    def source_path(self) -> Path | None:
         """Get the source path."""
         return self._source_path
     
@@ -104,7 +106,7 @@ class EnvClient(BaseModel):
             EnvironmentStatus: A status enum indicating the current state of the environment
         """
     
-    def _get_all_file_mtimes(self) -> Dict[str, float]:
+    def _get_all_file_mtimes(self) -> dict[str, float]:
         """
         Get modification times for all files in the source path.
         
@@ -177,24 +179,37 @@ class EnvClient(BaseModel):
             
         # Read and parse the current content of pyproject.toml
         current_pyproject_content = pyproject_path.read_text()
-        if self._last_pyproject_toml_str is None or self._last_pyproject_toml_str != current_pyproject_content:
+        if (
+            self._last_pyproject_toml_str is None
+            or self._last_pyproject_toml_str != current_pyproject_content
+        ):
             # Update package name if pyproject.toml changed
             pyproject_data = toml.loads(current_pyproject_content)
             self._package_name = pyproject_data.get("project", {}).get("name")
             if not self._package_name:
                 raise ValueError("Could not find package name in pyproject.toml")
-            logger.info(f"Installing {self._package_name} in /root/controller")
-            result = await self.execute(["pip", "install", "-e", "."], workdir="/root/controller", timeout=60)
+            logger.info("Installing %s in /root/controller", self._package_name)
+            result = await self.execute(
+                ["pip", "install", "-e", "."],
+                workdir="/root/controller",
+                timeout=60,
+            )
             if result["stdout"]:
-                logger.info(f"STDOUT:\n{result['stdout']}")
+                logger.info("STDOUT:\n%s", result["stdout"])
             if result["stderr"]:
-                logger.warning(f"STDERR:\n{result['stderr']}")
+                logger.warning("STDERR:\n%s", result["stderr"])
             # Save current pyproject.toml content
             self._last_pyproject_toml_str = current_pyproject_content
     
     
     @abc.abstractmethod
-    async def execute(self, command: list[str], *, workdir: Optional[str] = None, timeout: Optional[float] = None) -> ExecuteResult:
+    async def execute(
+        self,
+        command: list[str],
+        *,
+        workdir: str | None = None,
+        timeout: float | None = None,
+    ) -> ExecuteResult:
         """
         Execute a command in the environment. May not be supported by all environments.
         

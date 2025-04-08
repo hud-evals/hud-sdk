@@ -1,15 +1,18 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import TYPE_CHECKING, Any
 
-from inspect_ai.dataset import Sample
 from pydantic import BaseModel
 
 from hud.types import EnvSpec, PublicEnvSpec
 from hud.utils import ExpandedConfig
 
+if TYPE_CHECKING:
+    from inspect_ai.dataset import Sample
+
 # Environment specifications:
-# These represent the environment as a whole, including both the controller and the environment type (eg, what os, which services are running)
+# These represent the environment as a whole, including both the controller
+# and the environment type (eg, what os, which services are running)
 
 UBUNTU_DOCKERFILE = "ubuntu:latest"
 
@@ -52,16 +55,16 @@ class Task(BaseModel):
         envspec: Environment specification (for Inspect compatibility)
     """
     
-    id: Optional[str] = None
+    id: str | None = None
     prompt: str
     setup: list[ExpandedConfig] = []
-    evaluate: Optional[list[str]] = []
-    metadata: Optional[dict[str, Any]] = None
-    choices: Optional[List[str]] = None
-    target: Optional[Union[str, List[str]]] = None
-    files: Optional[Dict[str, str]] = None
-    envspec: Optional[EnvSpec] = None
-    config: Optional[Dict[str, Any]] = None
+    evaluate: list[str] | None = []
+    metadata: dict[str, Any] | None = None
+    choices: list[str] | None = None
+    target: str | list[str] | None = None
+    files: dict[str, str] | None = None
+    envspec: EnvSpec | None = None
+    config: dict[str, Any] | None = None
     
     @classmethod
     def from_inspect_sample(cls, sample: Sample) -> Task:
@@ -102,13 +105,15 @@ class Task(BaseModel):
         dockerfile = None
         if sandbox:
             if isinstance(sandbox, str):
-                assert sandbox == "docker", "docker is the only supported sandbox"
+                if sandbox != "docker":
+                    raise ValueError("docker is the only supported sandbox")
             elif isinstance(sandbox, tuple) and len(sandbox) == 2:
                 sandbox_type, sandbox_config = sandbox
-                assert sandbox_type == "docker", "docker is the only supported sandbox"
+                if sandbox_type != "docker":
+                    raise ValueError("docker is the only supported sandbox")
                 dockerfile = sandbox_config
             else:
-                raise ValueError(f"Invalid sandbox format: {sandbox}")
+                raise ValueError("Invalid sandbox configuration")
 
 
         envspec = PublicEnvSpec(

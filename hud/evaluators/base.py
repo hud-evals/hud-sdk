@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
-from hud.task import Task
+if TYPE_CHECKING:
+    from hud.task import Task
 
 
 class EvaluationResult(BaseModel):

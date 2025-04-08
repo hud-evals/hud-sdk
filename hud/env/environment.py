@@ -3,15 +3,17 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Optional
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
-from hud.adapters.common.types import CLA
-from hud.env.env_client import EnvClient
-from hud.task import Task
 from hud.utils import HudStyleConfig, expand_config
 from hud.utils.config import ExpandedConfig
+
+if TYPE_CHECKING:
+    from hud.adapters.common.types import CLA
+    from hud.env.env_client import EnvClient
+    from hud.task import Task
 
 logger = logging.getLogger("hud.environment")
 
@@ -25,8 +27,8 @@ class Observation(BaseModel):
         text: Text observation, if available
     """
 
-    screenshot: Optional[str] = None  # base64 string png
-    text: Optional[str] = None
+    screenshot: str | None = None  # base64 string png
+    text: str | None = None
 
 
 class Environment(BaseModel):
@@ -39,10 +41,10 @@ class Environment(BaseModel):
     client: EnvClient
     _preloaded_setup: list[ExpandedConfig] = []
     _preloaded_evaluate: list[ExpandedConfig] = []
-    url: Optional[str] = None
-    live_url: Optional[str] = None
+    url: str | None = None
+    live_url: str | None = None
     # The task id to use for the environment reset
-    task: Optional[Task] = None
+    task: Task | None = None
 
     def preload_setup(self, setup_config: HudStyleConfig) -> None:
         """Preload setup configuration from a Task.
@@ -69,7 +71,11 @@ class Environment(BaseModel):
         """
         self._preloaded_evaluate = expand_config(evaluate_config)
 
-    async def reset(self, *, setup_config: Optional[HudStyleConfig] = None) -> tuple[Observation, dict[str, Any]]:
+    async def reset(
+        self,
+        *,
+        setup_config: HudStyleConfig | None = None,
+    ) -> tuple[Observation, dict[str, Any]]:
         """Reset the environment.
         
         Args:
@@ -135,7 +141,7 @@ class Environment(BaseModel):
         
         return Observation.model_validate(observation), 0, False, {}
 
-    async def evaluate(self, evaluate_config: Optional[HudStyleConfig] = None) -> Any:
+    async def evaluate(self, evaluate_config: HudStyleConfig | None = None) -> Any:
         """Run an evaluation function in the environment.
         
         Args:
@@ -144,7 +150,11 @@ class Environment(BaseModel):
         Returns:
             Any: Result of the evaluation function
         """
-        configs = self._preloaded_evaluate if evaluate_config is None else expand_config(evaluate_config)
+        configs = (
+            self._preloaded_evaluate
+            if evaluate_config is None
+            else expand_config(evaluate_config)
+        )
         
         if not configs:
             logger.warning("Empty evaluation configuration")
@@ -170,9 +180,9 @@ class Environment(BaseModel):
             logger.warning("Evaluate command produced stderr: %s", stderr.decode())
             
         # Return list of results plus the evaluate command result
-        return results + [evaluate_result]
+        return [*results, evaluate_result]
 
-    async def get_vnc_url(self) -> Optional[str]:
+    async def get_vnc_url(self) -> str | None:
         """
         Get the VNC URL for the environment.
         

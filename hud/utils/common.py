@@ -3,8 +3,10 @@ from __future__ import annotations
 import io
 import logging
 import tarfile
-from pathlib import Path
-from typing import TypedDict
+from typing import TYPE_CHECKING, TypedDict
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 logger = logging.getLogger("hud.utils.common")
 
@@ -43,7 +45,7 @@ def directory_to_tar_bytes(directory_path: Path) -> bytes:
             if file_path.is_file():
                 # Calculate relative path for the archive
                 rel_path = file_path.relative_to(directory_path)
-                logger.debug(f"Adding {rel_path} to tar archive")
+                logger.debug("Adding %s to tar archive", rel_path)
                 tar.add(file_path, arcname=str(rel_path))
     
     # Get the bytes from the BytesIO object

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import datetime
 import json
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, TypeAdapter
 
@@ -11,7 +11,7 @@ from hud.settings import settings
 from hud.trajectory import Trajectory
 
 
-async def query(filters: Optional[Dict[str, Any]] = None) -> List[Job]:
+async def query(filters: dict[str, Any] | None = None) -> list[Job]:
     """
     Lists jobs, optionally filtered by metadata.
 
@@ -52,7 +52,7 @@ class Job(BaseModel):
     status: str
 
     @classmethod
-    async def create(cls, gym_id: str, name: str, metadata: Optional[Dict[str, Any]] = None) -> Job:
+    async def create(cls, gym_id: str, name: str, metadata: dict[str, Any] | None = None) -> Job:
         """
         Creates a new job.
 
@@ -109,7 +109,7 @@ class Job(BaseModel):
             
         return cls.model_validate(data)
     
-    async def load_trajectories(self) -> List[Trajectory]:
+    async def load_trajectories(self) -> list[Trajectory]:
         """
         Loads the trajectories associated with this job.
 
@@ -124,4 +124,4 @@ class Job(BaseModel):
             api_key=api_key,
         )
         
-        return TypeAdapter(List[Trajectory]).validate_python(data)
+        return TypeAdapter(list[Trajectory]).validate_python(data)

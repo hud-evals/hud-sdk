@@ -1,16 +1,18 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import TYPE_CHECKING
 
-from inspect_ai.dataset import Dataset
-from pydantic import BaseModel
+from pydantic import BaseModel, TypeAdapter
 
 from hud.server import make_request
 from hud.settings import settings
 from hud.task import Task
 
+if TYPE_CHECKING:
+    from inspect_ai.dataset import Dataset
 
-async def fetch_task_ids(taskset_id: str, *, api_key: Optional[str] = None) -> list[str]:
+
+async def fetch_task_ids(taskset_id: str, *, api_key: str | None = None) -> list[str]:
     """
     Fetch all task IDs in this taskset from the API.
     
@@ -38,12 +40,12 @@ class TaskSet(BaseModel):
         description: Description of the taskset
         tasks: List of Task objects in the taskset
     """
-    id: Optional[str] = None
-    description: Optional[str] = None
+    id: str | None = None
+    description: str | None = None
     tasks: list[Task] = []
     
     @classmethod
-    async def load(cls, taskset_id: str, api_key: Optional[str] = None) -> TaskSet:
+    async def load(cls, taskset_id: str, api_key: str | None = None) -> TaskSet:
         """
         Loads a TaskSet by its ID.
 
@@ -63,9 +65,7 @@ class TaskSet(BaseModel):
             url=f"{settings.base_url}/evalsets/{taskset_id}/tasks",
             api_key=api_key,
         )
-        tasks = []
-        for task in data["evalset"]:
-            tasks.append(Task(**task))
+        tasks = TypeAdapter(list[Task]).validate_python(data["evalset"])
         
         return cls(
             id=taskset_id,

@@ -7,15 +7,19 @@ import tarfile
 import tempfile
 import uuid
 from io import BytesIO
-from typing import IO, Any, Optional, Union
+from typing import IO, TYPE_CHECKING, Any
 
 import aiodocker
-from aiodocker.stream import Stream
 from aiohttp import ClientTimeout
 
 from hud.env.env_client import EnvClient, EnvironmentStatus
 from hud.utils import ExecuteResult
-from hud.utils.config import ExpandedConfig
+
+if TYPE_CHECKING:
+    from aiodocker.containers import DockerContainer
+    from aiodocker.stream import Stream
+
+    from hud.utils.config import ExpandedConfig
 
 logger = logging.getLogger("hud.env.docker_env_client")
 
@@ -44,7 +48,7 @@ class InvokeError(Exception):
     """
 
 
-def mktar_from_dockerfile(fileobj: Union[BytesIO, IO[bytes]]) -> IO[bytes]:
+def mktar_from_dockerfile(fileobj: BytesIO | IO[bytes]) -> IO[bytes]:
     """
     Create a zipped tar archive from a Dockerfile
     **Remember to close the file object**
@@ -53,19 +57,17 @@ def mktar_from_dockerfile(fileobj: Union[BytesIO, IO[bytes]]) -> IO[bytes]:
     Returns:
         a NamedTemporaryFile() object
     """
+    with tempfile.NamedTemporaryFile() as f, \
+         tarfile.open(mode="w:gz", fileobj=f) as t:
 
-    f = tempfile.NamedTemporaryFile()
-    t = tarfile.open(mode="w:gz", fileobj=f)
+        if isinstance(fileobj, io.BytesIO):
+            dfinfo = tarfile.TarInfo("Dockerfile")
+            dfinfo.size = len(fileobj.getvalue())
+            fileobj.seek(0)
+        else:
+            dfinfo = t.gettarinfo(fileobj=fileobj, arcname="Dockerfile")
 
-    if isinstance(fileobj, io.BytesIO):
-        dfinfo = tarfile.TarInfo("Dockerfile")
-        dfinfo.size = len(fileobj.getvalue())
-        fileobj.seek(0)
-    else:
-        dfinfo = t.gettarinfo(fileobj=fileobj, arcname="Dockerfile")
-
-    t.addfile(dfinfo, fileobj)
-    t.close()
+        t.addfile(dfinfo, fileobj)
     f.seek(0)
     return f
 
@@ -99,7 +101,6 @@ class DockerEnvClient(EnvClient):
         dockerfile_tar = mktar_from_dockerfile(dockerfile_fileobj)
 
         # Build the image
-        print(f"Building Docker image {image_tag}...")
         build_stream = await docker_client.images.build(
             fileobj=dockerfile_tar,
             encoding="gzip",
@@ -112,10 +113,9 @@ class DockerEnvClient(EnvClient):
         # Print build output
         for chunk in build_stream:
             if "stream" in chunk:
-                print(chunk["stream"], end="")
+                pass
         
         # Create and start the container
-        print(f"Starting Docker container from image {image_tag}...")
         container_config = {
             "Image": image_tag,
             "Tty": True,
@@ -134,7 +134,7 @@ class DockerEnvClient(EnvClient):
         # Return the controller instance
         return cls(docker_client, container.id)
     
-    def __init__(self, docker_conn: aiodocker.Docker, container_id: str):
+    def __init__(self, docker_conn: aiodocker.Docker, container_id: str) -> None:
         """
         Initialize the DockerEnvClient.
         
@@ -160,7 +160,7 @@ class DockerEnvClient(EnvClient):
         """Set the container ID."""
         self._container_id = value
     
-    async def _get_container(self):
+    async def _get_container(self) -> DockerContainer:
         """Get the container object from aiodocker."""
         return await self._docker.containers.get(self.container_id)
     
@@ -193,7 +193,13 @@ class DockerEnvClient(EnvClient):
             # If we can't connect to the container or there's any other error
             return EnvironmentStatus.ERROR
     
-    async def execute(self, command: list[str], *, workdir: Optional[str] = None, timeout: Optional[float] = None) -> ExecuteResult:
+    async def execute(
+        self,
+        command: list[str],
+        *,
+        workdir: str | None = None,
+        timeout: float | None = None,
+    ) -> ExecuteResult:
         """
         Execute a command in the container.
         
@@ -283,7 +289,8 @@ class DockerEnvClient(EnvClient):
         # we know tarfile has fileobj BytesIO
         # read the tarfile into a bytes object
         fileobj = tarfile.fileobj
-        assert isinstance(fileobj, io.BytesIO), "fileobj is not a BytesIO object"
+        if not isinstance(fileobj, io.BytesIO):
+            raise TypeError("fileobj is not a BytesIO object")
         return fileobj.getvalue()
     
     async def put_archive(self, path: str, data: bytes) -> None:
@@ -313,4 +320,4 @@ class DockerEnvClient(EnvClient):
             await container.delete()
         except Exception as e:
             # Log the error but don't raise it since this is cleanup
-            print(f"Error closing Docker environment: {e}")
+            logger.warning("Error during Docker container cleanup: %s", e)
