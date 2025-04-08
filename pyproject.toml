@@ -3,7 +3,7 @@ name = "hud-python"
 version = "0.1.5"
 description = "SDK for the HUD evaluation platform."
 readme = "README.md"
-requires-python = ">=3.9, <3.14"
+requires-python = ">=3.10, <3.14"
 authors = [
 { name = "Human Union Data SDK", email = "founders@hud.so" },
 ]
@@ -22,7 +22,6 @@ classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -128,5 +127,5 @@ exclude = [
     "src/typestubs",
     "**/venv",
 ]
-pythonVersion = "3.9"
+pythonVersion = "3.10"
 typeCheckingMode = "basic"
