@@ -1,18 +1,20 @@
+from __future__ import annotations
+
+import io
+import json
+import logging
 import tarfile
 import tempfile
 import uuid
+from io import BytesIO
+from typing import IO, Any, Optional, Union
+
+import aiodocker
 from aiodocker.stream import Stream
 from aiohttp import ClientTimeout
-from typing import IO, Any, Optional, Union
-from io import BytesIO
-from hud.env.env_client import EnvClient
-from hud.utils import ExecuteResult
-import io
-import aiodocker
-from hud.env.env_client import EnvironmentStatus
-import json
-import logging
 
+from hud.env.env_client import EnvClient, EnvironmentStatus
+from hud.utils import ExecuteResult
 from hud.utils.config import ExpandedConfig
 
 logger = logging.getLogger("hud.env.docker_env_client")
@@ -40,7 +42,6 @@ class InvokeError(Exception):
     """
     Error raised when an invoke fails.
     """
-    pass
 
 
 def mktar_from_dockerfile(fileobj: Union[BytesIO, IO[bytes]]) -> IO[bytes]:
@@ -75,7 +76,7 @@ class DockerEnvClient(EnvClient):
     """
     
     @classmethod
-    async def create(cls, dockerfile: str) -> 'DockerEnvClient':
+    async def create(cls, dockerfile: str) -> DockerEnvClient:
         """
         Creates a Docker environment client from a dockerfile.
         
@@ -244,7 +245,7 @@ class DockerEnvClient(EnvClient):
             logger.info("Environment needs update, updating")
             await self.update()
 
-        # generate a random uuid as a divider   
+        # generate a random uuid as a divider
         divider = str(uuid.uuid4())
 
         template = invoke_template(config, self.package_name, divider)

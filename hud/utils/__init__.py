@@ -1,6 +1,7 @@
 from __future__ import annotations
 
+from .common import ExecuteResult
 from .config import ExpandedConfig, HudStyleConfig, expand_config
 from .telemetry import stream
-from .common import ExecuteResult
-__all__ = ["HudStyleConfig", "expand_config", "stream", "ExecuteResult", "ExpandedConfig"]
+
+__all__ = ["ExecuteResult", "ExpandedConfig", "HudStyleConfig", "expand_config", "stream"]

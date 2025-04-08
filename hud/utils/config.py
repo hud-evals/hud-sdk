@@ -1,9 +1,11 @@
 from __future__ import annotations
+
 import logging
 import re
 from typing import Any, Union, cast
-from typing_extensions import TypedDict
+
 from lark import Lark, Transformer
+from typing_extensions import TypedDict
 
 logger = logging.getLogger("hud.utils.config")
 
@@ -54,7 +56,7 @@ class FuncCallTransformer(Transformer):
         return str(token)
 
 # Create the parser
-func_call_parser = Lark(FUNC_CALL_GRAMMAR, parser='lalr', transformer=FuncCallTransformer())
+func_call_parser = Lark(FUNC_CALL_GRAMMAR, parser="lalr", transformer=FuncCallTransformer())
 
 class ExpandedConfig(TypedDict):
     function: str  # Format: "x.y.z"
@@ -64,7 +66,7 @@ HudStyleConfig = Union[str, ExpandedConfig, list[str], list[ExpandedConfig]]
 
 def _is_valid_python_name(name: str) -> bool:
     """Check if a string is a valid Python identifier."""
-    return bool(re.match(r'^[a-zA-Z_][a-zA-Z0-9_]*$', name))
+    return bool(re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", name))
 
 def _validate_expanded_config(config: dict) -> ExpandedConfig:
     """Validate and convert a dictionary to an ExpandedConfig."""

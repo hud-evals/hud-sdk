@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import enum
 from pathlib import Path
-from typing import Literal, Union, Optional
+from typing import Literal, Optional, Union
+
 from pydantic import BaseModel
 
 

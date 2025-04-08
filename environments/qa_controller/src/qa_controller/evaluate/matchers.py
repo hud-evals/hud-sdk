@@ -1,17 +1,18 @@
 """Text matching evaluation functions."""
+from __future__ import annotations
 
 from typing import Any
 
-from qa_controller.utils.state import get_last_answer, load_state
+from qa_controller.utils.state import get_last_answer
 
 # Try to import nltk for better evaluation
 try:
     import nltk
     # Check if nltk data is available, download if needed
     try:
-        nltk.data.find('tokenizers/punkt')
+        nltk.data.find("tokenizers/punkt")
     except LookupError:
-        nltk.download('punkt')
+        nltk.download("punkt")
     HAS_NLTK = True
 except ImportError:
     HAS_NLTK = False

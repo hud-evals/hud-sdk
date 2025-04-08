@@ -1,14 +1,13 @@
 from __future__ import annotations
 
-from typing import Optional, Any
-
-from pydantic import BaseModel
-
-from hud.settings import settings
-from hud.server import make_request
-from hud.task import Task
+from typing import Optional
 
 from inspect_ai.dataset import Dataset
+from pydantic import BaseModel
+
+from hud.server import make_request
+from hud.settings import settings
+from hud.task import Task
 
 
 async def fetch_task_ids(taskset_id: str, *, api_key: Optional[str] = None) -> list[str]:

@@ -13,7 +13,6 @@ from hud.task import Task
 from hud.utils import HudStyleConfig, expand_config
 from hud.utils.config import ExpandedConfig
 
-
 logger = logging.getLogger("hud.environment")
 
 
@@ -68,7 +67,7 @@ class Environment(BaseModel):
                 - Dict: {"function": [args]} where args are strings/ints/dicts
                 - List of the above
         """
-        self._preloaded_evaluate = expand_config(evaluate_config)  
+        self._preloaded_evaluate = expand_config(evaluate_config)
 
     async def reset(self, *, setup_config: Optional[HudStyleConfig] = None) -> tuple[Observation, dict[str, Any]]:
         """Reset the environment.
@@ -193,7 +192,7 @@ class Environment(BaseModel):
         data, _, _ = await self.client.invoke(ExpandedConfig(
             function="get_urls",
             args=[]
-        ));
+        ))
         
         self.url = data.get("url")
         self.live_url = data.get("live_url")

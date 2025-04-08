@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-import json
-from typing import Any, Optional, Union, List, Dict
-from pathlib import Path
-from typing import Literal, Union
-import uuid
+from typing import Any, Dict, List, Optional, Union
+
 from inspect_ai.dataset import Sample
 from pydantic import BaseModel
 

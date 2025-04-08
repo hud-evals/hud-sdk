@@ -1,4 +1,5 @@
 """Question management functions for the QA environment."""
+from __future__ import annotations
 
 from typing import Any
 
@@ -39,4 +40,4 @@ def get_question() -> dict[str, Any]:
     return {
         "question": state.get("question", ""),
         "answers_count": len(state.get("answers", []))
-    } 
+    }

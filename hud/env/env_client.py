@@ -1,17 +1,18 @@
-import asyncio
-import json
-from pathlib import Path
-import uuid
-from pydantic import BaseModel
+from __future__ import annotations
+
 import abc
+import asyncio
+import logging
 import os
-from typing import Any, Optional, Dict
+from pathlib import Path
+from typing import Any, Dict, Optional
+
+import toml
+from pydantic import BaseModel
+
 from hud.types import EnvironmentStatus
 from hud.utils import ExecuteResult
 from hud.utils.common import directory_to_tar_bytes
-import toml
-import logging
-
 from hud.utils.config import ExpandedConfig
 
 logger = logging.getLogger("hud.env.env_client")
@@ -83,7 +84,7 @@ class EnvClient(BaseModel):
     
     @classmethod
     @abc.abstractmethod
-    async def create(cls, dockerfile: str) -> 'EnvClient':
+    async def create(cls, dockerfile: str) -> EnvClient:
         """
         Creates an environment client from a dockerfile.
 
@@ -93,7 +94,6 @@ class EnvClient(BaseModel):
         Returns:
             EnvClient: An instance of the environment client
         """
-        pass
     
     @abc.abstractmethod
     async def get_status(self) -> EnvironmentStatus:
@@ -103,7 +103,6 @@ class EnvClient(BaseModel):
         Returns:
             EnvironmentStatus: A status enum indicating the current state of the environment
         """
-        pass
     
     def _get_all_file_mtimes(self) -> Dict[str, float]:
         """
@@ -168,7 +167,7 @@ class EnvClient(BaseModel):
         
         # Create tar archive of the source code and send it to the container
         tar_bytes = directory_to_tar_bytes(self._source_path)
-        await self.execute(["mkdir", "-p", "/root/controller"], workdir=None, timeout=5)        
+        await self.execute(["mkdir", "-p", "/root/controller"], workdir=None, timeout=5)
         await self.put_archive("/root/controller", tar_bytes)
         
         # Check if pyproject.toml exists and parse it
@@ -207,7 +206,6 @@ class EnvClient(BaseModel):
         Returns:
             ExecuteResult: The result of the command
         """
-        pass
     
     @abc.abstractmethod
     async def invoke(self, config: ExpandedConfig) -> tuple[Any, bytes, bytes]:
@@ -220,7 +218,6 @@ class EnvClient(BaseModel):
         Returns:
             tuple[Any, bytes, bytes]: The result of the invocation, stdout, and stderr
         """
-        pass
 
     async def wait_for_ready(self) -> None:
         """Wait for the environment to be ready."""
@@ -247,7 +244,6 @@ class EnvClient(BaseModel):
         Returns:
             bytes: The archive of the path
         """
-        pass
     
     @abc.abstractmethod
     async def put_archive(self, path: str, data: bytes) -> bool:
@@ -258,7 +254,6 @@ class EnvClient(BaseModel):
             path: The path to put the archive at
             data: The data to put in the archive
         """
-        pass
 
     @abc.abstractmethod
     async def close(self) -> None:
@@ -266,4 +261,3 @@ class EnvClient(BaseModel):
         Close the environment and clean up any resources.
         This method should be called when the environment is no longer needed.
         """
-        pass

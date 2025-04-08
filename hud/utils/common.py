@@ -1,8 +1,10 @@
-from typing import TypedDict
-import tarfile
+from __future__ import annotations
+
 import io
-from pathlib import Path
 import logging
+import tarfile
+from pathlib import Path
+from typing import TypedDict
 
 logger = logging.getLogger("hud.utils.common")
 
@@ -35,9 +37,9 @@ def directory_to_tar_bytes(directory_path: Path) -> bytes:
     """
     output = io.BytesIO()
     
-    with tarfile.open(fileobj=output, mode='w') as tar:       
+    with tarfile.open(fileobj=output, mode="w") as tar:
         # Walk through the directory
-        for file_path in directory_path.rglob('*'):
+        for file_path in directory_path.rglob("*"):
             if file_path.is_file():
                 # Calculate relative path for the archive
                 rel_path = file_path.relative_to(directory_path)

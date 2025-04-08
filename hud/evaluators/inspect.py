@@ -1,13 +1,8 @@
 from __future__ import annotations
 
-import inspect
-import os
-from typing import Any, Optional
-
-import requests
+from typing import Any
 
 from hud.evaluators.base import EvaluationResult
-from hud.settings import settings
 
 
 def inspect_evaluate(

@@ -1,4 +1,5 @@
 """State management utilities for the Text QA environment."""
+from __future__ import annotations
 
 import json
 import os
@@ -27,7 +28,7 @@ def load_state() -> dict[str, Any]:
     if not os.path.exists(STATE_FILE):
         return {"question": "", "answers": []}
         
-    with open(STATE_FILE, "r") as f:
+    with open(STATE_FILE) as f:
         return json.load(f)
 
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import base64
-from typing import Any, Literal, TypedDict, cast, Optional, Protocol, Union
+from typing import Any, Optional, Protocol, TypedDict
 
 from hud.evaluators.base import EvaluationResult
 from hud.server import make_request
@@ -103,7 +103,7 @@ def _is_base64_image(data: Any) -> bool:
 
 
 def judge(
-    response: Any, 
+    response: Any,
     answer: Any,
     llm: Optional[LLM] = None,
     criteria: list[str] | list[dict] | None = None,
@@ -187,7 +187,7 @@ Format your answer as a JSON object with 'score' (float) and 'reason' (string) f
         import re
         
         # Try to extract JSON if wrapped in other text
-        json_match = re.search(r'\{.*?\}', result_text, re.DOTALL)
+        json_match = re.search(r"\{.*?\}", result_text, re.DOTALL)
         if json_match:
             json_str = json_match.group(0)
             result = json.loads(json_str)
@@ -208,6 +208,6 @@ Format your answer as a JSON object with 'score' (float) and 'reason' (string) f
     except Exception as e:
         return EvaluationResult(
             score=0.0,
-            reason=f"LLM evaluation error: {str(e)}",
+            reason=f"LLM evaluation error: {e!s}",
             mode="custom_llm"
         )

@@ -93,21 +93,7 @@ class CustomAction(CLAAction):
 
 # Union of all possible actions
 CLA = Annotated[
-    Union[
-        ClickAction,
-        PressAction,
-        KeyDownAction,
-        KeyUpAction,
-        TypeAction,
-        ScrollAction,
-        MoveAction,
-        WaitAction,
-        DragAction,
-        CustomAction,
-        ScreenshotFetch,
-        PositionFetch,
-        CustomAction,
-    ],
+    Union[ClickAction, PressAction, KeyDownAction, KeyUpAction, TypeAction, ScrollAction, MoveAction, WaitAction, DragAction, CustomAction, ScreenshotFetch, PositionFetch],
     Field(discriminator="type"),
 ]
 

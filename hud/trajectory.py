@@ -1,8 +1,12 @@
+# ruff: noqa: T201
+from __future__ import annotations
+
 import datetime
 from typing import Optional
+
+from IPython.display import HTML, Markdown, display
 from pydantic import BaseModel, Field
 
-from IPython.display import display, Markdown, HTML
 
 class TrajectoryStep(BaseModel):
     """Model representing a single task run's trajectory information."""
@@ -25,7 +29,7 @@ class Trajectory(BaseModel):
 
     def display(self):
         trajectory_start_timestamp = self.trajectory[0].start_timestamp
-        t_start_dt = datetime.datetime.fromisoformat(trajectory_start_timestamp.replace('Z', '+00:00')) if trajectory_start_timestamp else None
+        t_start_dt = datetime.datetime.fromisoformat(trajectory_start_timestamp.replace("Z", "+00:00")) if trajectory_start_timestamp else None
         for i, step in enumerate(self.trajectory):
             # Use Markdown for better step separation in Jupyter
             display(Markdown(f"### Step {i + 1}"))
@@ -34,7 +38,7 @@ class Trajectory(BaseModel):
             if step.observation_url:
                 try:
                     # Display in Jupyter/IPython environment using HTML
-                    display(Markdown(f"**Observation Image:**"))
+                    display(Markdown("**Observation Image:**"))
                     display(HTML(f'<img src="{step.observation_url}" style="max-width:100%;"/>'))
                     display(Markdown(f"[Image Link]({step.observation_url})"))
                 except Exception as e:
@@ -57,8 +61,8 @@ class Trajectory(BaseModel):
             if step_start_timestamp and step_end_timestamp and t_start_dt:
                 try:
                     # Attempt to parse timestamps (assuming ISO format)
-                    start_dt = datetime.datetime.fromisoformat(step_start_timestamp.replace('Z', '+00:00'))
-                    end_dt = datetime.datetime.fromisoformat(step_end_timestamp.replace('Z', '+00:00'))
+                    start_dt = datetime.datetime.fromisoformat(step_start_timestamp.replace("Z", "+00:00"))
+                    end_dt = datetime.datetime.fromisoformat(step_end_timestamp.replace("Z", "+00:00"))
                     duration = end_dt - start_dt
                     total_seconds = duration.total_seconds()
                     minutes = int(total_seconds // 60)

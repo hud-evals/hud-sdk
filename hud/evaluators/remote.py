@@ -75,4 +75,4 @@ def remote_evaluate(
         reason=result.get("reason", "Remote evaluation completed"),
         mode=eval_type,
         criteria_scores=result.get("details", {})
-    ) 
+    )

@@ -1,13 +1,14 @@
-import asyncio
-from typing import Any, Optional
-from hud.env.env_client import EnvClient
-from hud.utils import ExecuteResult
+from __future__ import annotations
+
+import logging
 from base64 import b64decode, b64encode
+from typing import Any, Optional
+
+from hud.env.env_client import EnvClient
 from hud.server import make_request
 from hud.settings import settings
 from hud.types import EnvironmentStatus
-import logging
-
+from hud.utils import ExecuteResult
 from hud.utils.config import ExpandedConfig
 
 logger = logging.getLogger("hud.env.remote_env_client")
@@ -20,7 +21,7 @@ class RemoteEnvClient(EnvClient):
     """
     
     @classmethod
-    async def create(cls, *, dockerfile: Optional[str] = None, gym_id: Optional[str] = None, job_id: Optional[str] = None, metadata: dict[str, Any] = {}) -> 'RemoteEnvClient':
+    async def create(cls, *, dockerfile: Optional[str] = None, gym_id: Optional[str] = None, job_id: Optional[str] = None, metadata: dict[str, Any] = {}) -> RemoteEnvClient:
         """
         Creates a remote environment client from a dockerfile or gym_id.
         

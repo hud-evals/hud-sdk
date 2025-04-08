@@ -1,11 +1,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
 
 from pydantic import BaseModel, Field
 
 from hud.task import Task
+
 
 class EvaluationResult(BaseModel):
     """Result of an evaluation.

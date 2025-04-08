@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import datetime
 import json
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from pydantic import BaseModel, TypeAdapter
 
 from hud.server import make_request
 from hud.settings import settings
 from hud.trajectory import Trajectory
+
 
 async def query(filters: Optional[Dict[str, Any]] = None) -> List[Job]:
     """

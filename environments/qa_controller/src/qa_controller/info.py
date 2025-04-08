@@ -1,9 +1,10 @@
 """Information functions for the Text QA environment."""
+from __future__ import annotations
 
 import socket
 from typing import Any
 
-from qa_controller.utils.state import save_state, load_state
+from qa_controller.utils.state import load_state, save_state
 
 
 def get_urls() -> dict[str, Any]:

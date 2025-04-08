@@ -1,17 +1,17 @@
-from pathlib import Path
-from typing import Optional, Union, Any
-import logging
-from datetime import datetime
-from datetime import timezone
+from __future__ import annotations
 
-from hud.settings import settings
+import logging
+from datetime import datetime, timezone
+from typing import Any, Optional, Union
+
 from hud.env.docker_env_client import DockerEnvClient
+from hud.env.environment import Environment
 from hud.env.remote_env_client import RemoteEnvClient
 from hud.job import Job
 from hud.server.requests import make_request
+from hud.settings import settings
 from hud.task import Task
-from hud.types import PrivateEnvSpec, EnvSpec, PublicEnvSpec
-from hud.env.environment import Environment
+from hud.types import EnvSpec, PrivateEnvSpec, PublicEnvSpec
 
 logger = logging.getLogger("hud.gym")
 
@@ -70,7 +70,7 @@ async def make(env_src: Union[str, EnvSpec, Task], *, job_id: Optional[str] = No
             job_id = job.id
 
         # Create the environment
-        client = await RemoteEnvClient.create(gym_id=true_gym_id, job_id=job_id, metadata=metadata)        
+        client = await RemoteEnvClient.create(gym_id=true_gym_id, job_id=job_id, metadata=metadata)
     elif isinstance(env_spec, PublicEnvSpec):
         # Create the environment (depending on location)
         if env_spec.location == "local":
