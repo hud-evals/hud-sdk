@@ -169,7 +169,7 @@ class RemoteEnvClient(EnvClient):
         data = await make_request(
             method="POST",
             url=f"{settings.base_url}/environments/{self.env_id}/invoke",
-            json=config,
+            json=config.model_dump(),
             api_key=settings.api_key,
         )
         

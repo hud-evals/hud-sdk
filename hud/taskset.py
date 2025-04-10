@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pydantic import BaseModel, TypeAdapter
+from pydantic import BaseModel
 
 from hud.server import make_request
 from hud.settings import settings
@@ -65,12 +65,11 @@ class TaskSet(BaseModel):
             url=f"{settings.base_url}/evalsets/{taskset_id}/tasks",
             api_key=api_key,
         )
-        tasks = TypeAdapter(list[Task]).validate_python(data["evalset"])
         
-        return cls(
-            id=taskset_id,
-            tasks=tasks,
-        )
+        return cls.model_validate({
+            "id": taskset_id,
+            "tasks": data["evalset"],
+        })
     
     @classmethod
     def from_inspect_dataset(cls, dataset: Dataset) -> TaskSet:

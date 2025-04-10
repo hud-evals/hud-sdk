@@ -2,10 +2,10 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any, Union, cast
+from typing import Any, cast
 
 from lark import Lark, Token, Transformer
-from typing_extensions import TypedDict
+from pydantic import BaseModel
 
 logger = logging.getLogger("hud.utils.config")
 
@@ -58,11 +58,11 @@ class FuncCallTransformer(Transformer):
 # Create the parser
 func_call_parser = Lark(FUNC_CALL_GRAMMAR, parser="lalr", transformer=FuncCallTransformer())
 
-class ExpandedConfig(TypedDict):
+class ExpandedConfig(BaseModel):
     function: str  # Format: "x.y.z"
     args: list[Any]  # Must be json serializable
 
-HudStyleConfig = Union[str, ExpandedConfig, list[str], list[ExpandedConfig]]
+HudStyleConfig = str | ExpandedConfig | list[str] | list[ExpandedConfig]
 
 def _is_valid_python_name(name: str) -> bool:
     """Check if a string is a valid Python identifier."""

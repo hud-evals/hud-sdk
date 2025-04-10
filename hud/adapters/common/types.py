@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, Union
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field
 
@@ -31,15 +31,18 @@ class PressAction(CLAAction):
     type: Literal["press"] = "press"
     keys: list[CLAKey]
 
+
 # KEYDOWN ACTION for key presses/hotkeys
 class KeyDownAction(CLAAction):
     type: Literal["keydown"] = "keydown"
     keys: list[CLAKey]
 
+
 # KEYUP ACTION for key presses/hotkeys
 class KeyUpAction(CLAAction):
     type: Literal["keyup"] = "keyup"
     keys: list[CLAKey]
+
 
 # TYPE ACTION for text typing
 class TypeAction(CLAAction):
@@ -78,6 +81,7 @@ class DragAction(CLAAction):
     pattern: list[int] | None = None  # [delay_1, delay_2, ...]
     hold_keys: list[CLAKey] | None = None
 
+
 # SCREENSHOT ACTION
 class ScreenshotFetch(CLAAction):
     type: Literal["screenshot"] = "screenshot"
@@ -91,22 +95,21 @@ class CustomAction(CLAAction):
     type: Literal["custom"] = "custom"
     action: str
 
+
 # Union of all possible actions
 CLA = Annotated[
-    Union[
-        ClickAction,
-        PressAction,
-        KeyDownAction,
-        KeyUpAction,
-        TypeAction,
-        ScrollAction,
-        MoveAction,
-        WaitAction,
-        DragAction,
-        CustomAction,
-        ScreenshotFetch,
-        PositionFetch,
-    ],
+    ClickAction
+    | PressAction
+    | KeyDownAction
+    | KeyUpAction
+    | TypeAction
+    | ScrollAction
+    | MoveAction
+    | WaitAction
+    | DragAction
+    | CustomAction
+    | ScreenshotFetch
+    | PositionFetch,
     Field(discriminator="type"),
 ]
 

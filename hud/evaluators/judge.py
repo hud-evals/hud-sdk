@@ -72,7 +72,7 @@ def _process_input(data: Any) -> Any:
         return data
         
     # For other types, convert to string
-    return str(data) if not isinstance(data, (str, dict)) else data
+    return str(data) if not isinstance(data, str | dict) else data
 
 
 def _is_base64_image(data: Any) -> bool:

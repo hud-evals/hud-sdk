@@ -124,7 +124,7 @@ def match_diff(response: Any, answer: Any) -> EvaluationResult:
     Returns:
         EvaluationResult with score=similarity (0.0-1.0)
     """
-    if isinstance(response, (int, float)) and isinstance(answer, (int, float)):
+    if isinstance(response, int | float) and isinstance(answer, int | float):
         score = _match_numeric_diff(response, answer)
         reason = f"Numeric difference: {abs(response - answer)}"
     else:
