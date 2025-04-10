@@ -1,12 +1,10 @@
 from __future__ import annotations
 
 import enum
-from typing import TYPE_CHECKING, Literal, Union
+from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel
-
-if TYPE_CHECKING:
-    from pathlib import Path
 
 
 class PrivateEnvSpec(BaseModel):
@@ -30,7 +28,7 @@ class PublicEnvSpec(BaseModel):
     controller_source_dir: Path | None = None
 
 # permits either a private or public environment specification
-EnvSpec = Union[PrivateEnvSpec, PublicEnvSpec]
+EnvSpec = PrivateEnvSpec | PublicEnvSpec
 
 
 # Environment Controllers

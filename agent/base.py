@@ -1,15 +1,14 @@
-from typing import Any
+from abc import ABC, abstractmethod
+from hud.adapters.common.types import CLA
+from hud.env.environment import Observation
 
-class Agent:
-    def __init__(self, client: Any):
-        self.client = client
-        self.messages = []
-        self.responses = []
 
-    def predict(self):
-        raise NotImplementedError("Subclasses must implement this method")
-
-    def clear_history(self):
-        self.messages = []
-        self.responses = []
-
+class Agent(ABC):
+    @abstractmethod
+    def predict(self, observation: Observation) -> tuple[list[CLA], bool]:
+        """Predict the next action based on the observation.
+        
+        Returns:
+            tuple[list[CLA], bool]: A tuple containing the list of actions and a boolean indicating if the agent believes it has completed the task.
+        """
+        pass

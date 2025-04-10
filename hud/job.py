@@ -81,8 +81,8 @@ class Job(BaseModel):
             id=data["id"],
             name=name,
             metadata=metadata,
-            created_at=datetime.datetime.fromisoformat(data["created_at"]),
-            status=data["status"],
+            created_at=datetime.datetime.now(),
+            status="initializing",
         )
 
     @classmethod

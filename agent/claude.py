@@ -1,153 +1,128 @@
-import os
-import json
-from typing import Optional
-from agent.base import Agent
-from anthropic import Anthropic
-from anthropic.types import Message
+import logging
+from typing import Any, List, Optional, Tuple, cast, Dict, Union, Literal, TypedDict
 
+from anthropic import Anthropic
+from anthropic.types import Message, ToolUseBlock, ContentBlock
+from anthropic.types.beta import (
+    BetaMessageParam,
+    BetaToolParam,
+    BetaToolResultBlockParam,
+    BetaToolComputerUse20250124Param,
+    BetaBase64ImageSourceParam,
+    BetaTextBlockParam,
+    BetaImageBlockParam,
+)
+
+
+from agent.base import Agent
+from hud.adapters.claude.adapter import ClaudeAdapter
+from hud.adapters.common.types import CLA
+from hud.env.environment import Observation
+
+logger = logging.getLogger(__name__)
+
+def base64_to_content_block(base64: str) -> BetaImageBlockParam:
+    return {
+        "type": "image",
+        "source": {
+            "type": "base64",
+            "media_type": "image/png",
+            "data": base64
+        }
+    }
+
+def text_to_content_block(text: str) -> BetaTextBlockParam:
+    return {
+        "type": "text",
+        "text": text
+    }
+
+def tool_use_content_block(tool_use_id: str, content: list[BetaTextBlockParam | BetaImageBlockParam]) -> BetaToolResultBlockParam:
+    return {
+        "type": "tool_result",
+        "tool_use_id": tool_use_id,
+        "content": content
+    }
+
+COMPUTER_TOOL: BetaToolComputerUse20250124Param =  {"type": "computer_20250124", "name": "computer", "display_width_px": 1024, "display_height_px": 768}
 
 class ClaudeAgent(Agent):
-    def __init__(self, client: Anthropic):
-        super().__init__(client)
-        self.model = "claude-3-7-sonnet-20250219"
+    def __init__(self, anthropic: Anthropic):
+        self.anthropic = anthropic
+        self.adapter = ClaudeAdapter()
+        self.messages: List[BetaMessageParam] = []
+        self.max_iterations = 10
         self.max_tokens = 4096
-        self.tool_version = "20250124"
-        self.thinking_budget = 1024
-        self.conversation = (
-            []
-        )  # Store the full conversation history including Claude's responses
+        self.pending_computer_use_tool_id = None
 
-    async def predict(
-        self, screenshot: str | None = None, text: str | None = None
-    ) -> tuple[bool, str | object | None]:
-        message = self._create_message(screenshot, text)
+    async def predict(self, observation: Observation) -> tuple[list[CLA], bool]:
+        """
+        Predict the next action based on the observation.
+        
+        Returns:
+            tuple[list[CLA], bool]: A tuple containing the list of actions and a boolean indicating if the agent believes it has completed the task.
+        """
 
-        # Only append the message if it's not empty
-        if message:
-            self.conversation.append(message)
+        # this is the new content that will be sent to the API
+        user_content: List[BetaImageBlockParam|BetaTextBlockParam|BetaToolResultBlockParam] = []
 
-        response = self._generate_response()
-
-        # Check if this response contains any tool_use blocks
-        for block in response.content:
-            if hasattr(block, "type") and block.type == "tool_use":
-                break
-
-        # Add Claude's response to the conversation history
-        assistant_message = {"role": "assistant", "content": response.content}
-        self.conversation.append(assistant_message)
-
-        self.responses.append(response)
-
-        done, processed = await self.process_response(response)
-
-        return done, processed
-
-    def _create_message(self, screenshot: str | None = None, text: str | None = None):
-        """Create appropriate message based on context and inputs"""
-
-        # Check if the previous response was from assistant and had tool_use
-        if len(self.conversation) >= 2 and self.conversation[-1]["role"] == "assistant":
-            last_assistant_message = self.conversation[-1]
-
-            # Look for tool_use blocks in the assistant's message
-            for block in last_assistant_message["content"]:
-                if hasattr(block, "type") and block.type == "tool_use":
-                    if (
-                        hasattr(block, "name")
-                        and block.name == "computer"
-                        and screenshot
-                    ):
-                        # Found the tool_use to respond to
-                        return {
-                            "role": "user",
-                            "content": [
-                                {
-                                    "type": "tool_result",
-                                    "tool_use_id": block.id,
-                                    "content": [
-                                        {
-                                            "type": "image",
-                                            "source": {
-                                                "type": "base64",
-                                                "media_type": "image/png",
-                                                "data": screenshot,
-                                            },
-                                        }
-                                    ],
-                                }
-                            ],
-                        }
-
-        # Regular user message
-        if text or screenshot:
-            content = []
-            if text:
-                content.append({"type": "text", "text": text})
-            if screenshot:
-                content.append(
-                    {
-                        "type": "image",
-                        "source": {
-                            "type": "base64",
-                            "media_type": "image/png",
-                            "data": screenshot,
-                        },
-                    }
+        if observation.text:
+            logger.info("Adding text to user content: %s", observation.text)
+            user_content.append(text_to_content_block(str(observation.text)))
+        
+        if observation.screenshot:
+            logger.info("Adding screenshot to user content")
+            if not self.pending_computer_use_tool_id:
+                logger.info("Adding screenshot to user content, no tool id")
+                user_content.append(base64_to_content_block(observation.screenshot))
+            else:
+                logger.info("Adding screenshot to user content, tool id: %s", self.pending_computer_use_tool_id)
+                user_content.append(
+                    tool_use_content_block(
+                        self.pending_computer_use_tool_id, 
+                        [base64_to_content_block(observation.screenshot)]
+                    )
                 )
+                self.pending_computer_use_tool_id = None
 
-            return {"role": "user", "content": content}
+        # Add the user content to the messages
+        self.messages.append(cast(BetaMessageParam, {
+            "role": "user",
+            "content": user_content,
+        }))
 
-        return None  # Return None if no message could be created
-
-    def _generate_response(self):
-        beta_flag = (
-            "computer-use-2025-01-24"
-            if "20250124" in self.tool_version
-            else "computer-use-2024-10-22"
+        # Call Claude API
+        response = self.anthropic.beta.messages.create(
+            model="claude-3-7-sonnet-20250219",
+            max_tokens=self.max_tokens,
+            messages=self.messages,
+            tools=[COMPUTER_TOOL],
+            betas=["computer-use-2025-01-24"],
+            tool_choice={"type": "auto", "disable_parallel_tool_use": True}
         )
 
-        tools = [
-            {
-                "type": f"computer_{self.tool_version}",
-                "name": "computer",
-                "display_width_px": 1024,
-                "display_height_px": 768,
-                "display_number": 1,
-            }
-        ]
+        # Add Claude's response to the conversation history
+        response_content = response.content
+        self.messages.append(cast(BetaMessageParam, {
+            "role": "assistant",
+            "content": response_content,
+        }))
 
-        thinking = {"type": "enabled", "budget_tokens": self.thinking_budget}
-
-        try:
-            response = self.client.beta.messages.create(
-                model=self.model,
-                max_tokens=self.max_tokens,
-                messages=self.conversation,  # Use the full conversation including assistant responses
-                tools=tools,
-                betas=[beta_flag],
-                thinking=thinking,
-            )
-            return response
-        except Exception as e:
-            raise
-
-    async def process_response(
-        self, response: Message
-    ) -> tuple[bool, str | object | None]:
-        # Check if response contains a computer tool use
-        computer_action = None
-        for block in response.content:
-            if block.type == "tool_use" and block.name == "computer":
-                computer_action = block.input
+        # Process tool use
+        actions: List[CLA] = []
+        for block in response_content:
+            logger.info("Processing block: %s", block)
+            if block.type == "tool_use":
+                logger.info("Processing tool use: %s", block)
+                assert block.name == "computer"
+                actions.append(self.adapter.convert(block.input))
+                self.pending_computer_use_tool_id = block.id
                 break
 
-        if response.content[-1].type == "text":
-            # No computer tool use, treat as final response
-            return True, str(response.content[-1].text)
+        # If no tools were used, we're done
+        done = False
+        if not self.pending_computer_use_tool_id:
+            logger.info("No more tools used, task completed")
+            done = True
 
-        # If we have a computer action, adapt it to environment actions
-        if computer_action:
-            return False, computer_action
-
-        return True, None
+        return actions, done
