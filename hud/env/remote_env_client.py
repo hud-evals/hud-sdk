@@ -183,12 +183,21 @@ class RemoteEnvClient(EnvClient):
         Returns:
             bytes: Content of the file or archive
         """
+        # data = await make_request(
+        #     method="POST",
+        #     url=f"{settings.base_url}/environments/{self.env_id}/get_archive",
+        #     json={"path": path},
+        #     api_key=settings.api_key,
+        # )
+
+
         data = await make_request(
             method="POST",
-            url=f"{settings.base_url}/environments/{self.env_id}/get_archive",
+            url=f"{settings.base_url}/environments/{self.env_id}/copy_from",
             json={"path": path},
             api_key=settings.api_key,
         )
+
         
         # Return the content decoded from base64
         return b64decode(data["content"])
@@ -205,13 +214,20 @@ class RemoteEnvClient(EnvClient):
         Returns:
             bool: True if successful
         """
+        # await make_request(
+        #     method="POST",
+        #     url=f"{settings.base_url}/environments/{self.env_id}/put_archive",
+        #     json={
+        #         "path": path,
+        #         "content": b64encode(data).decode("utf-8"),
+        #     },
+        #     api_key=settings.api_key,
+        # )
+
         await make_request(
             method="POST",
-            url=f"{settings.base_url}/environments/{self.env_id}/put_archive",
-            json={
-                "path": path,
-                "content": b64encode(data).decode("utf-8"),
-            },
+            url=f"{settings.base_url}/environments/{self.env_id}/copy_to",
+            json={"path": path, "content": b64encode(data).decode("utf-8")},
             api_key=settings.api_key,
         )
         
