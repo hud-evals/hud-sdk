@@ -138,6 +138,9 @@ def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
     if isinstance(config, dict):
         return [_validate_expanded_config(cast(dict, config))]
     
+    if isinstance(config, ExpandedConfig):
+        return [config]
+    
     # Unknown configuration type
     error_msg = f"Unknown configuration type: {type(config)}"
     logger.error(error_msg)

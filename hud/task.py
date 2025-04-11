@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, computed_field
 
 from hud.types import CustomGym, Gym
 from hud.utils import ExpandedConfig
@@ -23,27 +23,22 @@ def convert_inspect_setup(setup: str) -> list[ExpandedConfig]:
     Inspect setup is a single bash string to run in the environment.
     We convert this into a single ExpandedConfig using the exec command
     """
-    return [
-        ExpandedConfig(
-            function="bash",
-            args=[setup]
-        )
-    ]
+    return [ExpandedConfig(function="bash", args=[setup])]
 
 
 class Task(BaseModel):
     """A task that can be executed and evaluated.
-    
+
     A Task represents a specific activity to be performed in an environment.
     It contains the prompt describing the task and configurations for
     setting up and evaluating the environment.
-    
+
     The setup and evaluate configurations can be in several formats:
     - String (function name): "chrome.maximize"
     - String (function with args): "chrome.activate_tab 5"
     - Dict: {"function": "chrome.navigate", "args": ["https://example.com"]}
     - List of the above: ["chrome.maximize", {"function": "chrome.navigate", "args": ["https://example.com"]}]
-    
+
     Attributes:
         id: The remote task ID (optional if local-only)
         prompt: The task prompt or instruction
@@ -55,30 +50,30 @@ class Task(BaseModel):
         files: Files that go along with the task (for Inspect compatibility)
         envspec: Environment specification (for Inspect compatibility)
     """
-    
+
     id: str | None = None
     prompt: str
-    setup: list[HudStyleConfig] = []
-    evaluate: list[HudStyleConfig] = []
+    setup: list[HudStyleConfig] = Field(default_factory=list)
+    evaluate: list[HudStyleConfig] = Field(default_factory=list)
     metadata: dict[str, Any] | None = None
     choices: list[str] | None = None
     target: str | list[str] | None = None
     files: dict[str, str] | None = None
     gym: Gym | None = None
     config: dict[str, Any] | None = None
-    
+
     @classmethod
     def from_inspect_sample(cls, sample: Sample) -> Task:
         """Create a Task from an Inspect dataset sample.
         The task's sandbox is a local ubuntu container using the standard controller.
         Files will be copied to the user directory
-        
+
         Args:
             sample: An Inspect dataset Sample object
-            
+
         Returns:
             Task instance
-        
+
         The Inspect Sample has these fields:
         - input (str | list[ChatMessage]): The input to be submitted to the model
         - choices (list[str] | None): Optional multiple choice answer list
@@ -99,8 +94,7 @@ class Task(BaseModel):
                 content = message.content
                 prompt_parts.append(f"{role.capitalize()}: {content}")
             prompt = "\n\n".join(prompt_parts)
-        
-        
+
         # Map sandbox from Inspect to our envspec
         sandbox = sample.sandbox
         dockerfile = None
@@ -116,13 +110,12 @@ class Task(BaseModel):
             else:
                 raise ValueError("Invalid sandbox configuration")
 
-
         gym = CustomGym(
             name_or_id=f"inspect-sample-{sample.id}",
             dockerfile=dockerfile or UBUNTU_DOCKERFILE,
             location="local",
         )
-        
+
         return cls(
             id=str(sample.id) if sample.id else None,
             prompt=prompt,
@@ -130,7 +123,9 @@ class Task(BaseModel):
             metadata=sample.metadata,
             choices=sample.choices,
             target=sample.target,
-            gym=gym
+            gym=gym,
         )
-    
-    
+
+    def convert_sdk01(self) -> None:
+        self.setup = [ExpandedConfig(function="reset", args=[{"task_id": self.id}])]
+        self.evaluate = [ExpandedConfig(function="evaluate", args=[])]
