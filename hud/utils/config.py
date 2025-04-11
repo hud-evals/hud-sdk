@@ -136,7 +136,7 @@ def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
     
     # Validate dictionary configurations
     if isinstance(config, dict):
-        return [_validate_expanded_config(cast(dict, config))]
+        return [_validate_expanded_config(config)]
     
     if isinstance(config, ExpandedConfig):
         return [config]
