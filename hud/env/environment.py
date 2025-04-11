@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel
 
 from hud.task import Task
-from hud.utils import HudStyleConfig, expand_config
+from hud.utils import HudStyleConfig, create_evaluate_config, create_setup_config, expand_config
 from hud.utils.config import ExpandedConfig
 
 from .env_client import EnvClient
@@ -45,11 +45,14 @@ class Environment(BaseModel):
     # The task id to use for the environment reset
     task: Task | None = None
 
-    async def _invoke_all(self, configs: list[HudStyleConfig]) -> list[Any]:
+    async def _invoke_all(self, configs: HudStyleConfig | list[HudStyleConfig]) -> list[Any]:
         # Execute each config and collect results
+        if not isinstance(configs, list):
+            configs = [configs]
         results = []
         for config in configs:
             for expanded_config in expand_config(config):
+                print(expanded_config)
                 result, stdout, stderr = await self.client.invoke(expanded_config)
                 results.append(result)
                 if stdout:
@@ -66,15 +69,27 @@ class Environment(BaseModel):
                     )
         return results
     
-    async def reset(self) -> tuple[Observation, dict[str, Any]]:
+    async def _setup(self, configs: HudStyleConfig | list[HudStyleConfig] | None = None) -> None:
+        if configs:
+            await self._invoke_all(create_setup_config(configs))
+        elif self.task:
+            await self._invoke_all(create_setup_config(self.task.setup))
+
+    async def reset(self, configs: HudStyleConfig | list[HudStyleConfig] | None = None) -> tuple[Observation, dict[str, Any]]:
         """Returns the first observation from the environment.
 
         Returns:
             Observation: The first observation from the environment
             info: Dictionary of information about the environment
         """
-        if self.task:
-            return Observation(text=self.task.prompt), {}
+        if configs:
+            await self._setup(configs)
+            obs, _, _, info = await self.step([])
+            return obs, info
+        elif self.task:
+            await self._setup(self.task.setup)
+            obs, _, _, info = await self.step([])
+            return obs, info
         else:
             obs, _, _, info = await self.step([])
             return obs, info
@@ -102,13 +117,18 @@ class Environment(BaseModel):
 
         return observation, 0, False, {}
 
-    async def evaluate(self) -> Any:
+    async def evaluate(self, config: HudStyleConfig | list[HudStyleConfig] | None = None, target: str | list[str] | None = None) -> Any:
         """Runs the task evaluation function in the environment.
 
         Returns:
             Any: Result of the evaluation function
         """
-        return await self._invoke_all(self.task.evaluate if self.task else [])
+        if config:
+            return await self._invoke_all(create_evaluate_config(config, target))
+        elif self.task:
+            return await self._invoke_all(create_evaluate_config(self.task.evaluate, self.task.target))
+        else:
+            raise ValueError("Either config or task must be provided")
 
     async def get_vnc_url(self) -> str | None:
         """

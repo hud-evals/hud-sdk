@@ -53,13 +53,13 @@ class Task(BaseModel):
 
     id: str | None = None
     prompt: str
-    setup: list[HudStyleConfig] = Field(default_factory=list)
-    evaluate: list[HudStyleConfig] = Field(default_factory=list)
+    setup: HudStyleConfig | list[HudStyleConfig] = Field(default_factory=list)
+    evaluate: HudStyleConfig | list[HudStyleConfig] = Field(default_factory=list)
     metadata: dict[str, Any] | None = None
     choices: list[str] | None = None
     target: str | list[str] | None = None
     files: dict[str, str] | None = None
-    gym: Gym | None = None
+    gym: str | Gym | None = None
     config: dict[str, Any] | None = None
 
     @classmethod

@@ -51,6 +51,8 @@ async def make(
         gym = env_src
     elif isinstance(env_src, Task):
         gym = env_src.gym
+        if isinstance(gym, str):
+            gym = Gym(name_or_id=gym)
         setup = env_src.setup
         task = env_src
 
@@ -97,6 +99,6 @@ async def make(
     environment = Environment(client=client, metadata=metadata, task=task)
     
     if setup:
-        await environment._invoke_all(setup)
+        await environment._setup()
 
     return environment

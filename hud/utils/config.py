@@ -56,13 +56,13 @@ class FuncCallTransformer(Transformer):
         return str(token)
 
 # Create the parser
-func_call_parser = Lark(FUNC_CALL_GRAMMAR, parser="lalr", transformer=FuncCallTransformer())
+func_call_parser = Lark(FUNC_CALL_GRAMMAR, parser="lalr")
 
 class ExpandedConfig(BaseModel):
     function: str  # Format: "x.y.z"
-    args: list[Any]  # Must be json serializable
+    args: list[Any] | None = None # Must be json serializable
 
-HudStyleConfig = str | ExpandedConfig | list[str] | list[ExpandedConfig]
+HudStyleConfig = str | ExpandedConfig | list[str] | list[ExpandedConfig] | dict[str, Any]
 
 def _is_valid_python_name(name: str) -> bool:
     """Check if a string is a valid Python identifier."""
@@ -72,13 +72,14 @@ def _validate_expanded_config(config: dict) -> ExpandedConfig:
     """Validate and convert a dictionary to an ExpandedConfig."""
     if not isinstance(config.get("function"), str):
         raise ValueError("function must be a string")
-    if not isinstance(config.get("args"), list):
-        raise ValueError("args must be a list")
     
     # Validate function path components
     _split_and_validate_path(config["function"])
+
+    args = config["args"] if isinstance(config.get("args"), list) else [config["args"]]
     
-    return cast(ExpandedConfig, config)
+    # Create a proper ExpandedConfig object instead of using cast
+    return ExpandedConfig(function=config["function"], args=args)
 
 def _split_and_validate_path(path: str) -> None:
     """Split a function path into components, validating each part."""
@@ -100,8 +101,10 @@ def _process_string_config(config: str) -> list[ExpandedConfig]:
     - "browser.open('https://example.com')"
     - "app.set_position([100, 200])"
     """
-    result = func_call_parser.parse(config)
-    return [cast(ExpandedConfig, result)]
+    parse_tree = func_call_parser.parse(config)
+    transformer = FuncCallTransformer()
+    result = transformer.transform(parse_tree)
+    return [ExpandedConfig(function=result["function"], args=result["args"])]
 
 def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
     """
@@ -145,3 +148,30 @@ def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
     error_msg = f"Unknown configuration type: {type(config)}"
     logger.error(error_msg)
     raise ValueError(error_msg)
+
+def create_setup_config(config: HudStyleConfig | list[HudStyleConfig]) -> list[ExpandedConfig]:
+    """Create a setup configuration from a config."""
+    if isinstance(config, list):
+        expanded_configs = []
+        for item in config:
+            expanded_configs.extend(expand_config(item))
+    else:
+        expanded_configs = expand_config(config)
+    return [ExpandedConfig(function="reset", args=expanded_configs)]
+
+def create_evaluate_config(config: HudStyleConfig | list[HudStyleConfig], target: str | list[str] | None) -> list[ExpandedConfig]:
+    """Create an evaluate configuration from a config and target."""
+    if isinstance(config, list):
+        expanded_configs = []
+        for item in config:
+            expanded_configs.extend(expand_config(item))
+    else:
+        expanded_configs = expand_config(config)
+    if isinstance(target, str):
+        target = [target]
+    for expanded_config in expanded_configs:
+        expanded_config.args = expanded_config.args or []
+        if target and isinstance(expanded_config.args, list):
+            expanded_config.args = expanded_config.args + target
+
+    return [ExpandedConfig(function="evaluate", args=expanded_configs)]
