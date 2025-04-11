@@ -153,9 +153,15 @@ class RemoteEnvClient(EnvClient):
             api_key=settings.api_key,
         )
         
+        # return ExecuteResult(
+        #     stdout=b64decode(data["stdout"]),
+        #     stderr=b64decode(data["stderr"]),
+        #     exit_code=data["exit_code"]
+        # )
+
         return ExecuteResult(
-            stdout=b64decode(data["stdout"]),
-            stderr=b64decode(data["stderr"]),
+            stdout=data["stdout"],
+            stderr=data["stderr"],
             exit_code=data["exit_code"]
         )
     
