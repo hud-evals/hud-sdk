@@ -119,7 +119,7 @@ class Environment(BaseModel):
         """
         if self.live_url is None:
             await self.get_urls()
-        return self.live_url
+        return f"http://{self.url}:5910/vnc.html"
 
     async def get_urls(self) -> dict[str, Any]:
         """Get URLs for the environment.
