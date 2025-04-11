@@ -1,23 +1,18 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timezone
 from typing import Any
 
 from hud.env.docker_env_client import DockerEnvClient
 from hud.env.environment import Environment
 from hud.env.remote_env_client import RemoteEnvClient
-from hud.job import Job
 from hud.server.requests import make_request
 from hud.settings import settings
 from hud.task import Task
-from hud.types import EnvSpec, PrivateEnvSpec, PublicEnvSpec
+from hud.types import CustomGym, Gym
 
 logger = logging.getLogger("hud.gym")
 
-def _default_job_name() -> str:
-    current_time = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
-    return f"Untitled {current_time}"
 
 
 async def _get_gym_id(gym_name_or_id: str) -> str:
@@ -34,7 +29,7 @@ async def _get_gym_id(gym_name_or_id: str) -> str:
 
 
 async def make(
-    env_src: str | EnvSpec | Task,
+    env_src: str | Gym | Task,
     *,
     job_id: str | None = None,
     metadata: dict[str, Any] | None = None,
@@ -47,59 +42,51 @@ async def make(
     """
     if metadata is None:
         metadata = {}
-    env_spec = None
+    gym = None
     setup = None
     evaluate = None
     task = None
     if isinstance(env_src, str):
-        env_spec = PrivateEnvSpec(gym_id=env_src)
-    elif isinstance(env_src, EnvSpec):
-        env_spec = env_src
+        gym = Gym(name_or_id=env_src)
+    elif isinstance(env_src, Gym):
+        gym = env_src
     elif isinstance(env_src, Task):
-        env_spec = env_src.envspec
+        gym = env_src.gym
         setup = env_src.setup
         evaluate = env_src.evaluate
         task = env_src
 
-    if isinstance(env_spec, PrivateEnvSpec):
-        logger.info("Creating private environment")
 
-
-        # Note: the gym_id is a unique identifier, but it is not a true
-        # gym_id for the purposes of building the environment
-        # we therefore fetch the gym_id from the HUD API here
-        true_gym_id = await _get_gym_id(env_spec.gym_id)
-
-        # Create a job if one is not provided
-        if job_id is None:
-            job_name = _default_job_name()
-            logger.info("No job ID provided, creating a new job %s", job_name)
-            job = await Job.create(gym_id=true_gym_id, name=job_name)
-            job_id = job.id
-
-        # Create the environment
-        client = await RemoteEnvClient.create(gym_id=true_gym_id, job_id=job_id, metadata=metadata)
-    elif isinstance(env_spec, PublicEnvSpec):
+    if isinstance(gym, CustomGym):
         # Create the environment (depending on location)
-        if env_spec.location == "local":
+        if gym.location == "local":
             logger.info("Creating local environment")
-            client = await DockerEnvClient.create(env_spec.dockerfile)
-        elif env_spec.location == "remote":
+            client = await DockerEnvClient.create(gym.dockerfile)
+        elif gym.location == "remote":
             logger.info("Creating remote environment")
             raise NotImplementedError(
                 "Remote dockerfile environments are not yet supported"
             )
             client = await RemoteEnvClient.create(
-                dockerfile=env_spec.dockerfile,
+                dockerfile=gym.dockerfile,
                 metadata=metadata,
             )
         else:
-            raise ValueError(f"Invalid environment location: {env_spec.location}")
+            raise ValueError(f"Invalid environment location: {gym.location}")
             
         # Set up the environment with a source path
-        if env_spec.controller_source_dir:
+        if gym.controller_source_dir:
             logger.info("Setting source path")
-            client.set_source_path(env_spec.controller_source_dir)
+            client.set_source_path(gym.controller_source_dir)
+    elif isinstance(gym, Gym):
+        logger.info("Creating private environment")
+        # Note: the gym_name_or_id is a unique identifier, but it is not a true
+        # gym_id for the purposes of building the environment
+        # we therefore fetch the gym_id from the HUD API here
+        true_gym_id = await _get_gym_id(gym.name_or_id)
+
+        # Create the environment
+        client = await RemoteEnvClient.create(gym_id=true_gym_id, job_id=job_id, metadata=metadata)
     else:
         raise ValueError(f"Invalid environment source: {env_src}")
 

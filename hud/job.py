@@ -86,7 +86,7 @@ class Job(BaseModel):
         )
 
     @classmethod
-    async def load(cls, job_id: str) -> Job:
+    async def load(cls, job_id: str, api_key: str | None = None) -> Job:
         """
         Retrieves a job by its ID.
 
@@ -96,7 +96,7 @@ class Job(BaseModel):
         Returns:
             Job: The retrieved job
         """
-        api_key = settings.api_key
+        api_key = api_key or settings.api_key
         
         data = await make_request(
             method="GET",
@@ -109,14 +109,14 @@ class Job(BaseModel):
             
         return cls.model_validate(data)
     
-    async def load_trajectories(self) -> list[Trajectory]:
+    async def load_trajectories(self, *, api_key: str | None = None) -> list[Trajectory]:
         """
         Loads the trajectories associated with this job.
 
         Returns:
             List[Trajectory]: The trajectories in the job
         """
-        api_key = settings.api_key
+        api_key = api_key or settings.api_key
         
         data = await make_request(
             method="GET",

@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
-from hud.types import EnvSpec, PublicEnvSpec
+from hud.types import CustomGym, Gym
 from hud.utils import ExpandedConfig
 
 if TYPE_CHECKING:
@@ -63,7 +63,7 @@ class Task(BaseModel):
     choices: list[str] | None = None
     target: str | list[str] | None = None
     files: dict[str, str] | None = None
-    envspec: EnvSpec | None = None
+    gym: Gym | None = None
     config: dict[str, Any] | None = None
     
     @classmethod
@@ -116,7 +116,8 @@ class Task(BaseModel):
                 raise ValueError("Invalid sandbox configuration")
 
 
-        envspec = PublicEnvSpec(
+        gym = CustomGym(
+            name_or_id=f"inspect-sample-{sample.id}",
             dockerfile=dockerfile or UBUNTU_DOCKERFILE,
             location="local",
         )
@@ -128,7 +129,7 @@ class Task(BaseModel):
             metadata=sample.metadata,
             choices=sample.choices,
             target=sample.target,
-            envspec=envspec
+            gym=gym
         )
     
     

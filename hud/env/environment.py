@@ -7,10 +7,11 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
-from hud.env.env_client import EnvClient
 from hud.task import Task
 from hud.utils import HudStyleConfig, expand_config
 from hud.utils.config import ExpandedConfig
+
+from .env_client import EnvClient
 
 if TYPE_CHECKING:
     from hud.adapters.common.types import CLA

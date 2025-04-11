@@ -7,13 +7,13 @@ from typing import Literal
 from pydantic import BaseModel
 
 
-class PrivateEnvSpec(BaseModel):
-    """Private environment specification identified by a gym_id."""
+class Gym(BaseModel):
+    """Environment specification identified by a name or id."""
     type: Literal["private"] = "private"
-    gym_id: str
+    name_or_id: str
 
 
-class PublicEnvSpec(BaseModel):
+class CustomGym(Gym):
     """
     Public environment specification with a dockerfile and controller.
     
@@ -27,11 +27,8 @@ class PublicEnvSpec(BaseModel):
     # If none, then the controller must be installed in the environment through the dockerfile
     controller_source_dir: Path | None = None
 
-# permits either a private or public environment specification
-EnvSpec = PrivateEnvSpec | PublicEnvSpec
 
 
-# Environment Controllers
 class EnvironmentStatus(str, enum.Enum):
     """
     Status of the environment.

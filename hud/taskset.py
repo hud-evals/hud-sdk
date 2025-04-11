@@ -12,25 +12,6 @@ if TYPE_CHECKING:
     from inspect_ai.dataset import Dataset
 
 
-async def fetch_task_ids(taskset_id: str, *, api_key: str | None = None) -> list[str]:
-    """
-    Fetch all task IDs in this taskset from the API.
-    
-    Returns:
-        list[str]: List of task IDs
-    """
-    
-    if api_key is None:
-        api_key = settings.api_key
-    
-    data = await make_request(
-        method="GET",
-        url=f"{settings.base_url}/evalsets/{taskset_id}/tasks",
-        api_key=api_key,
-    )
-    return [task_id for task_id in data["tasks"]]
-    
-
 class TaskSet(BaseModel):
     """
     Collection of related tasks for benchmarking.
