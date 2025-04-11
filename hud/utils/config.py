@@ -13,9 +13,12 @@ logger = logging.getLogger("hud.utils.config")
 FUNC_CALL_GRAMMAR = r"""
     ?start: funccall
 
-    funccall: funcname "(" [funcargs] ")"
+    funccall: funcname "(" [funcargs] ")" -> paren_call
+            | funcname [spaceargs] -> space_call
     funcname: CNAME ("." CNAME)*
     funcargs: funcarg ("," funcarg)* [","]
+    spaceargs: spacearg+
+    spacearg: CNAME | NUMBER | STRING
     funcarg: NUMBER -> number
            | STRING -> string
            | "[" [funcargs] "]" -> list
@@ -29,7 +32,12 @@ FUNC_CALL_GRAMMAR = r"""
 """
 
 class FuncCallTransformer(Transformer):
-    def funccall(self, items: list[Any]) -> dict[str, Any]:
+    def paren_call(self, items: list[Any]) -> dict[str, Any]:
+        funcname = items[0]
+        args = items[1] if len(items) > 1 else []
+        return {"function": ".".join(funcname), "args": args}
+    
+    def space_call(self, items: list[Any]) -> dict[str, Any]:
         funcname = items[0]
         args = items[1] if len(items) > 1 else []
         return {"function": ".".join(funcname), "args": args}
@@ -39,6 +47,12 @@ class FuncCallTransformer(Transformer):
     
     def funcargs(self, items: list[Any]) -> list[Any]:
         return list(items)
+    
+    def spaceargs(self, items: list[Any]) -> list[Any]:
+        return list(items)
+    
+    def spacearg(self, items: list[Token]) -> str:
+        return str(items[0])
     
     def number(self, items: list[Token]) -> float:
         return float(items[0].value)
@@ -96,15 +110,25 @@ def _split_and_validate_path(path: str) -> None:
 def _process_string_config(config: str) -> list[ExpandedConfig]:
     """Process a string configuration into ExpandedConfig format.
     
-    The string should be in the format of a function call, e.g.:
-    - "chrome.maximize()"
-    - "browser.open('https://example.com')"
-    - "app.set_position([100, 200])"
+    The string can be in the format of:
+    - A function call with parentheses: "function(arg1, arg2)"
+    - A function call with space-separated args: "function arg1 arg2"
+    - A dot-notation method call: "object.method(arg1, arg2)"
     """
-    parse_tree = func_call_parser.parse(config)
-    transformer = FuncCallTransformer()
-    result = transformer.transform(parse_tree)
-    return [ExpandedConfig(function=result["function"], args=result["args"])]
+    try:
+        parse_tree = func_call_parser.parse(config)
+        transformer = FuncCallTransformer()
+        result = transformer.transform(parse_tree)
+        return [ExpandedConfig(function=result["function"], args=result["args"])]
+    except Exception as e:
+        logger.error(f"Failed to parse configuration string: {config}. Error: {e}")
+        # Fallback: Try to split by space as simple function + args
+        parts = config.strip().split()
+        if parts:
+            function_name = parts[0]
+            args = parts[1:] if len(parts) > 1 else []
+            return [ExpandedConfig(function=function_name, args=args)]
+        raise ValueError(f"Invalid configuration string: {config}")
 
 def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
     """
@@ -167,11 +191,12 @@ def create_evaluate_config(config: HudStyleConfig | list[HudStyleConfig], target
             expanded_configs.extend(expand_config(item))
     else:
         expanded_configs = expand_config(config)
-    if isinstance(target, str):
-        target = [target]
-    for expanded_config in expanded_configs:
-        expanded_config.args = expanded_config.args or []
-        if target and isinstance(expanded_config.args, list):
-            expanded_config.args = expanded_config.args + target
+    if target:
+        if isinstance(target, str):
+            target = [target]
+        for expanded_config in expanded_configs:
+            expanded_config.args = expanded_config.args or []
+            if target and isinstance(expanded_config.args, list):
+                expanded_config.args = expanded_config.args + target
 
     return [ExpandedConfig(function="evaluate", args=expanded_configs)]
