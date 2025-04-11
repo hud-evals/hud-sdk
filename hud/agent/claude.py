@@ -1,14 +1,11 @@
 import logging
-from typing import Any, List, Optional, Tuple, cast, Dict, Union, Literal, TypedDict
+from typing import List, cast
 
 from anthropic import Anthropic
-from anthropic.types import Message, ToolUseBlock, ContentBlock
 from anthropic.types.beta import (
     BetaMessageParam,
-    BetaToolParam,
     BetaToolResultBlockParam,
     BetaToolComputerUse20250124Param,
-    BetaBase64ImageSourceParam,
     BetaTextBlockParam,
     BetaImageBlockParam,
 )
