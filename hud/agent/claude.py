@@ -14,7 +14,7 @@ from anthropic.types.beta import (
 )
 
 
-from agent.base import Agent
+from hud.agent.base import Agent
 from hud.adapters.claude.adapter import ClaudeAdapter
 from hud.adapters.common.types import CLA
 from hud.env.environment import Observation

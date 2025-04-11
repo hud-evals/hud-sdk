@@ -234,20 +234,6 @@ class EnvClient(BaseModel):
             tuple[Any, bytes, bytes]: The result of the invocation, stdout, and stderr
         """
 
-    async def wait_for_ready(self) -> None:
-        """Wait for the environment to be ready."""
-        while True:
-            state = await self.get_status()
-            if state in (
-                EnvironmentStatus.RUNNING.value,
-                EnvironmentStatus.ERROR.value,
-                EnvironmentStatus.COMPLETED.value,
-            ):
-                logger.info("Environment %s", STATUS_MESSAGES.get(state))
-                break
-            await asyncio.sleep(5)
-
-
     @abc.abstractmethod
     async def get_archive(self, path: str) -> bytes:
         """

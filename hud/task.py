@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from hud.types import CustomGym, Gym
 from hud.utils import ExpandedConfig
+from hud.utils.config import HudStyleConfig
 
 if TYPE_CHECKING:
     from inspect_ai.dataset import Sample
@@ -57,8 +58,8 @@ class Task(BaseModel):
     
     id: str | None = None
     prompt: str
-    setup: list[ExpandedConfig] = []
-    evaluate: list[str] | None = []
+    setup: list[HudStyleConfig] = []
+    evaluate: list[HudStyleConfig] = []
     metadata: dict[str, Any] | None = None
     choices: list[str] | None = None
     target: str | list[str] | None = None
@@ -125,7 +126,7 @@ class Task(BaseModel):
         return cls(
             id=str(sample.id) if sample.id else None,
             prompt=prompt,
-            setup=convert_inspect_setup(sample.setup) if sample.setup else [],
+            setup=[x for x in convert_inspect_setup(sample.setup)] if sample.setup else [],
             metadata=sample.metadata,
             choices=sample.choices,
             target=sample.target,

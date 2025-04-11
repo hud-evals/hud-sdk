@@ -40,92 +40,44 @@ class Environment(BaseModel):
 
     metadata: dict[str, Any]
     client: EnvClient
-    _preloaded_setup: list[ExpandedConfig] = []
-    _preloaded_evaluate: list[ExpandedConfig] = []
     url: str | None = None
     live_url: str | None = None
     # The task id to use for the environment reset
     task: Task | None = None
 
-    def preload_setup(self, setup_config: HudStyleConfig) -> None:
-        """Preload setup configuration from a Task.
-        This will be run when the environment is reset.
-
-        Args:
-            setup_config: The setup configuration, which can be:
-                - String (function name): "chrome.maximize"
-                - String (function with args): "chrome.activate_tab 5"
-                - Dict: {"function": [args]} where args are strings/ints/dicts
-                - List of the above
-        """
-        self._preloaded_setup = expand_config(setup_config)
-
-    def preload_evaluate(self, evaluate_config: HudStyleConfig) -> None:
-        """Preload evaluation configuration from a Task.
-        This will be run when the environment is evaluated.
-        Args:
-            evaluate_config: The evaluation configuration, which can be:
-                - String (function name): "chrome.is_open"
-                - String (function with args): "chrome.active_tab github.com"
-                - Dict: {"function": [args]} where args are strings/ints/dicts
-                - List of the above
-        """
-        self._preloaded_evaluate = expand_config(evaluate_config)
-
-    async def reset(
-        self,
-        *,
-        setup_config: HudStyleConfig | None = None,
-    ) -> tuple[Observation, dict[str, Any]]:
-        """Reset the environment.
-
-        Args:
-            task_id: The task id to include in the reset
-            setup_config: The setup configuration to run
-
-        Returns:
-            Any: Result of the setup function
-        """
-        configs = self._preloaded_setup if setup_config is None else expand_config(setup_config)
-
-        if not configs:
-            logger.warning("Empty setup configuration")
-
+    async def _invoke_all(self, configs: list[HudStyleConfig]) -> list[Any]:
         # Execute each config and collect results
         results = []
         for config in configs:
-            result, stdout, stderr = await self.client.invoke(config)
-            if stdout:
-                logger.info("Setup produced stdout: %s", stdout.decode())
-            if stderr:
-                logger.warning("Setup produced stderr: %s", stderr.decode())
-            results.append(result)
+            for expanded_config in expand_config(config):
+                result, stdout, stderr = await self.client.invoke(expanded_config)
+                results.append(result)
+                if stdout:
+                    logger.info(
+                        "%s produced stdout:\n%s",
+                        expanded_config.function,
+                        stdout.decode(),
+                    )
+                if stderr:
+                    logger.warning(
+                        "%s produced stderr:\n%s",
+                        expanded_config.function,
+                        stderr.decode(),
+                    )
+        return results
+    
+    async def reset(self) -> tuple[Observation, dict[str, Any]]:
+        """Returns the first observation from the environment.
 
-        # now reset
-        obs, stdout, stderr = await self.client.invoke(
-            ExpandedConfig(
-                function="reset",
-                args=[
-                    {
-                        "task_id": self.task.id,
-                    }
-                    if self.task
-                    else {}
-                ],
-            )
-        )
-
-        if stdout:
-            logger.info("Reset produced stdout: %s", stdout.decode())
-        if stderr:
-            logger.warning("Reset produced stderr: %s", stderr.decode())
-
-        info = {
-            "results": results,
-        }
-
-        # Return list of results
-        return Observation.model_validate(obs), info
+        Returns:
+            Observation: The first observation from the environment
+            info: Dictionary of information about the environment
+        """
+        if self.task:
+            return Observation(text=self.task.prompt), {}
+        else:
+            obs, _, _, info = await self.step([])
+            return obs, info
 
     async def step(self, actions: list[CLA]) -> tuple[Observation, float, bool, dict[str, Any]]:
         """Execute a step in the environment.
@@ -148,46 +100,15 @@ class Environment(BaseModel):
 
         observation = Observation.model_validate(result["observation"], strict=True)
 
-
         return observation, 0, False, {}
 
-    async def evaluate(self, evaluate_config: HudStyleConfig | None = None) -> Any:
-        """Run an evaluation function in the environment.
-
-        Args:
-            evaluate_config: The evaluation configuration to run
+    async def evaluate(self) -> Any:
+        """Runs the task evaluation function in the environment.
 
         Returns:
             Any: Result of the evaluation function
         """
-        configs = (
-            self._preloaded_evaluate if evaluate_config is None else expand_config(evaluate_config)
-        )
-
-        if not configs:
-            logger.warning("Empty evaluation configuration")
-
-        # Execute each config and collect results
-        results = []
-        for config in configs:
-            result, stdout, stderr = await self.client.invoke(config)
-            if stdout:
-                logger.info("Evaluation produced stdout: %s", stdout.decode())
-            if stderr:
-                logger.warning("Evaluation produced stderr: %s", stderr.decode())
-            results.append(result)
-
-        # Now invoke the evaluate command
-        evaluate_result, stdout, stderr = await self.client.invoke(
-            ExpandedConfig(function="evaluate", args=[])
-        )
-        if stdout:
-            logger.info("Evaluate command produced stdout: %s", stdout.decode())
-        if stderr:
-            logger.warning("Evaluate command produced stderr: %s", stderr.decode())
-
-        # Return list of results plus the evaluate command result
-        return [*results, evaluate_result]
+        return await self._invoke_all(self.task.evaluate if self.task else [])
 
     async def get_vnc_url(self) -> str | None:
         """

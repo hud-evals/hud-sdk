@@ -44,7 +44,6 @@ async def make(
         metadata = {}
     gym = None
     setup = None
-    evaluate = None
     task = None
     if isinstance(env_src, str):
         gym = Gym(name_or_id=env_src)
@@ -53,7 +52,6 @@ async def make(
     elif isinstance(env_src, Task):
         gym = env_src.gym
         setup = env_src.setup
-        evaluate = env_src.evaluate
         task = env_src
 
 
@@ -86,22 +84,19 @@ async def make(
         true_gym_id = await _get_gym_id(gym.name_or_id)
 
         # Create the environment
-        client = await RemoteEnvClient.create(gym_id=true_gym_id, job_id=job_id, metadata=metadata)
+        client = await RemoteEnvClient.create(
+            gym_id=true_gym_id,
+            job_id=job_id,
+            task_id=task.id if task else None,
+            metadata=metadata,
+        )
     else:
         raise ValueError(f"Invalid environment source: {env_src}")
 
    # Create the environment itself
-    environment =  Environment(client=client, metadata=metadata)
+    environment = Environment(client=client, metadata=metadata, task=task)
     
-    if task:
-        environment.task = task
-
     if setup:
-        logger.info("Preloading setup")
-        environment.preload_setup(setup)
-    if evaluate:
-        logger.info("Preloading evaluate")
-        environment.preload_evaluate(evaluate)
-
+        await environment._invoke_all(setup)
 
     return environment

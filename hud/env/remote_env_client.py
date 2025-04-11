@@ -29,6 +29,7 @@ class RemoteEnvClient(EnvClient):
         dockerfile: str | None = None,
         gym_id: str | None = None,
         job_id: str | None = None,
+        task_id: str | None = None,
         metadata: dict[str, Any] | None = None,
     ) -> RemoteEnvClient:
         """
@@ -56,17 +57,15 @@ class RemoteEnvClient(EnvClient):
             # still named run_id for backwards compatibility
             "run_id": job_id,
             "metadata": metadata,
+            "dockerfile": dockerfile,
+            "gym_id": gym_id,
+            "task_id": task_id,
         }
-        
-        if dockerfile is not None:
-            request_data["dockerfile"] = dockerfile
-        if gym_id is not None:
-            request_data["gym_id"] = gym_id
 
         # Create a new environment via the HUD API
         response = await make_request(
             method="POST",
-            url=f"{settings.base_url}/create_environment",
+            url=f"{settings.base_url}/create_environment_v2",
             json=request_data,
             api_key=settings.api_key,
         )
@@ -78,9 +77,7 @@ class RemoteEnvClient(EnvClient):
         
         # Create the controller instance
         controller = cls(env_id)
-        
-        await controller.wait_for_ready()
-        
+                
         return controller
 
     def __init__(self, env_id: str) -> None:

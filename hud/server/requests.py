@@ -230,7 +230,7 @@ def make_request_sync(
 
         try:
             with httpx.Client(
-                timeout=240.0,
+                timeout=600.0, # Long running requests can take up to 10 minutes
                 limits=httpx.Limits(
                     max_connections=1000,
                     max_keepalive_connections=1000,
