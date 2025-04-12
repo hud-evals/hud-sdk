@@ -65,9 +65,8 @@ async def load_taskset(taskset_id: str, api_key: str | None = None) -> TaskSet:
         "id": taskset_id,
         "tasks": data["evalset"],
     })
-    
-@classmethod
-def load_inspect(dataset: Dataset) -> TaskSet:
+
+def load_from_inspect(dataset: Dataset) -> TaskSet:
     """
     Creates a TaskSet from an inspect-ai dataset.
 
@@ -77,7 +76,7 @@ def load_inspect(dataset: Dataset) -> TaskSet:
     Returns:
         TaskSet: A new TaskSet instance
     """
-    tasks = [Task.from_inspect_sample(sample) for sample in dataset ]
+    tasks = [Task.from_inspect_sample(sample) for sample in dataset]
 
     return TaskSet(
         id=None,
