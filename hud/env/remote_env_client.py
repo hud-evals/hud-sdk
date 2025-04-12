@@ -65,7 +65,7 @@ class RemoteEnvClient(EnvClient):
         # Create a new environment via the HUD API
         response = await make_request(
             method="POST",
-            url=f"{settings.base_url}/create_environment_v2",
+            url=f"{settings.base_url}/v2/create_environment",
             json=request_data,
             api_key=settings.api_key,
         )
@@ -105,7 +105,7 @@ class RemoteEnvClient(EnvClient):
         try:
             response = await make_request(
                 method="GET",
-                url=f"{settings.base_url}/get_env_state/{self.env_id}",
+                url=f"{settings.base_url}/v2/environments/{self.env_id}/state",
                 api_key=settings.api_key,
             )
             logger.debug("Environment status response: %s", response)
@@ -148,7 +148,7 @@ class RemoteEnvClient(EnvClient):
         """
         data = await make_request(
             method="POST",
-            url=f"{settings.base_url}/environments/{self.env_id}/execute",
+            url=f"{settings.base_url}/v2/environments/{self.env_id}/execute",
             json=command,
             api_key=settings.api_key,
         )
@@ -171,7 +171,7 @@ class RemoteEnvClient(EnvClient):
         """
         data = await make_request(
             method="POST",
-            url=f"{settings.base_url}/environments/{self.env_id}/invoke",
+            url=f"{settings.base_url}/v2/environments/{self.env_id}/invoke",
             json=config.model_dump(),
             api_key=settings.api_key,
         )
@@ -199,7 +199,7 @@ class RemoteEnvClient(EnvClient):
 
         data = await make_request(
             method="POST",
-            url=f"{settings.base_url}/environments/{self.env_id}/copy_from",
+            url=f"{settings.base_url}/v2/environments/{self.env_id}/copy_from",
             json={"path": path},
             api_key=settings.api_key,
         )
@@ -232,7 +232,7 @@ class RemoteEnvClient(EnvClient):
 
         await make_request(
             method="POST",
-            url=f"{settings.base_url}/environments/{self.env_id}/copy_to",
+            url=f"{settings.base_url}/v2/environments/{self.env_id}/copy_to",
             json={"path": path, "content": b64encode(data).decode("utf-8")},
             api_key=settings.api_key,
         )
@@ -245,6 +245,6 @@ class RemoteEnvClient(EnvClient):
         """
         await make_request(
             method="POST",
-            url=f"{settings.base_url}/close/{self.env_id}",
+            url=f"{settings.base_url}/v2/environments/{self.env_id}/close",
             api_key=settings.api_key,
         )

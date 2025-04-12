@@ -29,7 +29,7 @@ async def query(filters: dict[str, Any] | None = None) -> list[Job]:
     
     data = await make_request(
         method="GET",
-        url=f"{settings.base_url}/jobs",
+        url=f"{settings.base_url}/v2/jobs",
         json=params,
         api_key=api_key,
     )
@@ -68,7 +68,7 @@ class Job(BaseModel):
 
         data = await make_request(
             method="POST",
-            url=f"{settings.base_url}/runs",
+            url=f"{settings.base_url}/v2/jobs",
             json={
                 "name": name,
                 "gym_id": gym_id,
@@ -100,7 +100,7 @@ class Job(BaseModel):
         
         data = await make_request(
             method="GET",
-            url=f"{settings.base_url}/runs_v2/{job_id}",
+            url=f"{settings.base_url}/v2/jobs/{job_id}",
             api_key=api_key,
         )
         
@@ -120,7 +120,7 @@ class Job(BaseModel):
         
         data = await make_request(
             method="GET",
-            url=f"{settings.base_url}/runs/{self.id}/trajectories",
+            url=f"{settings.base_url}/v2/jobs/{self.id}/trajectories",
             api_key=api_key,
         )
         

@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel
 
 from hud.task import Task
-from hud.utils import HudStyleConfig, create_evaluate_config, create_setup_config, expand_config
+from hud.utils import HudStyleConfigs, create_evaluate_config, create_setup_config, expand_config
 from hud.utils.config import ExpandedConfig
 
 from .env_client import EnvClient
@@ -45,14 +45,13 @@ class Environment(BaseModel):
     # The task id to use for the environment reset
     task: Task | None = None
 
-    async def _invoke_all(self, configs: HudStyleConfig | list[HudStyleConfig]) -> list[Any]:
+    async def _invoke_all(self, configs: HudStyleConfigs) -> list[Any]:
         # Execute each config and collect results
         if not isinstance(configs, list):
             configs = [configs]
         results = []
         for config in configs:
             for expanded_config in expand_config(config):
-                print(expanded_config)
                 result, stdout, stderr = await self.client.invoke(expanded_config)
                 results.append(result)
                 if stdout:
@@ -69,13 +68,13 @@ class Environment(BaseModel):
                     )
         return results
     
-    async def _setup(self, configs: HudStyleConfig | list[HudStyleConfig] | None = None) -> None:
-        if configs:
-            await self._invoke_all(create_setup_config(configs))
+    async def _setup(self, config: HudStyleConfigs | None = None) -> None:
+        if config:
+            await self._invoke_all(create_setup_config(config))
         elif self.task:
             await self._invoke_all(create_setup_config(self.task.setup))
 
-    async def reset(self, configs: HudStyleConfig | list[HudStyleConfig] | None = None) -> tuple[Observation, dict[str, Any]]:
+    async def reset(self, configs: HudStyleConfigs | None = None) -> tuple[Observation, dict[str, Any]]:
         """Returns the first observation from the environment.
 
         Returns:
@@ -84,10 +83,6 @@ class Environment(BaseModel):
         """
         if configs:
             await self._setup(configs)
-            obs, _, _, info = await self.step([])
-            return obs, info
-        elif self.task:
-            await self._setup(self.task.setup)
             obs, _, _, info = await self.step([])
             return obs, info
         else:
@@ -117,7 +112,7 @@ class Environment(BaseModel):
 
         return observation, 0, False, {}
 
-    async def evaluate(self, config: HudStyleConfig | list[HudStyleConfig] | None = None, target: str | list[str] | None = None) -> Any:
+    async def evaluate(self, config: HudStyleConfigs | None = None, target: str | list[str] | None = None) -> Any:
         """Runs the task evaluation function in the environment.
 
         Returns:

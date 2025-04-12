@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any, cast
+from typing import Any, Sequence
+from typing_extensions import TypeAliasType
+
 
 from lark import Lark, Token, Transformer
 from pydantic import BaseModel
@@ -76,7 +78,12 @@ class ExpandedConfig(BaseModel):
     function: str  # Format: "x.y.z"
     args: list[Any] # Must be json serializable
 
-HudStyleConfig = str | ExpandedConfig | list[str] | list[ExpandedConfig] | dict[str, Any]
+# Recursive type alias (needed for pydantic)
+HudStyleConfigs = TypeAliasType(
+    "HudStyleConfigs",
+    "str | dict[str, Any] | ExpandedConfig | Sequence[HudStyleConfigs]"
+)
+
 
 def _is_valid_python_name(name: str) -> bool:
     """Check if a string is a valid Python identifier."""
@@ -119,7 +126,11 @@ def _process_string_config(config: str) -> list[ExpandedConfig]:
         parse_tree = func_call_parser.parse(config)
         transformer = FuncCallTransformer()
         result = transformer.transform(parse_tree)
-        return [ExpandedConfig(function=result["function"], args=result["args"])]
+        function = result["function"]
+        args = result["args"]
+        if args is None:
+            args = []
+        return [ExpandedConfig(function=function, args=args)]
     except Exception as e:
         logger.exception("Failed to parse configuration string: %s", config)
         # Fallback: Try to split by space as simple function + args
@@ -130,7 +141,7 @@ def _process_string_config(config: str) -> list[ExpandedConfig]:
             return [ExpandedConfig(function=function_name, args=args)]
         raise ValueError("Invalid configuration string: %s", config) from e
 
-def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
+def expand_config(config: HudStyleConfigs) -> list[ExpandedConfig]:
     """
     Process a configuration into a standardized list of ExpandedConfig formats.
     
@@ -173,24 +184,14 @@ def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
     logger.error(error_msg)
     raise ValueError(error_msg)
 
-def create_setup_config(config: HudStyleConfig | list[HudStyleConfig]) -> list[ExpandedConfig]:
+def create_setup_config(config: HudStyleConfigs) -> list[ExpandedConfig]:
     """Create a setup configuration from a config."""
-    if isinstance(config, list):
-        expanded_configs = []
-        for item in config:
-            expanded_configs.extend(expand_config(item))
-    else:
-        expanded_configs = expand_config(config)
+    expanded_configs = expand_config(config)
     return [ExpandedConfig(function="reset", args=expanded_configs)]
 
-def create_evaluate_config(config: HudStyleConfig | list[HudStyleConfig], target: str | list[str] | None) -> list[ExpandedConfig]:
+def create_evaluate_config(config: HudStyleConfigs, target: str | list[str] | None) -> list[ExpandedConfig]:
     """Create an evaluate configuration from a config and target."""
-    if isinstance(config, list):
-        expanded_configs = []
-        for item in config:
-            expanded_configs.extend(expand_config(item))
-    else:
-        expanded_configs = expand_config(config)
+    expanded_configs = expand_config(config)
     if target:
         if isinstance(target, str):
             target = [target]

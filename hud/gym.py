@@ -21,7 +21,7 @@ async def _get_gym_id(gym_name_or_id: str) -> str:
     """
     data = await make_request(
         method="GET",
-        url=f"{settings.base_url}/gyms/{gym_name_or_id}",
+        url=f"{settings.base_url}/v1/gyms/{gym_name_or_id}",
         api_key=settings.api_key,
     )
 

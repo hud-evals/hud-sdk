@@ -67,7 +67,7 @@ async def load_taskset(taskset_id: str, api_key: str | None = None) -> TaskSet:
     
     data = await make_request(
         method="GET",
-        url=f"{settings.base_url}/evalsets/{taskset_id}/tasks",
+        url=f"{settings.base_url}/v2/tasksets/{taskset_id}/tasks",
         api_key=api_key,
     )
     

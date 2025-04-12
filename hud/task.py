@@ -2,11 +2,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, Field, computed_field
+from pydantic import BaseModel, Field
 
 from hud.types import CustomGym, Gym
 from hud.utils import ExpandedConfig
-from hud.utils.config import HudStyleConfig
+from hud.utils.config import HudStyleConfigs
 
 if TYPE_CHECKING:
     from inspect_ai.dataset import Sample
@@ -53,8 +53,8 @@ class Task(BaseModel):
 
     id: str | None = None
     prompt: str
-    setup: HudStyleConfig | list[HudStyleConfig] = Field(default_factory=list)
-    evaluate: HudStyleConfig | list[HudStyleConfig] = Field(default_factory=list)
+    setup: HudStyleConfigs = Field(default_factory=list)
+    evaluate: HudStyleConfigs = Field(default_factory=list)
     metadata: dict[str, Any] | None = None
     choices: list[str] | None = None
     target: str | list[str] | None = None
