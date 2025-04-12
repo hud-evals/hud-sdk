@@ -25,48 +25,62 @@ class TaskSet(BaseModel):
     description: str | None = None
     tasks: list[Task] = []
     
-    @classmethod
-    async def load(cls, taskset_id: str, api_key: str | None = None) -> TaskSet:
+    def __getitem__(self, index: int) -> Task:
         """
-        Loads a TaskSet by its ID.
+        Allows accessing tasks by index using square bracket notation.
 
         Args:
-            taskset_id: The ID of the taskset to load
-            api_key: Optional API key to use for the request
+            index: The index of the task to retrieve
 
         Returns:
-            TaskSet: The loaded taskset
-        """
-        
-        if api_key is None:
-            api_key = settings.api_key
-        
-        data = await make_request(
-            method="GET",
-            url=f"{settings.base_url}/evalsets/{taskset_id}/tasks",
-            api_key=api_key,
-        )
-        
-        return cls.model_validate({
-            "id": taskset_id,
-            "tasks": data["evalset"],
-        })
-    
-    @classmethod
-    def from_inspect_dataset(cls, dataset: Dataset) -> TaskSet:
-        """
-        Creates a TaskSet from an inspect-ai dataset.
+            Task: The task at the specified index
 
-        Args:
-            dataset: An inspect-ai dataset
-
-        Returns:
-            TaskSet: A new TaskSet instance
+        Raises:
+            IndexError: If the index is out of range
         """
-        tasks = [Task.from_inspect_sample(sample) for sample in dataset ]
+        return self.tasks[index]
     
-        return cls(
-            id=None,
-            tasks=tasks,
-            description=None,
-        )
+async def load_taskset(taskset_id: str, api_key: str | None = None) -> TaskSet:
+    """
+    Loads a TaskSet by its ID.
+
+    Args:
+        taskset_id: The ID of the taskset to load
+        api_key: Optional API key to use for the request
+
+    Returns:
+        TaskSet: The loaded taskset
+    """
+    
+    if api_key is None:
+        api_key = settings.api_key
+    
+    data = await make_request(
+        method="GET",
+        url=f"{settings.base_url}/evalsets/{taskset_id}/tasks",
+        api_key=api_key,
+    )
+    
+    return TaskSet.model_validate({
+        "id": taskset_id,
+        "tasks": data["evalset"],
+    })
+    
+@classmethod
+def load_inspect(dataset: Dataset) -> TaskSet:
+    """
+    Creates a TaskSet from an inspect-ai dataset.
+
+    Args:
+        dataset: An inspect-ai dataset
+
+    Returns:
+        TaskSet: A new TaskSet instance
+    """
+    tasks = [Task.from_inspect_sample(sample) for sample in dataset ]
+
+    return TaskSet(
+        id=None,
+        tasks=tasks,
+        description=None,
+    )
