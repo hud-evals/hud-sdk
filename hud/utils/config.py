@@ -74,7 +74,7 @@ func_call_parser = Lark(FUNC_CALL_GRAMMAR, parser="lalr")
 
 class ExpandedConfig(BaseModel):
     function: str  # Format: "x.y.z"
-    args: list[Any] | None = None # Must be json serializable
+    args: list[Any] # Must be json serializable
 
 HudStyleConfig = str | ExpandedConfig | list[str] | list[ExpandedConfig] | dict[str, Any]
 
@@ -121,14 +121,14 @@ def _process_string_config(config: str) -> list[ExpandedConfig]:
         result = transformer.transform(parse_tree)
         return [ExpandedConfig(function=result["function"], args=result["args"])]
     except Exception as e:
-        logger.error(f"Failed to parse configuration string: {config}. Error: {e}")
+        logger.exception("Failed to parse configuration string: %s", config)
         # Fallback: Try to split by space as simple function + args
         parts = config.strip().split()
         if parts:
             function_name = parts[0]
             args = parts[1:] if len(parts) > 1 else []
             return [ExpandedConfig(function=function_name, args=args)]
-        raise ValueError(f"Invalid configuration string: {config}")
+        raise ValueError("Invalid configuration string: %s", config) from e
 
 def expand_config(config: HudStyleConfig) -> list[ExpandedConfig]:
     """

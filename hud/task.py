@@ -48,7 +48,7 @@ class Task(BaseModel):
         choices: Multiple choice answer list (for Inspect compatibility)
         target: Ideal target output (for Inspect compatibility)
         files: Files that go along with the task (for Inspect compatibility)
-        envspec: Environment specification (for Inspect compatibility)
+        gym: Environment specification
     """
 
     id: str | None = None
@@ -59,7 +59,7 @@ class Task(BaseModel):
     choices: list[str] | None = None
     target: str | list[str] | None = None
     files: dict[str, str] | None = None
-    gym: str | Gym | None = None
+    gym: Gym | None = None
     config: dict[str, Any] | None = None
 
     @classmethod
@@ -111,7 +111,6 @@ class Task(BaseModel):
                 raise ValueError("Invalid sandbox configuration")
 
         gym = CustomGym(
-            name_or_id=f"inspect-sample-{sample.id}",
             dockerfile=dockerfile or UBUNTU_DOCKERFILE,
             location="local",
         )

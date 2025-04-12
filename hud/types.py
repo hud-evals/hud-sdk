@@ -7,13 +7,7 @@ from typing import Literal
 from pydantic import BaseModel
 
 
-class Gym(BaseModel):
-    """Environment specification identified by a name or id."""
-    type: Literal["private"] = "private"
-    name_or_id: str
-
-
-class CustomGym(Gym):
+class CustomGym(BaseModel):
     """
     Public environment specification with a dockerfile and controller.
     
@@ -27,7 +21,8 @@ class CustomGym(Gym):
     # If none, then the controller must be installed in the environment through the dockerfile
     controller_source_dir: Path | None = None
 
-
+# Strings are identifiers for gyms on the HUD server
+Gym = CustomGym |  str
 
 class EnvironmentStatus(str, enum.Enum):
     """

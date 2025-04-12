@@ -40,6 +40,16 @@ class TaskSet(BaseModel):
         """
         return self.tasks[index]
     
+    def __len__(self) -> int:
+        """
+        Returns the number of tasks in the taskset.
+
+        Returns:
+            int: The number of tasks in the taskset 
+        """
+        return len(self.tasks)
+    
+    
 async def load_taskset(taskset_id: str, api_key: str | None = None) -> TaskSet:
     """
     Loads a TaskSet by its ID.
@@ -81,5 +91,5 @@ def load_from_inspect(dataset: Dataset) -> TaskSet:
     return TaskSet(
         id=None,
         tasks=tasks,
-        description=None,
+        description=dataset.name,
     )

@@ -29,7 +29,7 @@ async def _get_gym_id(gym_name_or_id: str) -> str:
 
 
 async def make(
-    env_src: str | Gym | Task,
+    env_src: Gym | Task,
     *,
     job_id: str | None = None,
     metadata: dict[str, Any] | None = None,
@@ -45,14 +45,10 @@ async def make(
     gym = None
     setup = None
     task = None
-    if isinstance(env_src, str):
-        gym = Gym(name_or_id=env_src)
-    elif isinstance(env_src, Gym):
+    if isinstance(env_src, Gym):
         gym = env_src
     elif isinstance(env_src, Task):
         gym = env_src.gym
-        if isinstance(gym, str):
-            gym = Gym(name_or_id=gym)
         setup = env_src.setup
         task = env_src
 
@@ -78,12 +74,12 @@ async def make(
         if gym.controller_source_dir:
             logger.info("Setting source path")
             client.set_source_path(gym.controller_source_dir)
-    elif isinstance(gym, Gym):
+    elif isinstance(gym, str):
         logger.info("Creating private environment")
         # Note: the gym_name_or_id is a unique identifier, but it is not a true
         # gym_id for the purposes of building the environment
         # we therefore fetch the gym_id from the HUD API here
-        true_gym_id = await _get_gym_id(gym.name_or_id)
+        true_gym_id = await _get_gym_id(gym)
 
         # Create the environment
         client = await RemoteEnvClient.create(
