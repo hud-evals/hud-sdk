@@ -19,12 +19,12 @@ if TYPE_CHECKING:
     from aiodocker.containers import DockerContainer
     from aiodocker.stream import Stream
 
-    from hud.utils.config import ExpandedConfig
+    from hud.utils.config import HudStyleConfig
 
 logger = logging.getLogger("hud.env.docker_env_client")
 
 
-def invoke_template(config: ExpandedConfig, package_name: str, divider: str) -> str:
+def invoke_template(config: HudStyleConfig, package_name: str, divider: str) -> str:
     """
     Return a python script to run the given config.
     """
@@ -234,7 +234,7 @@ class DockerEnvClient(EnvClient):
             exit_code=0,
         )
 
-    async def invoke(self, config: ExpandedConfig) -> tuple[Any, bytes, bytes]:
+    async def invoke(self, config: HudStyleConfig) -> tuple[Any, bytes, bytes]:
         """
         Invoke a function in the container.
         """

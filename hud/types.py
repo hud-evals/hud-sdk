@@ -22,7 +22,7 @@ class CustomGym(BaseModel):
     controller_source_dir: Path | None = None
 
 # Strings are identifiers for gyms on the HUD server
-Gym = CustomGym |  str
+Gym = CustomGym | str
 
 class EnvironmentStatus(str, enum.Enum):
     """

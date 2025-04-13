@@ -89,7 +89,7 @@ async def make(
             metadata=metadata,
         )
     else:
-        raise ValueError(f"Invalid environment source: {env_src}")
+        raise ValueError(f"Invalid gym source: {gym}")
 
    # Create the environment itself
     environment = Environment(client=client, metadata=metadata, task=task)
