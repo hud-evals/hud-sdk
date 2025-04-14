@@ -96,12 +96,12 @@ class Environment(BaseModel):
             Any: Result of the evaluation
         """
         if isinstance(self.client, RemoteClient):
-            await self._invoke_all(create_remote_config(self.task, config, REMOTE_EVALUATE))
+            return await self._invoke_all(create_remote_config(self.task, config, REMOTE_EVALUATE))
         else:
             if config is not None:
-                await self._invoke_all(config)
+                return await self._invoke_all(config)
             elif self.task and self.task.config is not None:
-                await self._invoke_all(self.task.config)
+                return await self._invoke_all(self.task.config)
             else:
                 raise ValueError("No config or task provided for local environment")
 

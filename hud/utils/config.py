@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger("hud.utils.config")
 
 REMOTE_FUNCTION_PREFIX = "private_"
-REMOTE_SETUP = "reset"
+REMOTE_SETUP = "setup"
 REMOTE_EVALUATE = "evaluate"
 
 class HudStyleConfig(BaseModel):
