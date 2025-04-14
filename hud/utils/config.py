@@ -13,9 +13,15 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("hud.utils.config")
 
+REMOTE_FUNCTION_PREFIX = "private_"
+REMOTE_SETUP = "reset"
+REMOTE_EVALUATE = "evaluate"
+
 class HudStyleConfig(BaseModel):
     function: str  # Format: "x.y.z"
     args: list[Any] # Must be json serializable
+
+    id: str | None = None # Optional id for remote execution
 
     def __len__(self) -> int:
         return len(self.args)
@@ -27,7 +33,7 @@ class HudStyleConfig(BaseModel):
         return iter(self.args)
     
     def __str__(self) -> str:
-        return f"{self.function}({', '.join(str(arg) for arg in self.args)})"
+        return f"{self.function}: {', '.join(str(arg) for arg in self.args)})"
 
 # Type alias for the shorthand config, which just converts to function name and args
 ShorthandConfig = tuple[str | dict[str, Any] | list[str] | list[dict[str, Any]], ...]
@@ -50,7 +56,7 @@ def _validate_hud_config(config: dict) -> HudStyleConfig:
     args = config["args"] if isinstance(config.get("args"), list) else [config["args"]]
     
     # Create a proper HudStyleConfig object instead of using cast
-    return HudStyleConfig(function=config["function"], args=args)
+    return HudStyleConfig(function=config["function"], args=args, id=config.get("id"))
 
 def _split_and_validate_path(path: str) -> None:
     """Split a function path into components, validating each part."""
@@ -116,7 +122,7 @@ def expand_config(config: HudStyleConfigs) -> list[HudStyleConfig]:
     logger.error(error_msg)
     raise ValueError(error_msg)
 
-def create_config(task: Task | None = None, config: HudStyleConfigs | None = None, function: str | None = None) -> list[HudStyleConfig]:
+def create_remote_config(task: Task | None = None, config: HudStyleConfigs | None = None, function: str | None = None) -> list[HudStyleConfig]:
     """
     Create a configuration based on provided inputs.
     
@@ -153,6 +159,8 @@ def create_config(task: Task | None = None, config: HudStyleConfigs | None = Non
     task_config = getattr(task, function, None)
     if task_config and len(task_config) > 0:
         expanded_configs = expand_config(task_config)
+        if task.id:
+            expanded_configs[0].id = task.id # for remote IDs
         return [HudStyleConfig(function=function, args=expanded_configs)]
     
     # Case 3: Check for _config
@@ -161,7 +169,7 @@ def create_config(task: Task | None = None, config: HudStyleConfigs | None = Non
     
     # Case 4: Use task.id
     if task.id:
-        return [HudStyleConfig(function=f"private_{function}", args=[task.id])]
+        return [HudStyleConfig(function=f"{REMOTE_FUNCTION_PREFIX}{function}", args=[task.id])]
     
     # No valid configuration found
     raise ValueError(f"Task has no {function}, _config, or id")

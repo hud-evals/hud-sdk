@@ -3,9 +3,9 @@ from __future__ import annotations
 import logging
 from typing import Any
 
-from hud.env.docker_env_client import DockerEnvClient
+from hud.env.docker_client import DockerClient
 from hud.env.environment import Environment
-from hud.env.remote_env_client import RemoteEnvClient
+from hud.env.remote_client import RemoteClient
 from hud.server.requests import make_request
 from hud.settings import settings
 from hud.task import Task
@@ -57,13 +57,13 @@ async def make(
         # Create the environment (depending on location)
         if gym.location == "local":
             logger.info("Creating local environment")
-            client = await DockerEnvClient.create(gym.dockerfile)
+            client = await DockerClient.create(gym.dockerfile)
         elif gym.location == "remote":
             logger.info("Creating remote environment")
             raise NotImplementedError(
                 "Remote dockerfile environments are not yet supported"
             )
-            client = await RemoteEnvClient.create(
+            client = await RemoteClient.create(
                 dockerfile=gym.dockerfile,
                 metadata=metadata,
             )
@@ -82,7 +82,7 @@ async def make(
         true_gym_id = await _get_gym_id(gym)
 
         # Create the environment
-        client = await RemoteEnvClient.create(
+        client = await RemoteClient.create(
             gym_id=true_gym_id,
             job_id=job_id,
             task_id=task.id if task else None,

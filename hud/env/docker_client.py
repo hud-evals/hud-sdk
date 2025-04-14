@@ -12,7 +12,7 @@ from typing import IO, TYPE_CHECKING, Any
 import aiodocker
 from aiohttp import ClientTimeout
 
-from hud.env.env_client import EnvClient, EnvironmentStatus
+from hud.env.client import EnvClient, EnvironmentStatus
 from hud.utils import ExecuteResult
 
 if TYPE_CHECKING:
@@ -71,13 +71,13 @@ def mktar_from_dockerfile(fileobj: BytesIO | IO[bytes]) -> IO[bytes]:
     return f
 
 
-class DockerEnvClient(EnvClient):
+class DockerClient(EnvClient):
     """
     Docker-based environment client implementation.
     """
 
     @classmethod
-    async def create(cls, dockerfile: str) -> DockerEnvClient:
+    async def create(cls, dockerfile: str) -> DockerClient:
         """
         Creates a Docker environment client from a dockerfile.
 
@@ -85,7 +85,7 @@ class DockerEnvClient(EnvClient):
             dockerfile: The dockerfile content to build the Docker image
 
         Returns:
-            DockerEnvClient: An instance of the Docker environment client
+            DockerClient: An instance of the Docker environment client
         """
         # Create a unique image tag
         image_tag = f"hud-env-{uuid.uuid4().hex[:8]}"
@@ -133,7 +133,7 @@ class DockerEnvClient(EnvClient):
 
     def __init__(self, docker_conn: aiodocker.Docker, container_id: str) -> None:
         """
-        Initialize the DockerEnvClient.
+        Initialize the DockerClient.
 
         Args:
             docker_conn: Docker client connection

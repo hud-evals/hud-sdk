@@ -7,11 +7,12 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
+from hud.env.remote_client import RemoteClient
 from hud.task import Task
-from hud.utils import HudStyleConfigs, create_config, expand_config
-from hud.utils.config import HudStyleConfig
+from hud.utils import HudStyleConfigs, expand_config
+from hud.utils.config import HudStyleConfig, create_remote_config, REMOTE_SETUP, REMOTE_EVALUATE
 
-from .env_client import EnvClient
+from .client import EnvClient
 
 if TYPE_CHECKING:
     from hud.adapters.common.types import CLA
@@ -74,7 +75,15 @@ class Environment(BaseModel):
         Args:
             config: The configuration to use for the setup
         """
-        await self._invoke_all(create_config(self.task, config, "setup"))
+        if isinstance(self.client, RemoteClient):
+            await self._invoke_all(create_remote_config(self.task, config, REMOTE_SETUP))
+        else:
+            if config is not None:
+                await self._invoke_all(config)
+            elif self.task and self.task.config is not None:
+                await self._invoke_all(self.task.config)
+            else:
+                raise ValueError("No config or task provided for local environment")
 
     async def evaluate(self, config: HudStyleConfigs | None = None) -> Any:
         """
@@ -86,7 +95,15 @@ class Environment(BaseModel):
         Returns:
             Any: Result of the evaluation
         """
-        return await self._invoke_all(create_config(self.task, config, "evaluate"))
+        if isinstance(self.client, RemoteClient):
+            await self._invoke_all(create_remote_config(self.task, config, REMOTE_EVALUATE))
+        else:
+            if config is not None:
+                await self._invoke_all(config)
+            elif self.task and self.task.config is not None:
+                await self._invoke_all(self.task.config)
+            else:
+                raise ValueError("No config or task provided for local environment")
 
     async def reset(self, configs: HudStyleConfigs | None = None) -> tuple[Observation, dict[str, Any]]:
         """

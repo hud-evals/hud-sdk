@@ -4,7 +4,7 @@ import logging
 from base64 import b64decode, b64encode
 from typing import TYPE_CHECKING, Any
 
-from hud.env.env_client import EnvClient
+from hud.env.client import EnvClient
 from hud.server import make_request
 from hud.settings import settings
 from hud.types import EnvironmentStatus
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("hud.env.remote_env_client")
 
-class RemoteEnvClient(EnvClient):
+class RemoteClient(EnvClient):
     """
     Remote environment client implementation.
     
@@ -31,7 +31,7 @@ class RemoteEnvClient(EnvClient):
         job_id: str | None = None,
         task_id: str | None = None,
         metadata: dict[str, Any] | None = None,
-    ) -> RemoteEnvClient:
+    ) -> RemoteClient:
         """
         Creates a remote environment client from a dockerfile or gym_id.
         
@@ -41,7 +41,7 @@ class RemoteEnvClient(EnvClient):
             metadata: Metadata to associate with the environment
             
         Returns:
-            RemoteEnvClient: An instance of the remote environment client
+            RemoteClient: An instance of the remote environment client
         """
 
         # Validate arguments
@@ -82,7 +82,7 @@ class RemoteEnvClient(EnvClient):
 
     def __init__(self, env_id: str) -> None:
         """
-        Initialize the RemoteEnvClient.
+        Initialize the RemoteClient.
         
         Args:
             env_id: ID of the remote environment to control
