@@ -52,7 +52,6 @@ class Environment(BaseModel):
         results = []
         for config in configs_all:
             for expanded_config in expand_config(config):
-                print(expanded_config)
                 result, stdout, stderr = await self.client.invoke(expanded_config)
                 results.append(result)
                 if stdout:
