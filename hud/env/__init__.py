@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from . import docker_env_client, env_client, environment, remote_env_client
+from . import client, docker_client, environment, remote_client
 
 __all__ = [
-     "docker_env_client",
-     "env_client",
+     "docker_client",
+     "client",
      "environment",
-     "remote_env_client",
+     "remote_client",
 ]

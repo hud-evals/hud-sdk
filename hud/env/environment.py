@@ -143,17 +143,6 @@ class Environment(BaseModel):
 
         return observation, 0, False, {}
 
-    async def get_vnc_url(self) -> str | None:
-        """
-        Get the VNC URL for the environment.
-
-        Returns:
-            str: The VNC URL for remote viewing/control
-        """
-        if self.live_url is None:
-            await self.get_urls()
-        return f"http://{self.url}:5910/vnc.html"
-
     async def get_urls(self) -> dict[str, Any]:
         """Get URLs for the environment.
 
