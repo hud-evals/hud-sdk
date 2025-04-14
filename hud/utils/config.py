@@ -165,6 +165,8 @@ def create_remote_config(task: Task | None = None, config: HudStyleConfigs | Non
     
     # Case 3: Check for _config
     if hasattr(task, "config") and task.config:
+        if task.id:
+            task.config["id"] = task.id # for remote IDs
         return [HudStyleConfig(function=function, args=[task.config])]
     
     # Case 4: Use task.id
