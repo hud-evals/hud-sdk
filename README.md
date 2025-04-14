@@ -72,10 +72,10 @@ For comprehensive guides, examples, and API reference, visit [our docs](https://
 If you use this SDK in your research, please cite it as follows:
 
 ```bibtex
-@misc{HUD_SDK_2025,
+@software{HUD_SDK_2025,
   author       = {{HUD}},
   title        = {{HUD SDK}},
-  year         = {2025},
+  year         = {2025-03},
   howpublished = {\url{https://github.com/Human-Data/hud-sdk}}
 }
 ```
