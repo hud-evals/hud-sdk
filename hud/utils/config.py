@@ -33,7 +33,7 @@ class HudStyleConfig(BaseModel):
         return iter(self.args)
     
     def __str__(self) -> str:
-        return f"{self.function}: {', '.join(str(arg) for arg in self.args)})"
+        return f"{self.function}: {', '.join(str(arg) for arg in self.args)}"
 
 # Type alias for the shorthand config, which just converts to function name and args
 ShorthandConfig = tuple[str | dict[str, Any] | list[str] | list[dict[str, Any]], ...]
@@ -172,5 +172,6 @@ def create_remote_config(task: Task | None = None, config: HudStyleConfigs | Non
         return [HudStyleConfig(function=f"{REMOTE_FUNCTION_PREFIX}{function}", args=[task.id])]
     
     # No valid configuration found
-    raise ValueError(f"Task has no {function}, _config, or id")
+    logger.warning("No valid configuration found for function: %s", function)
+    return [HudStyleConfig(function=function, args=[])]
 

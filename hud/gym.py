@@ -43,13 +43,11 @@ async def make(
     if metadata is None:
         metadata = {}
     gym = None
-    setup = None
     task = None
     if isinstance(env_src, Gym):
         gym = env_src
     elif isinstance(env_src, Task):
         gym = env_src.gym
-        setup = env_src.setup
         task = env_src
 
 
@@ -94,7 +92,6 @@ async def make(
    # Create the environment itself
     environment = Environment(client=client, metadata=metadata, task=task)
     
-    if setup:
-        await environment._setup()
+    await environment._setup()
 
     return environment
