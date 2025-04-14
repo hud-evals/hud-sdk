@@ -14,7 +14,7 @@ from hud.utils.common import directory_to_tar_bytes
 
 if TYPE_CHECKING:
     from hud.utils import ExecuteResult
-    from hud.utils.config import ExpandedConfig
+    from hud.utils.config import HudStyleConfig
 
 logger = logging.getLogger("hud.env.env_client")
 
@@ -222,7 +222,7 @@ class EnvClient(BaseModel):
         """
     
     @abc.abstractmethod
-    async def invoke(self, config: ExpandedConfig) -> tuple[Any, bytes, bytes]:
+    async def invoke(self, config: HudStyleConfig) -> tuple[Any, bytes, bytes]:
         """
         Invoke a function in the environment. Supported by all environments.
         

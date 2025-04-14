@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel
 
 from hud.task import Task
-from hud.utils import HudStyleConfigs, create_evaluate_config, create_setup_config, expand_config
-from hud.utils.config import ExpandedConfig
+from hud.utils import HudStyleConfigs, create_config, expand_config
+from hud.utils.config import HudStyleConfig
 
 from .env_client import EnvClient
 
@@ -47,10 +47,9 @@ class Environment(BaseModel):
 
     async def _invoke_all(self, configs: HudStyleConfigs) -> list[Any]:
         # Execute each config and collect results
-        if not isinstance(configs, list):
-            configs = [configs]
+        configs_all = [configs] if not isinstance(configs, list) else configs
         results = []
-        for config in configs:
+        for config in configs_all:
             for expanded_config in expand_config(config):
                 result, stdout, stderr = await self.client.invoke(expanded_config)
                 results.append(result)
@@ -69,25 +68,40 @@ class Environment(BaseModel):
         return results
     
     async def _setup(self, config: HudStyleConfigs | None = None) -> None:
-        if config:
-            await self._invoke_all(create_setup_config(config))
-        elif self.task:
-            await self._invoke_all(create_setup_config(self.task.setup))
+        """
+        Setup the environment.
+
+        Args:
+            config: The configuration to use for the setup
+        """
+        await self._invoke_all(create_config(self.task, config, "setup"))
+
+    async def evaluate(self, config: HudStyleConfigs | None = None) -> Any:
+        """
+        Evaluate the environment.
+
+        Args:
+            config: The configuration to use for the evaluation
+
+        Returns:
+            Any: Result of the evaluation
+        """
+        return await self._invoke_all(create_config(self.task, config, "evaluate"))
 
     async def reset(self, configs: HudStyleConfigs | None = None) -> tuple[Observation, dict[str, Any]]:
-        """Returns the first observation from the environment.
+        """
+        Reset the environment.
+
+        Args:
+            configs: The configuration to use for the reset
 
         Returns:
             Observation: The first observation from the environment
             info: Dictionary of information about the environment
         """
-        if configs:
-            await self._setup(configs)
-            obs, _, _, info = await self.step([])
-            return obs, info
-        else:
-            obs, _, _, info = await self.step([])
-            return obs, info
+        await self._setup(configs)
+        obs, _, _, info = await self.step([])
+        return obs, info
 
     async def step(self, actions: list[CLA]) -> tuple[Observation, float, bool, dict[str, Any]]:
         """Execute a step in the environment.
@@ -100,7 +114,7 @@ class Environment(BaseModel):
         """
 
         result, stdout, stderr = await self.client.invoke(
-            ExpandedConfig(function="step", args=[[action.model_dump() for action in actions]])
+            HudStyleConfig(function="step", args=[[action.model_dump() for action in actions]])
         )
         if stdout:
             logger.info("Step produced stdout: %s", stdout.decode())
@@ -111,19 +125,6 @@ class Environment(BaseModel):
         observation = Observation.model_validate(result["observation"], strict=True)
 
         return observation, 0, False, {}
-
-    async def evaluate(self, config: HudStyleConfigs | None = None, target: str | list[str] | None = None) -> Any:
-        """Runs the task evaluation function in the environment.
-
-        Returns:
-            Any: Result of the evaluation function
-        """
-        if config:
-            return await self._invoke_all(create_evaluate_config(config, target))
-        elif self.task:
-            return await self._invoke_all(create_evaluate_config(self.task.evaluate, self.task.target))
-        else:
-            raise ValueError("Either config or task must be provided")
 
     async def get_vnc_url(self) -> str | None:
         """
@@ -142,7 +143,7 @@ class Environment(BaseModel):
         Returns:
             dict: Dictionary of URLs for accessing the environment
         """
-        data, _, _ = await self.client.invoke(ExpandedConfig(function="get_urls", args=[]))
+        data, _, _ = await self.client.invoke(HudStyleConfig(function="get_urls", args=[]))
 
         self.url = data.get("url")
         self.live_url = data.get("live_url")

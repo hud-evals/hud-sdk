@@ -2,95 +2,45 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import Any, Sequence
-from typing_extensions import TypeAliasType
+from typing import TYPE_CHECKING, Any
 
-
-from lark import Lark, Token, Transformer
 from pydantic import BaseModel
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from hud.task import Task
 
 logger = logging.getLogger("hud.utils.config")
 
-# Grammar for parsing function calls
-FUNC_CALL_GRAMMAR = r"""
-    ?start: funccall
-
-    funccall: funcname "(" [funcargs] ")" -> paren_call
-            | funcname [spaceargs] -> space_call
-    funcname: CNAME ("." CNAME)*
-    funcargs: funcarg ("," funcarg)* [","]
-    spaceargs: spacearg+
-    spacearg: CNAME | NUMBER | STRING
-    funcarg: NUMBER -> number
-           | STRING -> string
-           | "[" [funcargs] "]" -> list
-           | funccall -> nested_call
-
-    %import common.CNAME
-    %import common.NUMBER
-    %import common.WS
-    %import common.ESCAPED_STRING -> STRING
-    %ignore WS
-"""
-
-class FuncCallTransformer(Transformer):
-    def paren_call(self, items: list[Any]) -> dict[str, Any]:
-        funcname = items[0]
-        args = items[1] if len(items) > 1 else []
-        return {"function": ".".join(funcname), "args": args}
-    
-    def space_call(self, items: list[Any]) -> dict[str, Any]:
-        funcname = items[0]
-        args = items[1] if len(items) > 1 else []
-        return {"function": ".".join(funcname), "args": args}
-    
-    def funcname(self, items: list[Token]) -> list[str]:
-        return [str(token) for token in items]
-    
-    def funcargs(self, items: list[Any]) -> list[Any]:
-        return list(items)
-    
-    def spaceargs(self, items: list[Any]) -> list[Any]:
-        return list(items)
-    
-    def spacearg(self, items: list[Token]) -> str:
-        return str(items[0])
-    
-    def number(self, items: list[Token]) -> float:
-        return float(items[0].value)
-    
-    def string(self, items: list[Token]) -> str:
-        return items[0].value[1:-1]  # Remove quotes
-    
-    def list(self, items: list[Any]) -> list[Any]:
-        return items[0] if items else []
-    
-    def nested_call(self, items: list[Any]) -> Any:
-        return items[0]
-    
-    def CNAME(self, token: Token) -> str:
-        return str(token)
-
-# Create the parser
-func_call_parser = Lark(FUNC_CALL_GRAMMAR, parser="lalr")
-
-class ExpandedConfig(BaseModel):
+class HudStyleConfig(BaseModel):
     function: str  # Format: "x.y.z"
     args: list[Any] # Must be json serializable
 
-# Recursive type alias (needed for pydantic)
-HudStyleConfigs = TypeAliasType(
-    "HudStyleConfigs",
-    "str | dict[str, Any] | ExpandedConfig | Sequence[HudStyleConfigs]"
-)
+    def __len__(self) -> int:
+        return len(self.args)
 
+    def __getitem__(self, index: int) -> Any:
+        return self.args[index]
+    
+    def __iter__(self) -> Iterator[Any]:
+        return iter(self.args)
+    
+    def __str__(self) -> str:
+        return f"{self.function}({', '.join(str(arg) for arg in self.args)})"
+
+# Type alias for the shorthand config, which just converts to function name and args
+ShorthandConfig = tuple[str | dict[str, Any] | list[str] | list[dict[str, Any]], ...]
+
+# Type alias for multiple config formats
+HudStyleConfigs = ShorthandConfig | HudStyleConfig | list[HudStyleConfig] | dict[str, Any] | str
 
 def _is_valid_python_name(name: str) -> bool:
     """Check if a string is a valid Python identifier."""
     return bool(re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", name))
 
-def _validate_expanded_config(config: dict) -> ExpandedConfig:
-    """Validate and convert a dictionary to an ExpandedConfig."""
+def _validate_hud_config(config: dict) -> HudStyleConfig:
+    """Validate and convert a dictionary to an HudStyleConfig."""
     if not isinstance(config.get("function"), str):
         raise ValueError("function must be a string")
     
@@ -99,8 +49,8 @@ def _validate_expanded_config(config: dict) -> ExpandedConfig:
 
     args = config["args"] if isinstance(config.get("args"), list) else [config["args"]]
     
-    # Create a proper ExpandedConfig object instead of using cast
-    return ExpandedConfig(function=config["function"], args=args)
+    # Create a proper HudStyleConfig object instead of using cast
+    return HudStyleConfig(function=config["function"], args=args)
 
 def _split_and_validate_path(path: str) -> None:
     """Split a function path into components, validating each part."""
@@ -114,90 +64,107 @@ def _split_and_validate_path(path: str) -> None:
         if not _is_valid_python_name(part):
             raise ValueError(f"Invalid Python identifier in path: {part}")
 
-def _process_string_config(config: str) -> list[ExpandedConfig]:
-    """Process a string configuration into ExpandedConfig format.
-    
-    The string can be in the format of:
-    - A function call with parentheses: "function(arg1, arg2)"
-    - A function call with space-separated args: "function arg1 arg2"
-    - A dot-notation method call: "object.method(arg1, arg2)"
+def expand_config(config: HudStyleConfigs) -> list[HudStyleConfig]:
     """
-    try:
-        parse_tree = func_call_parser.parse(config)
-        transformer = FuncCallTransformer()
-        result = transformer.transform(parse_tree)
-        function = result["function"]
-        args = result["args"]
-        if args is None:
-            args = []
-        return [ExpandedConfig(function=function, args=args)]
-    except Exception as e:
-        logger.exception("Failed to parse configuration string: %s", config)
-        # Fallback: Try to split by space as simple function + args
-        parts = config.strip().split()
-        if parts:
-            function_name = parts[0]
-            args = parts[1:] if len(parts) > 1 else []
-            return [ExpandedConfig(function=function_name, args=args)]
-        raise ValueError("Invalid configuration string: %s", config) from e
-
-def expand_config(config: HudStyleConfigs) -> list[ExpandedConfig]:
-    """
-    Process a configuration into a standardized list of ExpandedConfig formats.
+    Process a config into a standardized list of HudStyleConfig objects.
     
     Args:
-        config: The configuration, which can be:
-            - String (function name): "chrome.maximize()"
-            - String (function with args): "chrome.activate_tab(5)"
-            - ExpandedConfig: {"function": "chrome.maximize", "args": []}
-            - List of any of the above
+        config: Can be:
+            - A tuple where first element is function name and rest are args
+            - A HudStyleConfig object
+            - A dictionary with "function" and "args" keys
+            - A list of HudStyleConfig objects
             
     Returns:
-        list[ExpandedConfig]: List of standardized configurations with function and args
+        list[HudStyleConfig]: List of standardized configurations
         
     Raises:
-        ValueError: If the configuration format is not recognized or contains
-            invalid Python identifiers
+        ValueError: If the configuration format is invalid
     """
     logger.debug("Processing config: %s", config)
-    
-    # Handle list of configurations
-    if isinstance(config, list):
-        results = []
-        for item in config:
-            results.extend(expand_config(item))
-        return results
-    
-    # Handle string configurations
-    if isinstance(config, str):
-        return _process_string_config(config)
-    
-    # Validate dictionary configurations
-    if isinstance(config, dict):
-        return [_validate_expanded_config(config)]
-    
-    if isinstance(config, ExpandedConfig):
+
+    # If it's already a HudStyleConfig, just wrap it in a list
+    if isinstance(config, HudStyleConfig):
         return [config]
+    
+    # If it's a list of HudStyleConfigs, return as is
+    if isinstance(config, list) and all(isinstance(item, HudStyleConfig) for item in config):
+        return config
+    
+    # Handle dictionary configuration
+    if isinstance(config, dict):
+        return [_validate_hud_config(config)]
+    
+    if isinstance(config, str):
+        return [HudStyleConfig(function=config, args=[])]
+    
+    # Handle tuple format
+    if isinstance(config, tuple):
+        if len(config) < 1 or not isinstance(config[0], str):
+            error_msg = f"Invalid tuple configuration. Expected tuple[str, ...], got: {type(config)}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
+        
+        # First element is the function name, rest are args
+        function_name = config[0]
+        args = list(config[1:]) if len(config) > 1 else []
+        
+        return [HudStyleConfig(function=function_name, args=args)]
     
     # Unknown configuration type
     error_msg = f"Unknown configuration type: {type(config)}"
     logger.error(error_msg)
     raise ValueError(error_msg)
 
-def create_setup_config(config: HudStyleConfigs) -> list[ExpandedConfig]:
-    """Create a setup configuration from a config."""
-    expanded_configs = expand_config(config)
-    return [ExpandedConfig(function="reset", args=expanded_configs)]
+def create_config(task: Task | None = None, config: HudStyleConfigs | None = None, function: str | None = None) -> list[HudStyleConfig]:
+    """
+    Create a configuration based on provided inputs.
+    
+    Args:
+        task: Task object with configuration
+        config: Direct configuration (expanded or not)
+        function: Function name to use
+        
+    Returns:
+        list[HudStyleConfig]: List of standardized configurations
+        
+    Logic:
+        1) If explicit config: expand and return HudStyleConfig with func of the function, and args of expanded config
+        2) If task has the specified function defined: use that
+        3) If no task function: check for task._config and use that
+        4) If no _config: use task.id and create private_[function]
+    """
+    # If no function provided, just expand the config and return it directly
+    if function is None:
+        if config:
+            return expand_config(config)
+        raise ValueError("Either function or config must be provided")
+    
+    # Case 1: Explicit config provided
+    if config:
+        expanded_configs = expand_config(config)
+        return [HudStyleConfig(function=function, args=expanded_configs)]
+    
+    # Must have a task for the remaining cases
+    if task is None:
+        raise ValueError("Either task or config must be provided")
+    
+    # Case 2: Task has the specified function attribute
+    task_config = getattr(task, function, None)
+    if task_config and len(task_config) > 0:
+        expanded_configs = expand_config(task_config)
+        if task.id:
+            expanded_configs.append(HudStyleConfig(function=f"private_{function}", args=[task.id]))
+        return expanded_configs
+    
+    # Case 3: Check for _config
+    if hasattr(task, "_config") and task._config:
+        return [HudStyleConfig(function=function, args=[task._config])]
+    
+    # Case 4: Use task.id
+    if task.id:
+        return [HudStyleConfig(function=f"private_{function}", args=[task.id])]
+    
+    # No valid configuration found
+    raise ValueError(f"Task has no {function}, _config, or id")
 
-def create_evaluate_config(config: HudStyleConfigs, target: str | list[str] | None) -> list[ExpandedConfig]:
-    """Create an evaluate configuration from a config and target."""
-    expanded_configs = expand_config(config)
-    if target:
-        if isinstance(target, str):
-            target = [target]
-        for expanded_config in expanded_configs:
-            expanded_config.args = expanded_config.args or []
-            if target and isinstance(expanded_config.args, list):
-                expanded_config.args = expanded_config.args + target
-
-    return [ExpandedConfig(function="evaluate", args=expanded_configs)]
