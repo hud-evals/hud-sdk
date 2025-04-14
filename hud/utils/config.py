@@ -153,13 +153,11 @@ def create_config(task: Task | None = None, config: HudStyleConfigs | None = Non
     task_config = getattr(task, function, None)
     if task_config and len(task_config) > 0:
         expanded_configs = expand_config(task_config)
-        if task.id:
-            expanded_configs.append(HudStyleConfig(function=f"private_{function}", args=[task.id]))
-        return expanded_configs
+        return [HudStyleConfig(function=function, args=expanded_configs)]
     
     # Case 3: Check for _config
-    if hasattr(task, "_config") and task._config:
-        return [HudStyleConfig(function=function, args=[task._config])]
+    if hasattr(task, "config") and task.config:
+        return [HudStyleConfig(function=function, args=[task.config])]
     
     # Case 4: Use task.id
     if task.id:
