@@ -73,9 +73,10 @@ If you use this SDK in your research, please cite it as follows:
 
 ```bibtex
 @software{HUD_SDK_2025,
-  author       = {{HUD}},
-  title        = {{HUD SDK}},
-  year         = {2025-03},
-  howpublished = {\url{https://github.com/Human-Data/hud-sdk}}
+  author = {{HUD}},
+  title = {{HUD SDK}},
+  date = {2025-03},
+  url = {https://github.com/Human-Data/hud-sdk},
+  langid = {en}
 }
 ```
