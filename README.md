@@ -82,7 +82,7 @@ If you use this SDK in your research, please cite it as follows:
 ```bibtex
 @software{hud2025agentevalplatform,
   author = {HUD and Jay Ram and Lorenss Martinsons and Parth Patel and Oskars Putans and Govind Pimpale and Mayank Singamreddy and Nguyen Nhat Minh},
-  title = {{HUD: Agent Evaluation Platform for Computer Use Agents}},
+  title = {{HUD: An Agent Evaluation Platform for Computer Use Agents}},
   date = {2025-03},
   url = {https://github.com/Human-Data/hud-sdk},
   langid = {en}
