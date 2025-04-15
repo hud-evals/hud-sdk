@@ -120,7 +120,7 @@ class Environment(BaseModel):
         obs, _, _, info = await self.step([])
         return obs, info
 
-    async def step(self, actions: list[CLA]) -> tuple[Observation, float, bool, dict[str, Any]]:
+    async def step(self, actions: list[CLA] | None = None) -> tuple[Observation, float, bool, dict[str, Any]]:
         """Execute a step in the environment.
 
         Args:
@@ -131,7 +131,7 @@ class Environment(BaseModel):
         """
 
         result, stdout, stderr = await self.client.invoke(
-            HudStyleConfig(function="step", args=[[action.model_dump() for action in actions]])
+            HudStyleConfig(function="step", args=[[action.model_dump() for action in actions] if actions is not None else None])
         )
         if stdout:
             logger.info("Step produced stdout: %s", stdout.decode())
