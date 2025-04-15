@@ -49,28 +49,6 @@ class InvokeError(Exception):
     """
 
 
-def mktar_from_dockerfile(fileobj: BytesIO | IO[bytes]) -> IO[bytes]:
-    """
-    Create a zipped tar archive from a Dockerfile
-    **Remember to close the file object**
-    Args:
-        fileobj: a Dockerfile
-    Returns:
-        a NamedTemporaryFile() object
-    """
-    with tempfile.NamedTemporaryFile() as f, tarfile.open(mode="w:gz", fileobj=f) as t:
-        if isinstance(fileobj, io.BytesIO):
-            dfinfo = tarfile.TarInfo("Dockerfile")
-            dfinfo.size = len(fileobj.getvalue())
-            fileobj.seek(0)
-        else:
-            dfinfo = t.gettarinfo(fileobj=fileobj, arcname="Dockerfile")
-
-        t.addfile(dfinfo, fileobj)
-        f.seek(0)
-    return f
-
-
 class DockerClient(EnvClient):
     """
     Docker-based environment client implementation.
@@ -97,17 +75,25 @@ class DockerClient(EnvClient):
         dockerfile_fileobj = io.BytesIO(dockerfile.encode("utf-8"))
 
         # Create a tar file from the dockerfile
-        dockerfile_tar = mktar_from_dockerfile(dockerfile_fileobj)
+        with tempfile.NamedTemporaryFile() as f:
+            with tarfile.open(mode="w:gz", fileobj=f) as t:
+                dfinfo = tarfile.TarInfo("Dockerfile")
+                dfinfo.size = len(dockerfile_fileobj.getvalue())
+                dockerfile_fileobj.seek(0)
+                t.addfile(dfinfo, dockerfile_fileobj)
 
-        # Build the image
-        build_stream = await docker_client.images.build(
-            fileobj=dockerfile_tar,
-            encoding="gzip",
-            tag=image_tag,
-            rm=True,
-            pull=True,
-            forcerm=True,
-        )
+            # Reset the file pointer to the beginning of the file
+            f.seek(0)
+
+            # Build the image
+            build_stream = await docker_client.images.build(
+                fileobj=f,
+                encoding="gzip",
+                tag=image_tag,
+                rm=True,
+                pull=True,
+                forcerm=True,
+            )
 
         # Print build output
         for chunk in build_stream:
