@@ -50,11 +50,12 @@ async def make(
         gym = env_src.gym
         task = env_src
 
-
     if isinstance(gym, CustomGym):
         # Create the environment (depending on location)
         if gym.location == "local":
             logger.info("Creating local environment")
+            if gym.dockerfile is None:
+                raise ValueError("Dockerfile is required for local environments")
             client = await DockerClient.create(gym.dockerfile)
         elif gym.location == "remote":
             logger.info("Creating remote environment")

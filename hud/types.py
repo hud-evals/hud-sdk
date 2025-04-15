@@ -13,13 +13,35 @@ class CustomGym(BaseModel):
     
     If the location is remote, the env will be created on the server.
     If the location is dev, the env will be created locally via docker.
+    
+    The dockerfile can be specified directly or automatically found in the controller_source_dir.
+    If neither is provided, an error will be raised during validation.
     """
     type: Literal["public"] = "public"
-    dockerfile: str
+    dockerfile: str | None = None
     location: Literal["local", "remote"]
     # If path, then it is a development environment on the local computer
     # If none, then the controller must be installed in the environment through the dockerfile
-    controller_source_dir: Path | None = None
+    # Can be provided as a string or Path object
+    controller_source_dir: str | Path | None = None
+    
+    def model_post_init(self, __context) -> None:
+        """Validate and set up dockerfile if not explicitly provided."""
+        # Convert string path to Path object if needed
+        if isinstance(self.controller_source_dir, str):
+            self.controller_source_dir = Path(self.controller_source_dir)
+            
+        if self.dockerfile is None:
+            if self.controller_source_dir is None:
+                raise ValueError("Either dockerfile or controller_source_dir must be provided")
+            
+            # Look for Dockerfile in the controller_source_dir
+            dockerfile_path = self.controller_source_dir / "Dockerfile"
+            if not dockerfile_path.exists():
+                raise ValueError(f"Dockerfile not found in {self.controller_source_dir}")
+            
+            # Read the Dockerfile content
+            self.dockerfile = dockerfile_path.read_text()
 
 # Strings are identifiers for gyms on the HUD server
 Gym = CustomGym | str
