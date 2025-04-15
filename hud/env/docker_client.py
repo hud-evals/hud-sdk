@@ -235,7 +235,7 @@ class DockerClient(EnvClient):
         template = invoke_template(config, self.package_name, divider)
         logger.debug("Invoking template: %s", template)
 
-        result = await self.execute(["python", "-c", template])
+        result = await self.execute(["python3", "-c", template])
 
         # parse the result
         # we take the whole stderr as the stderr, and the stdout is the result pre-divider
