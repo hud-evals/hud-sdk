@@ -10,7 +10,7 @@ from pydantic import BaseModel
 from hud.env.remote_client import RemoteClient
 from hud.task import Task
 from hud.utils import HudStyleConfigs, expand_config
-from hud.utils.config import HudStyleConfig, create_remote_config, REMOTE_SETUP, REMOTE_EVALUATE
+from hud.utils.config import REMOTE_EVALUATE, REMOTE_SETUP, HudStyleConfig, create_remote_config
 
 from .client import EnvClient
 
