@@ -67,7 +67,7 @@ def mktar_from_dockerfile(fileobj: BytesIO | IO[bytes]) -> IO[bytes]:
             dfinfo = t.gettarinfo(fileobj=fileobj, arcname="Dockerfile")
 
         t.addfile(dfinfo, fileobj)
-    f.seek(0)
+        f.seek(0)
     return f
 
 

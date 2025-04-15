@@ -58,11 +58,18 @@ async def make(
             client = await DockerClient.create(gym.dockerfile)
         elif gym.location == "remote":
             logger.info("Creating remote environment")
-            raise NotImplementedError(
-                "Remote dockerfile environments are not yet supported"
-            )
+            
+            true_gym_id = await _get_gym_id("local-docker")
+            
+            # augment metadata with dockerfile
+            if "environment_config" not in metadata:
+                metadata["environment_config"] = {}
+            metadata["environment_config"]["dockerfile"] = gym.dockerfile
+
             client = await RemoteClient.create(
-                dockerfile=gym.dockerfile,
+                gym_id=true_gym_id,
+                job_id=job_id,
+                task_id=task.id if task else None,
                 metadata=metadata,
             )
         else:
@@ -92,6 +99,7 @@ async def make(
    # Create the environment itself
     environment = Environment(client=client, metadata=metadata, task=task)
     
-    await environment._setup()
+    if task:
+        await environment._setup()
 
     return environment

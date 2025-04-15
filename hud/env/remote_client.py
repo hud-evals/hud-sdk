@@ -26,7 +26,6 @@ class RemoteClient(EnvClient):
     async def create(
         cls,
         *,
-        dockerfile: str | None = None,
         gym_id: str | None = None,
         job_id: str | None = None,
         task_id: str | None = None,
@@ -47,17 +46,12 @@ class RemoteClient(EnvClient):
         # Validate arguments
         if metadata is None:
             metadata = {}
-        if dockerfile is None and gym_id is None:
-            raise ValueError("Either dockerfile or gym_id must be provided")
-        
-        if dockerfile is not None and gym_id is not None:
-            raise ValueError("Only one of dockerfile or gym_id can be provided")
+
         
         request_data = {
             # still named run_id for backwards compatibility
             "run_id": job_id,
             "metadata": metadata,
-            "dockerfile": dockerfile,
             "gym_id": gym_id,
             "task_id": task_id,
         }
@@ -153,17 +147,12 @@ class RemoteClient(EnvClient):
             api_key=settings.api_key,
         )
         
-        # return ExecuteResult(
-        #     stdout=b64decode(data["stdout"]),
-        #     stderr=b64decode(data["stderr"]),
-        #     exit_code=data["exit_code"]
-        # )
-
         return ExecuteResult(
-            stdout=data["stdout"],
-            stderr=data["stderr"],
+            stdout=b64decode(data["stdout"]),
+            stderr=b64decode(data["stderr"]),
             exit_code=data["exit_code"]
         )
+
     
     async def invoke(self, config: HudStyleConfig) -> tuple[Any, bytes, bytes]:
         """
@@ -189,22 +178,13 @@ class RemoteClient(EnvClient):
         Returns:
             bytes: Content of the file or archive
         """
-        # data = await make_request(
-        #     method="POST",
-        #     url=f"{settings.base_url}/environments/{self.env_id}/get_archive",
-        #     json={"path": path},
-        #     api_key=settings.api_key,
-        # )
-
-
         data = await make_request(
             method="POST",
-            url=f"{settings.base_url}/v2/environments/{self.env_id}/copy_from",
+            url=f"{settings.base_url}/environments/{self.env_id}/get_archive",
             json={"path": path},
             api_key=settings.api_key,
         )
-
-        
+  
         # Return the content decoded from base64
         return b64decode(data["content"])
     
@@ -220,20 +200,13 @@ class RemoteClient(EnvClient):
         Returns:
             bool: True if successful
         """
-        # await make_request(
-        #     method="POST",
-        #     url=f"{settings.base_url}/environments/{self.env_id}/put_archive",
-        #     json={
-        #         "path": path,
-        #         "content": b64encode(data).decode("utf-8"),
-        #     },
-        #     api_key=settings.api_key,
-        # )
-
         await make_request(
             method="POST",
-            url=f"{settings.base_url}/v2/environments/{self.env_id}/copy_to",
-            json={"path": path, "content": b64encode(data).decode("utf-8")},
+            url=f"{settings.base_url}/environments/{self.env_id}/put_archive",
+            json={
+                "path": path,
+                "content": b64encode(data).decode("utf-8"),
+            },
             api_key=settings.api_key,
         )
         
