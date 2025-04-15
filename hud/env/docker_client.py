@@ -299,3 +299,5 @@ class DockerClient(EnvClient):
         except Exception as e:
             # Log the error but don't raise it since this is cleanup
             logger.warning("Error during Docker container cleanup: %s", e)
+        finally:
+            await self._docker.close()
