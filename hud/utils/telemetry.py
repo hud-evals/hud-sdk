@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 
-def stream(live_url: str | None = None) -> None:
+def stream(live_url: str | None = None) -> str:
     """
     Display a stream in the HUD system.
     """
@@ -17,4 +17,48 @@ def stream(live_url: str | None = None) -> None:
         </div>
     </div>
     """
-    display(HTML(html_content))
+    try:
+        display(HTML(html_content))
+    except:
+        pass  # Not in an environment where display is available
+    
+    return html_content
+
+
+def display_screenshot(base64_image: str, width: int = 960, height: int = 540) -> str:
+    """
+    Display a base64-encoded screenshot image.
+    
+    Args:
+        base64_image: Base64-encoded image string (without the data URI prefix)
+        width: Display width in pixels
+        height: Display height in pixels
+        
+    Returns:
+        The HTML string used to display the image
+        
+    Note:
+        This function will both display the image in IPython environments
+        and return the HTML string for other contexts.
+    """
+    from IPython.display import HTML, display
+    
+    # Ensure the base64 image doesn't already have the data URI prefix
+    if base64_image.startswith("data:image"):
+        img_src = base64_image
+    else:
+        img_src = f"data:image/png;base64,{base64_image}"
+    
+    html_content = f"""
+    <div style="width: {width}px; height: {height}px; overflow: hidden; margin: 10px 0; border: 1px solid #ddd;">
+        <img src="{img_src}" style="max-width: 100%; max-height: 100%;">
+    </div>
+    """
+    
+    # Display in IPython environments
+    try:
+        display(HTML(html_content))
+    except:
+        pass  # Not in an environment where display is available
+    
+    return html_content

@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
+from hud.adapters.common.types import WaitAction
 from hud.env.client import Client
 from hud.env.remote_client import RemoteClient
 from hud.task import Task
@@ -95,14 +96,19 @@ class Environment(BaseModel):
             Any: Result of the evaluation
         """
         if isinstance(self.client, RemoteClient):
-            return await self._invoke_all(create_remote_config(self.task, config, REMOTE_EVALUATE))
+            results = await self._invoke_all(create_remote_config(self.task, config, REMOTE_EVALUATE))
         else:
             if config is not None:
-                return await self._invoke_all(config)
+                results = await self._invoke_all(config)
             elif self.task and self.task.config is not None:
-                return await self._invoke_all(self.task.config)
+                results = await self._invoke_all(self.task.config)
             else:
                 raise ValueError("No config or task provided for local environment")
+        if len(results) == 1:
+            return results[0]
+        else:
+            return results
+        
 
     async def reset(self, configs: HudStyleConfigs | None = None) -> tuple[Observation, dict[str, Any]]:
         """
@@ -115,8 +121,8 @@ class Environment(BaseModel):
             Observation: The first observation from the environment
             info: Dictionary of information about the environment
         """
-        await self._setup(configs)
-        obs, _, _, info = await self.step([])
+        #await self._setup(configs)
+        obs, _, _, info = await self.step()
         return obs, info
 
     async def step(self, actions: list[CLA] | None = None) -> tuple[Observation, float, bool, dict[str, Any]]:
@@ -130,7 +136,7 @@ class Environment(BaseModel):
         """
 
         result, stdout, stderr = await self.client.invoke(
-            HudStyleConfig(function="step", args=[[action.model_dump() for action in actions] if actions is not None else None])
+            HudStyleConfig(function="step", args=[[action.model_dump() for action in actions] if actions is not None else [WaitAction(time=100).model_dump()]])
         )
         if stdout:
             logger.info("Step produced stdout: %s", stdout.decode())
