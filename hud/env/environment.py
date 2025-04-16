@@ -7,12 +7,11 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
+from hud.env.client import Client
 from hud.env.remote_client import RemoteClient
 from hud.task import Task
 from hud.utils import HudStyleConfigs, expand_config
 from hud.utils.config import REMOTE_EVALUATE, REMOTE_SETUP, HudStyleConfig, create_remote_config
-
-from .docker_client import DockerClient
 
 if TYPE_CHECKING:
     from hud.adapters.common.types import CLA
@@ -40,7 +39,7 @@ class Environment(BaseModel):
     """
 
     metadata: dict[str, Any]
-    client: DockerClient
+    client: Client
     url: str | None = None
     live_url: str | None = None
     # The task id to use for the environment reset
