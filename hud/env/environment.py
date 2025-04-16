@@ -123,6 +123,8 @@ class Environment(BaseModel):
         """
         #await self._setup(configs)
         obs, _, _, info = await self.step()
+        if self.task and self.task.prompt:
+            obs.text = self.task.prompt
         return obs, info
 
     async def step(self, actions: list[CLA] | None = None) -> tuple[Observation, float, bool, dict[str, Any]]:
