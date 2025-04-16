@@ -19,7 +19,7 @@ async def make(
     *,
     job_id: str | None = None,
     metadata: dict[str, Any] | None = None,
-) -> tuple[Environment, dict[str, Any]]:
+) -> Environment:
     """
     Create an environment from an environment ID or a Task object.
     
@@ -76,9 +76,9 @@ async def make(
         raise ValueError(f"Invalid gym source: {gym}")
 
    # Create the environment itself
-    environment = Environment(client=client, metadata=metadata, task=task)
+    environment = Environment(client=client, metadata=metadata, task=task, build_data=build_data)
     
     if task:
         await environment._setup()
 
-    return environment, build_data
+    return environment

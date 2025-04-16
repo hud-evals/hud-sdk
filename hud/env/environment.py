@@ -40,6 +40,7 @@ class Environment(BaseModel):
     """
 
     metadata: dict[str, Any]
+    build_data: dict[str, Any]
     client: Client
     url: str | None = None
     live_url: str | None = None
