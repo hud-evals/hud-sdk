@@ -1,27 +1,37 @@
 from __future__ import annotations
 
-import io
+import abc
 import json
 import logging
-import tarfile
-import tempfile
+import os
 import uuid
-from io import BytesIO
-from typing import IO, TYPE_CHECKING, Any
+from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
-import aiodocker
-from aiohttp import ClientTimeout
+import toml
+from pydantic import BaseModel
 
-from hud.env.client import EnvClient, EnvironmentStatus
-from hud.utils import ExecuteResult
+from hud.env.client import Client
+from hud.types import EnvironmentStatus
+from hud.utils.common import directory_to_tar_bytes
 
 if TYPE_CHECKING:
-    from aiodocker.containers import DockerContainer
-    from aiodocker.stream import Stream
-
+    from hud.utils import ExecuteResult
     from hud.utils.config import HudStyleConfig
 
-logger = logging.getLogger("hud.env.docker_env_client")
+logger = logging.getLogger("hud.env.docker_client")
+
+STATUS_MESSAGES = {
+    EnvironmentStatus.RUNNING.value: "is running",
+    EnvironmentStatus.ERROR.value: "had an error initializing",
+    EnvironmentStatus.COMPLETED.value: "completed",
+}
+
+
+class InvokeError(Exception):
+    """
+    Error raised when an invoke fails.
+    """
 
 
 def invoke_template(config: HudStyleConfig, package_name: str, divider: str) -> str:
@@ -42,187 +52,209 @@ print("{divider}")
 print(result_str)
 """
 
-
-class InvokeError(Exception):
+class DockerClient(Client):
     """
-    Error raised when an invoke fails.
+    Base class for environment clients.
+    
+    Handles updating the environment when local files change.
     """
-
-
-class DockerClient(EnvClient):
-    """
-    Docker-based environment client implementation.
-    """
-
-    @classmethod
-    async def create(cls, dockerfile: str) -> DockerClient:
-        """
-        Creates a Docker environment client from a dockerfile.
-
-        Args:
-            dockerfile: The dockerfile content to build the Docker image
-
-        Returns:
-            DockerClient: An instance of the Docker environment client
-        """
-        # Create a unique image tag
-        image_tag = f"hud-env-{uuid.uuid4().hex[:8]}"
-
-        # Initialize Docker client
-        docker_client = aiodocker.Docker()
-
-        # Create fileobj for the Dockerfile
-        dockerfile_fileobj = io.BytesIO(dockerfile.encode("utf-8"))
-
-        # Create a tar file from the dockerfile
-        with tempfile.NamedTemporaryFile() as f:
-            with tarfile.open(mode="w:gz", fileobj=f) as t:
-                dfinfo = tarfile.TarInfo("Dockerfile")
-                dfinfo.size = len(dockerfile_fileobj.getvalue())
-                dockerfile_fileobj.seek(0)
-                t.addfile(dfinfo, dockerfile_fileobj)
-
-            # Reset the file pointer to the beginning of the file
-            f.seek(0)
-
-            # Build the image
-            build_stream = await docker_client.images.build(
-                fileobj=f,
-                encoding="gzip",
-                tag=image_tag,
-                rm=True,
-                pull=True,
-                forcerm=True,
-            )
-
-        # Print build output
-        for chunk in build_stream:
-            if "stream" in chunk:
-                pass
-
-        # Create and start the container
-        container_config = {
-            "Image": image_tag,
-            "Tty": True,
-            "OpenStdin": True,
-            "Cmd": ["/bin/bash"],
-            "HostConfig": {
-                "AutoRemove": True,
-            },
-        }
-
-        container = await docker_client.containers.create(config=container_config)
-        await container.start()
-
-        # Return the controller instance
-        return cls(docker_client, container.id)
-
-    def __init__(self, docker_conn: aiodocker.Docker, container_id: str) -> None:
-        """
-        Initialize the DockerClient.
-
-        Args:
-            docker_conn: Docker client connection
-            container_id: ID of the Docker container to control
-        """
-        super().__init__()
-
-        # Store container ID instead of container object
-        self._container_id = container_id
-
-        # Docker client will be initialized when needed
-        self._docker = docker_conn
+    
+    _last_pyproject_toml_str: str | None = None
+    _last_update_time: int = 0
+    _last_file_mtimes: dict[str, float] = {}
+    _source_path: Path | None = None
+    _package_name: str | None = None
 
     @property
-    def container_id(self) -> str:
-        """Get the container ID."""
-        return self._container_id
+    def source_path(self) -> Path | None:
+        """Get the source path."""
+        return self._source_path
+    
+    @property
+    def package_name(self) -> str:
+        """Get the package name."""
+        if not self._package_name:
+            raise ValueError("Package name not set")
+        return self._package_name
+    
 
-    @container_id.setter
-    def container_id(self, value: str) -> None:
-        """Set the container ID."""
-        self._container_id = value
-
-    async def _get_container(self) -> DockerContainer:
-        """Get the container object from aiodocker."""
-        return await self._docker.containers.get(self.container_id)
-
-    async def get_status(self) -> EnvironmentStatus:
+    def set_source_path(self, source_path: Path) -> None:
         """
-        Get the current status of the Docker environment.
+        Set the source path for this environment controller.
+        Can only be set once, and cannot be set if source_path is already set.
+        
+        Args:
+            source_path: Path to the source code to use in the environment
+            
+        Raises:
+            ValueError: If source_path has already been set
+        """
+        if self._source_path:
+            raise ValueError("Source path has already been set")
+        
+        # Validate source path
+        if not source_path.exists():
+            raise FileNotFoundError(f"Source path {source_path} does not exist")
+        if not source_path.is_dir():
+            raise NotADirectoryError(f"Source path {source_path} is not a directory")
+        
+        # Parse pyproject.toml to get package name
+        pyproject_path = source_path / "pyproject.toml"
+        if not pyproject_path.exists():
+            raise FileNotFoundError(f"pyproject.toml not found in {source_path}")
+            
+        pyproject_data = toml.load(pyproject_path)
+        self._package_name = pyproject_data.get("project", {}).get("name")
+        if not self._package_name:
+            raise ValueError("Could not find package name in pyproject.toml")
+        
+        self._source_path = source_path
+    
+    @classmethod
+    @abc.abstractmethod
+    async def create(cls, dockerfile: str) -> DockerClient:
+        """
+        Creates an environment client from a dockerfile.
+
+        Args:
+            dockerfile: The dockerfile content to build the environment
 
         Returns:
-            EnvironmentStatus: The current status of the environment
+            EnvClient: An instance of the environment client
         """
-        try:
-            container = await self._get_container()
-            container_data = await container.show()
+    
+    @abc.abstractmethod
+    async def get_status(self) -> EnvironmentStatus:
+        """
+        Get the current status of the environment.
+        
+        Returns:
+            EnvironmentStatus: A status enum indicating the current state of the environment
+        """
+    
+    def _get_all_file_mtimes(self) -> dict[str, float]:
+        """
+        Get modification times for all files in the source path.
+        
+        Returns:
+            Dict[str, float]: Dictionary mapping file paths to modification times
+        """
+        if not self._source_path:
+            return {}
+            
+        file_mtimes = {}
+        for root, _, files in os.walk(self._source_path):
+            for file in files:
+                file_path = Path(root) / file
+                try:
+                    file_mtimes[str(file_path)] = file_path.stat().st_mtime
+                except (FileNotFoundError, PermissionError):
+                    # Skip files that can't be accessed
+                    continue
+        return file_mtimes
+    
+    async def needs_update(self) -> bool:
+        """
+        Check if the environment needs an update by:
+        1. Checking if any file has been modified since the last update
+        
+        Returns:
+            bool: True if the environment needs an update, False otherwise.
+        """
+        # If no source path, no update needed
+        if not self.source_path:
+            return False
 
-            # Check the container state
-            state = container_data.get("State", {})
-            status = state.get("Status", "").lower()
+        # Check if any file has been modified since the last update
+        current_mtimes = self._get_all_file_mtimes()
+        
+        # If we don't have previous modification times, we need an update
+        if not self._last_file_mtimes:
+            return True
+        
+        # Check for new or modified files
+        for file_path, mtime in current_mtimes.items():
+            if file_path not in self._last_file_mtimes or mtime > self._last_file_mtimes[file_path]:
+                return True
+                
+        return False
+    
+    async def update(self) -> None:
+        """
+        Base update method for environment controllers.
+        For controllers with no source path, this is a no-op.
+        """
+        # If no source path, nothing to update
+        if not self._source_path:
+            return
+        
+        logger.info("Updating environment")
 
-            if status == "running":
-                return EnvironmentStatus.RUNNING
-            elif status == "created" or status == "starting":
-                return EnvironmentStatus.INITIALIZING
-            elif status in ["exited", "dead", "removing", "paused"]:
-                return EnvironmentStatus.COMPLETED
-            else:
-                # Any other state is considered an error
-                return EnvironmentStatus.ERROR
-
-        except Exception:
-            # If we can't connect to the container or there's any other error
-            return EnvironmentStatus.ERROR
-
+        # Save current file modification times
+        self._last_file_mtimes = self._get_all_file_mtimes()
+        
+        # Create tar archive of the source code and send it to the container
+        tar_bytes = directory_to_tar_bytes(self._source_path)
+        await self.execute(["mkdir", "-p", "/root/controller"], timeout=5)
+        await self.put_archive("/root/controller", tar_bytes)
+        
+        # Check if pyproject.toml exists and parse it
+        pyproject_path = self._source_path / "pyproject.toml"
+        if not pyproject_path.exists():
+            raise FileNotFoundError(f"pyproject.toml not found in {self._source_path}")
+            
+        # Read and parse the current content of pyproject.toml
+        current_pyproject_content = pyproject_path.read_text()
+        if (
+            self._last_pyproject_toml_str is None
+            or self._last_pyproject_toml_str != current_pyproject_content
+        ):
+            # Update package name if pyproject.toml changed
+            pyproject_data = toml.loads(current_pyproject_content)
+            self._package_name = pyproject_data.get("project", {}).get("name")
+            if not self._package_name:
+                raise ValueError("Could not find package name in pyproject.toml")
+            logger.info("Installing %s in /root/controller", self._package_name)
+            result = await self.execute(
+                ["bash", "-c", "cd /root/controller && pip install -e ."],
+                timeout=60,
+            )
+            if result["stdout"]:
+                logger.info("STDOUT:\n%s", result["stdout"])
+            if result["stderr"]:
+                logger.warning("STDERR:\n%s", result["stderr"])
+            # Save current pyproject.toml content
+            self._last_pyproject_toml_str = current_pyproject_content
+    
+    
+    @abc.abstractmethod
     async def execute(
         self,
         command: list[str],
         *,
-        workdir: str | None = None,
-        timeout: float | None = None,
+        timeout: int | None = None,
     ) -> ExecuteResult:
         """
-        Execute a command in the container.
-
+        Execute a command in the environment. May not be supported by all environments.
+        
         Args:
-            command: Command to execute
-            workdir: Working directory for the command
-
+            command: The command to execute
+            workdir: The working directory to execute the command in
+            timeout: The timeout for the command
+            
         Returns:
-            ExecuteResult: Result of the command execution
+            ExecuteResult: The result of the command
         """
-        container = await self._get_container()
-
-        exec_result = await container.exec(
-            cmd=command,
-            workdir=workdir,
-        )
-        output: Stream = exec_result.start(timeout=ClientTimeout(timeout), detach=False)
-
-        stdout_data = bytearray()
-        stderr_data = bytearray()
-
-        while True:
-            message = await output.read_out()
-            if message is None:
-                break
-            if message.stream == 1:  # stdout
-                stdout_data.extend(message.data)
-            elif message.stream == 2:  # stderr
-                stderr_data.extend(message.data)
-
-        return ExecuteResult(
-            stdout=bytes(stdout_data),
-            stderr=bytes(stderr_data),
-            # TODO: Get the exit code from the output
-            exit_code=0,
-        )
-
+    
     async def invoke(self, config: HudStyleConfig) -> tuple[Any, bytes, bytes]:
         """
-        Invoke a function in the container.
+        Invoke a function in the environment. Supported by all environments.
+        
+        Args:
+            config: The configuration to invoke
+
+        Returns:
+            tuple[Any, bytes, bytes]: The result of the invocation, stdout, and stderr
         """
 
         if await self.needs_update():
@@ -251,53 +283,25 @@ class DockerClient(EnvClient):
 
         return result, stdout, stderr
 
+    @abc.abstractmethod
     async def get_archive(self, path: str) -> bytes:
         """
-        Get an archive of a path from the container.
-
+        Get an archive of a path from the environment.
+        May not be supported by all environments. (notably browser environments)
         Args:
-            path: Path in the container to archive
-
+            path: The path to get the archive of
+            
         Returns:
-            bytes: Tar archive containing the path contents
+            bytes: The archive of the path
         """
-        container = await self._get_container()
-
-        tarfile = await container.get_archive(path)
-        # we know tarfile has fileobj BytesIO
-        # read the tarfile into a bytes object
-        fileobj = tarfile.fileobj
-        if not isinstance(fileobj, io.BytesIO):
-            raise TypeError("fileobj is not a BytesIO object")
-        return fileobj.getvalue()
-
-    async def put_archive(self, path: str, data: bytes) -> None:
+    
+    @abc.abstractmethod
+    async def put_archive(self, path: str, data: bytes) -> bool:
         """
-        Put an archive of data at a path in the container.
-
+        Put an archive of data at a path in the environment.
+        May not be supported by all environments. (notably browser environments)
         Args:
-            path: Path in the container to extract the archive to
-            data: Bytes of the tar archive to extract
-
-        Returns:
-            bool: True if successful
+            path: The path to put the archive at
+            data: The data to put in the archive
         """
-        container = await self._get_container()
 
-        # Convert bytes to a file-like object for aiodocker
-        file_obj = io.BytesIO(data)
-        await container.put_archive(path=path, data=file_obj)
-
-    async def close(self) -> None:
-        """
-        Close the Docker environment by stopping and removing the container.
-        """
-        try:
-            container = await self._get_container()
-            await container.stop()
-            await container.delete()
-        except Exception as e:
-            # Log the error but don't raise it since this is cleanup
-            logger.warning("Error during Docker container cleanup: %s", e)
-        finally:
-            await self._docker.close()

@@ -1,32 +1,18 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 from typing import Any
 
-from hud.env.docker_client import DockerClient
 from hud.env.environment import Environment
+from hud.env.local_docker_client import LocalDockerClient
 from hud.env.remote_client import RemoteClient
-from hud.server.requests import make_request
-from hud.settings import settings
+from hud.env.remote_docker_client import RemoteDockerClient
 from hud.task import Task
 from hud.types import CustomGym, Gym
+from hud.utils.common import get_gym_id
 
 logger = logging.getLogger("hud.gym")
-
-
-
-async def _get_gym_id(gym_name_or_id: str) -> str:
-    """
-    Get the gym ID for a given gym name or ID.
-    """
-    data = await make_request(
-        method="GET",
-        url=f"{settings.base_url}/v1/gyms/{gym_name_or_id}",
-        api_key=settings.api_key,
-    )
-
-    return data["id"]
-
 
 async def make(
     env_src: Gym | Task,
@@ -52,23 +38,15 @@ async def make(
 
     if isinstance(gym, CustomGym):
         # Create the environment (depending on location)
+        if gym.dockerfile is None:
+            raise ValueError("Dockerfile is required for custom environments")
         if gym.location == "local":
             logger.info("Creating local environment")
-            if gym.dockerfile is None:
-                raise ValueError("Dockerfile is required for local environments")
-            client = await DockerClient.create(gym.dockerfile)
+            client = await LocalDockerClient.create(gym.dockerfile)
         elif gym.location == "remote":
             logger.info("Creating remote environment")
-            
-            true_gym_id = await _get_gym_id("local-docker")
-            
-            # augment metadata with dockerfile
-            if "environment_config" not in metadata:
-                metadata["environment_config"] = {}
-            metadata["environment_config"]["dockerfile"] = gym.dockerfile
-
-            client = await RemoteClient.create(
-                gym_id=true_gym_id,
+            client = await RemoteDockerClient.create(
+                dockerfile=gym.dockerfile,
                 job_id=job_id,
                 task_id=task.id if task else None,
                 metadata=metadata,
@@ -79,13 +57,13 @@ async def make(
         # Set up the environment with a source path
         if gym.controller_source_dir:
             logger.info("Setting source path")
-            client.set_source_path(gym.controller_source_dir)
+            client.set_source_path(Path(gym.controller_source_dir))
     elif isinstance(gym, str):
         logger.info("Creating private environment")
         # Note: the gym_name_or_id is a unique identifier, but it is not a true
         # gym_id for the purposes of building the environment
         # we therefore fetch the gym_id from the HUD API here
-        true_gym_id = await _get_gym_id(gym)
+        true_gym_id = await get_gym_id(gym)
 
         # Create the environment
         client = await RemoteClient.create(

@@ -12,7 +12,7 @@ from hud.task import Task
 from hud.utils import HudStyleConfigs, expand_config
 from hud.utils.config import REMOTE_EVALUATE, REMOTE_SETUP, HudStyleConfig, create_remote_config
 
-from .client import EnvClient
+from .docker_client import DockerClient
 
 if TYPE_CHECKING:
     from hud.adapters.common.types import CLA
@@ -40,7 +40,7 @@ class Environment(BaseModel):
     """
 
     metadata: dict[str, Any]
-    client: EnvClient
+    client: DockerClient
     url: str | None = None
     live_url: str | None = None
     # The task id to use for the environment reset

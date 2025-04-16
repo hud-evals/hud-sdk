@@ -5,6 +5,9 @@ import logging
 import tarfile
 from typing import TYPE_CHECKING, TypedDict
 
+from hud.server.requests import make_request
+from hud.settings import settings
+
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -51,3 +54,16 @@ def directory_to_tar_bytes(directory_path: Path) -> bytes:
     # Get the bytes from the BytesIO object
     output.seek(0)
     return output.getvalue()
+
+
+async def get_gym_id(gym_name_or_id: str) -> str:
+    """
+    Get the gym ID for a given gym name or ID.
+    """
+    data = await make_request(
+        method="GET",
+        url=f"{settings.base_url}/v1/gyms/{gym_name_or_id}",
+        api_key=settings.api_key,
+    )
+
+    return data["id"]
