@@ -5,7 +5,7 @@ import logging
 import tarfile
 import tempfile
 import uuid
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 import aiodocker
 from aiohttp import ClientTimeout
@@ -25,7 +25,7 @@ class LocalDockerClient(DockerClient):
     """
 
     @classmethod
-    async def create(cls, dockerfile: str) -> LocalDockerClient:
+    async def create(cls, dockerfile: str) -> tuple[LocalDockerClient, dict[str, Any]]:
         """
         Creates a Docker environment client from a dockerfile.
 
@@ -66,9 +66,10 @@ class LocalDockerClient(DockerClient):
             )
 
         # Print build output
+        output = bytearray()
         for chunk in build_stream:
             if "stream" in chunk:
-                pass
+                output.extend(chunk["stream"])
 
         # Create and start the container
         container_config = {
@@ -85,7 +86,7 @@ class LocalDockerClient(DockerClient):
         await container.start()
 
         # Return the controller instance
-        return cls(docker_client, container.id)
+        return cls(docker_client, container.id), {"build_output": bytes(output)}
 
     def __init__(self, docker_conn: aiodocker.Docker, container_id: str) -> None:
         """

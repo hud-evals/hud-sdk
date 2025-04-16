@@ -19,7 +19,7 @@ async def make(
     *,
     job_id: str | None = None,
     metadata: dict[str, Any] | None = None,
-) -> Environment:
+) -> tuple[Environment, dict[str, Any]]:
     """
     Create an environment from an environment ID or a Task object.
     
@@ -42,10 +42,10 @@ async def make(
             raise ValueError("Dockerfile is required for custom environments")
         if gym.location == "local":
             logger.info("Creating local environment")
-            client = await LocalDockerClient.create(gym.dockerfile)
+            client, build_data = await LocalDockerClient.create(gym.dockerfile)
         elif gym.location == "remote":
             logger.info("Creating remote environment")
-            client = await RemoteDockerClient.create(
+            client, build_data = await RemoteDockerClient.create(
                 dockerfile=gym.dockerfile,
                 job_id=job_id,
                 task_id=task.id if task else None,
@@ -66,7 +66,7 @@ async def make(
         true_gym_id = await get_gym_id(gym)
 
         # Create the environment
-        client = await RemoteClient.create(
+        client, build_data = await RemoteClient.create(
             gym_id=true_gym_id,
             job_id=job_id,
             task_id=task.id if task else None,
@@ -81,4 +81,4 @@ async def make(
     if task:
         await environment._setup()
 
-    return environment
+    return environment, build_data

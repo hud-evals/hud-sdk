@@ -30,7 +30,7 @@ class RemoteClient(Client):
         job_id: str | None = None,
         task_id: str | None = None,
         metadata: dict[str, Any] | None = None,
-    ) -> RemoteClient:
+    ) -> tuple[RemoteClient, dict[str, Any]]:
         """
         Creates a remote environment client from a dockerfile or gym_id.
         
@@ -71,8 +71,10 @@ class RemoteClient(Client):
         
         # Create the controller instance
         controller = cls(env_id)
-                
-        return controller
+        
+        build_data = response.get("metadata", {})
+        
+        return controller, build_data
 
     def __init__(self, env_id: str) -> None:
         """
