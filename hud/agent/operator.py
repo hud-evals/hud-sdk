@@ -15,6 +15,7 @@ from openai.types.responses import (
 from hud.agent.base import Agent
 from hud.adapters.operator import OperatorAdapter
 from hud.env.environment import Observation
+from hud.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -30,11 +31,9 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
         self, 
         client: OpenAI | None = None,
         model: str = "computer-use-preview",
-        environment: Literal["windows", "mac", "linux", "browser"] = "browser",
+        environment: Literal["windows", "mac", "linux", "browser"] = "windows",
         adapter: OperatorAdapter | None = None,
-        max_iterations: int = 8,
-        api_key: str | None = None,
-        organization: str | None = None
+        max_iterations: int = 8
     ):
         """
         Initialize the OperatorAgent.
@@ -45,21 +44,16 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
             environment: The environment type (windows, mac, linux, browser)
             adapter: The adapter to use for preprocessing and postprocessing
             max_iterations: Maximum number of iterations for the agent
-            api_key: OpenAI API key (optional, reads from OPENAI_API_KEY environment variable if not provided)
-            organization: OpenAI organization ID (optional, reads from OPENAI_ORG environment variable if not provided)
         """
         # Initialize client if not provided
         if client is None:
-            # Get API key from parameter or environment
-            api_key = api_key or os.environ.get("OPENAI_API_KEY")
+            # Get API key from settings
+            api_key = settings.openai_api_key
             if not api_key:
-                raise ValueError("OpenAI API key must be provided either as an argument or in the OPENAI_API_KEY environment variable")
-            
-            # Get organization ID from parameter or environment (optional)
-            organization = organization or os.environ.get("OPENAI_ORG")
+                raise ValueError("OpenAI API key not found in settings or environment variables. Set OPENAI_API_KEY.")
             
             # Create synchronous client
-            client = OpenAI(api_key=api_key, organization=organization)
+            client = OpenAI(api_key=api_key)
         
         super().__init__(client=client, adapter=adapter)
         

@@ -15,6 +15,7 @@ from anthropic.types.beta import (
 from hud.agent.base import Agent
 from hud.adapters.claude import ClaudeAdapter
 from hud.env.environment import Observation
+from hud.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +65,6 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         model: str = "claude-3-7-sonnet-20250219",
         max_tokens: int = 4096,
         max_iterations: int = 10,
-        api_key: str | None = None
     ):
         """
         Initialize the ClaudeAgent.
@@ -75,14 +75,13 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
             model: The Claude model to use
             max_tokens: Maximum tokens for Claude's response
             max_iterations: Maximum number of iterations for the agent
-            api_key: Anthropic API key (optional, reads from ANTHROPIC_API_KEY environment variable if not provided)
         """
         # Initialize client if not provided
         if client is None:
-            # Get API key from parameter or environment
-            api_key = api_key or os.environ.get("ANTHROPIC_API_KEY")
+            # Get API key from settings
+            api_key = settings.anthropic_api_key
             if not api_key:
-                raise ValueError("Anthropic API key must be provided either as an argument or in the ANTHROPIC_API_KEY environment variable")
+                raise ValueError("Anthropic API key not found in settings or environment variables. Set ANTHROPIC_API_KEY.")
             
             # Create client
             client = AsyncAnthropic(api_key=api_key)
