@@ -1,44 +1,31 @@
-## Claude Computer Use evaluation on OSWorld
+# HUD SDK Examples
 
-### 1. Setup
+This directory contains example notebooks demonstrating different aspects of the HUD SDK.
 
-Step 1: Install from the source repository:
+## Getting Started
 
-```bash
-# Clone the repository
-git clone https://github.com/Human-Data/hud-sdk.git
-cd hud-sdk
-```
+1. **Installation**: Follow the [main README](../README.md) instructions to install the SDK.
 
-Step 2: Create a virtual environment:
-```bash
-# Option 1: using venv
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+2. **API Key**: Get your API key from [app.hud.so](https://app.hud.so) and set it as an environment variable:
+   ```bash
+   export HUD_API_KEY=your_api_key_here
+   ```
 
-# Option 2: using uv (recommended)
-uv venv
-# Then activate according to your shell
-```
+3. **Starting with Examples**:
+   - [browser_use.ipynb](browser_use.ipynb) - Begin here for browser-based agent interaction with a live view
+   - [tasks.ipynb](tasks.ipynb) - Learn how to create and customize tasks for different environments
+   - [osworld.ipynb](osworld.ipynb) - Explore OS-based environments with Claude agent integration
+   - [local.ipynb](local.ipynb) - Develop and test with local custom environments
 
-Step 3: Install in development mode with all dependencies:
-```bash
-# Option 1: using pip
-pip install -e ".[dev]"
+## Key Concepts
 
-# Option 2: using uv (recommended)
-uv pip install -e ".[dev]"
-```
+- **Tasks**: Define the objective, context, and success criteria for what an agent should accomplish
+- **Environments**: Browser or OS interfaces where agents can perceive and interact with real applications
+- **Agents**: AI systems (like Claude) that process observations and generate actions in environments
+- **Evaluation**: Methods to assess agent performance, success rates, and behavior patterns
 
-### 2. Set up environment variables
+Each example demonstrates practical applications of these concepts with code you can run and modify.
 
-```bash
-HUD_API_KEY=<your-api-key>
-ANTHROPIC_API_KEY=<your-api-key>
-```
-
-### 3. Run the OSWorld example
-
-Explore the [claude_osworld.ipynb](https://github.com/Human-Data/hud-sdk/blob/main/examples/claude_osworld.ipynb) notebook from this folder in Jupyter Notebook.
+For more detailed documentation, visit [docs.hud.so](https://docs.hud.so/introduction).
 
 

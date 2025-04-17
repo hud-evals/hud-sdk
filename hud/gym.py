@@ -8,6 +8,7 @@ from hud.env.environment import Environment
 from hud.env.local_docker_client import LocalDockerClient
 from hud.env.remote_client import RemoteClient
 from hud.env.remote_docker_client import RemoteDockerClient
+from hud.job import Job
 from hud.task import Task
 from hud.types import CustomGym, Gym
 from hud.utils.common import get_gym_id
@@ -17,6 +18,7 @@ logger = logging.getLogger("hud.gym")
 async def make(
     env_src: Gym | Task,
     *,
+    job: Job | None = None,
     job_id: str | None = None,
     metadata: dict[str, Any] | None = None,
 ) -> Environment:
@@ -25,9 +27,29 @@ async def make(
     
     Args:
         env_src: Environment ID or Task object
+        job: Job object to associate with this environment
+        job_id: ID of job to associate with this environment (deprecated, use job instead)
+        metadata: Additional metadata for the environment
     """
     if metadata is None:
         metadata = {}
+    
+    # Handle job parameter
+    effective_job_id = None
+    if job is not None:
+        effective_job_id = job.id
+    elif job_id is not None:
+        effective_job_id = job_id
+    else:
+        # Try to get an active job from the decorator context
+        try:
+            from hud.job import get_active_job
+            active_job = get_active_job()
+            if active_job:
+                effective_job_id = active_job.id
+        except ImportError:
+            pass  # Module not available, skip
+    
     gym = None
     task = None
     if isinstance(env_src, Gym):
@@ -47,7 +69,7 @@ async def make(
             logger.info("Creating remote environment")
             client, build_data = await RemoteDockerClient.create(
                 dockerfile=gym.dockerfile,
-                job_id=job_id,
+                job_id=effective_job_id,
                 task_id=task.id if task else None,
                 metadata=metadata,
             )
@@ -68,7 +90,7 @@ async def make(
         # Create the environment
         client, build_data = await RemoteClient.create(
             gym_id=true_gym_id,
-            job_id=job_id,
+            job_id=effective_job_id,
             task_id=task.id if task else None,
             metadata=metadata,
         )
