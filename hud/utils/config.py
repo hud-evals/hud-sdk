@@ -174,6 +174,6 @@ def create_remote_config(task: Task | None = None, config: HudStyleConfigs | Non
         return [HudStyleConfig(function=f"{REMOTE_FUNCTION_PREFIX}{function}", args=[task.id])]
     
     # No valid configuration found
-    logger.warning("No valid configuration found for function: %s", function)
+    #logger.warning("No valid configuration found for function: %s", function)
     return [HudStyleConfig(function=function, args=[])]
 
