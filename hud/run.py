@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any, List, Optional
 
 # Required imports for image display
 import io
-import requests
+import httpx
 from PIL import Image
 from IPython.display import display, Markdown
 
@@ -256,7 +256,7 @@ class Run:
         return RunTrajectoriesResponse(**data)
 
     @staticmethod
-    def visualize_trajectory(task_trajectory: Trajectory) -> None:
+    async def visualize_trajectory(task_trajectory: Trajectory) -> None:
         """
         Prints a visualization of a single task's trajectory to the console,
         displaying images if run in a compatible environment (like Jupyter).
@@ -284,12 +284,13 @@ class Run:
             # Observation Image
             if step.observation_url:
                 try:
-                    # Fetch image data
-                    response = requests.get(step.observation_url, stream=True, timeout=10) # Added timeout
+                    # Use httpx async client to fetch image data
+                    async with httpx.AsyncClient() as client:
+                        response = await client.get(step.observation_url, timeout=10) # Use async client and await
                     response.raise_for_status()  # Check for HTTP errors
 
                     # Open image using Pillow
-                    img = Image.open(io.BytesIO(response.content))
+                    img = Image.open(io.BytesIO(response.content)) # Use response.content
 
                     # Resize for display (optional, adjust max_width as needed)
                     max_width = 800
@@ -302,7 +303,7 @@ class Run:
                     display(img)
                     display(Markdown(f"[Image Link]({step.observation_url})"))
 
-                except requests.exceptions.RequestException as e:
+                except httpx.RequestError as e: # Catch httpx specific errors
                     print(f"    [Error fetching image from {step.observation_url}: {e}]")
                 except Exception as e:
                     # Catch other potential errors (PIL issues, etc.)
@@ -341,8 +342,9 @@ class Run:
             print(f"    Step Duration: {duration_str}")
             print(f"    Total Duration: {total_duration_str}")
             display(Markdown("---")) # Use Markdown horizontal rule
+
     @staticmethod
-    def visualize_trajectories(response: RunTrajectoriesResponse) -> None:
+    async def visualize_trajectories(response: RunTrajectoriesResponse) -> None:
         """
         Prints a visualization of all run trajectories, displaying images
         if run in a compatible environment (like Jupyter).
@@ -362,5 +364,5 @@ class Run:
         for task_trajectory in response.trajectories:
             # Use Markdown for Task Title
             display(Markdown(f"## Task Trajectory: {task_trajectory.id}"))
-            Run.visualize_trajectory(task_trajectory) # Call the single trajectory visualizer
+            await Run.visualize_trajectory(task_trajectory) # Await the async call
             display(Markdown("---")) # Separator between tasks
