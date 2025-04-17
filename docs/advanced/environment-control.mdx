@@ -1,0 +1,100 @@
+---
+title: 'Advanced Environment Control'
+description: 'Using invoke, execute, and _setup for finer control over environments'
+---
+
+# Advanced Environment Control
+
+While the standard `step`, `evaluate`, and `close` methods cover most interactions, the `Environment` object provides lower-level methods for more direct control, particularly useful for custom environments, debugging, and complex setup/evaluation scenarios.
+
+## `invoke`
+
+The `env._invoke_all()` method (and its underlying `client.invoke()`) is the core mechanism for calling specific functions *within* the environment's controller script.
+
+```python
+async def _invoke_all(self, configs: HudStyleConfigs) -> list[Any]: ...
+```
+
+*   **Purpose:** Execute custom functions defined in your environment controller (the Python code running inside the Docker container or remote instance). This is how `setup` and `evaluate` configurations in a `Task` are ultimately executed.
+*   **Usage:** You provide a configuration (string, tuple, dict, or list) matching the `HudStyleConfigs` format. The SDK sends this to the environment controller, which runs the specified function(s) with the given arguments.
+*   **When to Use:**
+    *   Triggering custom evaluation logic not suitable for the standard `evaluate` attribute.
+    *   Running specific diagnostic or state-setting functions within your custom environment controller during development or debugging.
+    *   Implementing complex, multi-step setup or teardown procedures beyond what's easily defined in the `Task` `setup`.
+
+```python
+from hud.task import Task
+from hud import gym
+
+# Assume a custom environment controller has a function 'get_system_load()'
+task = Task(prompt="Check system load", gym=...) # Using a CustomGym spec
+
+env = await gym.make(task)
+
+# Manually invoke the custom function
+# Use the dictionary format for clarity
+config = {"function": "get_system_load", "args": []}
+results = await env._invoke_all(config)
+system_load = results[0] # _invoke_all returns a list of results
+
+print(f"Current system load: {system_load}")
+
+await env.close()
+```
+
+## `execute`
+
+The `client.execute()` method (accessible via `env.client.execute()` if `env.client` is a `DockerClient` subclass like `LocalDockerClient` or `RemoteDockerClient`) allows running arbitrary shell commands *inside* the environment container.
+
+```python
+# Assuming env.client is a LocalDockerClient or RemoteDockerClient
+# Example: List files in the container's /tmp directory
+result: ExecuteResult = await env.client.execute(
+    command=["ls", "-la", "/tmp"],
+    timeout=10 # Timeout in seconds
+)
+
+print("STDOUT:", result['stdout'].decode())
+if result['stderr']:
+    print("STDERR:", result['stderr'].decode())
+print("Exit Code:", result['exit_code'])
+```
+
+*   **Purpose:** Directly interact with the environment's shell.
+*   **Availability:** Primarily available for Docker-based environments (local or remote custom). Standard remote environments (like `"hud-browser"`) might not support arbitrary command execution via this method.
+*   **When to Use:**
+    *   **Debugging:** Checking file existence, process status, or network connectivity *inside* the container.
+    *   **Complex Setup:** Running intricate setup scripts or commands that are difficult to express using the standard `setup` configuration.
+    *   **Local Development:** Installing packages or modifying the container state interactively during development of a custom environment.
+*   **Returns:** An `ExecuteResult` typed dictionary containing `stdout` (bytes), `stderr` (bytes), and `exit_code` (int).
+
+## `_setup`
+
+```python
+async def _setup(self, config: HudStyleConfigs | None = None) -> None: ...
+```
+
+*   **Purpose:** Executes the setup configuration for the environment.
+*   **Execution:** This is normally called *automatically* by `hud.gym.make(task)` if the provided `task` has a `setup` configuration.
+*   **When to Use Manually:**
+    *   **Debugging:** To re-run setup steps on an already created environment instance without recreating it entirely.
+    *   **Custom Flow:** If you create an environment *without* an initial task (`env = await gym.make("gym-id")`) and later want to apply setup steps before starting agent interaction (though `env.reset(task=...)` might be more idiomatic).
+    *   To override the task's default setup by passing a different `config`.
+
+```python
+# Example: Manually re-running setup (less common)
+task = Task(prompt="...", gym="...", setup=("goto", "initial_page.com"))
+env = await gym.make(task) # Initial setup runs here
+
+# ... some interaction ...
+
+print("Re-running setup...")
+await env._setup() # Re-runs the setup defined in the task
+
+# Or run different setup steps
+await env._setup( ("goto", "another_page.com") )
+
+await env.close()
+```
+
+These advanced methods provide deeper control when the standard `step`/`evaluate`/`close` cycle isn't sufficient. Use them carefully, especially `execute`, as direct shell access can make scenarios less reproducible if not managed properly. 

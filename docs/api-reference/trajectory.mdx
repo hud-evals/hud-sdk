@@ -1,56 +1,58 @@
 ---
 title: 'hud.trajectory'
-description: 'API reference for the trajectory module'
+description: 'API reference for Trajectory and TrajectoryStep classes'
 ---
 
-The `hud.trajectory` module provides the Trajectory class for working with task execution records.
+The `hud.trajectory` module provides classes for representing recorded environment interactions.
+
+See the [Trajectory Concepts](/concepts/trajectory) page for explanations and usage examples, particularly how trajectories are accessed via `Job.load_trajectories()`.
 
 # Classes
 
 ## Trajectory
 
-The `Trajectory` class represents a record of a task execution, including actions, observations, and evaluations. Trajectories are typically accessed via the `load` class method or through `Job.load_trajectories()` rather than being constructed directly.
-
-### Class Methods
-
-#### load
-
 ```python
-@classmethod
-async def load(cls, trajectory_id: str) -> Trajectory:
-    ...
+class Trajectory(pydantic.BaseModel):
+    id: str
+    reward: float | None = None
+    logs: str | None = None
+    error: str | None = None
+    trajectory: list[TrajectoryStep] = []
+
+    def display(self) -> None: ...
 ```
 
-Loads a trajectory by its ID.
+Represents the complete record of a single environment run, typically associated with a [Job](/concepts/job). Contains metadata about the run and a list of individual steps.
 
-**Parameters:**
-- `trajectory_id` (str): The ID of the trajectory to load
+**Attributes:**
 
-**Returns:**
-- `Trajectory`: The loaded trajectory
+*   **`id` (str):** Unique identifier for this trajectory run.
+*   **`reward` (float | None):** The final evaluation score returned by `env.evaluate()` for this run.
+*   **`logs` (str | None):** Captured logs from the environment run.
+*   **`error` (str | None):** Error message if the run terminated unexpectedly.
+*   **`trajectory` (list[`TrajectoryStep`]):** A list containing the data for each step recorded during the run.
 
-### Instance Methods
+**Methods:**
 
-#### get_video
+*   **`display(self)`:** Renders a basic visualization of the trajectory steps within a Jupyter environment (attempts to display images and actions).
+
+## TrajectoryStep
 
 ```python
-async def get_video(self) -> bytes:
-    ...
+class TrajectoryStep(pydantic.BaseModel):
+    observation_url: str | None = None
+    observation_text: str | None = None
+    actions: list[dict]
+    start_timestamp: str | None = None
+    end_timestamp: str | None = None
 ```
 
-Retrieves the video recording of the trajectory.
+Represents the data captured for a single step within a `Trajectory`.
 
-**Returns:**
-- `bytes`: The video data
+**Attributes:**
 
-### Properties
-
-- `id` (str): Unique identifier for the trajectory
-- `task_id` (str): ID of the task that was executed
-- `job_id` (str): ID of the job the trajectory belongs to
-- `actions` (List[Any]): List of actions taken during the trajectory
-- `observations` (List[Observation]): List of observations received during the trajectory
-- `states` (List[Any]): List of environment states during the trajectory
-- `evaluation` (float): Evaluation score for the trajectory
-- `created_at` (datetime): When the trajectory was created
-- `duration` (float): Duration of the trajectory in seconds
+*   **`observation_url` (str | None):** URL to the screenshot image captured as the observation for this step.
+*   **`observation_text` (str | None):** Text captured as the observation for this step.
+*   **`actions` (list[dict]):** List of action(s) (in dictionary format) that were executed by the agent *leading into* this step's observation.
+*   **`start_timestamp` (str | None):** ISO format timestamp when the step started.
+*   **`end_timestamp` (str | None):** ISO format timestamp when the step ended.

@@ -5,113 +5,95 @@ description: 'Understanding HUD Environments'
 
 # Environment
 
-An `Environment` in the HUD SDK represents a running instance where an agent can interact with a task. It provides methods for observation, action, and built-in telemetry to record the agent's interactions.
+An `Environment` in the HUD SDK represents the runtime instance (like a web browser or an operating system desktop) where an [Agent](/concepts/agent) interacts to complete a [Task](/concepts/task).
 
 ## Overview
 
-Environments are the core runtime instances where agents perform tasks. Key features include:
+The `Environment` is the core component your agent interacts with. It provides:
 
-- Gymnasium-compatible interface for agent interaction
-- Built-in telemetry to record actions and observations
-- Methods to evaluate agent performance
-- Support for video generation of agent interactions
-- Automatic trajectory creation for later analysis
+*   A way to send actions (like clicks, typing) in the standardized `CLA` format (see [Adapters](/concepts/adapter)) to the runtime.
+*   A way to receive `Observation` objects (like screenshots, text) from the runtime.
+*   Methods for managing the environment's lifecycle (`close`) and evaluating task success (`evaluate`).
+*   Automatic recording of interactions into a [Trajectory](/concepts/trajectory) when linked to a [Job](/concepts/job).
 
-## Initialization
+## Creating an Environment
 
-Environments are created using the gym module:
+Environments are created using `hud.gym.make()`. You typically pass a [Task](/concepts/task) object, which defines the required environment type (`gym` attribute), setup actions, and evaluation logic.
 
 ```python
-import hud
 from hud import gym
+from hud.task import Task
 
-# Create a job to group related trajectories
-job = await hud.Job.create(name="example-job")
+# Task defines the environment type (gym="hud-browser")
+task = Task(
+    prompt="Search Google for capybaras",
+    gym="hud-browser",
+    setup=("goto", "google.com")
+)
 
-# Create an environment instance
-env = gym.make("OSWorld-Ubuntu", job_id=job.id)
+# gym.make reads the task.gym attribute to create the right environment
+# It also runs the task.setup actions internally.
+env = await gym.make(task)
 
-# Wait for environment to be ready
-await env.wait_for_ready()
+print("Browser environment created and setup complete.")
+# await env.close()
+```
 
-# Load a task and reset the environment
-task = await hud.Task.get("osworld_task_id")
-observation = await env.reset(task_id=task.id)
+You can also create environments directly using known Gym IDs:
+
+```python
+env_os = await gym.make("OSWorld-Ubuntu")
+# await env_os.close()
+```
+
+Environments created this way won't have a default `Task` associated unless you explicitly reset them with one later using `env.reset()`. The `gym.make()` function also automatically links the environment to an active [Job](/concepts/job) if one was defined using the `@job` decorator.
+
+## Interaction Loop
+
+The standard interaction flow involves the [Agent](/concepts/agent) and the Environment:
+
+1.  **Get Initial Observation:** Call `env.step()` *without actions* after `gym.make()`. This returns the starting `Observation`.
+2.  **Agent Prediction:** Your agent's `predict(observation)` method processes the observation and decides on the next action(s).
+3.  **Execute Action:** Call `env.step(actions)` with the agent's action(s) (which should be in `CLA` format, usually handled by an [Adapter](/concepts/adapter)). This executes the actions and returns the *next* `Observation`, `reward`, `terminated` flag, and `info` dict.
+4.  **Repeat:** The agent continues predicting and stepping until the task is complete or the environment terminates.
+
+```python
+# Assume 'env' and 'agent' are initialized
+
+# 1. Get initial observation
+obs, _, _, _ = await env.step()
+
+# 4. Repeat loop (Agent predicts, Env steps)
+for _ in range(10):
+    # 2. Agent predicts action(s)
+    actions, done = await agent.predict(obs)
+    if done: break
+
+    # 3. Execute action(s) in environment
+    obs, reward, terminated, info = await env.step(actions)
+    if terminated: break
 ```
 
 ## Key Methods
 
-The `Environment` class provides several key methods:
-
-### Reset
-
-Resets the environment to a specific task:
-
-```python
-observation = await env.reset(task_id="task-123", metadata={"agent_version": "1.0"})
-```
-
-### Step
-
-Takes an action in the environment and returns the new state:
-
-```python
-observation, reward, terminated, info = await env.step(action)
-```
-
-### Evaluate
-
-Evaluates the current task:
-
-```python
-result = await env.evaluate()
-```
-
-### Get Trajectory
-
-Retrieves the trajectory record of the agent's interactions:
-
-```python
-trajectory = await env.get_trajectory()
-video_url = await trajectory.get_video()
-```
-
-### Close
-
-Closes the environment:
-
-```python
-await env.close()
-```
+*   **`env.step(actions: list[CLA] | None = None)`**: Executes actions (or gets initial state). Returns `(Observation, reward, terminated, info)`.
+*   **`env.evaluate(config: HudStyleConfigs | None = None)`**: Runs evaluation logic defined in the [Task](/concepts/task) (or the provided `config`). Returns evaluation result.
+*   **`env.close()`**: Shuts down the environment. Saves the [Trajectory](/concepts/trajectory) if linked to a [Job](/concepts/job).
+*   **`env.get_urls()`**: Returns URLs (`url`, `live_url`) for accessing/viewing the environment.
+*   **`env.reset(configs: HudStyleConfigs | None = None)`**: Resets state, often running setup steps. *Mostly used internally or for environments created without an initial Task.*
+*   **`env._setup(...)` / `env._invoke_all(...)`**: Internal methods for running setup/evaluate/custom configurations defined in a [Task](/concepts/task).
 
 ## Observations
 
-Observations from the environment include:
+The `Observation` object returned by `env.step()` contains:
 
-* `screenshot`: A base64-encoded PNG image of the current screen
-* `text`: Text observation from the environment
-* `state`: Additional state information specific to the environment type
-
-## Environment States
-
-An environment can be in one of several states:
-
-* `creating`: The environment is being created
-* `running`: The environment is running and ready for interaction
-* `error`: An error occurred during environment creation or execution
-* `closed`: The environment has been closed
-
-## VNC Access
-
-For debugging purposes, you can view the environment directly via VNC:
-
-```python
-live_url = await env.get_vnc_url()
-print(f"Connect to the environment via VNC at: {live_url}")
-```
+*   `screenshot` (str | None): Base64-encoded PNG string.
+*   `text` (str | None): Optional text output (e.g., terminal, accessibility tree).
 
 ## Related Concepts
 
-- [Task](/concepts/task) - The configuration that defines what the agent needs to accomplish
-- [Trajectory](/concepts/trajectory) - The record of agent interactions in the environment
-- [Job](/concepts/job) - Groups of related trajectories across multiple tasks
+*   [Task](/concepts/task): Defines the environment type (`gym`), `setup`, and `evaluate` logic.
+*   [Agent](/concepts/agent): Interacts with the Environment via the `step` and `predict` methods.
+*   [Adapter](/concepts/adapter): Ensures actions passed to `step` are in the correct `CLA` format.
+*   [Job](/concepts/job): Groups environment runs; linking happens via `@job` or `gym.make(job=...)`.
+*   [Trajectory](/concepts/trajectory): The recording generated when a job-linked environment is closed.

@@ -1,137 +1,102 @@
 ---
 title: 'Tasks and TaskSets'
-description: 'Understanding Tasks and TaskSets for evaluation environments'
+description: 'Defining goals, setup, and evaluation scenarios with Tasks and TaskSets'
 ---
 
 # Tasks and TaskSets
 
-## Tasks
+Tasks define *what* an [Agent](/concepts/agent) should do in an [Environment](/concepts/environment), including the goal, initial setup steps, and how to evaluate success. [TaskSets](#taskset) are collections of related tasks.
 
-A Task represents an environment configuration that includes a problem statement and a reproducible setup for evaluating AI agents. Tasks are the foundational building blocks for creating evaluation environments.
+## Task
 
-### Task Overview
+A `Task` object provides the configuration for a specific scenario.
 
-Tasks encapsulate everything needed to create a consistent evaluation environment, including:
+### Key Attributes
 
-- A problem statement that defines what the agent needs to accomplish
-- A Dockerfile that ensures reproducible environment setup
-- Configuration parameters for the specific evaluation scenario
-- Any necessary resources or assets required by the environment
+*   **`prompt` (str):** The primary instruction given to the agent.
+*   **`gym` (str | `CustomGym` | None):** Specifies the type of [Environment](/concepts/environment) needed. Used by `hud.gym.make()`.
+*   **`setup` (`HudStyleConfigs` | None):** Defines actions executed *before* the agent starts. See [Setup Configuration](#setup-configuration).
+*   **`evaluate` (`HudStyleConfigs` | None):** Defines how to check if the agent succeeded *after* interaction. See [Evaluation Configuration](#evaluation-configuration).
+*   **`id` (str | None):** Optional identifier.
+*   **`metadata` (dict | None):** Optional dictionary for extra information.
+*   **`config` (dict | None):** Optional dictionary, primarily for remote execution.
 
-### Task Properties
-
-| Property | Description |
-| --- | --- |
-| `id` | Unique identifier for the task |
-| `envconfig` | Environment configuration containing: |
-| | - `EnvType`: either a dockerfile, "browser", or "qa" (question-answer) |
-| | - `EnvImpl`: either a URL to a zip file or the name of a Python package |
-| `setup` | Setup instructions for the environment |
-| `evaluator` | Evaluator specification for assessing agent responses |
-| `problem_statement` | The text prompt provided to the agent |
-| `config` | Additional configuration parameters specific to this task (dict[str, Any]) |
-
-### Creating Custom Tasks
-
-You can create custom tasks directly:
+### Creating a Task
 
 ```python
-import hud
+from hud.task import Task
 
-# Create a custom task
-task = hud.Task(
-    id="custom_file_search",
-    envconfig={
-        "EnvType": "dockerfile",
-        "EnvImpl": "FROM ubuntu:20.04\n..."  # Your custom Dockerfile
-    },
-    setup="Install necessary dependencies",
-    evaluator="Match",
-    problem_statement="Find the file named 'secret.txt' in the home directory",
-    config={
-        "time_limit": 300,
-        "success_criteria": "file_found"
+task = Task(
+    prompt="Log in to example.com with username 'test'",
+    gym="hud-browser", # Request a browser environment
+    setup=[ # Actions run by gym.make(task)
+        ("goto", "https://example.com/login"),
+        {"function": "wait_for_element", "args": ["#username"]}
+    ],
+    evaluate={ # Logic run by env.evaluate()
+        "function": "check_login_status", 
+        "args": ["test"]
     }
 )
 ```
 
-## TaskSets
+### <a name="configuration-styles"></a>Configuration Styles (`setup` and `evaluate`)
 
-A TaskSet is a collection of related tasks designed for evaluating AI agents across multiple scenarios. TaskSets allow you to organize and access tasks in a structured way.
+Both `setup` and `evaluate` accept configurations defining function calls within the environment's controller, using flexible formats (`HudStyleConfigs`):
 
-### TaskSet Overview
+1.  **String:** `"browser.maximize"`
+2.  **Tuple:** `("goto", "https://google.com")`
+3.  **Dictionary:** `{"function": "wait_for_element", "args": ["#submit"]}`
+4.  **List:** `[("goto", "page1"), ("click", "#next")]` (Executed sequentially)
 
-TaskSets serve as the primary way to access tasks within the HUD framework. They provide:
+### <a name="setup-configuration"></a>Setup Configuration (`setup`)
 
-- A common way to group thematically related tasks
-- Efficient loading of multiple tasks at once
-- Integration with inspect-ai datasets for convenient task creation
+*   **Purpose:** Establishes a consistent starting state before the agent interacts.
+*   **Execution:** Automatically run by `hud.gym.make(task)`. Can be run manually via `env._setup()`.
+*   **Examples:** Navigating to a URL, logging in, preparing files.
 
-### TaskSet Properties
+### <a name="evaluation-configuration"></a>Evaluation Configuration (`evaluate`)
 
-| Property | Description |
-| --- | --- |
-| `id` | Unique identifier for the TaskSet |
-| `description` | Description of what the TaskSet is designed to evaluate |
-| `tasks` | List of Task objects contained in the TaskSet |
+*   **Purpose:** Determines task success after the agent finishes.
+*   **Execution:** Triggered by `await env.evaluate()`.
+*   **Result:** The return value of `env.evaluate()`, often a reward score (e.g., `1.0` or `0.0`). This is stored in the `reward` field of the [Trajectory](/concepts/trajectory) if linked to a [Job](/concepts/job).
+*   **Examples:** `("contains_text", "Success!")`, `("file_exists", "/path/to/output.txt")`. Check specific environment controller docs for available functions.
 
-### Working with TaskSets
+## TaskSet
 
-TaskSets are typically loaded using the `load` method:
+A `TaskSet` is a list of related `Task` objects, useful for benchmarks.
 
-```python
-import hud
-from hud import gym
+### Key Attributes
 
-# Load a TaskSet by ID
-taskset = hud.TaskSet.load("osworld_tasks")
+*   **`tasks` (list[`Task`]):** The list of tasks.
+*   **`id` (str | None):** Optional identifier.
+*   **`description` (str | None):** Optional description.
 
-# Access tasks in the TaskSet
-first_task = taskset.tasks[0]
-print(f"First task: {first_task.problem_statement}")
+### Loading a TaskSet
 
-# You can also access tasks using the index operator
-second_task = taskset[1]
-print(f"Second task: {second_task.problem_statement}")
-
-# Get the number of tasks in the TaskSet
-num_tasks = len(taskset)
-print(f"Total tasks: {num_tasks}")
-
-# Create an environment with a task from the TaskSet
-env = gym.make("OSWorld-Ubuntu")
-obs = await env.reset(task=first_task)
-```
-
-## Integration with inspect-ai
-
-Both Tasks and TaskSets can be created from inspect-ai datasets:
+Load predefined sets from the HUD platform:
 
 ```python
-import hud
-import inspect_ai
+from hud import load_taskset
 
-# Load a dataset from inspect-ai
-dataset = inspect_ai.dataset.load("my_dataset")
-
-# Create a TaskSet from the dataset
-taskset = hud.TaskSet.from_inspect_dataset(dataset)
-
-# Or, create a single task from a sample
-sample = dataset.samples[0]
-task = hud.Task.from_inspect_sample(sample)
+taskset = await load_taskset("OSWorld-Ubuntu-Links")
+print(f"Number of tasks: {len(taskset)}") # TaskSet acts like a list
+first_task = taskset[0]
 ```
 
-## Best Practices
+### Creating a TaskSet Manually
 
-- Use standard TaskSets for benchmarking to ensure comparability across different agents
-- When creating custom tasks, ensure the problem statement is clear and unambiguous
-- Test custom tasks thoroughly to ensure they are properly configured
-- Consider time limits appropriate for the complexity of the task
-- When running evaluations, iterate through all tasks in a TaskSet to get a comprehensive assessment
+```python
+from hud.task import Task
+from hud.taskset import TaskSet
+
+task1 = Task(...); task2 = Task(...)
+my_taskset = TaskSet(tasks=[task1, task2], description="My set")
+```
 
 ## Related Concepts
 
-- [Environment](/concepts/environment) - The runtime instance created from a Task
-- [Trajectory](/concepts/trajectory) - Records of agent interactions in an environment
-- [Job](/concepts/job) - Groups of related trajectories across multiple tasks
+*   [Environment](/concepts/environment): Where Tasks are executed and evaluated.
+*   [Agent](/concepts/agent): Aims to complete the Task `prompt`.
+*   [Job](/concepts/job): Groups runs of different Tasks.
+*   [Trajectory](/concepts/trajectory): Records the execution of a Task.

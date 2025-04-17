@@ -13,9 +13,8 @@
       {
         "group": "Getting Started",
         "pages": [
-          "introduction",
-          "installation",
-          "quickstart"
+          "quickstart",
+          "installation"
         ]
       },
       {
@@ -23,30 +22,32 @@
         "pages": [
           "concepts/environment",
           "concepts/task",
-          "concepts/trajectory",
+          "concepts/agent",
+          "concepts/adapter",
           "concepts/job",
-          "concepts/adapter"
+          "concepts/trajectory"
+        ]
+      },
+      {
+        "group": "Advanced Topics",
+        "pages": [
+          "advanced/custom-environments",
+          "advanced/environment-control",
+          "advanced/cla-details"
         ]
       },
       {
         "group": "API Reference",
         "pages": [
-              "api-reference/env",
               "api-reference/gym",
+              "api-reference/env",
               "api-reference/task",
               "api-reference/taskset",
-              "api-reference/trajectory",
               "api-reference/job",
+              "api-reference/trajectory",
+              "api-reference/agent",
               "api-reference/adapters"
             ]
-      },
-      {
-        "group": "Examples",
-        "pages": [
-          "examples/basic",
-          "examples/custom-agent",
-          "examples/claude-agent"
-        ]
       }
     ]
   },

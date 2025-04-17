@@ -4,7 +4,7 @@ description: "Learn how to install the HUD SDK"
 icon: "download"
 ---
 
-You can install the HUD SDK using pip:
+Install the HUD SDK using pip:
 
 ```bash
 # Install the latest stable release
@@ -16,18 +16,26 @@ pip install --pre hud-python
 
 ## Requirements
 
-* Python 3.9 or higher
-
-* An API key from HUD (contact us)
+*   **Python:** 3.10 or higher
+*   **API Keys:** 
+    *   HUD API Key (required)
+    *   OpenAI API Key (optional, for `OperatorAgent`)
+    *   Anthropic API Key (optional, for `ClaudeAgent`)
 
 ## Environment Setup
 
-The SDK uses environment variables for configuration. You can set these in your environment or in a `.env` file in your project root. You may need to add API keys for your own agent as well.
+The SDK automatically loads API keys from environment variables or a `.env` file in your project root.
+
+Create a `.env` file in your project root with your keys:
 
 ```bash
 # .env file
-HUD_API_KEY=your-api-key-here
+HUD_API_KEY=your_hud_api_key_here
+OPENAI_API_KEY=your_openai_api_key_here  # Optional
+ANTHROPIC_API_KEY=your_anthropic_api_key_here # Optional
 ```
+
+Alternatively, set them as environment variables.
 
 ## Development Installation
 
@@ -38,27 +46,14 @@ If you want to contribute to the SDK or install it in development mode:
 git clone https://github.com/humanuniondata/hud-python.git
 cd hud-python
 
-# Create a virtual environment (using venv)
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Or using uv (recommended)
+# Create and activate a virtual environment (using uv is recommended)
 uv venv
-# Activate according to your shell
+source .venv/bin/activate  # Or use the activate script for your shell
 
-# Install in development mode
+# Install in development mode (includes dev dependencies)
 pip install -e ".[dev]"
 ```
 
 ## Verification
 
-To verify your installation, you can try running a simple example:
-
-```python
-import hud
-
-# Print the version number
-print(f"HUD SDK version: {hud.__version__}")
-```
-
-You should see the version number of the installed SDK without any errors.
+To verify your installation and setup, try running the example code in the [Quickstart Guide](/quickstart).

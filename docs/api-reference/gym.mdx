@@ -1,25 +1,36 @@
 ---
 title: 'hud.gym'
-description: 'API reference for the gym module'
+description: 'API reference for creating environments'
 ---
 
-The `hud.gym` module provides functions for creating and managing environments.
+The `hud.gym` module provides the core function for creating [Environment](/concepts/environment) instances.
 
 # Module Functions
 
 ## make
 
 ```python
-make(env_id: str, job_id: str, **kwargs) -> Env
+async def make(
+    env_src: Gym | Task,
+    *,
+    job: Job | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> Environment:
 ```
 
-Creates a new environment instance.
+Creates and initializes an [Environment](/concepts/environment) instance based on a specification.
+
+This function handles selecting the correct client (local docker, remote docker, remote direct) based on the `env_src`, automatically linking to an active [Job](/concepts/job) (from `@job` decorator or the `job` parameter), and running the initial [Task](/concepts/task) setup if `env_src` is a `Task`.
 
 **Parameters:**
-- `env_id` (str): The ID of the environment to create
-- `job_id` (str): The ID of the job to associate with the environment
-- `**kwargs`: Additional keyword arguments to pass to the environment constructor
+
+*   **`env_src` (`Gym` | `Task`):** The source specification for the environment.
+    *   If a `str` (Gym ID like `"hud-browser"`, `"OSWorld-Ubuntu"`), creates a standard remote environment.
+    *   If a `CustomGym` object, creates a custom environment based on its definition (local or remote docker).
+    *   If a `Task` object, uses the `task.gym` attribute to determine the environment type and automatically runs `task.setup` after creation.
+*   **`job` (`Job` | None, optional):** A specific [Job](/concepts/job) object to associate this environment run with. If `None`, it attempts to find an active job created by the `@job` decorator.
+*   **`metadata` (dict[str, Any] | None, optional):** Additional metadata to attach to the environment instance and its resulting trajectory.
 
 **Returns:**
-- `Env`: A new environment instance
 
+*   `Environment`: An initialized environment instance ready for interaction (e.g., calling `env.step()`).
