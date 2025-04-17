@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar
 
 from hud.adapters.common import CLA, Adapter
 from hud.adapters.common.types import (
@@ -91,8 +91,3 @@ class OperatorAdapter(Adapter):
                 
         except Exception as e:
             raise ValueError(f"Invalid action: {data}. Error: {str(e)}")
-            
-    def adapt_list(self, actions: List[Dict[str, Any]]) -> List[CLA]:
-        """Convert a list of Computer Use actions to HUD actions"""
-        return [self.convert(action) for action in actions]
-        

@@ -78,7 +78,7 @@ class Agent(Generic[ClientT, ActionT], ABC):
         """
         if not self.adapter:
             raise ValueError("Cannot postprocess actions without an adapter")
-            
+        
         return self.adapter.adapt_list(actions)
     
     async def predict(self, observation: Observation) -> tuple[list[CLA] | list[ActionT], bool]:

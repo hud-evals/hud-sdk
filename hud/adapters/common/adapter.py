@@ -146,7 +146,7 @@ class Adapter:
 
         return processed_action
 
-    def adapt(self, action: Any) -> list[CLA]:
+    def adapt(self, action: Any) -> CLA:
         # any preprocessing steps
         action = self.preprocess(action)
 
@@ -159,9 +159,10 @@ class Adapter:
         rescaled_action = self.postprocess_action(action_dict)
 
         # convert back to CLA
-        return [TypeAdapter(CLA).validate_python(rescaled_action)]
+        return TypeAdapter(CLA).validate_python(rescaled_action)
 
     def adapt_list(self, actions: list[Any]) -> list[CLA]:
         if not isinstance(actions, list):
             raise ValueError("Please provide a list of actions")
-        return [action for action in actions for action in self.adapt(action)]
+        
+        return [self.adapt(action) for action in actions]
