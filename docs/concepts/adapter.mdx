@@ -1,69 +1,62 @@
 ---
 title: 'Adapter'
-description: 'Understanding HUD Adapters'
+description: 'Understanding Adapters for action and observation translation'
 ---
 
 # Adapter
 
-An `Adapter` in the HUD SDK is responsible for translating between your agent's action format and the Common Language for Action (CLA) format used by the HUD environment.
+An `Adapter` acts as a translator between the specific format used by an [Agent](/concepts/agent)'s underlying model (like Claude or OpenAI Computer Use) and the standardized formats used by the HUD [Environment](/concepts/environment).
 
-## Purpose
+## Overview
 
-Adapters serve as a bridge between:
+Different AI models might expect observations (like screenshots) in specific dimensions or return actions in unique structures. The `Adapter` handles these differences:
 
-* Your agent's custom action format
+1.  **Observation Preprocessing:** It can resize or reformat environment observations (primarily screenshots) before they are sent to the agent via the `rescale()` method.
+2.  **Action Postprocessing:** It converts the raw actions received from the agent's model into the standardized `CLA` (Command Language Action) format that the environment understands via the `adapt()` or `adapt_list()` methods. This includes mapping action names (e.g., mapping `key` to `press`) and rescaling coordinates from the agent's expected dimensions to the actual environment dimensions.
 
-* The standardized CLA format expected by HUD environments
+## Base Adapter Class (`hud.adapters.Adapter`)
 
-This allows you to use different agent implementations without changing how they interact with the environment.
+The base `Adapter` class (`hud.adapters.common.adapter.Adapter`) defines the interface and common logic:
+
+*   `__init__()`: Initializes default agent/environment dimensions (often overridden by subclasses).
+*   `rescale(observation)`: Resizes an image observation (numpy array, PIL Image, or base64 string) to the `agent_width` and `agent_height` defined in the adapter. Returns the rescaled image as a base64 PNG string.
+*   `convert(action)`: Abstract method (though often implemented in subclasses like `ClaudeAdapter` or `OperatorAdapter`) intended to translate a *single* raw action from the model into the `CLA` format. *Note: The main conversion logic usually happens within `adapt` or `adapt_list` in practice.* 
+*   `postprocess_action(action_dict)`: Rescales coordinates within an action dictionary (already converted to a dict from CLA) from agent dimensions to environment dimensions.
+*   `adapt(action)`: The primary method called by the base `Agent`'s `postprocess` stage. It typically calls `convert` to get a CLA object, then `json` to turn it into a dict, `postprocess_action` to rescale coordinates in the dict, and finally validates the rescaled dict back into a CLA object.
+*   `adapt_list(actions)`: A helper method that applies `adapt` to each action in a list.
 
 ## Built-in Adapters
 
-The HUD SDK includes several built-in adapters:
+The SDK provides adapters for the built-in agents:
 
-* **Claude Adapter**: For integrating with Anthropic's Claude models
-
-* **Common Adapter**: A base adapter that can be extended for custom implementations
-
-## Creating a Custom Adapter
-
-You can create your own adapter by extending the base `Adapter` class:
-
-```python
-from hud.adapters.common import Adapter
-from hud.adapters.common.types import ClickAction, Point, TypeAction
-
-class SimpleAdapter(Adapter):
-    def __init__(self):
-        super().__init__()
-        self.agent_width = 1024
-        self.agent_height = 768
-        
-    def convert(self, data: Any) -> Any:
-        # Convert the action dict to CLA format
-        action_type = data.get("action")
-        
-        if action_type == "type":
-            return TypeAction(text=data.get("text", ""), enter_after=False)
-            
-        elif action_type == "left_click":
-            coord = data.get("coordinate", [0, 0])
-            return ClickAction(point=Point(x=coord[0], y=coord[1]), button="left")
-            
-        # Fall back to parent's implementation
-        return super().convert(data)
-```
+*   **`hud.adapters.claude.ClaudeAdapter`:** Translates actions from the format used by Anthropic's Claude Computer Use API into `CLA`. Handles coordinate scaling based on Claude's default dimensions (1024x768, unless overridden).
+*   **`hud.adapters.operator.OperatorAdapter`:** Translates actions from the format used by OpenAI's Computer Use Preview API into `CLA`. Handles coordinate scaling based on OpenAI's default dimensions (1024x768, unless overridden).
 
 ## Using Adapters
 
-Adapters are used when creating an environment:
+Adapters are typically passed during the initialization of an `Agent`. If no adapter is provided to a built-in agent like `ClaudeAgent` or `OperatorAgent`, a default instance of the corresponding adapter (`ClaudeAdapter` or `OperatorAdapter`) is usually created internally.
 
 ```python
-# Initialize the adapter
-adapter = SimpleAdapter()
+from hud.agent import OperatorAgent
+from hud.adapters.operator import OperatorAdapter
 
-# Create environment with the adapter
-env = await run.make(adapter=adapter, metadata={"agent_id": "simple-agent"})
+# Create an adapter instance (optional, agent creates default if None)
+# You might customize adapter parameters here if needed in the future
+my_adapter = OperatorAdapter()
+
+# Pass the adapter to the agent
+agent = OperatorAgent(environment="browser", adapter=my_adapter)
+
+# Now, when agent.predict() is called, it will use my_adapter
+# for preprocessing (rescale) and postprocessing (adapt_list).
 ```
 
-See [Common Action Types](/api-reference/adapters)
+## Custom Adapters
+
+If you create a custom agent that uses a unique action format or requires specific observation preprocessing, you can create a custom adapter by inheriting from `hud.adapters.Adapter` and implementing the necessary logic, primarily overriding the `convert` method or potentially `rescale` and `postprocess_action` if needed.
+
+## Related Concepts
+
+*   [Agent](/concepts/agent): Uses the Adapter to preprocess observations and postprocess actions.
+*   [Environment](/concepts/environment): Consumes standardized `CLA` actions processed by the Adapter.
+*   [Command Language Actions (CLA)](/api-reference/adapters): The standardized action format used by HUD environments.

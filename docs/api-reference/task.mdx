@@ -1,39 +1,43 @@
 ---
 title: 'hud.task'
-description: 'API reference for the task module'
+description: 'API reference for the Task class'
 ---
 
-The `hud.task` module provides the Task class for working with HUD tasks.
+The `hud.task` module provides the `Task` class for defining evaluation scenarios.
 
 # Classes
 
 ## Task
 
-The `Task` class represents a single evaluation task with specific configuration. Tasks are typically accessed through TaskSet instances rather than being constructed directly.
-
-### Class Methods
-
-#### from_inspect_sample
-
 ```python
-@classmethod
-def from_inspect_sample(cls, sample: Any) -> Task:
-    ...
+class Task(pydantic.BaseModel):
+    id: str | None = None
+    prompt: str
+    setup: HudStyleConfigs | None = None
+    evaluate: HudStyleConfigs | None = None
+    gym: Gym | None = None
+    target: str | list[str] | None = None # Inspect compatibility
+    choices: list[str] | None = None      # Inspect compatibility
+    files: dict[str, str] | None = None   # Inspect compatibility
+    metadata: dict[str, Any] | None = None
+    config: dict[str, Any] | None = None
 ```
 
-Creates a Task instance from an inspect-ai sample.
+Represents a specific task or scenario for an agent to perform within an [Environment](/concepts/environment).
 
-**Parameters:**
-- `sample` (Any): An inspect-ai sample
+`Task` objects define the goal, environment requirements, setup steps, and evaluation criteria. They are typically passed to `hud.gym.make()` to create configured environments or grouped within a `TaskSet`.
 
-**Returns:**
-- `Task`: A new Task instance
+See the [Tasks and TaskSets Concepts](/concepts/task) page for detailed explanations, examples, and configuration styles.
 
-### Properties
+**Attributes:**
 
-- `id` (str): Unique identifier for the task
-- `envconfig` (Dict): Environment configuration
-- `setup` (str): Setup instructions for the environment
-- `evaluator` (str): Evaluator specification
-- `problem_statement` (str): The text prompt
-- `config` (Dict[str, Any]): Additional configuration parameters
+*   **`id` (str | None):** Optional unique identifier, often assigned when loaded from the HUD platform.
+*   **`prompt` (str):** The main instruction or goal for the agent.
+*   **`setup` (`HudStyleConfigs` | None):** Configuration for setup actions executed before the agent starts. See [Configuration Styles](/concepts/task#configuration-styles).
+*   **`evaluate` (`HudStyleConfigs` | None):** Configuration defining the evaluation logic executed by `env.evaluate()`. See [Configuration Styles](/concepts/task#configuration-styles).
+*   **`gym` (`Gym` | None):** Specifies the required environment type (e.g., `"hud-browser"`, `CustomGym` object). See `hud.types`.
+*   **`target` (str | list[str] | None):** Ideal target output (primarily for compatibility with `inspect-ai`).
+*   **`choices` (list[str] | None):** Multiple choice options (primarily for compatibility with `inspect-ai`).
+*   **`files` (dict[str, str] | None):** Files associated with the task (primarily for compatibility with `inspect-ai`).
+*   **`metadata` (dict[str, Any] | None):** Arbitrary dictionary for storing extra task-related information.
+*   **`config` (dict[str, Any] | None):** Dictionary primarily used for remote task execution configuration details.

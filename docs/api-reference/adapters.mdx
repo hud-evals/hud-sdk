@@ -1,141 +1,109 @@
 ---
 title: 'hud.adapters'
-description: 'API reference for the adapters module'
+description: 'API reference for Adapters and Common Language Actions (CLA)'
 ---
 
-The `hud.adapters` module provides adapter classes for converting between different action formats.
+The `hud.adapters` modules provide the base `Adapter` class, specific adapter implementations (`ClaudeAdapter`, `OperatorAdapter`), and the definitions for the Common Language Actions (`CLA`) used by environments.
 
-# Classes
+See the [Adapter Concepts](/concepts/adapter) page for explanations and usage examples.
+
+# Base Class (`hud.adapters.common.adapter`)
 
 ## Adapter
 
-The `Adapter` class is a base class for adapters that convert between different action formats.
-
-### Methods
-
-#### convert
-
 ```python
-def convert(self, data: Any) -> Dict[str, Any]:
-    ...
+class Adapter:
+    agent_width: int = 1920
+    agent_height: int = 1080
+    env_width: int = 1920
+    env_height: int = 1080
+    memory: list[Any] # Stores history of converted actions
+
+    def __init__(self) -> None: ...
+
+    def rescale(self, observation: ImageType) -> str | None: ...
+    def convert(self, action: Any) -> CLA: ... # Should be implemented by subclasses
+    def postprocess_action(self, action: dict[str, Any]) -> dict[str, Any]: ...
+    def adapt(self, action: Any) -> CLA: ...
+    def adapt_list(self, actions: list[Any]) -> list[CLA]: ...
+    def json(self, action: CLA) -> Any: ... # Internal helper
+    def preprocess(self, action: Any) -> Any: ... # Internal helper
 ```
 
-Converts data from one format to another.
+Base class for translating between agent-specific formats and the environment's standard `CLA` format. Handles observation rescaling and action coordinate rescaling.
 
-**Parameters:**
-- `data` (Any): The data to convert
+**Key Attributes:**
 
-**Returns:**
-- `Dict[str, Any]`: The converted data
+*   **`agent_width` / `agent_height` (int):** The dimensions the agent's model expects observations in. Used by `rescale`. Subclasses (like `ClaudeAdapter`, `OperatorAdapter`) often set defaults (e.g., 1024x768).
+*   **`env_width` / `env_height` (int):** The actual dimensions of the environment image received. Updated automatically by `rescale`. Used by `postprocess_action` for scaling action coordinates.
 
-#### adapt_list
+**Key Methods:**
 
-```python
-def adapt_list(self, actions: List[Any]) -> List[Dict[str, Any]]:
-    ...
-```
+*   **`rescale(self, observation)`:** Takes an image observation (numpy, PIL, base64 str) and returns a base64 PNG string resized to `agent_width` x `agent_height`. Called by `Agent.preprocess`.
+*   **`convert(self, action)`:** (Intended for subclass implementation) Converts a *single* raw action from the specific agent model's format into the standard `CLA` format.
+*   **`adapt(self, action)`:** Orchestrates the full adaptation of a single raw action: preprocess -> convert -> rescale coordinates -> validate CLA.
+*   **`adapt_list(self, actions)`:** Applies `adapt` to a list of raw actions. Called by `Agent.postprocess`.
+*   **`postprocess_action(self, action_dict)`:** Internal helper called by `adapt` to rescale coordinates in an action dictionary based on `agent_width`/`height` vs `env_width`/`height`.
 
-Converts a list of actions from one format to another.
+# Built-in Adapters
 
-**Parameters:**
-- `actions` (List[Any]): The actions to convert
-
-**Returns:**
-- `List[Dict[str, Any]]`: The converted actions
-
-## ClaudeAdapter
-
-The `ClaudeAdapter` class is an adapter for converting Claude model outputs to HUD actions.
-
-### Methods
-
-#### convert
+## ClaudeAdapter (`hud.adapters.claude.ClaudeAdapter`)
 
 ```python
-def convert(self, data: str) -> Dict[str, Any]:
-    ...
+class ClaudeAdapter(Adapter):
+    KEY_MAP: ClassVar[dict[str, CLAKey]]
+    def __init__(self) -> None: ... # Sets agent dims to 1024x768
+    def convert(self, data: Any) -> CLA: ...
 ```
 
-Converts Claude output to HUD actions.
+Adapter for Anthropic Claude's Computer Use API action format. Inherits from `Adapter`. Used by default in `ClaudeAgent`.
 
-**Parameters:**
-- `data` (str): Claude output text
-
-**Returns:**
-- `Dict[str, Any]`: The corresponding HUD action
-
-# Common Action Types
-
-## ClickAction
+## OperatorAdapter (`hud.adapters.operator.OperatorAdapter`)
 
 ```python
-ClickAction(x: int, y: int) -> Dict[str, Any]
+class OperatorAdapter(Adapter):
+    KEY_MAP: ClassVar[dict[str, CLAKey]]
+    def __init__(self) -> None: ... # Sets agent dims to 1024x768
+    def convert(self, data: Any) -> CLA: ...
 ```
 
-Creates a click action at the specified coordinates.
+Adapter for OpenAI's Computer Use Preview API action format. Inherits from `Adapter`. Used by default in `OperatorAgent`.
 
-**Parameters:**
-- `x` (int): X coordinate
-- `y` (int): Y coordinate
+# Common Language Actions (CLA) (`hud.adapters.common.types`)
 
-**Returns:**
-- `Dict[str, Any]`: A click action
-
-## TypeAction
+The `CLA` type alias represents the standardized action format expected by `env.step()`. It's a union of specific Pydantic models.
 
 ```python
-TypeAction(text: str) -> Dict[str, Any]
+# Example CLA types (see source for full list)
+class Point(pydantic.BaseModel):
+    x: int
+    y: int
+
+class ClickAction(CLAAction):
+    type: Literal["click"] = "click"
+    point: Point | None = None
+    button: Literal["left", "right", "wheel", ...] = "left"
+    # ... other options like pattern, hold_keys
+
+class PressAction(CLAAction):
+    type: Literal["press"] = "press"
+    keys: list[CLAKey]
+
+class TypeAction(CLAAction):
+    type: Literal["type"] = "type"
+    text: str
+    # ... other options like enter_after
+
+class ScrollAction(CLAAction):
+    type: Literal["scroll"] = "scroll"
+    point: Point | None = None
+    scroll: Point | None = None # Scroll amount (dx, dy)
+
+# ... many other actions like MoveAction, WaitAction, DragAction etc.
+
+# ... CLAKey is a Literal type with many possible key names ("enter", "a", "ctrl", etc.)
+
+CLA = Annotated[ ClickAction | PressAction | ... , Field(discriminator="type")]
 ```
 
-Creates a typing action with the specified text.
-
-**Parameters:**
-- `text` (str): Text to type
-
-**Returns:**
-- `Dict[str, Any]`: A type action
-
-## ScrollAction
-
-```python
-ScrollAction(dx: int, dy: int) -> Dict[str, Any]
-```
-
-Creates a scroll action with the specified deltas.
-
-**Parameters:**
-- `dx` (int): Horizontal scroll amount
-- `dy` (int): Vertical scroll amount
-
-**Returns:**
-- `Dict[str, Any]`: A scroll action
-
-## DragAction
-
-```python
-DragAction(start: Point, end: Point) -> Dict[str, Any]
-```
-
-Creates a drag action from the start point to the end point.
-
-**Parameters:**
-- `start` (Point): Starting point
-- `end` (Point): Ending point
-
-**Returns:**
-- `Dict[str, Any]`: A drag action
-
-## Point
-
-```python
-Point(x: int, y: int) -> Dict[str, Any]
-```
-
-Creates a point with the specified coordinates.
-
-**Parameters:**
-- `x` (int): X coordinate
-- `y` (int): Y coordinate
-
-**Returns:**
-- `Dict[str, Any]`: A point object
+Refer to the source code (`hud/adapters/common/types.py`) for the complete definitions of all action types and `CLAKey` literals.

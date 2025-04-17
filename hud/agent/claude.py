@@ -1,7 +1,8 @@
 import logging
-from typing import List, cast
+import os
+from typing import Any, cast
 
-from anthropic import Anthropic
+from anthropic import AsyncAnthropic
 from anthropic.types.beta import (
     BetaMessageParam,
     BetaToolResultBlockParam,
@@ -12,9 +13,9 @@ from anthropic.types.beta import (
 
 
 from hud.agent.base import Agent
-from hud.agent.adapters.claude import ClaudeAdapter
-from hud.agent.adapters import CLA
+from hud.adapters.claude import ClaudeAdapter
 from hud.env.environment import Observation
+from hud.settings import settings
 
 logger = logging.getLogger(__name__)
 
@@ -41,32 +42,92 @@ def tool_use_content_block(tool_use_id: str, content: list[BetaTextBlockParam | 
         "content": content
     }
 
-COMPUTER_TOOL: BetaToolComputerUse20250124Param =  {"type": "computer_20250124", "name": "computer", "display_width_px": 1024, "display_height_px": 768}
+# Claude's Computer Use Tool definition
+COMPUTER_TOOL: BetaToolComputerUse20250124Param = {
+    "type": "computer_20250124", 
+    "name": "computer", 
+    "display_width_px": 1024, 
+    "display_height_px": 768
+}
 
-class ClaudeAgent(Agent):
-    def __init__(self, anthropic: Anthropic):
-        self.anthropic = anthropic
-        self.adapter = ClaudeAdapter()
-        self.messages: List[BetaMessageParam] = []
-        self.max_iterations = 10
-        self.max_tokens = 4096
+class ClaudeAgent(Agent[AsyncAnthropic, Any]):
+    """
+    An agent implementation using Anthropic's Claude API with Computer Use.
+    
+    This agent interacts with HUD environments using Claude's Computer Use API
+    through the ClaudeAdapter which converts actions to the format expected by HUD.
+    """
+    
+    def __init__(
+        self, 
+        client: AsyncAnthropic | None = None,
+        adapter: ClaudeAdapter | None = None,
+        model: str = "claude-3-7-sonnet-20250219",
+        max_tokens: int = 4096,
+        max_iterations: int = 10,
+    ):
+        """
+        Initialize the ClaudeAgent.
+        
+        Args:
+            client: The AsyncAnthropic client for API calls (optional, created automatically if not provided)
+            adapter: The adapter to use for preprocessing and postprocessing
+            model: The Claude model to use
+            max_tokens: Maximum tokens for Claude's response
+            max_iterations: Maximum number of iterations for the agent
+        """
+        # Initialize client if not provided
+        if client is None:
+            # Get API key from settings
+            api_key = settings.anthropic_api_key
+            if not api_key:
+                raise ValueError("Anthropic API key not found in settings or environment variables. Set ANTHROPIC_API_KEY.")
+            
+            # Create client
+            client = AsyncAnthropic(api_key=api_key)
+            
+        super().__init__(client=client, adapter=adapter)
+        
+        self.model = model
+        self.max_tokens = max_tokens
+        self.max_iterations = max_iterations
+        
+        # Default dimensions - will be updated if adapter is provided
+        self.width_px = 1024
+        self.height_px = 768
+        
+        # Update dimensions if adapter is provided
+        if self.adapter:
+            self.width_px = self.adapter.agent_width
+            self.height_px = self.adapter.agent_height
+        
+        # Message history
+        self.messages: list[BetaMessageParam] = []
         self.pending_computer_use_tool_id = None
 
-    async def predict(self, observation: Observation) -> tuple[list[CLA], bool]:
+    async def fetch_response(self, observation: Observation) -> tuple[list[Any], bool]:
         """
-        Predict the next action based on the observation.
+        Fetch a response from Claude based on the observation.
         
+        Args:
+            observation: The preprocessed observation
+            
         Returns:
-            tuple[list[CLA], bool]: A tuple containing the list of actions and a boolean indicating if the agent believes it has completed the task.
+            tuple[list[Any], bool]: A tuple containing the list of raw actions and a
+                                   boolean indicating if the agent believes the task is complete
         """
+        if not self.client:
+            raise ValueError("Client is required")
+            
+        # Prepare the user content for Claude
+        user_content: list[BetaImageBlockParam | BetaTextBlockParam | BetaToolResultBlockParam] = []
 
-        # this is the new content that will be sent to the API
-        user_content: List[BetaImageBlockParam|BetaTextBlockParam|BetaToolResultBlockParam] = []
-
+        # Add text instruction if present
         if observation.text:
             logger.info("Adding text to user content: %s", observation.text)
             user_content.append(text_to_content_block(str(observation.text)))
         
+        # Add screenshot if present
         if observation.screenshot:
             logger.info("Adding screenshot to user content")
             if not self.pending_computer_use_tool_id:
@@ -88,9 +149,9 @@ class ClaudeAgent(Agent):
             "content": user_content,
         }))
 
-        # Call Claude API
-        response = self.anthropic.beta.messages.create(
-            model="claude-3-7-sonnet-20250219",
+        # Call Claude API using async client
+        response = await self.client.beta.messages.create(
+            model=self.model,
             max_tokens=self.max_tokens,
             messages=self.messages,
             tools=[COMPUTER_TOOL],
@@ -106,20 +167,21 @@ class ClaudeAgent(Agent):
         }))
 
         # Process tool use
-        actions: List[CLA] = []
+        actions: list[Any] = []
+        done = True  # Assume we're done unless we find a tool use
+        
         for block in response_content:
             logger.info("Processing block: %s", block)
             if block.type == "tool_use":
                 logger.info("Processing tool use: %s", block)
                 assert block.name == "computer"
-                actions.append(self.adapter.convert(block.input))
+                
+                # Store the raw action
+                actions.append(block.input)
                 self.pending_computer_use_tool_id = block.id
+                
+                # If we found a tool use, we're not done
+                done = False
                 break
-
-        # If no tools were used, we're done
-        done = False
-        if not self.pending_computer_use_tool_id:
-            logger.info("No more tools used, task completed")
-            done = True
 
         return actions, done

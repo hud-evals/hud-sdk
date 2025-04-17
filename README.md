@@ -27,50 +27,58 @@ export HUD_API_KEY=your_api_key_here
 pip install hud-python
 ```
 
-### Simple Browser Example with Claude
+### Simple Browser Example with Operator
 
 ```python
 import os
-from hud import gym
+import asyncio
+from hud import gym, job
 from hud.task import Task
 from hud.utils import stream
-from hud.agent import ClaudeAgent
-from anthropic import Anthropic
+from hud.agent import OperatorAgent
 
-# Define a simple task
-task = Task(
-    prompt="Insert the text 'capybara' into the search bar",
-    gym="hud-browser",
-    setup=("goto", "google.com"),
-    evaluate=("contains_text", "capybara")
-)
-
-# Create environment
-env = await gym.make(task)
-
-# Get URLs and display live view
-urls = await env.get_urls()
-stream(urls["live_url"])
-
-# Initialize Claude agent
-anthropic = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-agent = ClaudeAgent(anthropic)
-
-# Agent loop
-obs, _, _, _ = await env.step()
-for i in range(5):
-    action, done = await agent.predict(obs)
-    if done:
-        break
+@job("test-run")
+async def main():
+    # Define a simple task
+    task = Task(
+        prompt="Insert the text 'capybara' into the search bar",
+        gym="hud-browser",
+        setup=("goto", "google.com"),
+        evaluate=("contains_text", "capybara")
+    )
     
-    obs, reward, terminated, info = await env.step(action)
-    if terminated:
-        break
+    # Create environment
+    env = await gym.make(task)
+    
+    # Get URLs and display live view (optional)
+    # urls = await env.get_urls()
+    # stream(urls["live_url"])
+    
+    # Initialize Operator agent (API key is loaded automatically)
+    agent = OperatorAgent()
+    
+    # Agent loop
+    obs, _ = env.reset()
+    for i in range(5):
+        actions, done = await agent.predict(obs)
+        if done:
+            break
+        
+        obs, reward, terminated, info = await env.step(actions)
+        if terminated:
+            break
+    
+    # Evaluate and close
+    result = await env.evaluate()
+    print(f"Evaluation result: {result}")
+    await env.close()
 
-# Evaluate and close
-result = await env.evaluate()
-await env.close()
+if __name__ == "__main__":
+    asyncio.run(main())
+
 ```
+
+> This example uses the `@job("test-run")` decorator, so the results of this run will appear under the job named "test-run" on the your [HUD Jobs page](https://app.hud.so/jobs).
 
 ## Documentation Sections
 

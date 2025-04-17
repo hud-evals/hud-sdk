@@ -1,0 +1,96 @@
+---
+title: 'Custom Environments'
+description: 'Define and run your own Docker-based environments locally or remotely'
+---
+
+# Custom Environments
+
+While the HUD SDK provides standard environments like `"hud-browser"` and `"OSWorld-Ubuntu"`, you can also define and run your own custom environments using Docker. This allows you to create specific testing scenarios with custom software stacks or configurations.
+
+Custom environments are defined using the `CustomGym` type from `hud.types`.
+
+## Defining a Custom Environment (`CustomGym`)
+
+```python
+from hud.types import CustomGym
+from pathlib import Path
+
+# Example 1: Local Docker environment using a source directory
+# Points to a directory containing controller code and a Dockerfile
+local_env_spec = CustomGym(
+    location="local",
+    controller_source_dir="./my_custom_controller" # Path to your controller code
+)
+
+# Example 2: Remote Docker environment (built and run on HUD platform)
+remote_env_spec = CustomGym(
+    location="remote",
+    # Dockerfile content is sent to HUD to build the image remotely
+    dockerfile="FROM ubuntu:latest\nRUN apt-get update && apt-get install -y my-package\n..."
+)
+```
+
+**Key `CustomGym` Attributes:**
+
+*   **`location` (`"local"` | `"remote"`):**
+    *   `"local"`: Builds and runs the Docker container on your *local* machine. Requires Docker installed. Ideal for development. See [Local Environment Structure](#local-environment-structure) below.
+    *   `"remote"`: Sends the `dockerfile` content to the HUD platform for remote build and execution. Good for sharing or running complex setups.
+*   **`dockerfile` (str | None):** The Dockerfile content.
+    *   Required if `location="remote"`.
+    *   Optional if `location="local"` and `controller_source_dir` is provided (will look for `Dockerfile` inside that directory).
+*   **`controller_source_dir` (str | `Path` | None):**
+    *   *Only relevant for `location="local"`.*
+    *   Path to your local directory containing the controller code and potentially the `Dockerfile`. This directory is mounted into the container.
+
+## <a name="local-environment-structure"></a>Local Environment Structure
+
+When creating a `local` custom environment, the directory specified by `controller_source_dir` typically contains:
+
+1.  **`Dockerfile`:** Defines the base image, system dependencies, Python dependencies (often via `pip install -e .`), and the command to run your controller script (`CMD [...]`).
+2.  **`pyproject.toml`:** Defines your controller as an installable Python package. The HUD SDK reads the `[project.name]` from this file to know how to import your controller code within the container after installation.
+3.  **`src/` (or your package name):** A directory containing your Python controller code. This code needs to implement the functions called by `setup`, `evaluate`, and `step` (e.g., interacting with applications inside the container, returning observations).
+
+**Example Structure (`./my_custom_controller/`):**
+
+```
+my_custom_controller/
+├── Dockerfile
+├── pyproject.toml
+└── src/
+    └── my_controller_pkg/
+        ├── __init__.py
+        └── main.py        # Your controller logic (e.g., setup, step functions)
+```
+
+*   **Examples:** The top-level `environments/` directory in the SDK repository contains reference implementations (like `novnc_ubuntu`) following this structure.
+*   **Dependencies:** For local custom environments, you might need to install development dependencies using `pip install -e ".[dev]"` in your SDK checkout to ensure the local components (like the Docker client) function correctly.
+
+## Using a Custom Environment
+
+Use your `CustomGym` object with `hud.gym.make()`:
+
+```python
+from hud import gym
+from hud.types import CustomGym
+
+# Assuming local_env_spec = CustomGym(location="local", controller_source_dir="./my_custom_controller")
+env = await gym.make(local_env_spec)
+
+print("Custom local environment created.")
+
+# Interact as usual - Task setup/evaluate calls functions in your controller
+# task = Task(prompt="...", gym=local_env_spec, setup=("my_setup_func", arg1), ...)
+# env = await gym.make(task)
+# obs, _, _, _ = await env.step()
+# result = await env.evaluate()
+
+await env.close()
+```
+
+Creating a custom environment requires careful design of both the Dockerfile and the controller script to ensure they work together correctly.
+
+## Related Concepts
+
+*   [Environment](/concepts/environment): The runtime instance created from the `CustomGym` spec.
+*   [Task](/concepts/task): Can specify a `CustomGym` object in its `gym` attribute to request your custom environment.
+*   [Advanced Environment Control](/advanced/environment-control): Using `invoke` and `execute` for debugging or advanced control. 

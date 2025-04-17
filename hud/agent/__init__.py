@@ -1,5 +1,7 @@
 from .base import Agent
 from .claude import ClaudeAgent
-from .adapters import CLA
+from .operator import OperatorAgent
 
-__all__ = ["Agent", "ClaudeAgent", "CLA"]
+from hud.adapters import OperatorAdapter, ClaudeAdapter
+
+__all__ = ["Agent", "ClaudeAgent", "OperatorAgent", "OperatorAdapter", "ClaudeAdapter"]

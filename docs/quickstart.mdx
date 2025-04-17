@@ -4,143 +4,127 @@ description: 'Get started quickly with the HUD SDK'
 icon: 'bolt'
 ---
 
-# Prerequisites
+This guide will get you up and running with the HUD SDK using a simple browser task and the OpenAI Operator Agent.
 
-Before you begin, make sure you have:
-* Installed the SDK (see [Installation](/installation))
-* Set up your API key (via environment variable or `.env` file)
+## 1. Prerequisites
 
-## Basic Usage
+*   **Python:** Ensure you have Python 3.10 or later installed.
+*   **API Keys:** You'll need API keys for both HUD and the agent you want to use (e.g., OpenAI).
 
-Here's a complete example to create an environment, run a task, and record a trajectory:
+## 2. Installation
 
-```python
-import os
-import asyncio
-from dotenv import load_dotenv
-load_dotenv()
+Install the HUD SDK using pip:
 
-import hud
-from hud import gym
-
-async def main():
-    # Create an environment instance using the gym module
-    env = gym.make("OSWorld-Ubuntu")
-    await env.wait_for_ready()
-    
-    # Load a TaskSet containing tasks
-    taskset = hud.TaskSet.load("osworld_tasks")
-    
-    # Get the first task from the TaskSet
-    task = taskset.tasks[0]
-    
-    # Initialize the environment with the task
-    obs = await env.reset(task=task)
-    print(f"Task: {obs.text}")
-    
-    #
-    # ! define your agent loop here !
-    #
-    
-    # Evaluate environment state
-    result = await env.evaluate()
-    print(f"Evaluation result: {result}")
-    
-    # When finished, a trajectory is created automatically
-    trajectory = await env.get_trajectory()
-    
-    # Generate a video of the agent's interactions
-    video_url = await trajectory.get_video()
-    print(f"Video available at: {video_url}")
-    
-    # Close when done
-    await env.close()
-    
-if __name__ == "__main__":
-    asyncio.run(main())
+```bash
+pip install hud-python
 ```
 
-## Example agent: Claude Computer Use
+For more details, see the [Installation Guide](/installation).
 
-To try Claude Computer Use, clone the full github repo with the agent folder that includes a sample implementation.
+## 3. API Key Setup
+
+The SDK automatically loads API keys from environment variables or a `.env` file in your project root. Set the following:
+
+*   `HUD_API_KEY`: Your key from [app.hud.so](https://app.hud.so).
+*   `OPENAI_API_KEY`: Your OpenAI API key (if using OperatorAgent).
+*   `ANTHROPIC_API_KEY`: Your Anthropic API key (if using ClaudeAgent).
+
+Example `.env` file:
+```
+HUD_API_KEY=hud_...
+OPENAI_API_KEY=sk-...
+# ANTHROPIC_API_KEY=sk-ant-...
+```
+
+## 4. Run Your First Agent
+
+This example uses the `OperatorAgent` to interact with a browser environment. It defines a task, creates an environment, runs the agent, and evaluates the result.
 
 ```python
-import os
 import asyncio
-from dotenv import load_dotenv
-load_dotenv()
+import os
+from hud import gym, job                  # Import gym for environments and job decorator
+from hud.task import Task                 # Import Task to define the goal
+from hud.agent import OperatorAgent       # Import the agent
+# hud.settings automatically loads keys from .env or environment variables
 
-import hud
-from hud import gym
-from hud.adapters.claude.adapter import ClaudeAdapter
-from agent.claude import ClaudeAgent
-from anthropic import Anthropic
-
+# Decorator to group this run under a job named "quickstart-run"
+@job("quickstart-run")
 async def main():
-    # Create an environment instance using the gym module
-    env = gym.make("OSWorld-Ubuntu")
-    await env.wait_for_ready()
-    
-    # Load a TaskSet containing tasks
-    taskset = hud.TaskSet.load("osworld_tasks")
-    
-    # Get the first task from the TaskSet
-    task = taskset.tasks[0]
-    
-    # Initialize the environment with the task
-    obs = await env.reset(task=task)
-    print(f"Task: {obs.text}")
-    
-    # Initialize Claude Computer Use agent
-    anthropic = Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
-    agent = ClaudeAgent(anthropic)
-    
-    # Initialize adapter to interact with the environment
-    cua_adapter = ClaudeAdapter()
-    
-    # Agent loop
-    for i in range(8):  
-        # Rescale screenshot to Claude's resolution
-        screenshot = cua_adapter.rescale(obs.screenshot)
-        
-        # Agent's next action
-        done, response = await agent.predict(screenshot, obs.text)
+    # 1. Define a Task: What should the agent do?
+    task = Task(
+        prompt="Search for 'capybara' on Google",
+        gym="hud-browser",               # Use a browser environment
+        setup=("goto", "google.com"),    # Action to perform before the agent starts
+        evaluate=("contains_text", "capybara") # How to check if the task succeeded
+    )
+
+    # 2. Create Environment: The runtime for the task
+    print("Creating environment...")
+    env = await gym.make(task)          # Creates the environment specified in the task
+
+    # 3. Initialize Agent: Perform the task
+    #    API keys are loaded automatically by hud.settings
+    print("Initializing agent...")
+    agent = OperatorAgent(environment="browser") # Specify environment type for the agent
+
+    # 4. Interaction Loop: Agent observes and acts
+    print("Starting interaction loop...")
+    # Get initial observation (screenshot, text, etc.) by stepping without actions
+    obs, _ = env.reset()
+
+    for i in range(5): # Limit to 5 steps for this example
+        print(f"--- Step {i+1} ---")
+        # Agent predicts the next action(s) based on the observation
+        actions, done = await agent.predict(obs)
+        print(f"Agent action(s): {actions}")
+
         if done:
-            env.final_response = str(response)
+            print("Agent signaled task completion.")
             break
-        
-        # Convert to HUD action space
-        actions = cua_adapter.adapt_list([response])
-        print(f"Agent's action: {response}")
-    
-        # Step the environment forward
+
+        # Execute the action(s) in the environment
         obs, reward, terminated, info = await env.step(actions)
-    
-        # Drop out if terminated
+
         if terminated:
+            print("Environment terminated.")
             break
-        print(f"Step {i+1} completed")
-        
-    # Evaluate environment state
-    result = await env.evaluate()
+
+    # 5. Evaluate & Close
+    print("Evaluating task...")
+    result = await env.evaluate()       # Run the evaluation defined in the Task
     print(f"Evaluation result: {result}")
-    
-    # Generate a trajectory video
-    trajectory = await env.get_trajectory()
-    video_url = await trajectory.get_video()
-    print(f"Video available at: {video_url}")
-    
-    # Close when done
-    await env.close()
-    
+
+    # Trajectory is automatically saved if a @job decorator is used
+    # trajectory = await env.get_trajectory() # You can optionally get trajectory data
+    # print(f"Trajectory ID: {trajectory.id}")
+
+    print("Closing environment...")
+    await env.close()                   # Clean up environment resources
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    # Ensure API keys are set before running
+    if not os.getenv("HUD_API_KEY") or not os.getenv("OPENAI_API_KEY"):
+        print("Error: Please set HUD_API_KEY and OPENAI_API_KEY environment variables or in a .env file.")
+    else:
+        asyncio.run(main())
+
 ```
 
-For a complete example of implementing a custom agent, check out the [Custom Agent Guide](/examples/custom-agent).
+**Explanation:**
+
+1.  **Task:** Defines the goal (`prompt`), the type of environment (`gym`), initial setup steps (`setup`), and how success is measured (`evaluate`).
+2.  **Environment:** `gym.make(task)` creates the specified browser environment instance.
+3.  **Agent:** `OperatorAgent` is initialized. It automatically uses the `OPENAI_API_KEY` found by `hud.settings`.
+4.  **Interaction Loop:**
+    *   `env.step()` with no actions gets the initial observation.
+    *   `agent.predict(obs)` gets the next action(s) from the agent.
+    *   `env.step(actions)` executes the actions and gets the new observation.
+5.  **Evaluation & Close:** `env.evaluate()` checks if the task succeeded based on the `evaluate` definition. `env.close()` shuts down the environment.
+6.  **`@job` Decorator:** Wrapping `main` with `@job("quickstart-run")` automatically creates a Job. When `env.close()` is called, the recorded interactions (trajectory) are associated with this Job. You can view the job and its trajectory video on the [HUD Jobs page](https://app.hud.so/jobs).
 
 ## Next Steps
 
-* Explore the [Core Concepts](/concepts/environment) to understand the SDK architecture
-* Check out the [Example](/examples/basic) section for more detailed examples
-* Review the [API Reference](/api-reference/env) for comprehensive documentation
+*   Explore the [Core Concepts](/concepts/environment) to understand the SDK architecture in more detail.
+*   Check out the [Examples folder in the GitHub repo](/examples/) for more detailed, runnable notebooks covering different agents and environments.
+*   Review the [API Reference](/api-reference/gym) for comprehensive documentation on specific functions and classes.

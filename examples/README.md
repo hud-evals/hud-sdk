@@ -21,7 +21,8 @@ This directory contains example notebooks demonstrating different aspects of the
 
 - **Tasks**: Define the objective, context, and success criteria for what an agent should accomplish
 - **Environments**: Browser or OS interfaces where agents can perceive and interact with real applications
-- **Agents**: AI systems (like Claude) that process observations and generate actions in environments
+- **Agents**: AI systems (like Claude or OpenAI models) that process observations and generate actions in environments
+- **Jobs**: Group related environment runs (trajectories) together for evaluation and analysis
 - **Evaluation**: Methods to assess agent performance, success rates, and behavior patterns
 
 Each example demonstrates practical applications of these concepts with code you can run and modify.
