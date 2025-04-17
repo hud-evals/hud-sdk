@@ -30,7 +30,6 @@ def step(action: list[dict[str, Any]]) -> None:
     pyautogui_rosetta.execute_sequence(action)
 
     screenshot = screenshot_base64()
-    
-    # return (obs (screenshot base64), reward, done, info)
-    return (screenshot, 0, False, {})
+
+    return {"observation": {"screenshot": screenshot}}
 

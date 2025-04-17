@@ -20,6 +20,7 @@ class CustomGym(BaseModel):
     type: Literal["public"] = "public"
     dockerfile: str | None = None
     location: Literal["local", "remote"]
+    ports: list[int] | None = None
     # If path, then it is a development environment on the local computer
     # If none, then the controller must be installed in the environment through the dockerfile
     # Can be provided as a string or Path object

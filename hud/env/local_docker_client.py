@@ -25,7 +25,7 @@ class LocalDockerClient(DockerClient):
     """
 
     @classmethod
-    async def create(cls, dockerfile: str) -> tuple[LocalDockerClient, dict[str, Any]]:
+    async def create(cls, dockerfile: str, ports: list[int] | None = None) -> tuple[LocalDockerClient, dict[str, Any]]:
         """
         Creates a Docker environment client from a dockerfile.
 
@@ -43,6 +43,9 @@ class LocalDockerClient(DockerClient):
 
         # Create fileobj for the Dockerfile
         dockerfile_fileobj = io.BytesIO(dockerfile.encode("utf-8"))
+
+        if ports is None:
+            ports = []
 
         # Create a tar file from the dockerfile
         with tempfile.NamedTemporaryFile() as f:
@@ -79,7 +82,10 @@ class LocalDockerClient(DockerClient):
             "OpenStdin": True,
             "Cmd": None,
             "HostConfig": {
-                "AutoRemove": True,
+                "PublishAllPorts": True,
+            },
+            "ExposedPorts": {
+                f"{port}/tcp": {} for port in ports
             },
         }
 

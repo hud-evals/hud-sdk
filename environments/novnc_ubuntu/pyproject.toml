@@ -13,4 +13,5 @@ requires-python = ">=3.10"
 dependencies = [
     "nltk>=3.7",
     "pyautogui>=0.9.54",
+    "pillow>=11.2.1",
 ]
