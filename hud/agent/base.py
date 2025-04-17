@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from hud.adapters.common.types import CLA
+from .adapters.common.types import CLA
 from hud.env.environment import Observation
 
 

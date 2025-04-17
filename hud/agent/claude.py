@@ -12,8 +12,8 @@ from anthropic.types.beta import (
 
 
 from hud.agent.base import Agent
-from hud.adapters.claude.adapter import ClaudeAdapter
-from hud.adapters.common.types import CLA
+from hud.agent.adapters.claude import ClaudeAdapter
+from hud.agent.adapters import CLA
 from hud.env.environment import Observation
 
 logger = logging.getLogger(__name__)

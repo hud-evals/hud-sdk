@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
-from hud.adapters.common.types import WaitAction
 from hud.env.client import Client
 from hud.env.remote_client import RemoteClient
 from hud.task import Task
@@ -15,7 +14,7 @@ from hud.utils import HudStyleConfigs, expand_config
 from hud.utils.config import REMOTE_EVALUATE, REMOTE_SETUP, HudStyleConfig, create_remote_config
 
 if TYPE_CHECKING:
-    from hud.adapters.common.types import CLA
+    from hud.agent import CLA
 
 logger = logging.getLogger("hud.environment")
 
@@ -138,7 +137,7 @@ class Environment(BaseModel):
             Any: Result of the step execution
         """
         if actions is None or len(actions) == 0:
-            actions = [WaitAction(time=100)]
+            actions = []
             
         result, stdout, stderr = await self.client.invoke(
             HudStyleConfig(function="step", args=[[action.model_dump() for action in actions]])
