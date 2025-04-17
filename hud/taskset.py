@@ -45,7 +45,7 @@ class TaskSet(BaseModel):
         Returns the number of tasks in the taskset.
 
         Returns:
-            int: The number of tasks in the taskset 
+            int: The number of tasks in the taskset
         """
         return len(self.tasks)
     

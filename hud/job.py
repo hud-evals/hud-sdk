@@ -3,9 +3,9 @@ from __future__ import annotations
 import datetime
 import functools
 import inspect
-import json
 import logging
-from typing import Any, Callable, TypeVar, cast
+from collections.abc import Callable
+from typing import Any, TypeVar, cast
 
 from pydantic import BaseModel, TypeAdapter
 
@@ -16,7 +16,7 @@ from hud.trajectory import Trajectory
 logger = logging.getLogger("hud.job")
 
 # Type variable for the decorator
-T = TypeVar('T', bound=Callable)
+T = TypeVar("T", bound=Callable)
 
 # Global registry to store active jobs created by decorators
 _ACTIVE_JOBS = {}
@@ -52,7 +52,9 @@ class Job(BaseModel):
         return TypeAdapter(list[Trajectory]).validate_python(data)
 
 
-async def create_job(name: str, gym_id: str | None = None, evalset_id: str | None = None, metadata: dict[str, Any] | None = None) -> Job:
+async def create_job(name: str, gym_id: str | None = None,
+                     evalset_id: str | None = None,
+                     metadata: dict[str, Any] | None = None) -> Job:
     """
     Creates a new job.
 
@@ -122,7 +124,7 @@ def job(
     metadata: dict[str, Any] | None = None
 ) -> Callable[[T], T]:
     """
-    Decorator to automatically create and associate a job with all environments 
+    Decorator to automatically create and associate a job with all environments
     created within the decorated function.
     
     Args:
@@ -134,7 +136,7 @@ def job(
     """
     def decorator(func: T) -> T:
         @functools.wraps(func)
-        async def wrapper(*args, **kwargs):
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Create a job for this function call using the new function
             job = await create_job(
                 name=name,

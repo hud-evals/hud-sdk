@@ -107,7 +107,8 @@ def expand_config(config: HudStyleConfigs) -> list[HudStyleConfig]:
     # Handle tuple format
     if isinstance(config, tuple):
         if len(config) < 1 or not isinstance(config[0], str):
-            error_msg = f"Invalid tuple configuration. Expected tuple[str, ...], got: {type(config)}"
+            error_msg = "Invalid tuple configuration. "
+            "Expected tuple[str, ...], got: {type(config)}"
             logger.error(error_msg)
             raise ValueError(error_msg)
         
@@ -122,7 +123,11 @@ def expand_config(config: HudStyleConfigs) -> list[HudStyleConfig]:
     logger.error(error_msg)
     raise ValueError(error_msg)
 
-def create_remote_config(task: Task | None = None, config: HudStyleConfigs | None = None, function: str | None = None) -> list[HudStyleConfig]:
+def create_remote_config(
+    task: Task | None = None,
+    config: HudStyleConfigs | None = None,
+    function: str | None = None,
+) -> list[HudStyleConfig]:
     """
     Create a configuration based on provided inputs.
     
@@ -135,7 +140,8 @@ def create_remote_config(task: Task | None = None, config: HudStyleConfigs | Non
         list[HudStyleConfig]: List of standardized configurations
         
     Logic:
-        1) If explicit config: expand and return HudStyleConfig with func of the function, and args of expanded config
+        1) If explicit config: expand and return HudStyleConfig with func of the function,
+        and args of expanded config
         2) If task has the specified function defined: use that
         3) If no task function: check for task._config and use that
         4) If no _config: use task.id and create private_[function]

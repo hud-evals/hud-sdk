@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 def stream(live_url: str | None = None) -> str:
     """
@@ -19,8 +22,8 @@ def stream(live_url: str | None = None) -> str:
     """
     try:
         display(HTML(html_content))
-    except:
-        pass  # Not in an environment where display is available
+    except Exception as e:
+        logger.warning(e)
     
     return html_content
 
@@ -53,12 +56,12 @@ def display_screenshot(base64_image: str, width: int = 960, height: int = 540) -
     <div style="width: {width}px; height: {height}px; overflow: hidden; margin: 10px 0; border: 1px solid #ddd;">
         <img src="{img_src}" style="max-width: 100%; max-height: 100%;">
     </div>
-    """
+    """  # noqa: E501
     
     # Display in IPython environments
     try:
         display(HTML(html_content))
-    except:
-        pass  # Not in an environment where display is available
+    except Exception as e:
+        logger.warning(e)
     
     return html_content

@@ -7,13 +7,13 @@ from hud.adapters.common.types import (
     CLAKey,
     ClickAction,
     DragAction,
-    MoveAction, 
+    MoveAction,
     Point,
     PressAction,
+    ScreenshotFetch,
     ScrollAction,
     TypeAction,
     WaitAction,
-    ScreenshotFetch
 )
 
 
@@ -90,4 +90,4 @@ class OperatorAdapter(Adapter):
                 raise ValueError(f"Unsupported action type: {action_type}")
                 
         except Exception as e:
-            raise ValueError(f"Invalid action: {data}. Error: {str(e)}")
+            raise ValueError(f"Invalid action: {data}. Error: {e!s}") from e

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import logging
-from base64 import b64decode, b64encode
+from base64 import b64decode
 from typing import TYPE_CHECKING, Any
 
 from hud.env.client import Client

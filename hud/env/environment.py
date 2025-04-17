@@ -96,7 +96,8 @@ class Environment(BaseModel):
             Any: Result of the evaluation
         """
         if isinstance(self.client, RemoteClient):
-            results = await self._invoke_all(create_remote_config(self.task, config, REMOTE_EVALUATE))
+            results = await self._invoke_all(
+                create_remote_config(self.task, config, REMOTE_EVALUATE))
         else:
             if config is not None:
                 results = await self._invoke_all(config)
@@ -110,7 +111,9 @@ class Environment(BaseModel):
             return results
         
 
-    async def reset(self, configs: HudStyleConfigs | None = None) -> tuple[Observation, dict[str, Any]]:
+    async def reset(self, configs: HudStyleConfigs | None = None) -> tuple[
+        Observation, dict[str, Any]
+    ]:
         """
         Reset the environment.
 
@@ -127,7 +130,9 @@ class Environment(BaseModel):
             obs.text = self.task.prompt
         return obs, info
 
-    async def step(self, actions: list[CLA] | None = None) -> tuple[Observation, float, bool, dict[str, Any]]:
+    async def step(self, actions: list[CLA] | None = None) -> tuple[
+        Observation, float, bool, dict[str, Any]
+    ]:
         """Execute a step in the environment.
 
         Args:

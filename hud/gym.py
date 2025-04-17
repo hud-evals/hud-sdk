@@ -2,16 +2,18 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from hud.env.environment import Environment
 from hud.env.local_docker_client import LocalDockerClient
 from hud.env.remote_client import RemoteClient
 from hud.env.remote_docker_client import RemoteDockerClient
-from hud.job import Job
 from hud.task import Task
 from hud.types import CustomGym, Gym
 from hud.utils.common import get_gym_id
+
+if TYPE_CHECKING:
+    from hud.job import Job
 
 logger = logging.getLogger("hud.gym")
 

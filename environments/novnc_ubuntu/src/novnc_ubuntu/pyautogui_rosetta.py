@@ -2,15 +2,17 @@
 PyAutoGUI adapter implementation for Rosetta.
 Converts CLA actions to string representations of PyAutoGUI commands.
 """
+from __future__ import annotations
 
 import time  # Add missing import for time.sleep()
-from typing import Any, Optional, Tuple, Union
+from typing import Any
 
 import pyautogui  # Add pyautogui import
 
 # PyAutoGUI button mapping reference
 # BUTTON_NAME_MAPPING = {LEFT: 1, MIDDLE: 2, RIGHT: 3, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7}
-VALID_BUTTON_VALUES = ["left", "middle", "right", "1", "2", "3", "4", "5", "6", "7", "back", "forward"]
+VALID_BUTTON_VALUES = [
+    "left", "middle", "right", "1", "2", "3", "4", "5", "6", "7", "back", "forward"]
 
 # Map 'back' to button 4 and 'forward' to button 5 (common convention)
 BUTTON_NAME_MAP = {
@@ -26,7 +28,7 @@ class RosettaBase:
     Opposite of the Adapter class in hud-gym/hud/adapters/common.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the adapter."""
         self.memory = []
     
@@ -81,7 +83,7 @@ class RosettaBase:
         Returns:
             list of execution results
         """
-        assert isinstance(cla_actions, list)
+        #assert isinstance(cla_actions, list)
         return [self.translate(action) for action in cla_actions]
 
 
@@ -91,7 +93,7 @@ class PyAutoGUIRosetta(RosettaBase):
     Executes PyAutoGUI commands based on CLA actions.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the PyAutoGUI adapter."""
         super().__init__()
         
@@ -138,7 +140,8 @@ class PyAutoGUIRosetta(RosettaBase):
                 raise ValueError("Position 'action' cannot be executed, it retrieves information.")
             case "custom":
                 # Executing arbitrary custom code is unsafe. Raise error.
-                raise ValueError("Custom actions are not supported for direct execution due to security concerns.")
+                raise ValueError("Custom actions are not supported for direct execution "
+                                 "due to security concerns.")
             case _:
                 raise ValueError(f"Unsupported action type: {action_type}")
     
@@ -181,7 +184,8 @@ class PyAutoGUIRosetta(RosettaBase):
         
         # Validate button value
         if button not in VALID_BUTTON_VALUES:
-            raise ValueError(f"Invalid button value '{button}'. Valid values are: {', '.join(VALID_BUTTON_VALUES)}")
+            raise ValueError(f"Invalid button value '{button}'. "
+                             f"Valid values are: {', '.join(VALID_BUTTON_VALUES)}")
         
         # Execute key down commands if hold_keys is specified
         if hold_keys:
@@ -194,7 +198,7 @@ class PyAutoGUIRosetta(RosettaBase):
                 interval = pattern[0] / 1000.0
                 pyautogui.click(x=x, y=y, clicks=2, interval=interval, button=button)
             else:
-                # For multiple pattern values, generate individual click commands with precise timing
+                # For multiple pattern values, generate individual click commands with precise
                 # First click
                 pyautogui.click(x=x, y=y, button=button)
                 
@@ -237,7 +241,7 @@ class PyAutoGUIRosetta(RosettaBase):
         # Handle empty text
         if not text:
             if enter_after:
-                pyautogui.press('enter')
+                pyautogui.press("enter")
             return # Do nothing if text is empty and no enter_after
         
         # Directly type the text
@@ -245,7 +249,7 @@ class PyAutoGUIRosetta(RosettaBase):
         
         # Add press enter if requested
         if enter_after:
-            pyautogui.press('enter')
+            pyautogui.press("enter")
 
     def _execute_scroll(self, cla_action: dict[str, Any]) -> None:
         """Execute a PyAutoGUI scroll command."""
@@ -333,7 +337,7 @@ class PyAutoGUIRosetta(RosettaBase):
                 if pattern_index < len(pattern):
                     delay = pattern[pattern_index] / 1000.0  # Convert ms to seconds
                     time.sleep(delay)
-                    pattern_index = (pattern_index + 1) % len(pattern)  # Cycle through pattern if needed
+                    pattern_index = (pattern_index + 1) % len(pattern)
                 
                 # Add next drag
                 point = path[i]
@@ -358,4 +362,4 @@ class PyAutoGUIRosetta(RosettaBase):
         
         # Execute key up commands if hold_keys is specified
         if hold_keys:
-            self._execute_key_up({"keys": hold_keys}) 
+            self._execute_key_up({"keys": hold_keys})

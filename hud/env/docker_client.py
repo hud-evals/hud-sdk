@@ -9,7 +9,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 import toml
-from pydantic import BaseModel
 
 from hud.env.client import Client
 from hud.types import EnvironmentStatus
