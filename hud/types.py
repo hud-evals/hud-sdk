@@ -25,7 +25,7 @@ class CustomGym(BaseModel):
     # Can be provided as a string or Path object
     controller_source_dir: str | Path | None = None
     
-    def model_post_init(self, __context: Any) -> None:
+    def model_post_init(self, __context: Any, /) -> None:
         """Validate and set up dockerfile if not explicitly provided."""
         # Convert string path to Path object if needed
         if isinstance(self.controller_source_dir, str):
