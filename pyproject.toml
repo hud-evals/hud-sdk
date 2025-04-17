@@ -14,7 +14,6 @@ dependencies = [
     "pydantic-settings>=2,<3",
     "pillow>=11, <12",
     "eval-type-backport>=0.2.2",
-    "requests>=2.32.3",
     "ipython <9"
     ]
 classifiers = [
