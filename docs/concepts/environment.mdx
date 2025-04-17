@@ -61,7 +61,7 @@ The standard interaction flow involves the [Agent](/concepts/agent) and the Envi
 # Assume 'env' and 'agent' are initialized
 
 # 1. Get initial observation
-obs, _, _, _ = await env.step()
+obs, _ = await env.reset()
 
 # 4. Repeat loop (Agent predicts, Env steps)
 for _ in range(10):

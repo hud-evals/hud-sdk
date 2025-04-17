@@ -81,7 +81,7 @@ print("Custom local environment created.")
 # Interact as usual - Task setup/evaluate calls functions in your controller
 # task = Task(prompt="...", gym=local_env_spec, setup=("my_setup_func", arg1), ...)
 # env = await gym.make(task)
-# obs, _, _, _ = await env.step()
+# obs, _ = await env.reset()
 # result = await env.evaluate()
 
 await env.close()
