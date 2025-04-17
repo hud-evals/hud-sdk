@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Any, ClassVar
 
-from hud.agent.adapters.common import CLA, Adapter
-from hud.agent.adapters.common.types import (
+from hud.adapters.common import CLA, Adapter
+from hud.adapters.common.types import (
     CLAKey,
     ClickAction,
     DragAction,
