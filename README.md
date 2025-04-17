@@ -32,11 +32,12 @@ pip install hud-python
 ```python
 import os
 import asyncio
-from hud import gym
+from hud import gym, job
 from hud.task import Task
 from hud.utils import stream
 from hud.agent import OperatorAgent
 
+@job("test-run")
 async def main():
     # Define a simple task
     task = Task(
@@ -76,6 +77,8 @@ if __name__ == "__main__":
     asyncio.run(main())
 
 ```
+
+> This example uses the `@job("test-run")` decorator, so the results of this run will appear under the job named "test-run" on the your [HUD Jobs page](https://app.hud.so/jobs).
 
 ## Documentation Sections
 
