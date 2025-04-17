@@ -14,7 +14,7 @@ from hud.utils import HudStyleConfigs, expand_config
 from hud.utils.config import REMOTE_EVALUATE, REMOTE_SETUP, HudStyleConfig, create_remote_config
 
 if TYPE_CHECKING:
-    from hud.agent import CLA
+    from hud.adapters.common import CLA
 
 logger = logging.getLogger("hud.environment")
 
