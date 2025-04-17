@@ -66,17 +66,18 @@ class LocalDockerClient(DockerClient):
             )
 
         # Print build output
-        output = bytearray()
+        output = ""
         for chunk in build_stream:
             if "stream" in chunk:
-                output.extend(chunk["stream"])
+                logger.info(chunk["stream"])
+                output += chunk["stream"]
 
         # Create and start the container
         container_config = {
             "Image": image_tag,
             "Tty": True,
             "OpenStdin": True,
-            "Cmd": ["/bin/bash"],
+            "Cmd": None,
             "HostConfig": {
                 "AutoRemove": True,
             },
@@ -86,7 +87,7 @@ class LocalDockerClient(DockerClient):
         await container.start()
 
         # Return the controller instance
-        return cls(docker_client, container.id), {"build_output": bytes(output)}
+        return cls(docker_client, container.id), {"build_output": output}
 
     def __init__(self, docker_conn: aiodocker.Docker, container_id: str) -> None:
         """
