@@ -1,87 +1,107 @@
 ---
 title: 'hud.job'
-description: 'API reference for the job module'
+description: 'API reference for Jobs and related functions/decorators'
 ---
 
-The `hud.job` module provides the Job class and functions for working with collections of trajectories.
+The `hud.job` module provides the `@job` decorator, functions to manage Jobs (`create_job`, `load_job`), and the `Job` class itself.
+
+See the [Job Concepts](/concepts/job) page for explanations and usage examples.
+
+# Decorators
+
+## @job
+
+```python
+def job(
+    name: str,
+    metadata: dict[str, Any] | None = None
+) -> Callable[[T], T]:
+```
+
+Decorator for `async` functions to automatically create a [Job](/concepts/job) and associate all environments created within that function call with the job.
+
+**Parameters:**
+
+*   **`name` (str):** The name for the created Job.
+*   **`metadata` (dict[str, Any] | None, optional):** Metadata to store with the Job.
+
+**Returns:**
+
+*   A decorator that wraps the async function.
 
 # Module Functions
 
-## fetch
+## create_job
 
 ```python
-async def fetch(filters: Optional[Dict[str, Any]] = None) -> List[Job]:
-    ...
+async def create_job(
+    name: str,
+    gym_id: str | None = None,
+    evalset_id: str | None = None,
+    metadata: dict[str, Any] | None = None
+) -> Job:
 ```
 
-Lists jobs, optionally filtered by metadata.
+Creates a new `Job` instance explicitly.
 
 **Parameters:**
-- `filters` (Dict[str, Any], optional): Metadata filters to apply
+
+*   **`name` (str):** The name for the new Job.
+*   **`gym_id` (str | None, optional):** Optional Gym ID to associate.
+*   **`evalset_id` (str | None, optional):** Optional EvalSet ID to associate.
+*   **`metadata` (dict[str, Any] | None, optional):** Metadata to store with the Job.
 
 **Returns:**
-- `List[Job]`: A list of jobs matching the filters
 
-## Classes
+*   `Job`: The newly created Job object.
+
+## load_job
+
+```python
+async def load_job(
+    job_id: str,
+    api_key: str | None = None
+) -> Job:
+```
+
+Retrieves an existing `Job` by its ID from the HUD platform.
+
+**Parameters:**
+
+*   **`job_id` (str):** The unique ID of the Job to retrieve.
+*   **`api_key` (str | None, optional):** HUD API key. If `None`, uses the key from `hud.settings`.
+
+**Returns:**
+
+*   `Job`: The retrieved Job object.
+
+# Classes
 
 ## Job
 
-The `Job` class represents a collection of related trajectories. Jobs should be created using the `create` class method rather than being constructed directly.
-
-### Class Methods
-
-#### create
-
 ```python
-@classmethod
-async def create(cls, name: str, metadata: Optional[Dict[str, Any]] = None) -> Job:
-    ...
+class Job(pydantic.BaseModel):
+    id: str
+    name: str
+    metadata: dict[str, Any] | None
+    created_at: datetime.datetime
+    status: str
+
+    async def load_trajectories(
+        self, *, api_key: str | None = None
+    ) -> list[Trajectory]: ...
 ```
 
-Creates a new job.
+Represents a Job, typically obtained via `@job`, `create_job`, or `load_job`. Primarily used to access associated trajectories.
 
-**Parameters:**
-- `name` (str): The name of the job
-- `metadata` (Dict[str, Any], optional): Metadata for the job
+**Attributes:**
 
-**Returns:**
-- `Job`: The created job
+*   **`id` (str):** Unique identifier.
+*   **`name` (str):** Job name.
+*   **`metadata` (dict[str, Any] | None):** Associated metadata.
+*   **`created_at` (datetime.datetime):** Creation timestamp.
+*   **`status` (str):** Current status (e.g., "running", "completed").
 
-#### get
+**Methods:**
 
-```python
-@classmethod
-async def get(cls, job_id: str) -> Job:
-    ...
-```
-
-Retrieves a job by its ID.
-
-**Parameters:**
-- `job_id` (str): The ID of the job to retrieve
-
-**Returns:**
-- `Job`: The retrieved job
-
-### Instance Methods
-
-#### load_trajectories
-
-```python
-async def load_trajectories(self) -> List[Trajectory]:
-    ...
-```
-
-Loads the trajectories associated with this job.
-
-**Returns:**
-- `List[Trajectory]`: The trajectories in the job
-
-### Properties
-
-- `id` (str): Unique identifier for the job
-- `name` (str): Name of the job
-- `created_at` (datetime): When the job was created
-- `completed_at` (datetime, optional): When the job was completed
-- `status` (str): Status of the job (e.g., "running", "completed", "error")
-- `metadata` (Dict[str, Any]): Metadata associated with the job
+*   **`load_trajectories(self, *, api_key: str | None = None)`:** Asynchronously loads all [Trajectories](/concepts/trajectory) associated with this Job instance. Requires HUD API key if not set globally. Returns a list of `Trajectory` objects.

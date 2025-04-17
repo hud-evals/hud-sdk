@@ -31,7 +31,6 @@ class ClaudeAdapter(Adapter):
     def _map_key(self, key: str) -> CLAKey:
         """Map a key to its standardized form."""
         return self.KEY_MAP.get(key, key.lower())  # type: ignore
-
     def convert(self, data: Any) -> CLA:
         try:
             action_type = data.get("action")

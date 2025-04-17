@@ -2,16 +2,16 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
 from PIL import Image
 from pydantic import TypeAdapter, ValidationError
 
 from .types import CLA
 
 if TYPE_CHECKING:
-    import numpy as np  # type: ignore
-    from typing_extensions import TypeAlias, TypeIs
+    from typing_extensions import TypeIs
 
-    ImageType: TypeAlias = "np.ndarray[Any, Any] | Image.Image | str | None"
+ImageType = np.ndarray[Any, Any] | Image.Image | str | None
 
 
 def _is_numpy_array(observation: Any) -> TypeIs[np.ndarray]:
@@ -61,7 +61,7 @@ class Adapter:
             observation: Image data, which can be:
                 - numpy array
                 - PIL Image
-                - base64 string (PNG)
+                - base64 string (PNG) # TODO: JPG
 
         Returns:
             Base64-encoded string of the resized image (PNG format)
@@ -146,7 +146,7 @@ class Adapter:
 
         return processed_action
 
-    def adapt(self, action: Any) -> dict[str, Any]:
+    def adapt(self, action: Any) -> CLA:
         # any preprocessing steps
         action = self.preprocess(action)
 
@@ -154,14 +154,15 @@ class Adapter:
         action = self.convert(action)
         self.memory.append(action)
 
-        # convert to json
+        # convert to json and apply coordinate rescaling
         action_dict = self.json(action)
-
-        # apply coordinate rescaling
         rescaled_action = self.postprocess_action(action_dict)
-        return rescaled_action
 
-    def adapt_list(self, actions: list[Any]) -> list[dict[str, Any]]:
+        # convert back to CLA
+        return TypeAdapter(CLA).validate_python(rescaled_action)
+
+    def adapt_list(self, actions: list[Any]) -> list[CLA]:
         if not isinstance(actions, list):
             raise ValueError("Please provide a list of actions")
+        
         return [self.adapt(action) for action in actions]

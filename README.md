@@ -1,6 +1,6 @@
-# HUD
+# HUD SDK - Human-Agent Interaction Toolkit
 
-A Python SDK for interacting with HUD environments and evaluation benchmarks for browser use and computer use models.
+A Python SDK for creating, evaluating, and benchmarking agent interactions with web browsers and OS environments.
 
 > **Alpha Release Notice**: This SDK is currently in early release status. The API is evolving and may change in future releases as we gather feedback and improve functionality.
 
@@ -8,56 +8,98 @@ A Python SDK for interacting with HUD environments and evaluation benchmarks for
 
 [📚 Documentation](https://documentation.hud.so) | [🏠 Homepage](https://hud.so)
 
+## API Key Setup
 
-## Quick start
+Before getting started, you'll need to obtain an API key:
 
-[RECOMMENDED] To set get started with an agent, see the [Claude Computer use example](https://github.com/Human-Data/hud-sdk/tree/main/examples).
+1. Visit [app.hud.so](https://app.hud.so) to create an account and generate your API key
+2. Set it in your environment:
 
-Install the package with Python>=3.9:
+```bash
+export HUD_API_KEY=your_api_key_here
+```
+
+## Quick Start
+
+### Installation
+
 ```bash
 pip install hud-python
 ```
 
-Make sure to setup your account with us (email founders@hud.so) and add your API key to the environment variables:
-```bash
-HUD_API_KEY=<your-api-key>
-```
+### Simple Browser Example with Operator
 
-Load in your agent and create a run! Go to the [examples](https://github.com/Human-Data/hud-sdk/tree/main/examples) folder for more examples.
 ```python
+import os
 import asyncio
-from hud import HUDClient
+from hud import gym, job
+from hud.task import Task
+from hud.utils import stream
+from hud.agent import OperatorAgent
 
+@job("test-run")
 async def main():
-    # Initialize client with API key
-    client = HUDClient(api_key=os.getenv("HUD_API_KEY"))
+    # Define a simple task
+    task = Task(
+        prompt="Insert the text 'capybara' into the search bar",
+        gym="hud-browser",
+        setup=("goto", "google.com"),
+        evaluate=("contains_text", "capybara")
+    )
     
-    # Load a gym and evaluation set
-    gym = await client.load_gym(id="OSWorld-Ubuntu")
-    evalset = await client.load_evalset(id="OSWorld-Ubuntu")
+    # Create environment
+    env = await gym.make(task)
     
-    # Create a run and environment
-    run = await client.create_run(name="example-run", gym=gym, evalset=evalset)
-    env = await run.make(metadata={"agent_id": "OSWORLD-1"})
-    await env.wait_for_ready()
+    # Get URLs and display live view (optional)
+    # urls = await env.get_urls()
+    # stream(urls["live_url"])
     
-    ### 
-    ### Agent loop goes here, see example in /examples
-    ###
-
-    # Evaluate the environment
+    # Initialize Operator agent (API key is loaded automatically)
+    agent = OperatorAgent()
+    
+    # Agent loop
+    obs, _ = env.reset()
+    for i in range(5):
+        actions, done = await agent.predict(obs)
+        if done:
+            break
+        
+        obs, reward, terminated, info = await env.step(actions)
+        if terminated:
+            break
+    
+    # Evaluate and close
     result = await env.evaluate()
-
-    # Close the environment when done
+    print(f"Evaluation result: {result}")
     await env.close()
-
-    # Get analytics for the run such as rewards, task completions, etc.
-    analytics = await run.get_analytics()
-    print(analytics)
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 ```
+
+> This example uses the `@job("test-run")` decorator, so the results of this run will appear under the job named "test-run" on the your [HUD Jobs page](https://app.hud.so/jobs).
+
+## Documentation Sections
+
+- **Task Creation** - Design tasks for your agents using our task specification format. Tasks define goals, success criteria, and environment configurations.
+
+- **Environment Setup** - Create and configure browser or OS environments where your agents will operate. Environments can be remote or local.
+
+- **Agent Integration** - Connect your AI agents (including Claude, GPT models, or custom agents) to environments and observe their interactions.
+
+- **Evaluation** - Test agent performance with built-in evaluation methods to measure success rates, efficiency, and other metrics.
+
+- **Advanced Features** - Build custom environments, capture telemetry data, create benchmarks, and more for detailed agent analysis.
+
+## [Examples](examples/)
+
+We provide several example notebooks showing how to use the HUD SDK:
+
+1. [Browser Basics](examples/browser_use.ipynb) - Simple browser interaction with live view
+2. [Task Design](examples/tasks.ipynb) - Creating and customizing tasks
+3. [OSWorld](examples/osworld.ipynb) - Working with OS environments
+4. [Local Development](examples/local.ipynb) - Setting up local custom environments
 
 ## Documentation
 

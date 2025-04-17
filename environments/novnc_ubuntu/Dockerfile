@@ -1,0 +1,1 @@
+FROM govindhud/novnc-ubuntu:latest

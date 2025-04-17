@@ -1,0 +1,92 @@
+---
+title: 'CLA Action Details'
+description: 'Detailed look at the Common Language Action (CLA) format'
+---
+
+# Common Language Action (CLA) Details
+
+The HUD SDK uses a standardized format called **CLA** (Common Language Actions) for representing agent interactions within an [Environment](/concepts/environment). When your [Agent](/concepts/agent) decides on an action (e.g., "click at x=100, y=200"), its associated [Adapter](/concepts/adapter) converts this into a specific `CLA` Pydantic model instance before it's sent to `env.step()`.
+
+Understanding the structure of these `CLA` types can be helpful for debugging or creating custom adapters/controllers. The main types are defined in `hud.adapters.common.types`.
+
+## Base Structure
+
+All CLA actions inherit from `CLAAction` and have a `type` field which acts as a discriminator:
+
+```python
+class CLAAction(pydantic.BaseModel):
+    type: str
+```
+
+## Action Categories & Examples
+
+Here are some key CLA types grouped by category:
+
+### Mouse Actions
+
+*   **`ClickAction`**: Simulates mouse clicks.
+    *   `point: Point | None`: Target coordinates (`Point(x: int, y: int)`).
+    *   `button: Literal[...]`: `"left"`, `"right"`, `"wheel"`, `"back"`, `"forward"` (default: `"left"`).
+    *   `pattern: list[int] | None`: List of delays (ms) for multi-clicks (e.g., `[100]` for double-click, `[100, 100]` for triple).
+    *   `hold_keys: list[CLAKey] | None`: Modifier keys (e.g., `"shift"`, `"ctrl"`) to hold during the click.
+    *   `selector: str | None`: Optional CSS selector to target instead of coordinates.
+
+*   **`MoveAction`**: Moves the mouse cursor.
+    *   `point: Point | None`: Target coordinates.
+    *   `selector: str | None`: Optional CSS selector to move to.
+    *   `offset: Point | None`: Offset relative to the target point/selector.
+
+*   **`ScrollAction`**: Scrolls the view.
+    *   `point: Point | None`: Coordinates *where* the scroll should originate (often ignored, scrolls the window).
+    *   `scroll: Point | None`: Scroll amount `Point(x=dx, y=dy)`. Positive `dy` scrolls down, positive `dx` scrolls right.
+    *   `hold_keys: list[CLAKey] | None`: Modifier keys to hold.
+
+*   **`DragAction`**: Simulates clicking and dragging.
+    *   `path: list[Point]`: A sequence of points defining the drag path (must have at least two points).
+    *   `pattern: list[int] | None`: Optional delays between path segments.
+    *   `hold_keys: list[CLAKey] | None`: Modifier keys to hold.
+
+### Keyboard Actions
+
+*   **`TypeAction`**: Types text.
+    *   `text: str`: The text string to type.
+    *   `selector: str | None`: Optional CSS selector to focus before typing.
+    *   `enter_after: bool | None`: Whether to press Enter after typing (default: `False`).
+
+*   **`PressAction`**: Presses and releases one or more keys simultaneously (hotkey).
+    *   `keys: list[CLAKey]`: List of key names (`CLAKey` Literal type) to press together (e.g., `["ctrl", "c"]`).
+
+*   **`KeyDownAction` / `KeyUpAction`**: Presses or releases keys without the corresponding up/down action. Useful for holding modifier keys.
+    *   `keys: list[CLAKey]`: List of key names to press down or release up.
+
+### Control Actions
+
+*   **`WaitAction`**: Pauses execution.
+    *   `time: int`: Duration to wait in milliseconds.
+
+### Fetch Actions (Get Information)
+
+*   **`ScreenshotFetch`**: Requests a screenshot (used internally, typically not sent by agents directly).
+*   **`PositionFetch`**: Requests the current cursor position (used internally).
+
+### Custom Actions
+
+*   **`CustomAction`**: Allows defining arbitrary actions specific to a custom environment controller.
+    *   `action: str`: The name/identifier of the custom action.
+    *   *(Implicit)*: Any additional fields required by the custom action can be added if defined in the custom controller logic receiving it.
+
+## `CLAKey` Type
+
+The `CLAKey` is a `typing.Literal` containing dozens of standard key names, including:
+
+*   Control Keys: `"backspace"`, `"tab"`, `"enter"`, `"shift"`, `"ctrl"`, `"alt"`, `"escape"`, `"space"`, `"pageup"`, `"pagedown"`, `"end"`, `"home"`, `"left"`, `"up"`, `"right"`, `"down"`, `"insert"`, `"delete"`.
+*   Function Keys: `"f1"`, `"f2"`, ..., `"f24"`.
+*   Numpad Keys: `"num0"`, `"num1"`, ..., `"add"`, `"multiply"`, etc.
+*   Modifier Keys: `"win"`, `"command"`, `"option"`.
+*   Printable Characters: `"a"`, `"b"`, `"1"`, `"!"`, `"#"` etc. (Note: For typing sentences, use `TypeAction`).
+
+Refer to `hud/adapters/common/types.py` for the exhaustive list.
+
+## Usage Context
+
+Remember, an [Agent](/concepts/agent) typically outputs actions in its model's native format. The [Adapter](/concepts/adapter) converts these raw actions into one or more of these specific `CLA` Pydantic model instances, which are then passed in a list to `env.step()`. 

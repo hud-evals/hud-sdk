@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="allow")
 
     base_url: str = Field(
-        default="https://orchestrator.hud.live/hud-gym/api/v1",
+        default="https://orchestrator.hud.live/hud-gym/api",
         description="Base URL for the HUD API",
         validation_alias="base_url",
     )
@@ -25,7 +25,18 @@ class Settings(BaseSettings):
         description="API key for authentication with the HUD API",
         validation_alias="HUD_API_KEY",
     )
-
+    
+    anthropic_api_key: str | None = Field(
+        default=None,
+        description="API key for Anthropic models",
+        validation_alias="ANTHROPIC_API_KEY",
+    )
+    
+    openai_api_key: str | None = Field(
+        default=None,
+        description="API key for OpenAI models",
+        validation_alias="OPENAI_API_KEY",
+    )
 
 # Create a singleton instance
 settings = Settings()

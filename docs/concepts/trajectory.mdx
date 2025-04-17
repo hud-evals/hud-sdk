@@ -5,94 +5,69 @@ description: 'Understanding Trajectories as records of agent interactions'
 
 # Trajectory
 
-A Trajectory represents a complete record of an agent's interactions within an environment. It captures all actions, observations, and environmental states throughout a single runthrough of a task.
+A `Trajectory` represents the detailed recording of a single run of an [Agent](/concepts/agent) within an [Environment](/concepts/environment) for a specific [Task](/concepts/task).
 
 ## Overview
 
-Trajectories provide a comprehensive view of how an agent interacted with an environment, including:
+Trajectories capture the step-by-step history of an agent's interaction, useful for analysis, debugging, and visualization.
 
-- Each action taken by the agent
-- The observations returned from the environment
-- The state of the environment at each step
-- Performance metrics and telemetry data
-- Final evaluation results
+They are automatically generated and associated with a [Job](/concepts/job) when `env.close()` is called on a linked environment.
 
-Trajectories are automatically created when an environment session ends, providing a persistent record of agent behavior.
+## Accessing Trajectories
+
+The primary way to access trajectories is through a [Job](/concepts/job) object using `job.load_trajectories()`:
+
+```python
+from hud import load_job
+
+async def analyze_job_trajectories(job_id: str):
+    job = await load_job(job_id)
+    trajectories = await job.load_trajectories()
+
+    for i, traj in enumerate(trajectories):
+        print(f"--- Trajectory {i+1} (ID: {traj.id}) ---")
+        print(f"  Reward: {traj.reward}")
+        print(f"  Number of steps: {len(traj.trajectory)}") # Access the list of steps
+        if traj.error:
+            print(f"  Error: {traj.error}")
+
+        # You can iterate through individual steps if needed
+        # for step_index, step_data in enumerate(traj.trajectory):
+        #    print(f"    Step {step_index}: Actions: {step_data.actions}")
+        #    print(f"    Step {step_index}: Obs Text: {step_data.observation_text}")
+        #    print(f"    Step {step_index}: Obs Image URL: {step_data.observation_url}")
+
+```
 
 ## Key Properties
 
-| Property | Description |
-| --- | --- |
-| `id` | Unique identifier for the trajectory |
-| `task_id` | ID of the task that was performed |
-| `job_id` | ID of the job this trajectory belongs to |
-| `actions` | Array of all actions taken by the agent |
-| `observations` | Array of all observations from the environment |
-| `states` | Array of environment states at each step |
-| `evaluation` | Final evaluation results for the trajectory |
-| `created_at` | Timestamp of when the trajectory was created |
-| `duration` | Total duration of the interaction in seconds |
+A `Trajectory` object contains:
 
-## Working with Trajectories
+*   `id` (str): Unique ID for this run.
+*   `reward` (float | None): The final evaluation score from the [Task](/concepts/task)'s `evaluate` logic.
+*   `logs` (str | None): Captured logs.
+*   `error` (str | None): Error message if the run failed.
+*   `trajectory` (list[`TrajectoryStep`]): List of individual steps.
 
-Trajectories can be retrieved after environment interaction:
+Each `TrajectoryStep` contains:
 
-```python
-import hud
-from hud import gym
+*   `observation_url` (str | None): URL to the step's screenshot.
+*   `observation_text` (str | None): Text observed in the step.
+*   `actions` (list[dict]): Agent action(s) leading to this step's observation.
+*   `start_timestamp` / `end_timestamp` (str | None): Step timing.
 
-async def main():
-    # Create an environment and run an agent
-    job = await hud.Job.create(name="example-job")
-    env = gym.make("OSWorld-Ubuntu", job_id=job.id)
-    
-    # Run your agent in the environment...
-    # ...
-    
-    # After completion, retrieve the trajectory
-    trajectory = await env.get_trajectory()
-    
-    # Access trajectory data
-    print(f"Trajectory ID: {trajectory.id}")
-    print(f"Number of steps: {len(trajectory.actions)}")
-    print(f"Final evaluation: {trajectory.evaluation}")
-```
+## Visualization
 
-## Analyzing Trajectories
-
-Trajectories provide rich data for analysis and debugging:
+*   **HUD Platform:** The [Jobs page](https://app.hud.so/jobs) offers the best visualization, including videos.
+*   **Jupyter:** The `trajectory.display()` method provides basic step-by-step rendering.
 
 ```python
-async def analyze_trajectory(trajectory_id):
-    # Load a specific trajectory by ID
-    trajectory = await hud.Trajectory.get(trajectory_id)
-    
-    # Analyze step-by-step interactions
-    for i, (action, observation) in enumerate(zip(trajectory.actions, trajectory.observations)):
-        print(f"Step {i}:")
-        print(f"  Agent action: {action}")
-        print(f"  Environment observation: {observation.text[:50]}...")
-        
-    # Extract performance metrics
-    completion_time = trajectory.duration
-    success_rate = trajectory.evaluation.get("success", False)
-    efficiency_score = trajectory.evaluation.get("efficiency_score", 0)
-    
-    return {
-        "completion_time": completion_time,
-        "success_rate": success_rate,
-        "efficiency_score": efficiency_score
-    }
+# In Jupyter:
+# traj.display()
 ```
-
-## Best Practices
-
-- Use trajectories for debugging agent behavior
-- Compare trajectories from different versions of your agent to measure improvement
-- Store trajectory IDs to reference past runs and create benchmarks
 
 ## Related Concepts
 
-- [Environment](/concepts/environment) - The runtime instance that generates trajectories
-- [Task](/concepts/task) - The configuration that defines the evaluation scenario
-- [Job](/concepts/job) - Groups of related trajectories across multiple tasks
+*   [Job](/concepts/job): How trajectories are grouped and accessed.
+*   [Environment](/concepts/environment): Generates the trajectory data during a run.
+*   [Task](/concepts/task): Defines the scenario and evaluation logic recorded.

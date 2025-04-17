@@ -1,0 +1,62 @@
+---
+title: 'Agent'
+description: 'Understanding the Agent architecture and built-in implementations'
+---
+
+# Agent
+
+The `Agent` is the component responsible for processing observations from an [Environment](/concepts/environment) and deciding on the next actions to take to achieve the [Task](/concepts/task) goal.
+
+## Overview
+
+Agents interact with environments through a defined loop (explained in [Environment Concepts](/concepts/environment)): receive an observation, predict an action, execute the action, repeat. The SDK provides a base `Agent` class and specific implementations (`ClaudeAgent`, `OperatorAgent`).
+
+## Base Agent Class (`hud.agent.Agent`)
+
+The abstract base class `hud.agent.Agent` defines the core structure and prediction pipeline.
+
+### Three-Stage Prediction (`predict` method)
+
+The main method `agent.predict(observation)` orchestrates three stages:
+
+1.  **`preprocess(observation)`:** (Handled internally if an [Adapter](/concepts/adapter) is provided) Prepares the raw `Observation`, typically using `adapter.rescale()` to adjust the screenshot for the model.
+2.  **`fetch_response(processed_observation)`:** (Implemented by subclasses like `ClaudeAgent`, `OperatorAgent`) Sends the observation to the underlying AI model (Claude, OpenAI) and returns the model's *raw* suggested actions and a `done` flag.
+3.  **`postprocess(raw_actions)`:** (Handled internally if an [Adapter](/concepts/adapter) is provided) Converts raw actions from `fetch_response` into the standardized `CLA` format using `adapter.adapt_list()`, including coordinate rescaling.
+
+If an adapter is provided to the agent, `predict` automatically handles stages 1 and 3. If no adapter is provided, `predict` returns the raw actions from stage 2.
+
+### Initialization
+
+While the base class can accept a `client` and `Adapter`, the built-in agents handle client creation automatically using API keys from `hud.settings`.
+
+## Built-in Agents
+
+*   **`hud.agent.ClaudeAgent`:** Uses Anthropic Claude models (Computer Use API). Requires `ANTHROPIC_API_KEY` in settings. Optionally takes a `ClaudeAdapter`.
+*   **`hud.agent.OperatorAgent`:** Uses OpenAI models (Computer Use Preview API). Requires `OPENAI_API_KEY` in settings. Requires `environment` type ('browser', 'windows', etc.) on initialization. Optionally takes an `OperatorAdapter`.
+
+### Creating Built-in Agents
+
+Initialization is simple thanks to automatic client creation:
+
+```python
+from hud.agent import ClaudeAgent, OperatorAgent
+# Adapters are optional, defaults are used if not provided
+# from hud.adapters.claude import ClaudeAdapter
+# from hud.adapters.operator import OperatorAdapter
+
+# Uses ANTHROPIC_API_KEY from settings
+claude_agent = ClaudeAgent()
+
+# Uses OPENAI_API_KEY from settings
+operator_agent = OperatorAgent(environment="browser")
+```
+
+## Custom Agents
+
+Inherit from `hud.agent.Agent` and implement `fetch_response` to integrate your own model or logic.
+
+## Related Concepts
+
+*   [Environment](/concepts/environment): Provides `Observation` to the Agent, executes its `CLA` actions.
+*   [Adapter](/concepts/adapter): Used by the Agent for preprocessing/postprocessing.
+*   [Task](/concepts/task): Defines the goal the Agent is trying to achieve. 
