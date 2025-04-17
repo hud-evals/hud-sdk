@@ -40,12 +40,12 @@ class Environment(BaseModel):
     """
 
     metadata: dict[str, Any]
-    build_data: dict[str, Any]
     client: Client
     url: str | None = None
     live_url: str | None = None
     # The task id to use for the environment reset
     task: Task | None = None
+    build_data: dict[str, Any]
 
     async def _invoke_all(self, configs: HudStyleConfigs) -> list[Any]:
         # Execute each config and collect results
@@ -137,9 +137,11 @@ class Environment(BaseModel):
         Returns:
             Any: Result of the step execution
         """
-
+        if actions is None or len(actions) == 0:
+            actions = [WaitAction(time=100)]
+            
         result, stdout, stderr = await self.client.invoke(
-            HudStyleConfig(function="step", args=[[action.model_dump() for action in actions] if actions is not None else [WaitAction(time=100).model_dump()]])
+            HudStyleConfig(function="step", args=[[action.model_dump() for action in actions]])
         )
         if stdout:
             logger.info("Step produced stdout: %s", stdout.decode())
