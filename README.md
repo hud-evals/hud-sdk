@@ -2,7 +2,7 @@
 
 A Python SDK for creating, evaluating, and benchmarking agent interactions with web browsers and OS environments.
 
-> **Alpha Release Notice**: This SDK is currently in early release status. The API is evolving and may change in future releases as we gather feedback and improve functionality.
+> **Early Release Notice**: This SDK is currently in early release status. The API is evolving and may change in future releases as we gather feedback and improve functionality.
 
 [![PyPI version](https://img.shields.io/pypi/v/hud-python)](https://pypi.org/project/hud-python/)
 
@@ -12,8 +12,8 @@ A Python SDK for creating, evaluating, and benchmarking agent interactions with 
 
 Before getting started, you'll need to obtain an API key:
 
-1. Visit [app.hud.so](https://app.hud.so) to create an account and generate your API key
-2. Set it in your environment:
+1. Visit [app.hud.so](https://app.hud.so) to create a free account and generate your API key
+2. Set it in your environment or .env file:
 
 ```bash
 export HUD_API_KEY=your_api_key_here
@@ -28,6 +28,8 @@ pip install hud-python
 ```
 
 ### Simple Browser Example with Operator
+
+> This example uses the `@job("test-run")` decorator, so the results of this run will appear under the job named "test-run" on the your [HUD Jobs page](https://app.hud.so/jobs).
 
 ```python
 import os
@@ -78,19 +80,22 @@ if __name__ == "__main__":
 
 ```
 
-> This example uses the `@job("test-run")` decorator, so the results of this run will appear under the job named "test-run" on the your [HUD Jobs page](https://app.hud.so/jobs).
-
 ## Documentation Sections
 
-- **Task Creation** - Design tasks for your agents using our task specification format. Tasks define goals, success criteria, and environment configurations.
+Explore the core concepts and features of the SDK:
 
-- **Environment Setup** - Create and configure browser or OS environments where your agents will operate. Environments can be remote or local.
+*   **[Tasks and TaskSets](/concepts/task)**: Define goals, context, setup, and evaluation criteria for agent scenarios.
+*   **[Environments](/concepts/environment)**: Understand the browser and OS runtimes where agents interact.
+*   **[Agents](/concepts/agent)**: Learn about the agent architecture (Claude, Operator) and how they process observations and predict actions.
+*   **[Adapters](/concepts/adapter)**: See how actions and observations are translated between agents and environments.
+*   **[Jobs](/concepts/job)**: Group related runs for analysis and viewing on the HUD platform.
+*   **[Trajectories](/concepts/trajectory)**: Understand the recorded data from each agent run.
+*   **Advanced Topics**:
+    *   **[Custom Environments](/advanced/custom-environments)**: Build your own Docker-based local or remote environments.
+    *   **[Advanced Environment Control](/advanced/environment-control)**: Use `invoke`, `execute`, and `_setup` for finer control.
+    *   **[CLA Action Details](/advanced/cla-details)**: Dive deeper into the standardized action format.
 
-- **Agent Integration** - Connect your AI agents (including Claude, GPT models, or custom agents) to environments and observe their interactions.
-
-- **Evaluation** - Test agent performance with built-in evaluation methods to measure success rates, efficiency, and other metrics.
-
-- **Advanced Features** - Build custom environments, capture telemetry data, create benchmarks, and more for detailed agent analysis.
+*   **[Full API Reference](/api-reference/gym)**: Detailed specifications for all modules and classes.
 
 ## [Examples](examples/)
 
