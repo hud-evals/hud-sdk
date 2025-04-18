@@ -31,9 +31,9 @@
       {
         "group": "Advanced Topics",
         "pages": [
+          "advanced/cla-details",
           "advanced/custom-environments",
-          "advanced/environment-control",
-          "advanced/cla-details"
+          "advanced/environment-control"
         ]
       },
       {
@@ -59,13 +59,13 @@
     "links": [
       {
         "label": "GitHub",
-        "href": "https://github.com/Human-Data/hud-sdk"
+        "href": "https://github.com/hud-evals/hud-sdk"
       }
     ]
   },
   "footer": {
     "socials": {
-      "github": "https://github.com/Human-Data/hud-sdk",
+      "github": "https://github.com/hud-evals/hud-sdk",
       "website": "https://hud.so"
     }
   }

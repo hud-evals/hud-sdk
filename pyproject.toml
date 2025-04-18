@@ -29,8 +29,8 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/Human-Data/hud-sdk"
-"Bug Tracker" = "https://github.com/Human-Data/hud-sdk/issues"
+"Homepage" = "https://github.com/hud-evals/hud-sdk"
+"Bug Tracker" = "https://github.com/hud-evals/hud-sdk/issues"
 "Documentation" = "https://hud.so"
 
 [build-system]
