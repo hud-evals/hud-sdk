@@ -127,7 +127,3 @@ class Task(BaseModel):
             target=sample.target,
             gym=gym,
         )
-
-    def convert_sdk01(self) -> None:
-        self.setup = [HudStyleConfig(function="reset", args=[{"task_id": self.id}])]
-        self.evaluate = [HudStyleConfig(function="evaluate", args=[])]
