@@ -67,11 +67,10 @@ obs, _ = await env.reset()
 for _ in range(10):
     # 2. Agent predicts action(s)
     actions, done = await agent.predict(obs)
-    if done: break
 
     # 3. Execute action(s) in environment
     obs, reward, terminated, info = await env.step(actions)
-    if terminated: break
+    if done or terminated: break
 ```
 
 ## Key Methods

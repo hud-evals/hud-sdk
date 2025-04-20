@@ -82,6 +82,12 @@ class DragAction(CLAAction):
     hold_keys: list[CLAKey] | None = None
 
 
+# RESPONSE ACTION from agent
+class ResponseAction(CLAAction):
+    type: Literal["response"] = "response"
+    text: str # The final textual response from the agent
+
+
 # SCREENSHOT ACTION
 class ScreenshotFetch(CLAAction):
     type: Literal["screenshot"] = "screenshot"
@@ -103,6 +109,7 @@ CLA = Annotated[
     | KeyDownAction
     | KeyUpAction
     | TypeAction
+    | ResponseAction
     | ScrollAction
     | MoveAction
     | WaitAction

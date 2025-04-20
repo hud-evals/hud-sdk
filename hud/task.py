@@ -5,8 +5,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel
 
 from hud.types import CustomGym, Gym
-from hud.utils import HudStyleConfig
-from hud.utils.config import HudStyleConfigs
+from hud.utils.common import HudStyleConfig, HudStyleConfigs
 
 if TYPE_CHECKING:
     from inspect_ai.dataset import Sample

@@ -14,6 +14,7 @@ from hud.adapters.common.types import (
     ScrollAction,
     TypeAction,
     WaitAction,
+    ResponseAction,
 )
 
 
@@ -86,6 +87,9 @@ class OperatorAdapter(Adapter):
             
             elif action_type == "screenshot":
                 return ScreenshotFetch()
+            
+            elif action_type == "response":
+                return ResponseAction(text=data.get("text", ""))
             else:
                 raise ValueError(f"Unsupported action type: {action_type}")
                 

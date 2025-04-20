@@ -158,33 +158,47 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
         # Store the response ID for the next call
         self.last_response_id = response.id
         
-        # Process the response to extract computer calls
+        # Process the response to extract actions or final text
         actions = []
-        done = True  # Assume we're done unless we find a computer call
-        
-        # Loop through all items in the output to find computer_call items
+        done = True  # Assume done unless a computer call is found
+        final_text_response = ""
+
+        # Check for computer calls first
         computer_calls = [
             item for item in response.output 
             if isinstance(item, ResponseComputerToolCall) and item.type == "computer_call"
         ]
         
         if computer_calls:
-            # Extract the computer calls and mark that we're not done
+            # If computer calls exist, process them and set done=False
             done = False
-            
-            # Process all computer calls
             for computer_call in computer_calls:
                 self.pending_call_id = computer_call.call_id
                 action = computer_call.action
-                actions.append(action.model_dump())
-                
-                # Log the action
+                actions.append(action.model_dump()) # Convert Pydantic model to dict
                 logger.info(f"Computer call action: {action}")
         else:
-            # If there are no computer calls, print some debug info
-            logger.info("No computer call found in the response. Either complete or error.")
+            # No computer calls, check for a final text message
+            logger.info("No computer call found. Checking for final message.")
+            logger.info(response.output)
             for item in response.output:
                 if isinstance(item, ResponseOutputMessage) and item.type == "message":
-                    logger.info(f"Message: {item.content}")
-        
+                    # Extract text from content blocks within the message
+                    full_text = "".join([c.text for c in item.content if hasattr(c, 'text')])
+                    if full_text:
+                        final_text_response = full_text
+                        logger.info(f"Final text message: {final_text_response}")
+                        break # Stop after finding the first text message
+            
+            # If we found final text, package it as a 'response' action
+            if final_text_response:
+                actions = [{
+                    "type": "response",
+                    "text": final_text_response
+                }]
+                # Keep done = True
+            else:
+                logger.info("No computer calls and no final text message found.")
+                # Keep done = True, actions remains empty
+
         return actions, done 
