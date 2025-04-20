@@ -14,6 +14,7 @@
         "group": "Getting Started",
         "pages": [
           "quickstart",
+          "running-your-agent",
           "installation"
         ]
       },

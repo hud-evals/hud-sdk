@@ -79,16 +79,12 @@ async def main():
         actions, done = await agent.predict(obs)
         print(f"Agent action(s): {actions}")
 
-        if done:
-            print("Agent signaled task completion.")
-            break
+        if done: break # Agent signaled task completion
 
         # Execute the action(s) in the environment
         obs, reward, terminated, info = await env.step(actions)
 
-        if terminated:
-            print("Environment terminated.")
-            break
+        if terminated: break # Environment terminated
 
     # 5. Evaluate & Close
     print("Evaluating task...")

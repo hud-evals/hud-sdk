@@ -1,0 +1,237 @@
+---
+title: 'Running Your Own Agent'
+description: 'Integrating custom agent logic with HUD environments'
+---
+
+# Running Your Own Agent
+
+The HUD SDK is designed to be flexible, allowing you to integrate various types of AI agents. While the SDK provides built-in agents (`ClaudeAgent`, `OperatorAgent`), you can easily run your own custom agent logic. This guide outlines the primary ways to achieve this.
+
+The core interaction loop with any HUD [Environment](/concepts/environment) involves:
+1. Creating the environment: `env = await hud.gym.make(...)`
+2. Getting an initial observation: `obs, _  = await env.reset()`
+3. **Agent Decision:** Processing `obs` to decide on the next action(s).
+4. Executing actions: `obs, _, _, _ = await env.step(actions)`
+5. Evaluating the outcome: `result = await env.evaluate()`
+6. Closing the environment: `await env.close()`
+
+The key difference lies in how **Step 3 (Agent Decision)** is implemented and how the resulting `actions` are formatted for **Step 4**.
+
+## Approach 1: Direct CLA Interaction
+
+This is the most straightforward approach if your agent logic can directly generate actions conforming to HUD's **Common Language Actions (CLA)** format. See [CLA Action Details](/advanced/cla-details) for format specifics.
+
+*   **Concept:** Your agent code, running outside the HUD `Agent` class structure, processes the `Observation` and directly constructs a list of `CLA` objects.
+*   **Implementation:**
+    *   Focus on your agent's decision-making process based on `obs.screenshot` and `obs.text`.
+    *   Your agent's output must be `list[CLA]`. You'll need to import specific `CLA` types (like `ClickAction`, `TypeAction`, etc.) from `hud.adapters.common.types`.
+    *   Pass this list directly to `env.step()`.
+
+```python
+import asyncio
+from hud import gym, job
+from hud.task import Task
+from hud.env import Observation
+# Import specific CLA types you need
+from hud.adapters import CLA
+from hud.adapters.common.types import ClickAction, TypeAction, Point
+
+# --- Your Custom Agent Logic ---
+def my_custom_agent_logic(observation: Observation) -> list[CLA]:
+    # Process screenshot/text...
+    # Decide on next actions...
+    # Example: Click at (100, 150) and type "hello"
+    actions = [
+        ClickAction(point=Point(x=100, y=150)),
+        TypeAction(text="hello")
+    ]
+    # Ensure the return type is list[CLA]
+    return actions
+
+@job("custom-cla-agent-run")
+async def main():
+    task = Task(prompt="Click and type", gym="hud-browser")
+    env = await gym.make(task)
+    obs, _ = await env.reset() # Initial observation
+
+    for i in range(5):
+        print(f"--- Step {i+1} ---")
+        # Get actions directly from your logic
+        agent_actions: list[CLA] = my_custom_agent_logic(obs)
+        print(f"Agent actions: {agent_actions}")
+
+        # Step the environment with CLA actions
+        obs, _, _, terminated, info = await env.step(agent_actions)
+
+        if terminated: break # Check termination
+
+    result = await env.evaluate()
+    print(f"Evaluation: {result}")
+    await env.close()
+
+# if __name__ == "__main__":
+#     asyncio.run(main())
+```
+
+*   **Pros:** Simple integration, doesn't require understanding the `Agent`/`Adapter` inheritance structure.
+*   **Cons:** Your agent logic needs to be aware of and construct specific `CLA` Pydantic models. No automatic observation preprocessing (like screenshot rescaling) or action postprocessing (like coordinate rescaling) provided by the `Adapter` framework.
+
+## Approach 2: Inheriting `hud.agent.Agent`
+
+This approach leverages the SDK's structure for a more integrated solution.
+
+*   **Concept:** Create a class that inherits from `hud.agent.Agent`. Implement the `fetch_response` method to contain your core agent logic (calling your model, processing results). Optionally, create a custom `hud.adapters.Adapter` if your model uses a non-standard action format or requires specific observation rescaling.
+*   **Implementation:**
+    *   Define `MyAgent(Agent[MyClientType, MyRawActionType])`.
+    *   Implement `async def fetch_response(self, observation: Observation) -> tuple[list[MyRawActionType], bool]: ...`. This method should return the *raw* actions from your model and a `done` flag.
+    *   (Optional) Define `MyAdapter(Adapter)` and implement `convert(self, raw_action: MyRawActionType) -> CLA: ...`. You might also override `__init__` to set `self.agent_width`/`height` if different from the default.
+    *   Instantiate your agent, optionally passing your custom adapter: `agent = MyAgent(client=my_llm_client, adapter=MyAdapter())`. If you provide an adapter, the base `Agent.predict` method will automatically call `adapter.rescale` before `fetch_response` and `adapter.adapt_list` after.
+
+```python
+import asyncio
+from typing import Any # Placeholder for your raw action type
+from hud import gym, job
+from hud.task import Task
+from hud.env import Observation
+from hud.agent import Agent # Import base class
+from hud.adapters import Adapter, CLA # Import base adapter and CLA type
+# Import your specific CLA types if needed for a custom adapter
+from hud.adapters.common.types import ClickAction, TypeAction, Point
+
+# --- Your Custom Agent ---
+class MyRawAction(dict): # Example raw action type (e.g., a dictionary)
+    pass
+
+class MyAgent(Agent[Any, MyRawAction]): # Specify client type and raw action type
+    # You might initialize your LLM client here
+    def __init__(self, adapter: Adapter | None = None): # Optionally take an adapter
+        super().__init__(client=None, adapter=adapter) # Pass adapter to base
+
+    async def fetch_response(self, observation: Observation) -> tuple[list[MyRawAction], bool]:
+        # 1. Process observation (screenshot already rescaled if adapter exists)
+        prompt = f"Image received. Task: {observation.text}. What to do?"
+        # 2. Call your custom LLM / logic
+        # llm_response = await my_llm_call(prompt, observation.screenshot)
+        llm_response = {"action_type": "click", "x": 200, "y": 250} # Dummy response
+
+        # 3. Convert LLM response to your raw action format
+        raw_actions: list[MyRawAction] = [MyRawAction(llm_response)] # Example
+        done = False # Decide if task is done
+        return raw_actions, done
+
+# --- (Optional) Your Custom Adapter ---
+class MyAdapter(Adapter):
+    def __init__(self):
+        super().__init__()
+        self.agent_width = 1000 # Example: If your model expects 1000px wide images
+        self.agent_height = 800
+
+    def convert(self, raw_action: MyRawAction) -> CLA:
+        # Convert your raw action dict to a CLA Pydantic model
+        if raw_action.get("action_type") == "click":
+            return ClickAction(point=Point(x=raw_action["x"], y=raw_action["y"]))
+        elif raw_action.get("action_type") == "type":
+             return TypeAction(text=raw_action.get("text", ""))
+        # ... handle other action types ...
+        raise ValueError(f"Unknown raw action type: {raw_action}")
+
+# --- Usage ---
+@job("custom-agent-framework-run")
+async def main():
+    task = Task(prompt="Use custom agent", gym="hud-browser")
+    env = await gym.make(task)
+
+    # Initialize agent, optionally with the adapter
+    my_agent = MyAgent(adapter=MyAdapter()) # Adapter handles conversion + rescaling
+
+    obs, _ = await env.reset()
+    for i in range(5):
+        print(f"--- Step {i+1} ---")
+        # Predict handles preprocess, fetch_response, postprocess
+        processed_actions, done = await my_agent.predict(obs)
+        print(f"Processed CLA actions: {processed_actions}")
+
+        if done: break
+        obs, _, _, terminated, info = await env.step(processed_actions)
+        if terminated: break
+
+    result = await env.evaluate()
+    print(f"Evaluation: {result}")
+    await env.close()
+
+# if __name__ == "__main__":
+#     asyncio.run(main())
+```
+
+*   **Pros:** Leverages SDK structure, benefits from automatic rescaling (if adapter used), cleaner separation of agent logic (`fetch_response`) and action conversion (`Adapter`).
+*   **Cons:** Requires understanding the `Agent` and `Adapter` base classes.
+
+## Approach 3: External Control (e.g., CDP)
+
+This approach uses HUD primarily for environment provisioning and lifecycle management, while the core interaction happens via a direct connection using protocols like CDP.
+
+*   **Concept:** Use `gym.make()` to start an environment (e.g., `"hud-browser"`). Use `env.get_urls()` to retrieve connection details (like a CDP endpoint URL). Use an external library (`pyppeteer`, `playwright`, `selenium` with CDP) to connect directly to the browser instance and control it using that library's commands.
+*   **Implementation:**
+    *   Create the HUD environment: `env = await gym.make(...)`.
+    *   Get connection info: `urls = await env.get_urls()`, `cdp_url = urls['url']`.
+    *   Initialize your external library (e.g., `pyppeteer.connect(browserURL=cdp_url)`).
+    *   Use the external library's functions for interaction (e.g., `page.click()`, `page.type()`). You would likely still use `env.step()` *without actions* periodically to get updated `Observation` (screenshots) for your agent's decision-making, but you wouldn't pass actions *back* to `env.step()`.
+    *   When finished, call `await env.evaluate()` and `await env.close()` on the HUD `env` object.
+
+```python
+import asyncio
+import os
+from hud import gym, job
+from hud.task import Task
+from hud.utils import stream # For live view
+# Need external library, e.g., pyppeteer (pip install pyppeteer)
+# import pyppeteer
+
+@job("external-control-run")
+async def main():
+    task = Task(prompt="Externally controlled task", gym="hud-browser", setup=("goto", "google.com"))
+    env = await gym.make(task)
+
+    try:
+        urls = await env.get_urls()
+        cdp_url = urls.get('url')
+        live_url = urls.get('live_url')
+
+        if not cdp_url:
+            raise ConnectionError("Could not get CDP URL from environment.")
+
+        if live_url:
+            stream(live_url) # Show live view
+
+        print(f"Connecting via CDP: {cdp_url}")
+        # --- Connect using external library (Example: pyppeteer) ---
+        # browser = await pyppeteer.connect(browserURL=cdp_url)
+        # page = (await browser.pages())[0] # Assume first page
+
+        print("Performing actions via external library (e.g., pyppeteer)...")
+        # await page.waitForSelector('textarea[name="q"]', {'visible': True})
+        # await page.type('textarea[name="q"]', 'capybara')
+        # await page.keyboard.press('Enter')
+        # await asyncio.sleep(2) # Wait for results
+
+        # --- End external library interaction ---
+        # await browser.disconnect()
+
+        print("Evaluating task via env.evaluate()...")
+        result = await env.evaluate(("contains_text", "capybara")) # Example eval
+        print(f"Evaluation result: {result}")
+
+    finally:
+        print("Closing environment...")
+        await env.close()
+
+# if __name__ == "__main__":
+#     if not os.getenv("HUD_API_KEY"): print("Set HUD_API_KEY")
+#     else: asyncio.run(main())
+
+```
+
+*   **Pros:** Maximum control over the environment using specialized libraries. Useful if existing automation scripts use these tools.
+*   **Cons:** **Actions taken via the external library are NOT recorded in the HUD trajectory.** Only observations fetched via `env.step()` and the final `env.evaluate()` result are captured. Bypasses the `CLA` abstraction. Requires managing dependencies for the external control library.
+
+Choose the approach that best fits your agent's design and your integration needs with the HUD framework's features like trajectory recording and standardized actions. 
