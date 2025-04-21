@@ -73,6 +73,8 @@ for _ in range(10):
     if done or terminated: break
 ```
 
+*   **Note on QA Tasks:** For [Question-Answering Tasks](/concepts/task#defining-question-answering-qa-tasks), the agent might only need one `predict` call. The agent should output a `ResponseAction`, which the environment stores. The subsequent `env.evaluate()` call then checks this stored response. The environment itself remains largely passive for QA.
+
 ## Key Methods
 
 *   **`env.step(actions: list[CLA] | None = None)`**: Executes actions (or gets initial state). Returns `(Observation, reward, terminated, info)`.
