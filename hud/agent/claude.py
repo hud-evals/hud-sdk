@@ -11,7 +11,7 @@ from anthropic.types.beta import (
     BetaImageBlockParam,
 )
 
-
+from hud.adapters import Adapter
 from hud.agent.base import Agent
 from hud.adapters.claude import ClaudeAdapter
 from hud.env.environment import Observation
@@ -61,7 +61,7 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
     def __init__(
         self, 
         client: AsyncAnthropic | None = None,
-        adapter: ClaudeAdapter | None = None,
+        adapter: Adapter | None = None,
         model: str = "claude-3-7-sonnet-20250219",
         max_tokens: int = 4096,
         max_iterations: int = 10,
@@ -85,6 +85,8 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
             
             # Create client
             client = AsyncAnthropic(api_key=api_key)
+
+        adapter = adapter or ClaudeAdapter()
             
         super().__init__(client=client, adapter=adapter)
         

@@ -9,6 +9,8 @@ from hud.settings import settings
 from hud.task import Task
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from inspect_ai.dataset import Dataset
 
 
@@ -49,6 +51,12 @@ class TaskSet(BaseModel):
         """
         return len(self.tasks)
     
+    def __iter__(self) -> Iterator[Task]:
+        """
+        Returns an iterator over the tasks in the taskset.
+        """
+        return iter(self.tasks)
+
     
 async def load_taskset(taskset_id: str, api_key: str | None = None) -> TaskSet:
     """

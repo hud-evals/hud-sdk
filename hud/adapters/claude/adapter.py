@@ -22,7 +22,10 @@ from hud.adapters.common.types import (
 
 
 class ClaudeAdapter(Adapter):
-    KEY_MAP: ClassVar[dict[str, CLAKey]] = {"Return": "enter"}
+    KEY_MAP: ClassVar[dict[str, CLAKey]] = {
+        "Return": "enter",
+        "Super": "win",
+        }
 
     def __init__(self) -> None:
         super().__init__()
