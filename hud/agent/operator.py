@@ -9,7 +9,8 @@ from openai.types.responses import (
     ResponseInputParam,
     ResponseInputItemParam,
     ResponseOutputMessage,
-    ResponseComputerToolCall
+    ResponseComputerToolCall,
+    ResponseOutputText
 )
 
 from hud.agent.base import Agent
@@ -184,7 +185,7 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
             for item in response.output:
                 if isinstance(item, ResponseOutputMessage) and item.type == "message":
                     # Extract text from content blocks within the message
-                    full_text = "".join([c.text for c in item.content if hasattr(c, 'text')])
+                    full_text = "".join([c.text for c in item.content if isinstance(c, ResponseOutputText)])
                     if full_text:
                         final_text_response = full_text
                         logger.info(f"Final text message: {final_text_response}")
