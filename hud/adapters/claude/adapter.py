@@ -13,6 +13,7 @@ from hud.adapters.common.types import (
     Point,
     PositionFetch,
     PressAction,
+    ResponseAction,
     ScreenshotFetch,
     ScrollAction,
     TypeAction,
@@ -151,6 +152,10 @@ class ClaudeAdapter(Adapter):
             elif action_type == "wait":
                 assert "duration" in data
                 return WaitAction(time=data["duration"])
+
+            elif action_type == "response":
+                return ResponseAction(text=data.get("text", ""))
+
             else:
                 raise ValueError(f"Unsupported action type: {action_type}")
         except AssertionError:

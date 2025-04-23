@@ -67,15 +67,15 @@ class Task(BaseModel):
     @classmethod
     def from_inspect_sample(cls, sample: Sample) -> Task:
         """Create a Task from an Inspect dataset sample.
-        The task's sandbox is a local ubuntu container using the standard controller.
-        Files will be copied to the user directory
+        Automatically detects if a CustomGym (docker) or QA Gym is needed based on sample.sandbox.
+        Configures evaluation using 'response_includes' or 'match_all' based on sample.target.
 
         Args:
             sample: An Inspect dataset Sample object
 
         Returns:
             Task instance
-
+        
         The Inspect Sample has these fields:
         - input (str | list[ChatMessage]): The input to be submitted to the model
         - choices (list[str] | None): Optional multiple choice answer list
@@ -86,10 +86,8 @@ class Task(BaseModel):
         - files (dict[str, str] | None): Optional files that go with the sample
         - setup (str | None): Optional setup script to run for sample
         """
-        # Extract the input as prompt
         prompt = sample.input
-        if isinstance(prompt, list):  # Handle ChatMessage format
-            # Convert chat message list to a string representation
+        if isinstance(prompt, list):
             prompt_parts = []
             for message in prompt:
                 role = message.role
@@ -97,32 +95,50 @@ class Task(BaseModel):
                 prompt_parts.append(f"{role.capitalize()}: {content}")
             prompt = "\n\n".join(prompt_parts)
 
-        # Map sandbox from Inspect to our envspec
+        evaluate_config = None
+        if sample.target:
+            if isinstance(sample.target, str):
+                evaluate_config = ("response_includes", [sample.target])
+            elif isinstance(sample.target, list):
+                evaluate_config = ("match_all", sample.target)
+
+        task_gym: Gym | None = None
+        task_setup: HudStyleConfigs | None = None
+        
         sandbox = sample.sandbox
         dockerfile = None
+        use_qa_gym = True
+
         if sandbox:
             if isinstance(sandbox, str):
-                if sandbox != "docker":
-                    raise ValueError("docker is the only supported sandbox")
+                if sandbox == "docker":
+                    dockerfile = UBUNTU_DOCKERFILE 
+                    use_qa_gym = False
             elif isinstance(sandbox, tuple) and len(sandbox) == 2:
                 sandbox_type, sandbox_config = sandbox
-                if sandbox_type != "docker":
-                    raise ValueError("docker is the only supported sandbox")
-                dockerfile = sandbox_config
-            else:
-                raise ValueError("Invalid sandbox configuration")
+                if sandbox_type == "docker":
+                    dockerfile = sandbox_config
+                    use_qa_gym = False
 
-        gym = CustomGym(
-            dockerfile=dockerfile or UBUNTU_DOCKERFILE,
-            location="local",
-        )
+        if use_qa_gym:
+            task_gym = "qa"
+            task_setup = None 
+        else:
+            task_gym = CustomGym(
+                dockerfile=dockerfile or UBUNTU_DOCKERFILE,
+                location="local",
+            )
+            task_setup = [x for x in convert_inspect_setup(sample.setup)] if sample.setup else None
+            # TODO: Handle sample.files for CustomGym case if needed
+
 
         return cls(
-            id=str(sample.id) if sample.id else None,
+            id=None,
             prompt=prompt,
-            setup=[x for x in convert_inspect_setup(sample.setup)] if sample.setup else [],
+            setup=task_setup,
             metadata=sample.metadata,
             choices=sample.choices,
-            target=sample.target,
-            gym=gym,
+            evaluate=evaluate_config, 
+            gym=task_gym,
+            # files=sample.files, # TODO: Decide how/if to handle files
         )
