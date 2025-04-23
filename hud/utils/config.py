@@ -2,44 +2,14 @@ from __future__ import annotations
 
 import logging
 import re
-from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel
-
-if TYPE_CHECKING:
-    from collections.abc import Iterator
-
-    from hud.task import Task
+from hud.utils.common import HudStyleConfig, HudStyleConfigs
 
 logger = logging.getLogger("hud.utils.config")
 
 REMOTE_FUNCTION_PREFIX = "private_"
 REMOTE_SETUP = "setup"
 REMOTE_EVALUATE = "evaluate"
-
-class HudStyleConfig(BaseModel):
-    function: str  # Format: "x.y.z"
-    args: list[Any] # Must be json serializable
-
-    id: str | None = None # Optional id for remote execution
-
-    def __len__(self) -> int:
-        return len(self.args)
-
-    def __getitem__(self, index: int) -> Any:
-        return self.args[index]
-    
-    def __iter__(self) -> Iterator[Any]:
-        return iter(self.args)
-    
-    def __str__(self) -> str:
-        return f"{self.function}: {', '.join(str(arg) for arg in self.args)}"
-
-# Type alias for the shorthand config, which just converts to function name and args
-ShorthandConfig = tuple[str | dict[str, Any] | list[str] | list[dict[str, Any]], ...]
-
-# Type alias for multiple config formats
-HudStyleConfigs = ShorthandConfig | HudStyleConfig | list[HudStyleConfig] | dict[str, Any] | str
 
 def _is_valid_python_name(name: str) -> bool:
     """Check if a string is a valid Python identifier."""
@@ -122,64 +92,3 @@ def expand_config(config: HudStyleConfigs) -> list[HudStyleConfig]:
     error_msg = f"Unknown configuration type: {type(config)}"
     logger.error(error_msg)
     raise ValueError(error_msg)
-
-def create_remote_config(
-    task: Task | None = None,
-    config: HudStyleConfigs | None = None,
-    function: str | None = None,
-) -> list[HudStyleConfig]:
-    """
-    Create a configuration based on provided inputs.
-    
-    Args:
-        task: Task object with configuration
-        config: Direct configuration (expanded or not)
-        function: Function name to use
-        
-    Returns:
-        list[HudStyleConfig]: List of standardized configurations
-        
-    Logic:
-        1) If explicit config: expand and return HudStyleConfig with func of the function,
-        and args of expanded config
-        2) If task has the specified function defined: use that
-        3) If no task function: check for task._config and use that
-        4) If no _config: use task.id and create private_[function]
-    """
-    # If no function provided, just expand the config and return it directly
-    if function is None:
-        if config:
-            return expand_config(config)
-        raise ValueError("Either function or config must be provided")
-    
-    # Case 1: Explicit config provided
-    if config:
-        expanded_configs = expand_config(config)
-        return [HudStyleConfig(function=function, args=expanded_configs)]
-    
-    # Must have a task for the remaining cases
-    if task is None:
-        raise ValueError("Either task or config must be provided")
-    
-    # Case 2: Task has the specified function attribute
-    task_config = getattr(task, function, None)
-    if task_config and len(task_config) > 0:
-        expanded_configs = expand_config(task_config)
-        if task.id:
-            expanded_configs[0].id = task.id # for remote IDs
-        return [HudStyleConfig(function=function, args=expanded_configs)]
-    
-    # Case 3: Check for _config
-    if hasattr(task, "config") and task.config:
-        if task.id:
-            task.config["id"] = task.id # for remote IDs
-        return [HudStyleConfig(function=function, args=[task.config])]
-    
-    # Case 4: Use task.id
-    if task.id:
-        return [HudStyleConfig(function=f"{REMOTE_FUNCTION_PREFIX}{function}", args=[task.id])]
-    
-    # No valid configuration found
-    #logger.warning("No valid configuration found for function: %s", function)
-    return [HudStyleConfig(function=function, args=[])]
-

@@ -67,12 +67,13 @@ obs, _ = await env.reset()
 for _ in range(10):
     # 2. Agent predicts action(s)
     actions, done = await agent.predict(obs)
-    if done: break
 
     # 3. Execute action(s) in environment
     obs, reward, terminated, info = await env.step(actions)
-    if terminated: break
+    if done or terminated: break
 ```
+
+*   **Note on QA Tasks:** For [Question-Answering Tasks](/concepts/task#defining-question-answering-qa-tasks), the agent might only need one `predict` call. The agent should output a `ResponseAction`, which the environment stores. The subsequent `env.evaluate()` call then checks this stored response. The environment itself remains largely passive for QA.
 
 ## Key Methods
 

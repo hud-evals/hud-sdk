@@ -60,7 +60,10 @@ Both `setup` and `evaluate` accept configurations defining function calls within
 *   **Purpose:** Determines task success after the agent finishes.
 *   **Execution:** Triggered by `await env.evaluate()`.
 *   **Result:** The return value of `env.evaluate()`, often a reward score (e.g., `1.0` or `0.0`). This is stored in the `reward` field of the [Trajectory](/concepts/trajectory) if linked to a [Job](/concepts/job).
-*   **Examples:** `("contains_text", "Success!")`, `("file_exists", "/path/to/output.txt")`. Check specific environment controller docs for available functions.
+*   **Examples:**
+    *   Interactive: `("contains_text", "Success!")`, `("file_exists", "/path/to/output.txt")`. These typically call functions *within* the active environment controller.
+    *   QA: `("response_includes", "Paris")`. These functions often check the text stored in `env.final_response` (which comes from the agent's `ResponseAction`).
+*   **Note:** Check specific environment or evaluation service documentation for available functions.
 
 ## TaskSet
 
@@ -100,3 +103,30 @@ my_taskset = TaskSet(tasks=[task1, task2], description="My set")
 *   [Agent](/concepts/agent): Aims to complete the Task `prompt`.
 *   [Job](/concepts/job): Groups runs of different Tasks.
 *   [Trajectory](/concepts/trajectory): Records the execution of a Task.
+
+### Defining Question-Answering (QA) Tasks
+
+While HUD excels at interactive tasks, you can also define tasks that are primarily question-answering. The key differences are:
+
+*   **`gym`:** You might still use an existing environment type like `"hud-browser"` if you want the QA to happen *within* that context (e.g., asking the agent to answer based on a webpage). For pure QA without environment interaction, a future specific `"qa"` gym type might be introduced, but currently, you'd use an existing type.
+*   **`prompt`:** Contains the question for the agent.
+*   **`setup`:** Often minimal or unnecessary for pure QA.
+*   **`evaluate`:** Defines how to check the agent's final text answer. This typically involves calling a specific evaluation function that compares the agent's final submitted response (see `ResponseAction` in [CLA Details](/advanced/cla-details)) against expected criteria. The `env.final_response` attribute holds the text submitted by the agent via `ResponseAction`.
+*   **`target`:** (Recommended) Store the ground truth answer in the `metadata` or potentially a dedicated `target` field for clarity during evaluation function design.
+
+```python
+from hud.task import Task
+
+qa_task = Task(
+    prompt="What is the powerhouse of the cell?",
+    gym="hud-browser", # Or potentially a future "qa" type
+    # No complex setup needed for pure QA
+    setup=(),
+    # Evaluation checks the agent's final submitted text response
+    evaluate=("response_includes", "mitochondria"), # Assumes a function checking env.final_response
+)
+```
+
+The [Agent](/concepts/agent) handling such a task should recognize it doesn't need complex interaction and output a `ResponseAction` containing the final answer. The `env.evaluate()` call then triggers the specified check (like `response_includes`) against the stored response.
+
+### <a name="configuration-styles"></a>Configuration Styles (`setup` and `evaluate`)

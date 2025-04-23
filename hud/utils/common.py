@@ -3,15 +3,42 @@ from __future__ import annotations
 import io
 import logging
 import tarfile
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Any, TypedDict
+
+from pydantic import BaseModel
 
 from hud.server.requests import make_request
 from hud.settings import settings
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
     from pathlib import Path
 
 logger = logging.getLogger("hud.utils.common")
+
+class HudStyleConfig(BaseModel):
+    function: str  # Format: "x.y.z"
+    args: list[Any] # Must be json serializable
+
+    id: str | None = None # Optional id for remote execution
+
+    def __len__(self) -> int:
+        return len(self.args)
+
+    def __getitem__(self, index: int) -> Any:
+        return self.args[index]
+    
+    def __iter__(self) -> Iterator[Any]:
+        return iter(self.args)
+    
+    def __str__(self) -> str:
+        return f"{self.function}: {', '.join(str(arg) for arg in self.args)}"
+
+# Type alias for the shorthand config, which just converts to function name and args
+ShorthandConfig = tuple[str | dict[str, Any] | list[str] | list[dict[str, Any]], ...]
+
+# Type alias for multiple config formats
+HudStyleConfigs = ShorthandConfig | HudStyleConfig | list[HudStyleConfig] | dict[str, Any] | str
 
 class ExecuteResult(TypedDict):
     """

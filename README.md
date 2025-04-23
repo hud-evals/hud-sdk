@@ -75,7 +75,7 @@ if __name__ == "__main__":
 
 Explore the core concepts and features of the SDK:
 
-*   **[Tasks and TaskSets](/concepts/task)**: Define goals, context, setup, and evaluation criteria for agent scenarios.
+*   **[Tasks and TaskSets](/concepts/task)**: Define goals, context, setup, and evaluation criteria for agent scenarios. This includes both interactive and **question-answering (QA)** style tasks.
 *   **[Environments](/concepts/environment)**: Understand the browser and OS runtimes where agents interact.
 *   **[Agents](/concepts/agent)**: Learn about the agent architecture (Claude, Operator) and how they process observations and predict actions.
 *   **[Adapters](/concepts/adapter)**: See how actions and observations are translated between agents and environments.
