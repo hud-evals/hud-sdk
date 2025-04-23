@@ -10,11 +10,11 @@ from hud.adapters.common.types import (
     MoveAction,
     Point,
     PressAction,
+    ResponseAction,
     ScreenshotFetch,
     ScrollAction,
     TypeAction,
     WaitAction,
-    ResponseAction,
 )
 
 
