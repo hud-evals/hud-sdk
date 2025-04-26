@@ -34,7 +34,7 @@ class Task(BaseModel):
 
     The setup and evaluate configurations can be in several formats:
     - String (function name): "chrome.maximize"
-    - String (function with args): "chrome.activate_tab 5"
+    - Tuple (function with args): ("chrome.activate_tab", 5)
     - Dict: {"function": "chrome.navigate", "args": ["https://example.com"]}
     - List of the above: ["chrome.maximize", {"function": "chrome.navigate", "args": ["https://example.com"]}]
 
