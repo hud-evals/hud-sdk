@@ -8,7 +8,7 @@ from . import agent, env, gym, settings, task, taskset, types, utils
 from .job import create_job, job, load_job
 from .taskset import load_taskset
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 __all__ = [
     "agent",
