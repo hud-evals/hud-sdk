@@ -13,6 +13,7 @@ from openai.types.responses import (
     ResponseOutputText
 )
 
+from hud.adapters import Adapter
 from hud.agent.base import Agent
 from hud.adapters.operator import OperatorAdapter
 from hud.env.environment import Observation
@@ -33,7 +34,7 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
         client: OpenAI | None = None,
         model: str = "computer-use-preview",
         environment: Literal["windows", "mac", "linux", "browser"] = "windows",
-        adapter: OperatorAdapter | None = None,
+        adapter: Adapter | None = None,
         max_iterations: int = 8
     ):
         """
@@ -55,6 +56,8 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
             
             # Create synchronous client
             client = OpenAI(api_key=api_key)
+
+        adapter = adapter or OperatorAdapter()
         
         super().__init__(client=client, adapter=adapter)
         
@@ -75,7 +78,7 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
         self.last_response_id = None
         self.pending_call_id = None
         self.initial_prompt = None
-    
+
     async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool]:
         """
         Fetch a response from the model based on the observation.

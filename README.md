@@ -27,15 +27,17 @@ export HUD_API_KEY=your_api_key_here
 pip install hud-python
 ```
 
-### Simple Browser Example with Operator
+### Simple Browser Example with Claude Computer Use
 
 > This example uses the `@job("test-run")` decorator, so the results of this run will appear under the job named "test-run" on the your [HUD Jobs page](https://app.hud.so/jobs).
+
+Make sure your have defined your `ANTRHOPIC_API_KEY` in environment variables to run Claude.
 
 ```python
 import asyncio
 from hud import gym, job
 from hud.task import Task
-from hud.agent import OperatorAgent
+from hud.agent import ClaudeAgent
 
 @job("test-run")
 async def main():
@@ -50,10 +52,10 @@ async def main():
     env = await gym.make(task)
     
     # Initialize Operator agent (API key is loaded automatically)
-    agent = OperatorAgent()
+    agent = ClaudeAgent()
     
     # Agent loop with predict and step functions
-    obs, _ = env.reset() # Gets first observation
+    obs, _ = await env.reset() # Gets first observation
     for i in range(5):
         actions, done = await agent.predict(obs)
         if done:

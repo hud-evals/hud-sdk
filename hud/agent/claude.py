@@ -11,7 +11,7 @@ from anthropic.types.beta import (
     BetaImageBlockParam,
 )
 
-
+from hud.adapters import Adapter
 from hud.agent.base import Agent
 from hud.adapters.claude import ClaudeAdapter
 from hud.env.environment import Observation
@@ -61,7 +61,7 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
     def __init__(
         self, 
         client: AsyncAnthropic | None = None,
-        adapter: ClaudeAdapter | None = None,
+        adapter: Adapter | None = None,
         model: str = "claude-3-7-sonnet-20250219",
         max_tokens: int = 4096,
         max_iterations: int = 10,
@@ -85,6 +85,8 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
             
             # Create client
             client = AsyncAnthropic(api_key=api_key)
+
+        adapter = adapter or ClaudeAdapter()
             
         super().__init__(client=client, adapter=adapter)
         
@@ -184,4 +186,22 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
                 done = False
                 break
 
+        # If no tool use action was found, check for a final text response
+        if not actions and done:
+            final_text_response = ""
+            for block in response_content:
+                if block.type == "text":
+                    final_text_response += block.text
+            
+            if final_text_response.strip():
+                logger.info(f"No tool use found. Using final text as response: {final_text_response}")
+                actions = [{
+                    "action": "response", 
+                    "text": final_text_response.strip()
+                }]
+                # Keep done = True
+            else:
+                 logger.info("No tool use and no final text block found.")
+                 # Keep done = True, actions remains empty
+            
         return actions, done
