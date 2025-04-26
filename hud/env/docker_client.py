@@ -215,7 +215,7 @@ class DockerClient(Client):
                 raise ValueError("Could not find package name in pyproject.toml")
             logger.info("Installing %s in /root/controller", self._package_name)
             result = await self.execute(
-                ["bash", "-c", "cd /root/controller && pip install -e ."],
+                ["bash", "-c", "cd /root/controller && pip install -e . --break-system-packages"],
                 timeout=60,
             )
             if result["stdout"]:
