@@ -73,6 +73,20 @@ if __name__ == "__main__":
 
 ```
 
+Alternatively, run a full evaluation set via the ```run_job``` command:
+
+```from hud import load_taskset, run_job, ClaudeAgent
+
+# load
+taskset = load_taskset("GAIA")
+
+# evaluate
+job = await run_job(ClaudeAgent, taskset, "test-gaia-job")
+
+# get results OR view them in app.hud.so
+print(await job.get_analytics())
+```
+
 ## Documentation Sections
 
 Explore the core concepts and features of the SDK:
