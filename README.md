@@ -92,18 +92,18 @@ print(await job.get_analytics())
 
 Explore the core concepts and features of the SDK:
 
-*   **[Tasks and TaskSets](/concepts/task)**: Define goals, context, setup, and evaluation criteria for agent scenarios. This includes both interactive and **question-answering (QA)** style tasks.
-*   **[Environments](/concepts/environment)**: Understand the browser and OS runtimes where agents interact.
-*   **[Agents](/concepts/agent)**: Learn about the agent architecture (Claude, Operator) and how they process observations and predict actions.
-*   **[Adapters](/concepts/adapter)**: See how actions and observations are translated between agents and environments.
-*   **[Jobs](/concepts/job)**: Group related runs for analysis and viewing on the HUD platform.
-*   **[Trajectories](/concepts/trajectory)**: Understand the recorded data from each agent run.
+*   **[Tasks and TaskSets](https://documentation.hud.so/concepts/task)**: Define goals, context, setup, and evaluation criteria for agent scenarios. This includes both interactive and **question-answering (QA)** style tasks.
+*   **[Environments](https://documentation.hud.so/concepts/environment)**: Understand the browser and OS runtimes where agents interact.
+*   **[Agents](https://documentation.hud.so/concepts/agent)**: Learn about the agent architecture (Claude, Operator) and how they process observations and predict actions.
+*   **[Adapters](https://documentation.hud.so/concepts/adapter)**: See how actions and observations are translated between agents and environments.
+*   **[Jobs](https://documentation.hud.so/concepts/job)**: Group related runs for analysis and viewing on the HUD platform.
+*   **[Trajectories](https://documentation.hud.so/concepts/trajectory)**: Understand the recorded data from each agent run.
 *   **Advanced Topics**:
-    *   **[CLA Action Details](/advanced/cla-details)**: Explore the standardized action format.
-    *   **[Custom Environments](/advanced/custom-environments)**: Build your own Docker-based local or remote environments.
-    *   **[Advanced Environment Control](/advanced/environment-control)**: Use `invoke`, `execute`, and `_setup` for finer control.
+    *   **[CLA Action Details](https://documentation.hud.so/advanced/cla-details)**: Explore the standardized action format.
+    *   **[Custom Environments](https://documentation.hud.so/advanced/custom-environments)**: Build your own Docker-based local or remote environments.
+    *   **[Advanced Environment Control](https://documentation.hud.so/advanced/environment-control)**: Use `invoke`, `execute`, and `_setup` for finer control.
 
-*   **[Full API Reference](/api-reference/gym)**: Detailed specifications for all modules and classes.
+*   **[Full API Reference](https://documentation.hud.so/api-reference/gym)**: Detailed specifications for all modules and classes.
 
 ## [Examples](examples/)
 
