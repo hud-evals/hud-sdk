@@ -75,7 +75,8 @@ if __name__ == "__main__":
 
 Alternatively, run a full evaluation set via the ```run_job``` command:
 
-```from hud import load_taskset, run_job, ClaudeAgent
+```python
+from hud import load_taskset, run_job, ClaudeAgent
 
 # load
 taskset = load_taskset("GAIA")
