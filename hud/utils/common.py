@@ -38,7 +38,10 @@ class HudStyleConfig(BaseModel):
 ShorthandConfig = tuple[str | dict[str, Any] | list[str] | list[dict[str, Any]], ...]
 
 # Type alias for multiple config formats
-HudStyleConfigs = ShorthandConfig | HudStyleConfig | list[HudStyleConfig] | dict[str, Any] | str
+HudStyleConfigs = (
+    ShorthandConfig | HudStyleConfig | list[HudStyleConfig] | list[ShorthandConfig]
+    | dict[str, Any] | str
+)
 
 class ExecuteResult(TypedDict):
     """
