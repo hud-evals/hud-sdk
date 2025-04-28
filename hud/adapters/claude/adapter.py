@@ -23,9 +23,13 @@ from hud.adapters.common.types import (
 
 class ClaudeAdapter(Adapter):
     KEY_MAP: ClassVar[dict[str, CLAKey]] = {
-        "Return": "enter",
-        "Super": "win",
-        }
+        "return": "enter",
+        "super": "win",
+        "super_l": "win",
+        "super_r": "win",
+        "right shift": "shift",
+        "left shift": "shift",
+    }
 
     def __init__(self) -> None:
         super().__init__()
@@ -34,7 +38,8 @@ class ClaudeAdapter(Adapter):
 
     def _map_key(self, key: str) -> CLAKey:
         """Map a key to its standardized form."""
-        return self.KEY_MAP.get(key, key.lower())  # type: ignore
+        return self.KEY_MAP.get(key.lower(), key.lower())  # type: ignore
+    
     def convert(self, data: Any) -> CLA:
         try:
             action_type = data.get("action")

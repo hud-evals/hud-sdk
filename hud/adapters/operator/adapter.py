@@ -20,11 +20,11 @@ from hud.adapters.common.types import (
 
 class OperatorAdapter(Adapter):
     KEY_MAP: ClassVar[dict[str, CLAKey]] = {
-        "Return": "enter",
-        "ArrowUp": "up",
-        "ArrowDown": "down",
-        "ArrowLeft": "left",
-        "ArrowRight": "right",
+        "return": "enter",
+        "arrowup": "up",
+        "arrowdown": "down",
+        "arrowleft": "left",
+        "arrowright": "right",
     }
     
     def __init__(self) -> None:
@@ -35,7 +35,7 @@ class OperatorAdapter(Adapter):
         
     def _map_key(self, key: str) -> CLAKey:
         """Map a key to its standardized form."""
-        return self.KEY_MAP.get(key, key.lower())  # type: ignore
+        return self.KEY_MAP.get(key.lower(), key.lower())  # type: ignore
         
     def convert(self, data: Any) -> CLA:
         """Convert a Computer Use action to a HUD action"""
