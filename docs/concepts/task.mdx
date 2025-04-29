@@ -30,11 +30,10 @@ task = Task(
     prompt="Log in to example.com with username 'test'",
     gym="hud-browser", # Request a browser environment
     setup=[ # Actions run by gym.make(task)
-        ("goto", "https://example.com/login"),
-        {"function": "wait_for_element", "args": ["#username"]}
+        ("goto", "https://example.com/login")
     ],
     evaluate={ # Logic run by env.evaluate()
-        "function": "check_login_status", 
+        "function": "page_contains", 
         "args": ["test"]
     }
 )
@@ -82,10 +81,12 @@ Load predefined sets from the HUD platform:
 ```python
 from hud import load_taskset
 
-taskset = await load_taskset("OSWorld-Ubuntu-Links")
+taskset = await load_taskset("OSWorld-Ubuntu")
 print(f"Number of tasks: {len(taskset)}") # TaskSet acts like a list
 first_task = taskset[0]
 ```
+
+Currently supported TaskSets available via `load_taskset` include OSWorld, GAIA, and WebVoyager subsets.
 
 ### Creating a TaskSet Manually
 
