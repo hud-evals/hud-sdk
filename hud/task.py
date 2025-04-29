@@ -112,7 +112,7 @@ class Task(BaseModel):
         if sandbox:
             if isinstance(sandbox, str):
                 if sandbox == "docker":
-                    dockerfile = UBUNTU_DOCKERFILE 
+                    dockerfile = UBUNTU_DOCKERFILE
                     use_qa_gym = False
             elif isinstance(sandbox, tuple) and len(sandbox) == 2:
                 sandbox_type, sandbox_config = sandbox
@@ -122,7 +122,7 @@ class Task(BaseModel):
 
         if use_qa_gym:
             task_gym = "qa"
-            task_setup = None 
+            task_setup = None
         else:
             task_gym = CustomGym(
                 dockerfile=dockerfile or UBUNTU_DOCKERFILE,
@@ -138,7 +138,7 @@ class Task(BaseModel):
             setup=task_setup,
             metadata=sample.metadata,
             choices=sample.choices,
-            evaluate=evaluate_config, 
+            evaluate=evaluate_config,
             gym=task_gym,
             # files=sample.files, # TODO: Decide how/if to handle files
         )

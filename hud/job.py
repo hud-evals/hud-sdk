@@ -6,20 +6,22 @@ import functools
 import inspect
 import logging
 import sys
-from collections.abc import Callable
-from typing import Any, TypeVar, cast, Type, Optional, List, Dict, Union
+from collections.abc import Callable, Coroutine
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
-from pydantic import BaseModel, TypeAdapter, PrivateAttr
+from pydantic import BaseModel, PrivateAttr, TypeAdapter
 
+from hud import gym
 from hud.server import make_request
 from hud.settings import settings
-from hud.trajectory import Trajectory
-from hud.agent.base import Agent
-from hud.adapters.common import Adapter
 from hud.task import Task
 from hud.taskset import TaskSet
-from hud import gym
+from hud.trajectory import Trajectory
 from hud.utils.progress import StepProgressTracker
+
+if TYPE_CHECKING:
+    from hud.adapters.common import Adapter
+    from hud.agent.base import Agent
 
 logger = logging.getLogger("hud.job")
 
@@ -43,11 +45,13 @@ class Job(BaseModel):
     status: str
     
     # Internal cache for trajectories
-    _trajectories: Optional[List[Trajectory]] = PrivateAttr(default=None)
+    _trajectories: list[Trajectory] | None = PrivateAttr(default=None)
     # Store execution errors for debugging
-    errors: List[Dict[str, Any]] = []
+    errors: list[dict[str, Any]] = []
 
-    async def load_trajectories(self, *, api_key: str | None = None, force_reload: bool = False) -> list[Trajectory]:
+    async def load_trajectories(
+            self, *, api_key: str | None = None, force_reload: bool = False
+                                ) -> list[Trajectory]:
         """
         Loads the trajectories associated with this job.
         Uses cached results unless force_reload is True.
@@ -60,10 +64,10 @@ class Job(BaseModel):
             List[Trajectory]: The trajectories in the job
         """
         if self._trajectories is not None and not force_reload:
-            logger.debug(f"Returning cached trajectories for Job {self.id}")
+            logger.debug("Returning cached trajectories for Job %s", self.id)
             return self._trajectories
             
-        logger.debug(f"Fetching trajectories for Job {self.id} from API...")
+        logger.debug("Fetching trajectories for Job %s from API...", self.id)
         api_key = api_key or settings.api_key
         
         try:
@@ -73,14 +77,14 @@ class Job(BaseModel):
                 api_key=api_key,
             )
             self._trajectories = TypeAdapter(list[Trajectory]).validate_python(data)
-            logger.debug(f"Loaded {len(self._trajectories)} trajectories for Job {self.id}")
+            logger.debug("Loaded %d trajectories for Job %s", len(self._trajectories), self.id)
             return self._trajectories
         except Exception as e:
-            logger.error(f"Failed to load trajectories for Job {self.id}: {e}", exc_info=True)
+            logger.exception("Failed to load trajectories for Job %s: %s", self.id, e)
             self._trajectories = None # Ensure cache is cleared on error
             return [] # Return empty list on error
 
-    async def get_analytics(self, *, force_reload: bool = False) -> Dict[str, Any]:
+    async def get_analytics(self, *, force_reload: bool = False) -> dict[str, Any]:
         """
         Calculates and returns analytics for the job based on its trajectories.
 
@@ -103,7 +107,7 @@ class Job(BaseModel):
         for traj in trajectories:
             # Example: Assume reward is numeric and success is reward >= 1.0
             # Adjust based on actual trajectory data structure and evaluation logic
-            if isinstance(traj.reward, (int, float)):
+            if isinstance(traj.reward, int | float):
                 total_reward += traj.reward
                 valid_rewards += 1
                 if traj.reward >= 1.0:
@@ -153,7 +157,7 @@ async def create_job(name: str, gym_id: str | None = None,
     # If not, we might need to make a subsequent GET request
     job_data = data # Adjust if the API response structure is different
 
-    logger.info(f"[HUD] View job at https://app.hud.so/jobs/{job_data['id']}.")
+    logger.info("[HUD] View job at https://app.hud.so/jobs/%s.", job_data["id"])
 
     return Job(
         id=job_data["id"],
@@ -254,34 +258,38 @@ def get_active_job() -> Job | None:
     
     return None
 
-# --- Moved helper functions from runner.py --- 
+# --- Moved helper functions from runner.py ---
 
 async def _execute_task(
-    agent_cls: Type[Agent],
-    adapter_cls: Optional[Type[Adapter]],
-    agent_kwargs: Optional[Dict[str, Any]],
-    adapter_kwargs: Optional[Dict[str, Any]],
+    agent_cls: type[Agent],
+    adapter_cls: type[Adapter] | None,
+    agent_kwargs: dict[str, Any] | None,
+    adapter_kwargs: dict[str, Any] | None,
     task: Task,
     job_name: str,
     task_id: str,
     max_steps_per_task: int,
     job: Job,
-    tracker: Optional[StepProgressTracker] = None,
+    tracker: StepProgressTracker | None = None,
     # Use semaphores instead of rate limiter
-    env_creation_semaphore: Optional[asyncio.Semaphore] = None,
-    agent_predict_semaphore: Optional[asyncio.Semaphore] = None,
+    env_creation_semaphore: asyncio.Semaphore | None = None,
+    agent_predict_semaphore: asyncio.Semaphore | None = None,
 ) -> None:
-    """Helper function to instantiate/run/evaluate a single task, with concurrency limits via semaphores."""
-    if tracker: tracker.start_task(task_id)
+    """Helper function to instantiate/run/evaluate a single task, with concurrency limits via
+    semaphores."""
+    if tracker:
+        tracker.start_task(task_id)
     env = None
-    agent_instance: Optional[Agent] = None
+    agent_instance: Agent | None = None
     status = "error"
     error_msg = "Initialization failed"
     try:
         adapter_instance = None
-        if adapter_cls: adapter_instance = adapter_cls(**(adapter_kwargs or {}))
+        if adapter_cls:
+            adapter_instance = adapter_cls(**(adapter_kwargs or {}))
         agent_instance = agent_cls(adapter=adapter_instance, **(agent_kwargs or {}))
-        if agent_instance is None: raise RuntimeError("Agent could not be instantiated")
+        if agent_instance is None:
+            raise RuntimeError("Agent could not be instantiated")
 
         # Environment creation with semaphore
         if env_creation_semaphore:
@@ -291,7 +299,8 @@ async def _execute_task(
             env = await gym.make(task, job=job)
 
         obs_tuple = await env.reset()
-        if obs_tuple is None: raise ValueError(f"env.reset() returned None for task {task_id}")
+        if obs_tuple is None:
+            raise ValueError(f"env.reset() returned None for task {task_id}")
         obs, _ = obs_tuple
 
         step_error = None
@@ -305,17 +314,23 @@ async def _execute_task(
                 else:
                     action, done = await agent_instance.predict(obs)
 
-                if tracker: tracker.increment_step(task_id)
+                if tracker:
+                    tracker.increment_step(task_id)
 
-                if action is None and not done: done = True
+                if action is None and not done:
+                    done = True
 
                 step_result = await env.step(action)
-                if step_result is None: terminated = True
-                else: obs, _, terminated, _ = step_result
-                if terminated or done: break
+                if step_result is None:
+                    terminated = True
+                else:
+                    obs, _, terminated, _ = step_result
+                if terminated or done:
+                    break
 
             except Exception as agent_step_err:
-                logger.error(f"[Job: {job.name}/{job.id}, Task: {task_id}] Step {step + 1} Error: {agent_step_err}", exc_info=False)
+                logger.exception("[Job: %s/%s, Task: %s] Step %d Error: %s", job.name, job.id,
+                                 task_id, step + 1, agent_step_err)
                 step_error = f"Error at step {step + 1}: {agent_step_err}"
                 # Store step error in job
                 job.errors.append({
@@ -327,19 +342,23 @@ async def _execute_task(
                 })
                 break
         else:
-            logger.warning(f"[Job: {job.name}/{job.id}, Task: {task_id}] Max steps reached.")
+            logger.warning("[Job: %s/%s, Task: %s] Max steps reached.", job.name, job.id, task_id)
 
-        # --- Evaluate Task --- 
+        # --- Evaluate Task ---
         evaluation_result = None
         if step_error:
-            status = "error"; error_msg = step_error
+            status = "error"
+            error_msg = step_error
         else:
             try:
                 evaluation_result = await env.evaluate()
-                status = "completed"; error_msg = None
+                status = "completed"
+                error_msg = None
             except Exception as eval_err:
-                logger.error(f"[Job: {job.name}/{job.id}, Task: {task_id}] Evaluation Error: {eval_err}", exc_info=True)
-                status = "error"; error_msg = f"Evaluation failed: {eval_err}"
+                logger.exception("[Job: %s/%s, Task: %s] Evaluation Error: %s", job.name,
+                                 job.id, task_id, eval_err)
+                status = "error"
+                error_msg = f"Evaluation failed: {eval_err}"
                 # Store evaluation error in job
                 job.errors.append({
                     "task_id": task_id,
@@ -349,8 +368,9 @@ async def _execute_task(
                 })
 
     except Exception as e:
-        logger.error(f"[Job: {job.name}/{job.id}, Task: {task_id}] Setup/Run Error: {e}", exc_info=True)
-        status = "error"; error_msg = str(e)
+        logger.exception("[Job: %s/%s, Task: %s] Setup/Run Error: %s", job.name, job.id, task_id, e)
+        status = "error"
+        error_msg = str(e)
         # Store setup/initialization error in job
         job.errors.append({
             "task_id": task_id,
@@ -360,11 +380,14 @@ async def _execute_task(
         })
 
     finally:
-        if tracker: tracker.finish_task(task_id)
+        if tracker:
+            tracker.finish_task(task_id)
         if env:
-            try: await env.close()
-            except Exception as close_err: 
-                logger.error(f"[Job: {job.name}/{job.id}, Task: {task_id}] Close Error: {close_err}", exc_info=True)
+            try:
+                await env.close()
+            except Exception as close_err:
+                logger.exception("[Job: %s/%s, Task: %s] Close Error: %s", job.name, job.id,
+                                 task_id, close_err)
                 # Store environment close error in job
                 job.errors.append({
                     "task_id": task_id,
@@ -374,16 +397,17 @@ async def _execute_task(
                 })
 
     log_suffix = f" Error: {error_msg}" if status == "error" else f" Eval: {evaluation_result}"
-    logger.info(f"[Job: {job.name}/{job.id}, Task: {task_id}] Finished local execution. Status: {status}.{log_suffix}")
+    logger.info("[Job: %s/%s, Task: %s] Finished local execution. Status: %s.%s", job.name,
+                job.id, task_id, status, log_suffix)
 
-async def _progress_monitor(tracker: StepProgressTracker, interval: float = 1.0):
+async def _progress_monitor(tracker: StepProgressTracker, interval: float = 1.0) -> None:
     """Coroutine to periodically display progress using the tracker."""
     try:
         while not tracker.is_finished():
             sys.stderr.write(f"\r{tracker.display()}")
             sys.stderr.flush()
             await asyncio.sleep(interval)
-        sys.stderr.write(f"\r{tracker.display()}\n") 
+        sys.stderr.write(f"\r{tracker.display()}\n")
         sys.stderr.flush()
         logger.debug("Progress monitor finished.")
     except asyncio.CancelledError:
@@ -393,26 +417,26 @@ async def _progress_monitor(tracker: StepProgressTracker, interval: float = 1.0)
     except Exception as e:
         sys.stderr.write(f"\nProgress monitor error: {e}\n")
         sys.stderr.flush()
-        logger.error(f"Progress monitor error: {e}", exc_info=True)
+        logger.exception("Progress monitor error: %s", e)
 
 
-# --- New run_job function --- 
+# --- New run_job function ---
 
 async def run_job(
-    agent_cls: Type[Agent],
-    task_or_taskset: Union[Task, TaskSet],
+    agent_cls: type[Agent],
+    task_or_taskset: Task | TaskSet,
     job_name: str,
-    adapter_cls: Optional[Type[Adapter]] = None,
-    agent_kwargs: Optional[Dict[str, Any]] = None,
-    adapter_kwargs: Optional[Dict[str, Any]] = None,
+    adapter_cls: type[Adapter] | None = None,
+    agent_kwargs: dict[str, Any] | None = None,
+    adapter_kwargs: dict[str, Any] | None = None,
     max_steps_per_task: int = 20,
     run_parallel: bool = True,
-    job_metadata: Optional[Dict[str, Any]] = None,
+    job_metadata: dict[str, Any] | None = None,
     show_progress: bool = True,
     # Concurrency control with semaphores
-    max_concurrent_env_creations: Optional[int] = 30,  # Limits env.make calls
-    max_concurrent_agent_predictions: Optional[int] = 30,  # Limits agent.predict calls
-    max_concurrent_tasks: Optional[int] = 30,  # Limits overall task concurrency
+    max_concurrent_env_creations: int | None = 30,  # Limits env.make calls
+    max_concurrent_agent_predictions: int | None = 30,  # Limits agent.predict calls
+    max_concurrent_tasks: int | None = 30,  # Limits overall task concurrency
 ) -> Job:
     """
     Creates Job, executes tasks locally, linking them to the Job.
@@ -444,27 +468,31 @@ async def run_job(
     Returns:
         The created Job object with errors stored in job.errors.
     """
-    tasks_to_run: List[Task] = []
-    created_job: Optional[Job] = None
+    tasks_to_run: list[Task] = []
+    created_job: Job | None = None
 
-    # --- Create Job --- 
+    # --- Create Job ---
     try:
-        logger.info(f"Creating job with name: '{job_name}'")
+        logger.info("Creating job with name: '%s'", job_name)
         created_job = await create_job(name=job_name, metadata=job_metadata)
-        logger.info(f"Created job with ID: {created_job.id}")
+        logger.info("Created job with ID: %s", created_job.id)
     except Exception as e:
-        logger.error(f"Failed to create job '{job_name}': {e}", exc_info=True)
+        logger.exception("Failed to create job '%s': %s", job_name, e)
         raise
 
-    # --- Task Setup --- 
+    # --- Task Setup ---
     is_taskset = isinstance(task_or_taskset, TaskSet)
-    if is_taskset: tasks_to_run = task_or_taskset.tasks if task_or_taskset.tasks else []
-    elif isinstance(task_or_taskset, Task): tasks_to_run = [task_or_taskset]; run_parallel = False
-    else: raise TypeError("task_or_taskset must be either a Task or a TaskSet")
+    if is_taskset:
+        tasks_to_run = task_or_taskset.tasks if task_or_taskset.tasks else []
+    elif isinstance(task_or_taskset, Task):
+        tasks_to_run = [task_or_taskset]
+        run_parallel = False
+    else:
+        raise TypeError("task_or_taskset must be either a Task or a TaskSet")
 
-    if not tasks_to_run: 
-        logger.warning(f"Job '{created_job.name}' ({created_job.id}): No tasks found to run.")
-        return created_job 
+    if not tasks_to_run:
+        logger.warning("Job '%s' (%s): No tasks found to run.", created_job.name, created_job.id)
+        return created_job
         
     task_ids = [(str(task.id) if task.id else f"task_{i}") for i, task in enumerate(tasks_to_run)]
     num_tasks = len(tasks_to_run)
@@ -473,33 +501,35 @@ async def run_job(
     env_creation_sema = None
     if max_concurrent_env_creations and max_concurrent_env_creations > 0:
         env_creation_sema = asyncio.Semaphore(max_concurrent_env_creations)
-        logger.info(f"Limiting concurrent environment creations to {max_concurrent_env_creations}.")
+        logger.info("Limiting concurrent environment creations to %d.",
+                    max_concurrent_env_creations)
     
-    agent_predict_sema = None  
+    agent_predict_sema = None
     if max_concurrent_agent_predictions and max_concurrent_agent_predictions > 0:
         agent_predict_sema = asyncio.Semaphore(max_concurrent_agent_predictions)
-        logger.info(f"Limiting concurrent agent predictions to {max_concurrent_agent_predictions}.")
+        logger.info("Limiting concurrent agent predictions to %d.",
+                    max_concurrent_agent_predictions)
     
     task_execution_sema = None
     effective_concurrency = num_tasks  # Default to running all if parallel
     if run_parallel and max_concurrent_tasks and max_concurrent_tasks > 0:
         effective_concurrency = min(num_tasks, max_concurrent_tasks)
         task_execution_sema = asyncio.Semaphore(effective_concurrency)
-        logger.info(f"Limiting concurrent task executions to {effective_concurrency}.")
+        logger.info("Limiting concurrent task executions to %d.", effective_concurrency)
     elif not run_parallel:
         effective_concurrency = 1  # Sequential means concurrency of 1
         
-    # --- Instantiate Tracker & Start Monitor --- 
+    # --- Instantiate Tracker & Start Monitor ---
     tracker = None
     monitor_task = None
     if show_progress and num_tasks > 0:
         tracker = StepProgressTracker(total_tasks=num_tasks, max_steps_per_task=max_steps_per_task)
         monitor_task = asyncio.create_task(_progress_monitor(tracker))
 
-    # --- Execute Tasks --- 
+    # --- Execute Tasks ---
     job_desc_suffix = f" (Job ID: {created_job.id})"
     
-    async def task_wrapper(task_coro, task_id, semaphore):  # Helper to manage semaphore release
+    async def task_wrapper(task_coro: Coroutine, semaphore: asyncio.Semaphore | None) -> None:
         if semaphore:
             async with semaphore:
                 await task_coro
@@ -508,22 +538,24 @@ async def run_job(
 
     try:
         if run_parallel and is_taskset:
-            logger.info(f"Job '{created_job.name}'{job_desc_suffix}: Running {num_tasks} tasks with concurrency {effective_concurrency}.")
+            logger.info("Job '%s'%s: Running %d tasks with concurrency %d.", created_job.name,
+                        job_desc_suffix, num_tasks, effective_concurrency)
             
             task_coroutines = [
                 _execute_task(
                     agent_cls=agent_cls, adapter_cls=adapter_cls, agent_kwargs=agent_kwargs,
-                    adapter_kwargs=adapter_kwargs, task=task, job_name=created_job.name, task_id=task_id,
+                    adapter_kwargs=adapter_kwargs, task=task, job_name=created_job.name,
+                    task_id=task_id,
                     max_steps_per_task=max_steps_per_task, job=created_job, tracker=tracker,
                     env_creation_semaphore=env_creation_sema,
                     agent_predict_semaphore=agent_predict_sema,
                 )
-                for task, task_id in zip(tasks_to_run, task_ids)
+                for task, task_id in zip(tasks_to_run, task_ids, strict=True)
             ]
             
             # Wrap coroutines with semaphore management if limiting concurrency
             wrapped_tasks = [
-                task_wrapper(coro, task_ids[i], task_execution_sema) 
+                task_wrapper(coro, task_execution_sema)
                 for i, coro in enumerate(task_coroutines)
             ]
             
@@ -532,13 +564,14 @@ async def run_job(
             
         else:
             # SEQUENTIAL (or single task)
-            mode = "Sequential (TaskSet)" if is_taskset else "Sequential (Single Task)"
-            logger.info(f"Job '{created_job.name}'{job_desc_suffix}: Running {num_tasks} tasks sequentially.")
+            logger.info("Job '%s'%s: Running %d tasks sequentially.", created_job.name,
+                        job_desc_suffix, num_tasks)
             for i, task in enumerate(tasks_to_run):
                 task_id = task_ids[i]
                 await _execute_task(
                     agent_cls=agent_cls, adapter_cls=adapter_cls, agent_kwargs=agent_kwargs,
-                    adapter_kwargs=adapter_kwargs, task=task, job_name=created_job.name, task_id=task_id,
+                    adapter_kwargs=adapter_kwargs, task=task, job_name=created_job.name,
+                    task_id=task_id,
                     max_steps_per_task=max_steps_per_task, job=created_job, tracker=tracker,
                     env_creation_semaphore=env_creation_sema,
                     agent_predict_semaphore=agent_predict_sema,
@@ -548,9 +581,13 @@ async def run_job(
         # Ensure monitor task is stopped and awaited cleanly
         if monitor_task is not None and not monitor_task.done():
             monitor_task.cancel()
-            try: await monitor_task
-            except asyncio.CancelledError: pass
-            except Exception as e: logger.error(f"Error awaiting progress monitor task: {e}")
+            try:
+                await monitor_task
+            except asyncio.CancelledError:
+                pass
+            except Exception as e:
+                logger.error("Error awaiting progress monitor task: %s", e)
 
-    logger.info(f"Job '{created_job.name}'{job_desc_suffix} finished local execution phase for {num_tasks} tasks.")
+    logger.info("Job '%s'%s finished local execution phase for %d tasks.", created_job.name,
+                job_desc_suffix, num_tasks)
     return created_job
