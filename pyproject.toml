@@ -17,7 +17,8 @@ dependencies = [
     "aiodocker>=0.24.0",
     "toml>=0.10.2",
     "pillow>=11.1.0",
-    "ipykernel"
+    "ipykernel",
+    "numpy"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
