@@ -30,6 +30,14 @@
         ]
       },
       {
+        "group": "environments",
+        "pages": [
+          "environments/hud-browser",
+          "environments/hud-ubuntu",
+          "environments/qa"
+        ]
+      },
+      {
         "group": "Advanced Topics",
         "pages": [
           "advanced/cla-details",
