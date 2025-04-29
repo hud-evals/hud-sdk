@@ -20,7 +20,6 @@ class Point(BaseModel):
 class ClickAction(CLAAction):
     type: Literal["click"] = "click"
     point: Point | None = None
-    selector: str | None = None
     button: Literal["left", "right", "wheel", "back", "forward"] = "left"
     pattern: list[int] | None = None  # [delay_1, delay_2, ...]
     hold_keys: list[CLAKey] | None = None
@@ -48,7 +47,6 @@ class KeyUpAction(CLAAction):
 class TypeAction(CLAAction):
     type: Literal["type"] = "type"
     text: str
-    selector: str | None = None
     enter_after: bool | None = False
 
 
@@ -64,7 +62,6 @@ class ScrollAction(CLAAction):
 class MoveAction(CLAAction):
     type: Literal["move"] = "move"
     point: Point | None = None
-    selector: str | None = None
     offset: Point | None = None
 
 
