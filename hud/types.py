@@ -44,9 +44,6 @@ class CustomGym(BaseModel):
             # Read the Dockerfile content
             self.dockerfile = dockerfile_path.read_text()
 
-# Strings are identifiers for gyms on the HUD server
-Gym = CustomGym | str
-
 class EnvironmentStatus(str, enum.Enum):
     """
     Status of the environment.
@@ -63,3 +60,8 @@ class EnvironmentStatus(str, enum.Enum):
     COMPLETED = "completed"
     ERROR = "error"
 
+# Available HUD gyms
+ServerGyms = Literal["qa", "hud-browser", "hud-ubuntu", "OSWorld-Ubuntu"]
+
+# Gyms can be either custom or server-side
+Gym = CustomGym | ServerGyms
