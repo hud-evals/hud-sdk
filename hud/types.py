@@ -61,7 +61,7 @@ class EnvironmentStatus(str, enum.Enum):
     ERROR = "error"
 
 # Available HUD gyms
-ServerGyms = Literal["qa", "hud-browser", "hud-ubuntu", "OSWorld-Ubuntu"]
+ServerGym = Literal["qa", "hud-browser", "hud-ubuntu", "OSWorld-Ubuntu"]
 
 # Gyms can be either custom or server-side
-Gym = CustomGym | ServerGyms
+Gym = CustomGym | ServerGym

@@ -74,6 +74,9 @@ class RemoteClient(Client):
         
         build_data = response.get("metadata", {})
         
+        if response.get("readme"):
+            logger.info("[HUD] %s gym created, see how to use it at %s", gym_id, response.get("readme"))
+        
         return controller, build_data
 
     def __init__(self, env_id: str) -> None:

@@ -54,11 +54,11 @@ async def make(
     
     gym = None
     task = None
-    if isinstance(env_src, Gym):
-        gym = env_src
-    elif isinstance(env_src, Task):
+    if isinstance(env_src, Task):
         gym = env_src.gym
         task = env_src
+    else:
+        gym = env_src
 
     if isinstance(gym, CustomGym):
         # Create the environment (depending on location)
