@@ -116,7 +116,7 @@ We recommend you first take a look at the example notebooks showing how to use t
 
 ## Documentation
 
-For comprehensive guides, examples, and API reference, visit [our docs](https://docs.hud.so/introduction)
+For comprehensive guides, examples, and API reference, visit [our docs](https://documentation.hud.so/introduction)
 
 ## License
 

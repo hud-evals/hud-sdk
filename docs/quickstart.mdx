@@ -71,7 +71,7 @@ async def main():
     # 4. Interaction Loop: Agent observes and acts
     print("Starting interaction loop...")
     # Get initial observation (screenshot, text, etc.) by stepping without actions
-    obs, _ = env.reset()
+    obs, _ = await env.reset()
 
     for i in range(5): # Limit to 5 steps for this example
         print(f"--- Step {i+1} ---")
