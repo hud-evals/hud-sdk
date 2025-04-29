@@ -1,0 +1,55 @@
+# HUD Ubuntu Environment
+
+## Introduction
+
+The `hud-ubuntu` environment provides a remote Ubuntu OS instance with a graphical desktop, accessed via a VNC connection displayed in the browser. It's suitable for tasks requiring interaction with GUI applications, the file system, or running specific software within a Linux desktop environment.
+
+## Setup
+
+The environment setup simply launches the Ubuntu desktop session within the VNC viewer. 
+
+*Specific pre-launch setup functions (e.g., pre-installing packages, setting environment variables) are planned for future releases.*
+
+Currently, any necessary setup (like installing software or creating files) must be performed by the agent *after* the environment starts, using standard interaction actions.
+
+Refer to [Task Setup Configuration](../concepts/task.mdx#setup-configuration) for the general concept of how setup steps *could* be defined in a Task, although they are not currently implemented for this specific environment.
+
+## Step Interaction
+
+Agents interact with the Ubuntu desktop environment by sending a list of [CLA Actions](../advanced/cla-details.mdx) to `env.step()`. An [Adapter](../concepts/adapter.mdx) typically handles the conversion from the agent model's output to the CLA format.
+
+Available CLA actions for interacting with the graphical desktop:
+
+**Keyboard Actions:**
+*   [`TypeAction`](../advanced/cla-details.mdx#keyboard-actions): Simulates typing text into the focused application or window element.
+    ```python
+    # Example: Typing into a text editor
+    TypeAction(text="Hello, Ubuntu!")
+    ```
+*   [`PressAction`](../advanced/cla-details.mdx#keyboard-actions): For sending hotkeys (e.g., `Ctrl+C`, `Alt+F4`).
+*   [`KeyDownAction` / `KeyUpAction`](../advanced/cla-details.mdx#keyboard-actions): For holding/releasing modifier keys (e.g., holding Shift while clicking).
+
+**Mouse Actions:**
+*   [`ClickAction`](../advanced/cla-details.mdx#mouse-actions): To click on GUI elements (buttons, icons, menus, etc.).
+*   [`MoveAction`](../advanced/cla-details.mdx#mouse-actions): To move the mouse cursor to specific coordinates or elements.
+*   [`ScrollAction`](../advanced/cla-details.mdx#mouse-actions): To scroll within windows or applications.
+*   [`DragAction`](../advanced/cla-details.mdx#mouse-actions): To perform drag-and-drop operations.
+
+**Control & Response Actions:**
+*   [`WaitAction`](../advanced/cla-details.mdx#control-actions): To introduce pauses if needed.
+*   [`ResponseAction`](../advanced/cla-details.mdx#response-actions): Used by the agent to submit its final answer or result text.
+
+**Other Actions (less common for direct agent use):**
+*   [`ScreenshotFetch`](../advanced/cla-details.mdx#fetch-actions-get-information): Usually handled internally by the environment/agent loop.
+*   [`PositionFetch`](../advanced/cla-details.mdx#fetch-actions-get-information): Usually handled internally.
+*   [`CustomAction`](../advanced/cla-details.mdx#custom-actions): For potential future custom environment extensions.
+
+*See [CLA Action Details](../advanced/cla-details.mdx) for the full specification of each action and its parameters.*
+
+## Evaluate
+
+*Specific evaluation functions for `hud-ubuntu` (e.g., checking file content, application state, process status) are planned for future releases.*
+
+Currently, evaluation often relies on the agent submitting a final answer via `ResponseAction`, which can then be checked using generic QA evaluators defined in the [Task](../concepts/task.mdx) (like `response_includes`, `response_matches`). Alternatively, evaluation might involve visually inspecting the final state via the VNC connection or checking logs if the agent was tasked with producing specific output.
+
+Refer to [Task Evaluation Configuration](../concepts/task.mdx#evaluation-configuration) for the general concept of defining evaluation steps. 

@@ -1,0 +1,67 @@
+# HUD Browser Environment
+
+## Introduction
+
+The `hud-browser` environment provides a remote Chromium browser instance, managed by Playwright, for agents to interact with websites. It's ideal for tasks involving web navigation, form filling, information retrieval, and testing web applications.
+
+## Setup
+
+Setup actions for the `hud-browser` are defined in the `setup` attribute of a [Task](../concepts/task.mdx) and executed by `hud.gym.make()`. They typically involve browser controller functions.
+
+*   **`goto(url: str)`**: Navigates the browser to the specified `url`. Automatically prepends `http://` if no scheme is provided. Waits for `domcontentloaded` (up to 10s timeout) and adds a 1s wait for rendering.
+    ```python
+    # Example Task Setup:
+    setup=[("goto", "https://google.com")]
+    ```
+*   **Other common setup functions coming soon:** `wait_for_element`, `click`, `type`, `set_cookies` etc. 
+
+Refer to [Task Setup Configuration](../concepts/task.mdx#setup-configuration) for how to define these.
+
+## Step Interaction
+
+Agents interact with the browser environment by sending a list of [CLA Actions](../advanced/cla-details.mdx) to `env.step()`. An [Adapter](../concepts/adapter.mdx) typically handles the conversion from the agent model's output to the CLA format.
+
+Common CLAs used with `hud-browser`:
+*   [`ClickAction`](../advanced/cla-details.mdx#mouse-actions)
+*   [`MoveAction`](../advanced/cla-details.mdx#mouse-actions)
+*   [`TypeAction`](../advanced/cla-details.mdx#keyboard-actions)
+*   [`PressAction`](../advanced/cla-details.mdx#keyboard-actions)
+*   [`ScrollAction`](../advanced/cla-details.mdx#mouse-actions)
+*   [`DragAction`](../advanced/cla-details.mdx#mouse-actions)
+*   [`ResponseAction`](../advanced/cla-details.mdx#response-actions) (to submit a final text answer)
+
+*See [CLA Action Details](../advanced/cla-details.mdx) for the full specification.*
+
+## Evaluate
+
+The `evaluate` attribute of a [Task](../concepts/task.mdx) defines how success is measured using `env.evaluate()`. This calls functions within the browser controller.
+
+Built-in evaluation functions for `hud-browser`:
+
+*   **`url_match(expected_url: str)`**: Checks if the current browser URL exactly matches `expected_url`. Returns `1.0` for a match, `0.0` otherwise.
+    ```python
+    # Example Task Evaluation:
+    evaluate=("url_match", "https://google.com/search?q=expected")
+    ```
+*   **`page_contains(texts: list[str])`** (alias `contains_text`): Checks if *all* strings in `texts` are present in `page.content()`. Returns `1.0` if all texts are found, `0.0` otherwise.
+    ```python
+    # Example Task Evaluation:
+    evaluate=("page_contains", ["Search Results", "About 1,000,000 results"])
+    ```
+*   **`sheet_contains(texts: list[str])`**: Custom function for Google Sheets. Returns `1.0` if any text is found, `0.0` otherwise.
+    ```python
+    # Example Task Evaluation:
+    evaluate=("sheet_contains", ["Expected value in cell A1"])
+    ```
+*   **`cookie_exists(cookie_names: list[str])`**: Checks if all cookies in `cookie_names` exist in `context.cookies()`. Returns `1.0` if all exist, `0.0` otherwise.
+    ```python
+    # Example Task Evaluation:
+    evaluate=("cookie_exists", ["session_id", "user_pref"])
+    ```
+*   **`cookie_match(name_value_pairs: list[str])`**: Checks if cookies exist *and* match expected values. `name_value_pairs` format: `[name1, value1, name2, value2, ...]`. Returns `1.0` if all match, `0.0` otherwise.
+    ```python
+    # Example Task Evaluation:
+    evaluate=("cookie_match", ["user_id", "12345", "theme", "dark"])
+    ```
+
+Refer to [Task Evaluation Configuration](../concepts/task.mdx#evaluation-configuration) for more details. 

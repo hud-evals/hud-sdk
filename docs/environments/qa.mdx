@@ -1,0 +1,68 @@
+# QA Environment
+
+## Introduction
+
+The `qa` environment is a specialized, non-interactive environment designed for question-answering tasks. The agent receives context or a question via the `Task.prompt` and is expected to provide a final text response.
+
+## Setup
+
+No environment-specific setup actions are typically required for `qa` tasks. The question or context is provided directly in the `Task.prompt`.
+
+```python
+from hud.task import Task
+
+qa_task = Task(
+    prompt="What is the powerhouse of the cell?",
+    gym="qa" # Specify the QA environment
+    # evaluate=... (see below)
+)
+```
+
+Refer to [Task Setup Configuration](../concepts/task.mdx#setup-configuration) for the general concept of how setup steps *could* be defined in a Task, although they are generally not needed for `qa`.
+
+## Step Interaction
+
+Agents interact with the `qa` environment primarily by submitting their final answer.
+
+*   The agent receives the `Task.prompt` in the initial `Observation`.
+*   The agent processes the prompt and determines its answer.
+*   The agent sends a single [`ResponseAction`](../advanced/cla-details.mdx#response-actions) containing the answer text to `env.step()`.
+
+```python
+# Agent predicts and sends this action:
+from hud.adapters.common.types import ResponseAction
+
+action = ResponseAction(text="Mitochondria")
+# await env.step([action])
+```
+
+The environment stores the text from the first `ResponseAction` it receives in an internal `env.final_response` attribute for evaluation.
+
+**Other CLAs:** While technically part of the [CLA standard](../advanced/cla-details.mdx), other actions (like `ClickAction`, `TypeAction`, `ScrollAction`, etc.) are not processed or relevant in the standard `qa` environment.
+
+## Evaluate
+
+Evaluation logic is defined in the `evaluate` attribute of the [Task](../concepts/task.mdx) and triggered by `env.evaluate()`. This logic compares the `env.final_response` (the text submitted by the agent via `ResponseAction`) against expected criteria.
+
+Common evaluation methods for `qa` tasks:
+*   **`response_includes(substring: str | list[str])`**: Checks if the response text contains the specified `substring` or *all* of the substrings in the provided list.
+    ```python
+    # Example Task Evaluation (single string):
+    evaluate=("response_includes", "mitochondria") 
+    # Example Task Evaluation (list of strings):
+    # evaluate=("response_includes", ["powerhouse", "cell"]) 
+    ```
+*   **`response_is(expected_text: str)`**: Checks for an exact, case-sensitive match with the `expected_text`.
+    ```python
+    # Example Task Evaluation:
+    evaluate=("response_is", "Mitochondria")
+    ```
+*   **`response_match(pattern: str)`**: Checks if the response text matches the provided regular expression `pattern`.
+    ```python
+    # Example Task Evaluation:
+    evaluate=("response_match", r"^[Mm]itochondria.?$") # Case-insensitive, optional period
+    ```
+
+*Note: The exact names and availability of evaluation functions might evolve. Refer to specific evaluator documentation or examples for the most current details.*
+
+Refer to [Task Evaluation Configuration](../concepts/task.mdx#evaluation-configuration) for more details on defining evaluation logic. 

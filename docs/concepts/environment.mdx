@@ -48,6 +48,20 @@ env_os = await gym.make("OSWorld-Ubuntu")
 
 Environments created this way won't have a default `Task` associated unless you explicitly reset them with one later using `env.reset()`. The `gym.make()` function also automatically links the environment to an active [Job](/concepts/job) if one was defined using the `@job` decorator.
 
+## Available Environment Types
+
+The HUD SDK provides several standard environment types, specified via the `gym` attribute in a [Task](/concepts/task) or directly in `hud.gym.make()`:
+
+*   **`"hud-browser"`**: Provides a remote Chromium browser instance managed via Playwright. Ideal for web navigation, form interaction, and testing web applications.
+    *   [See `hud-browser` Details](../environments/hud-browser.mdx)
+*   **`"hud-ubuntu"`**: Provides a remote Ubuntu desktop environment accessed via VNC. Suitable for tasks involving GUI applications, file system interaction, or running Linux software.
+    *   [See `hud-ubuntu` Details](../environments/hud-ubuntu.mdx)
+*   **`"qa"`**: A non-interactive environment for question-answering tasks where the agent provides a direct textual response.
+    *   [See `qa` Environment Details](../environments/qa.mdx)
+*   **`CustomGym`**: Allows defining and running your own [Custom Environments](../advanced/custom-environments.mdx) using Docker, either locally or remotely. This provides maximum flexibility for specific testing needs.
+
+The `gym` attribute in a Task tells `hud.gym.make()` which environment to instantiate.
+
 ## Interaction Loop
 
 The standard interaction flow involves the [Agent](/concepts/agent) and the Environment:

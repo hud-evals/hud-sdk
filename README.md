@@ -58,10 +58,9 @@ async def main():
     obs, _ = await env.reset() # Gets first observation
     for i in range(5):
         actions, done = await agent.predict(obs)
-        if done:
-            break
-        
+
         obs, reward, terminated, info = await env.step(actions)
+        if done or terminated: break
     
     # Evaluate and close
     result = await env.evaluate()
