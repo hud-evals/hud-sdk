@@ -30,7 +30,7 @@
         ]
       },
       {
-        "group": "environments",
+        "group": "Environments",
         "pages": [
           "environments/hud-browser",
           "environments/hud-ubuntu",
