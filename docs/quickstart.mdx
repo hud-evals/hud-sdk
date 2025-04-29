@@ -89,10 +89,6 @@ async def main():
     result = await env.evaluate()       # Run the evaluation defined in the Task
     print(f"Evaluation result: {result}")
 
-    # Trajectory is automatically saved if a @job decorator is used
-    # trajectory = await env.get_trajectory() # You can optionally get trajectory data
-    # print(f"Trajectory ID: {trajectory.id}")
-
     print("Closing environment...")
     await env.close()                   # Clean up environment resources
 
