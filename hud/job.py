@@ -152,7 +152,9 @@ async def create_job(name: str, gym_id: str | None = None,
     # or at least the necessary fields (id, name, metadata, created_at, status)
     # If not, we might need to make a subsequent GET request
     job_data = data # Adjust if the API response structure is different
-    
+
+    logger.info(f"[HUD] View job at https://app.hud.so/jobs/{job_data['id']}.")
+
     return Job(
         id=job_data["id"],
         name=job_data["name"],
