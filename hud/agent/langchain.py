@@ -12,7 +12,7 @@ from hud.adapters import Adapter
 from hud.agent.base import Agent
 from hud.env.environment import Observation
 from hud.adapters.common.types import (
-    CLAAction, # Base class, might not be needed directly in Union
+    CLA,
     ClickAction,
     TypeAction,
     ScrollAction,
@@ -97,7 +97,7 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
             "If you believe the task is complete based on the user's prompt and the observations, use the 'ResponseAction'."
         )
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[dict], bool]:
+    async def fetch_response(self, observation: Observation) -> tuple[CLA | None, bool]:
         """
         Fetches a response from the configured Langchain model, expecting a single
         structured CLA action.

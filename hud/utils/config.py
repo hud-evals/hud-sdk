@@ -65,7 +65,7 @@ def expand_config(config: HudStyleConfigs) -> list[HudStyleConfig]:
     
     # If it's a list of HudStyleConfigs, return as is
     if isinstance(config, list) and all(isinstance(item, HudStyleConfig) for item in config):
-        return config
+        return config # type: ignore
     
     # Handle dictionary configuration
     if isinstance(config, dict):
