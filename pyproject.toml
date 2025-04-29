@@ -1,11 +1,11 @@
 [project]
 name = "hud-python"
-version = "0.2.1"
+version = "0.2.2"
 description = "SDK for the HUD evaluation platform."
 readme = "README.md"
 requires-python = ">=3.10, <3.14"
 authors = [
-{ name = "Human Union Data SDK", email = "founders@hud.so" },
+{ name = "HUD SDK", email = "founders@hud.so" },
 ]
 license = { file = "LICENSE" }
 dependencies = [
@@ -21,6 +21,8 @@ dependencies = [
     "ipykernel",
     "anthropic",
     "openai",
+    "langchain",
+    "langchain-openai",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
