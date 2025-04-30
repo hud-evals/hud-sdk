@@ -11,7 +11,13 @@ from hud.env.client import Client
 from hud.env.remote_client import RemoteClient
 from hud.task import Task
 from hud.utils.common import HudStyleConfig, HudStyleConfigs
-from hud.utils.config import REMOTE_EVALUATE, REMOTE_FUNCTION_PREFIX, REMOTE_SETUP, expand_config
+from hud.utils.config import (
+    LOCAL_EVALUATORS,
+    REMOTE_EVALUATE,
+    REMOTE_FUNCTION_PREFIX,
+    REMOTE_SETUP,
+    expand_config,
+)
 
 logger = logging.getLogger("hud.environment")
 
@@ -297,7 +303,7 @@ def create_remote_config(
     # Case 1: Explicit config provided
     if config:
         expanded_configs = expand_config(config)
-        if env and env.final_response:
+        if env and env.final_response and expanded_configs[0].args[0] in LOCAL_EVALUATORS:
             # Ensure args is a list before appending
             if not isinstance(expanded_configs[0].args, list):
                  expanded_configs[0].args = [expanded_configs[0].args]
@@ -317,7 +323,7 @@ def create_remote_config(
         expanded_configs = expand_config(task_config)
         if task.id:
             expanded_configs[0].id = task.id # for remote IDs
-        elif env and env.final_response:
+        elif env and env.final_response and expanded_configs[0].args[0] in LOCAL_EVALUATORS:
             # Ensure args is a list before appending
             if not isinstance(expanded_configs[0].args, list):
                  expanded_configs[0].args = [expanded_configs[0].args]
@@ -330,7 +336,7 @@ def create_remote_config(
         final_args = task.config.copy() if isinstance(task.config, dict) else {}
         if task.id:
             final_args["id"] = task.id # for remote IDs
-        if env and env.final_response:
+        if env and env.final_response and expanded_configs[0].args[0] in LOCAL_EVALUATORS:
             # Append response, ensuring args exists and is a list
             if "args" not in final_args:
                 final_args["args"] = []

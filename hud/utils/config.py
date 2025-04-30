@@ -11,6 +11,8 @@ REMOTE_FUNCTION_PREFIX = "private_"
 REMOTE_SETUP = "setup"
 REMOTE_EVALUATE = "evaluate"
 
+LOCAL_EVALUATORS = ["response_is", "response_includes", "response_match"]
+
 def _is_valid_python_name(name: str) -> bool:
     """Check if a string is a valid Python identifier."""
     return bool(re.match(r"^[a-zA-Z_][a-zA-Z0-9_]*$", name))
