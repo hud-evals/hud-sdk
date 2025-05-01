@@ -138,7 +138,7 @@ class Environment(BaseModel):
             obs.text = self.task.prompt
         return obs, info
 
-    async def step(self, actions: list[CLA] | None = None) -> tuple[
+    async def step(self, actions: CLA | list[CLA] | None = None) -> tuple[
         Observation, float, bool, dict[str, Any]
     ]:
         """Execute a step in the environment.
@@ -149,6 +149,8 @@ class Environment(BaseModel):
         Returns:
             Any: Result of the step execution
         """
+        if not isinstance(actions, list) and actions is not None:
+            actions = [actions]
         if actions is None or len(actions) == 0:
             actions = []
         args = [[action.model_dump() for action in actions]]
