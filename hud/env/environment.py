@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
-from hud.utils.telemetry import stream
 from hud.env.client import Client
 from hud.env.remote_client import RemoteClient
 from hud.task import Task
@@ -19,11 +18,13 @@ from hud.utils.config import (
     REMOTE_SETUP,
     expand_config,
 )
-from hud.agent import Agent
+from hud.utils.telemetry import stream
+
 logger = logging.getLogger("hud.environment")
 
 if TYPE_CHECKING:
     from hud.adapters.common import CLA
+    from hud.agent import Agent
 
 
 class Environment(BaseModel):
