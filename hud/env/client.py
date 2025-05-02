@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 if TYPE_CHECKING:
     from hud.types import EnvironmentStatus
-    from hud.utils.config import HudStyleConfig
+    from hud.utils.config import FunctionConfig
 
 
 class Client(BaseModel, ABC):
@@ -16,7 +16,7 @@ class Client(BaseModel, ABC):
     """
 
     @abstractmethod
-    async def invoke(self, config: HudStyleConfig) -> Any:
+    async def invoke(self, config: FunctionConfig) -> Any:
         """
         Invoke the environment with the given config.
         """

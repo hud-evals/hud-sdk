@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, Any
 from pydantic import BaseModel
 
 from hud.types import CustomGym, Gym
-from hud.utils.common import HudStyleConfig, HudStyleConfigs
+from hud.utils.common import FunctionConfig, FunctionConfigs
 
 if TYPE_CHECKING:
     from inspect_ai.dataset import Sample
@@ -17,12 +17,12 @@ if TYPE_CHECKING:
 UBUNTU_DOCKERFILE = "ubuntu:latest"
 
 
-def convert_inspect_setup(setup: str) -> list[HudStyleConfig]:
+def convert_inspect_setup(setup: str) -> list[FunctionConfig]:
     """
     Inspect setup is a single bash string to run in the environment.
-    We convert this into a single HudStyleConfig using the exec command
+    We convert this into a single FunctionConfig using the exec command
     """
-    return [HudStyleConfig(function="bash", args=[setup])]
+    return [FunctionConfig(function="bash", args=[setup])]
 
 
 class Task(BaseModel):
@@ -52,8 +52,8 @@ class Task(BaseModel):
 
     id: str | None = None
     prompt: str
-    setup: HudStyleConfigs | None = None
-    evaluate: HudStyleConfigs | None = None
+    setup: FunctionConfigs | None = None
+    evaluate: FunctionConfigs | None = None
     gym: Gym | None = None
     
     target: str | list[str] | None = None
@@ -103,7 +103,7 @@ class Task(BaseModel):
                 evaluate_config = ("match_all", sample.target)
 
         task_gym: Gym | None = None
-        task_setup: HudStyleConfigs | None = None
+        task_setup: FunctionConfigs | None = None
         
         sandbox = sample.sandbox
         dockerfile = None

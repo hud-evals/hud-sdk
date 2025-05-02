@@ -92,10 +92,10 @@ for _ in range(10):
 ## Key Methods
 
 *   **`env.step(actions: list[CLA] | None = None)`**: Executes actions (or gets initial state). Returns `(Observation, reward, terminated, info)`.
-*   **`env.evaluate(config: HudStyleConfigs | None = None)`**: Runs evaluation logic defined in the [Task](/concepts/task) (or the provided `config`). Returns evaluation result.
+*   **`env.evaluate(config: FunctionConfigs | None = None)`**: Runs evaluation logic defined in the [Task](/concepts/task) (or the provided `config`). Returns evaluation result.
 *   **`env.close()`**: Shuts down the environment. Saves the [Trajectory](/concepts/trajectory) if linked to a [Job](/concepts/job).
 *   **`env.get_urls()`**: Returns URLs (`url`, `live_url`) for accessing/viewing the environment.
-*   **`env.reset(configs: HudStyleConfigs | None = None)`**: Resets state, often running setup steps. *Mostly used internally or for environments created without an initial Task.*
+*   **`env.reset(configs: FunctionConfigs | None = None)`**: Resets state, often running setup steps. *Mostly used internally or for environments created without an initial Task.*
 *   **`env._setup(...)` / `env._invoke_all(...)`**: Internal methods for running setup/evaluate/custom configurations defined in a [Task](/concepts/task).
 
 ## Observations

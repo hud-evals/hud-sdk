@@ -11,7 +11,7 @@ from hud.utils.telemetry import stream
 from hud.env.client import Client
 from hud.env.remote_client import RemoteClient
 from hud.task import Task
-from hud.utils.common import HudStyleConfig, HudStyleConfigs, Observation
+from hud.utils.common import FunctionConfig, FunctionConfigs, Observation
 from hud.utils.config import (
     LOCAL_EVALUATORS,
     REMOTE_EVALUATE,
@@ -43,7 +43,7 @@ class Environment(BaseModel):
     # final response
     final_response: str | None = None
 
-    async def _invoke_all(self, configs: HudStyleConfigs) -> list[Any]:
+    async def _invoke_all(self, configs: FunctionConfigs) -> list[Any]:
         # Execute each config and collect results
         configs_all = [configs] if not isinstance(configs, list) else configs
         results = []
@@ -65,7 +65,7 @@ class Environment(BaseModel):
                     )
         return results
     
-    async def _setup(self, config: HudStyleConfigs | None = None) -> None:
+    async def _setup(self, config: FunctionConfigs | None = None) -> None:
         """
         Setup the environment.
 
@@ -82,7 +82,7 @@ class Environment(BaseModel):
             else:
                 raise ValueError("No config or task provided for local environment")
 
-    async def evaluate(self, config: HudStyleConfigs | None = None) -> Any:
+    async def evaluate(self, config: FunctionConfigs | None = None) -> Any:
         """
         Evaluate the environment.
 
@@ -108,7 +108,7 @@ class Environment(BaseModel):
             return results
         
 
-    async def reset(self, configs: HudStyleConfigs | None = None) -> tuple[
+    async def reset(self, configs: FunctionConfigs | None = None) -> tuple[
         Observation, dict[str, Any]
     ]:
         """
@@ -149,7 +149,7 @@ class Environment(BaseModel):
             return Observation(text=self.final_response), 0, False, {}
         
         result, stdout, stderr = await self.client.invoke(
-            HudStyleConfig(function="step", args=args)
+            FunctionConfig(function="step", args=args)
         )
         if stdout:
             logger.info("Step produced stdout: %s", stdout.decode())
@@ -182,7 +182,7 @@ class Environment(BaseModel):
         Returns:
             dict: Dictionary of URLs for accessing the environment
         """
-        data, _, _ = await self.client.invoke(HudStyleConfig(function="get_urls", args=[]))
+        data, _, _ = await self.client.invoke(FunctionConfig(function="get_urls", args=[]))
 
         self.url = data.get("url")
         self.live_url = data.get("live_url")
@@ -232,9 +232,9 @@ class Environment(BaseModel):
 
 def create_remote_config(
     env: Environment | None = None,
-    config: HudStyleConfigs | None = None,
+    config: FunctionConfigs | None = None,
     function: str | None = None,
-) -> list[HudStyleConfig]:
+) -> list[FunctionConfig]:
     """
     Create a remote configuration for setup or evaluate, determining the final
     function call structure based on the provided task or explicit config.
@@ -246,11 +246,11 @@ def create_remote_config(
         env: Environment object, potentially containing a task definition.
              Used to access `env.task` and `env.final_response`.
         config: Direct configuration override (e.g., passed to `env.evaluate(config=...)`).
-                Can be in various HudStyleConfigs formats.
+                Can be in various FunctionConfigs formats.
         function: The top-level function context, typically "setup" or "evaluate".
 
     Returns:
-        list[HudStyleConfig]: A list containing a single HudStyleConfig object
+        list[FunctionConfig]: A list containing a single FunctionConfig object
                               ready for remote invocation via `client.invoke`.
                               The specific function/arguments are chosen based on this priority:
                               1. Explicit `config` parameter (if provided).
@@ -270,8 +270,8 @@ def create_remote_config(
              `config=("contains_text", "Paris")`
              `function="evaluate"`
            - Example Output:
-             `[HudStyleConfig(function='evaluate', args=[
-                HudStyleConfig(function='contains_text', args=['Paris', 'Paris'])
+             `[FunctionConfig(function='evaluate', args=[
+                FunctionConfig(function='contains_text', args=['Paris', 'Paris'])
              ])]`
 
         2) No explicit `config`, Task has the attribute (e.g., `task.evaluate`):
@@ -283,7 +283,7 @@ def create_remote_config(
              `config=None`
              `function="evaluate"`
            - Example Output:
-             `[HudStyleConfig(function='evaluate', args=[HudStyleConfig(function='check_answer',
+             `[FunctionConfig(function='evaluate', args=[FunctionConfig(function='check_answer',
                 args=['42'], id='t1')])]`
 
         3) No explicit `config`, no specific Task attribute, Task has `task.config`:
@@ -295,7 +295,7 @@ def create_remote_config(
              `config=None`
              `function="evaluate"`
            - Example Output:
-             `[HudStyleConfig(function='evaluate', args=[{"expected": "val", "id": "t2"}])]`
+             `[FunctionConfig(function='evaluate', args=[{"expected": "val", "id": "t2"}])]`
 
         4) No explicit `config`, no specific Task attribute, no `task.config`, Task has `task.id`:
            Calls a private function (`private_<function>`) on the remote end, passing
@@ -305,7 +305,7 @@ def create_remote_config(
              `config=None`
              `function="evaluate"`
            - Example Output:
-             `[HudStyleConfig(function='private_evaluate', args=['t3'])]`
+             `[FunctionConfig(function='private_evaluate', args=['t3'])]`
 
         5) No explicit `config` and no relevant Task info:
            Calls the top-level `function` with empty args.
@@ -314,7 +314,7 @@ def create_remote_config(
              `config=None`
              `function="evaluate"`
            - Example Output:
-             `[HudStyleConfig(function='evaluate', args=[])]`
+             `[FunctionConfig(function='evaluate', args=[])]`
     """
     # If no function provided, just expand the config and return it directly
     if function is None:
@@ -330,7 +330,7 @@ def create_remote_config(
             if not isinstance(expanded_configs[0].args, list):
                  expanded_configs[0].args = [expanded_configs[0].args]
             expanded_configs[0].args.append(env.final_response) # for remote responses
-        return [HudStyleConfig(function=function, args=expanded_configs)]
+        return [FunctionConfig(function=function, args=expanded_configs)]
     
     # Otherwise, use the environment's task
     task = env.task if env else None
@@ -350,7 +350,7 @@ def create_remote_config(
             if not isinstance(expanded_configs[0].args, list):
                  expanded_configs[0].args = [expanded_configs[0].args]
             expanded_configs[0].args.append(env.final_response) # for remote responses
-        return [HudStyleConfig(function=function, args=expanded_configs)]
+        return [FunctionConfig(function=function, args=expanded_configs)]
     
     # Case 3: Check for task.config
     if hasattr(task, "config") and task.config:
@@ -365,18 +365,18 @@ def create_remote_config(
             if not isinstance(final_args["args"], list):
                 final_args["args"] = [final_args["args"]]
             final_args["args"].append(env.final_response)
-        return [HudStyleConfig(function=function, args=[final_args])]
+        return [FunctionConfig(function=function, args=[final_args])]
     
     # Case 4: Use task.id
     if task.id:
         args_list = [task.id]
         if env and env.final_response:
              args_list.append(env.final_response) # Append final response
-        return [HudStyleConfig(function=f"{REMOTE_FUNCTION_PREFIX}{function}", args=args_list)]
+        return [FunctionConfig(function=f"{REMOTE_FUNCTION_PREFIX}{function}", args=args_list)]
     
     # Case 5: No valid configuration found
     args_list = []
     if env and env.final_response:
         args_list.append(env.final_response)
-    return [HudStyleConfig(function=function, args=args_list)]
+    return [FunctionConfig(function=function, args=args_list)]
 

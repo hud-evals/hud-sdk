@@ -16,7 +16,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("hud.utils.common")
 
-class HudStyleConfig(BaseModel):
+class FunctionConfig(BaseModel):
     function: str  # Format: "x.y.z"
     args: list[Any] # Must be json serializable
 
@@ -38,8 +38,8 @@ class HudStyleConfig(BaseModel):
 ShorthandConfig = tuple[str | dict[str, Any] | list[str] | list[dict[str, Any]], ...]
 
 # Type alias for multiple config formats
-HudStyleConfigs = (
-    ShorthandConfig | HudStyleConfig | list[HudStyleConfig] | list[ShorthandConfig]
+FunctionConfigs = (
+    ShorthandConfig | FunctionConfig | list[FunctionConfig] | list[ShorthandConfig]
     | dict[str, Any] | str
 )
 
@@ -54,7 +54,7 @@ class Observation(BaseModel):
 
     screenshot: str | None = None  # base64 string png
     text: str | None = None
-    
+
 class ExecuteResult(TypedDict):
     """
     Result of an execute command.

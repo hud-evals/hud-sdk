@@ -16,7 +16,7 @@ from hud.utils.common import directory_to_tar_bytes
 
 if TYPE_CHECKING:
     from hud.utils import ExecuteResult
-    from hud.utils.config import HudStyleConfig
+    from hud.utils.config import FunctionConfig
 
 logger = logging.getLogger("hud.env.docker_client")
 
@@ -33,7 +33,7 @@ class InvokeError(Exception):
     """
 
 
-def invoke_template(config: HudStyleConfig, package_name: str, divider: str) -> str:
+def invoke_template(config: FunctionConfig, package_name: str, divider: str) -> str:
     """
     Return a python script to run the given config.
     """
@@ -245,7 +245,7 @@ class DockerClient(Client):
             ExecuteResult: The result of the command
         """
     
-    async def invoke(self, config: HudStyleConfig) -> tuple[Any, bytes, bytes]:
+    async def invoke(self, config: FunctionConfig) -> tuple[Any, bytes, bytes]:
         """
         Invoke a function in the environment. Supported by all environments.
         

@@ -12,11 +12,11 @@ While the standard `step`, `evaluate`, and `close` methods cover most interactio
 The `env._invoke_all()` method (and its underlying `client.invoke()`) is the core mechanism for calling specific functions *within* the environment's controller script.
 
 ```python
-async def _invoke_all(self, configs: HudStyleConfigs) -> list[Any]: ...
+async def _invoke_all(self, configs: FunctionConfigs) -> list[Any]: ...
 ```
 
 *   **Purpose:** Execute custom functions defined in your environment controller (the Python code running inside the Docker container or remote instance). This is how `setup` and `evaluate` configurations in a `Task` are ultimately executed.
-*   **Usage:** You provide a configuration (string, tuple, dict, or list) matching the `HudStyleConfigs` format. The SDK sends this to the environment controller, which runs the specified function(s) with the given arguments.
+*   **Usage:** You provide a configuration (string, tuple, dict, or list) matching the `FunctionConfigs` format. The SDK sends this to the environment controller, which runs the specified function(s) with the given arguments.
 *   **When to Use:**
     *   Triggering custom evaluation logic not suitable for the standard `evaluate` attribute.
     *   Running specific diagnostic or state-setting functions within your custom environment controller during development or debugging.
@@ -71,7 +71,7 @@ print("Exit Code:", result['exit_code'])
 ## `_setup`
 
 ```python
-async def _setup(self, config: HudStyleConfigs | None = None) -> None: ...
+async def _setup(self, config: FunctionConfigs | None = None) -> None: ...
 ```
 
 *   **Purpose:** Executes the setup configuration for the environment.

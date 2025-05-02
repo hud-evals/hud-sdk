@@ -11,7 +11,7 @@ from hud.types import EnvironmentStatus
 from hud.utils import ExecuteResult
 
 if TYPE_CHECKING:
-    from hud.utils.config import HudStyleConfig
+    from hud.utils.config import FunctionConfig
 
 logger = logging.getLogger("hud.env.remote_env_client")
 
@@ -164,7 +164,7 @@ class RemoteClient(Client):
         )
 
     
-    async def invoke(self, config: HudStyleConfig) -> tuple[Any, bytes, bytes]:
+    async def invoke(self, config: FunctionConfig) -> tuple[Any, bytes, bytes]:
         """
         Invoke a function in the environment.
         """

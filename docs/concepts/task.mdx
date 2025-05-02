@@ -15,8 +15,8 @@ A `Task` object provides the configuration for a specific scenario.
 
 *   **`prompt` (str):** The primary instruction given to the agent.
 *   **`gym` (str | `CustomGym` | None):** Specifies the type of [Environment](/concepts/environment) needed. Used by `hud.gym.make()`.
-*   **`setup` (`HudStyleConfigs` | None):** Defines actions executed *before* the agent starts. See [Setup Configuration](#setup-configuration).
-*   **`evaluate` (`HudStyleConfigs` | None):** Defines how to check if the agent succeeded *after* interaction. See [Evaluation Configuration](#evaluation-configuration).
+*   **`setup` (`FunctionConfigs` | None):** Defines actions executed *before* the agent starts. See [Setup Configuration](#setup-configuration).
+*   **`evaluate` (`FunctionConfigs` | None):** Defines how to check if the agent succeeded *after* interaction. See [Evaluation Configuration](#evaluation-configuration).
 *   **`id` (str | None):** Optional identifier.
 *   **`metadata` (dict | None):** Optional dictionary for extra information.
 *   **`config` (dict | None):** Optional dictionary, primarily for remote execution.
@@ -41,7 +41,7 @@ task = Task(
 
 ### <a name="configuration-styles"></a>Configuration Styles (`setup` and `evaluate`)
 
-Both `setup` and `evaluate` accept configurations defining function calls within the environment's controller, using flexible formats (`HudStyleConfigs`):
+Both `setup` and `evaluate` accept configurations defining function calls within the environment's controller, using flexible formats (`FunctionConfigs`):
 
 1.  **String:** `"browser.maximize"`
 2.  **Tuple:** `("goto", "https://google.com")`
