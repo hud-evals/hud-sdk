@@ -43,6 +43,18 @@ HudStyleConfigs = (
     | dict[str, Any] | str
 )
 
+class Observation(BaseModel):
+    """
+    Observation from the environment.
+
+    Attributes:
+        screenshot: Base64 encoded PNG string of the screen
+        text: Text observation, if available
+    """
+
+    screenshot: str | None = None  # base64 string png
+    text: str | None = None
+    
 class ExecuteResult(TypedDict):
     """
     Result of an execute command.

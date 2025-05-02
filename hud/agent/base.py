@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Sequence, TypeVar, Generic
 
 from hud.adapters import Adapter, CLA
-from hud.env.environment import Observation
+from hud.utils.common import Observation
 
 # Generic type for different client types (Anthropic, OpenAI, etc.)
 ClientT = TypeVar('ClientT')

@@ -16,7 +16,7 @@ from openai.types.responses import (
 from hud.adapters import Adapter
 from hud.agent.base import Agent
 from hud.adapters.operator import OperatorAdapter
-from hud.env.environment import Observation
+from hud.utils.common import Observation
 from hud.settings import settings
 
 logger = logging.getLogger(__name__)

@@ -7,10 +7,11 @@ from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
+from hud.utils.telemetry import stream
 from hud.env.client import Client
 from hud.env.remote_client import RemoteClient
 from hud.task import Task
-from hud.utils.common import HudStyleConfig, HudStyleConfigs
+from hud.utils.common import HudStyleConfig, HudStyleConfigs, Observation
 from hud.utils.config import (
     LOCAL_EVALUATORS,
     REMOTE_EVALUATE,
@@ -18,23 +19,11 @@ from hud.utils.config import (
     REMOTE_SETUP,
     expand_config,
 )
-
+from hud.agent import Agent
 logger = logging.getLogger("hud.environment")
 
 if TYPE_CHECKING:
     from hud.adapters.common import CLA
-
-class Observation(BaseModel):
-    """
-    Observation from the environment.
-
-    Attributes:
-        screenshot: Base64 encoded PNG string of the screen
-        text: Text observation, if available
-    """
-
-    screenshot: str | None = None  # base64 string png
-    text: str | None = None
 
 
 class Environment(BaseModel):
@@ -210,6 +199,37 @@ class Environment(BaseModel):
         """
         await self.client.close()
 
+    async def stream(self) -> str | None:
+        urls = await self.get_urls()
+        if urls["live_url"] is None:
+            logger.warning("No live URL found")
+            return None
+        # Stream the live view
+        return stream(urls["live_url"])
+
+    async def run(self, agent: Agent, max_steps: int = 27, verbose: bool = True) -> Any:
+        """Run an agent in the environment.
+
+        Args:
+            agent: The agent to run
+        """
+        if verbose:
+            logger.info("[HUD] Running agent in environment...")
+        obs, _ = await self.reset()
+        for i in range(max_steps):
+            action, done = await agent.predict(obs)
+            if verbose:
+                logger.info("[HUD] Step %d: Action: %s", i, action)
+            obs, reward, terminated, info = await self.step(action)
+            if verbose:
+                logger.info("[HUD] Step %d: Observation: %s", i, obs)
+            if done or terminated:
+                break
+        result = await self.evaluate()
+        if verbose:
+            logger.info("[HUD] Evaluation result: %s", result)
+        return result
+
 def create_remote_config(
     env: Environment | None = None,
     config: HudStyleConfigs | None = None,
@@ -338,7 +358,7 @@ def create_remote_config(
         final_args = task.config.copy() if isinstance(task.config, dict) else {}
         if task.id:
             final_args["id"] = task.id # for remote IDs
-        if env and env.final_response and expanded_configs[0].args[0] in LOCAL_EVALUATORS:
+        if env and env.final_response:
             # Append response, ensuring args exists and is a list
             if "args" not in final_args:
                 final_args["args"] = []

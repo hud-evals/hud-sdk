@@ -14,7 +14,7 @@ from anthropic.types.beta import (
 from hud.adapters import Adapter
 from hud.agent.base import Agent
 from hud.adapters.claude import ClaudeAdapter
-from hud.env.environment import Observation
+from hud.utils.common import Observation
 from hud.settings import settings
 
 logger = logging.getLogger(__name__)

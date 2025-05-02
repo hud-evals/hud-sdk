@@ -10,9 +10,8 @@ from pydantic import Field, BaseModel
 # HUD imports
 from hud.adapters import Adapter
 from hud.agent.base import Agent
-from hud.env.environment import Observation
+from hud.utils.common import Observation
 from hud.adapters.common.types import (
-    CLA,
     ClickAction,
     TypeAction,
     ScrollAction,
@@ -97,7 +96,7 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
             "If you believe the task is complete based on the user's prompt and the observations, use the 'ResponseAction'."
         )
 
-    async def fetch_response(self, observation: Observation) -> tuple[CLA | None, bool]:
+    async def fetch_response(self, observation: Observation) -> tuple[list[dict], bool]:
         """
         Fetches a response from the configured Langchain model, expecting a single
         structured CLA action.
@@ -192,7 +191,7 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
 
         if actual_action:
             # Return the single action dictionary within a list
-            return [actual_action], is_done
+            return [actual_action.model_dump()], is_done
         else:
             # Should ideally not happen if structure validation worked, but as a fallback
             return [], is_done 
