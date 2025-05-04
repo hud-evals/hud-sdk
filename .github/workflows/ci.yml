@@ -47,3 +47,20 @@ jobs:
 
       - name: Run pyright
         run: uv run --with=".[dev]" pyright
+
+
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Install Python
+        run: uv python install ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: uv sync --all-groups
+
+      - name: Run tests
+        run: uv run --python ${{ matrix.python-version }} pytest
