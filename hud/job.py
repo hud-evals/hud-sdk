@@ -31,6 +31,7 @@ T = TypeVar("T", bound=Callable)
 # Global registry to store active jobs created by decorators
 _ACTIVE_JOBS = {}
 
+
 class Job(BaseModel):
     """
     A job represents a collection of related trajectories.
@@ -43,15 +44,15 @@ class Job(BaseModel):
     metadata: dict[str, Any] | None = None
     created_at: datetime.datetime
     status: str
-    
+
     # Internal cache for trajectories
     _trajectories: list[Trajectory] | None = PrivateAttr(default=None)
     # Store execution errors for debugging
     errors: list[dict[str, Any]] = []
 
     async def load_trajectories(
-            self, *, api_key: str | None = None, force_reload: bool = False
-                                ) -> list[Trajectory]:
+        self, *, api_key: str | None = None, force_reload: bool = False
+    ) -> list[Trajectory]:
         """
         Loads the trajectories associated with this job.
         Uses cached results unless force_reload is True.
@@ -66,10 +67,10 @@ class Job(BaseModel):
         if self._trajectories is not None and not force_reload:
             logger.debug("Returning cached trajectories for Job %s", self.id)
             return self._trajectories
-            
+
         logger.debug("Fetching trajectories for Job %s from API...", self.id)
         api_key = api_key or settings.api_key
-        
+
         try:
             data = await make_request(
                 method="GET",
@@ -81,8 +82,8 @@ class Job(BaseModel):
             return self._trajectories
         except Exception as e:
             logger.exception("Failed to load trajectories for Job %s: %s", self.id, e)
-            self._trajectories = None # Ensure cache is cleared on error
-            return [] # Return empty list on error
+            self._trajectories = None  # Ensure cache is cleared on error
+            return []  # Return empty list on error
 
     async def get_analytics(self, *, force_reload: bool = False) -> dict[str, Any]:
         """
@@ -95,10 +96,10 @@ class Job(BaseModel):
             Dictionary containing analytics (e.g., task_count, avg_reward).
         """
         trajectories = await self.load_trajectories(force_reload=force_reload)
-        
+
         task_count = len(trajectories)
         if task_count == 0:
-            return {"task_count": 0, "avg_reward": None, "success_rate": None} # Or other default
+            return {"task_count": 0, "avg_reward": None, "success_rate": None}  # Or other default
 
         total_reward = 0
         successful_tasks = 0
@@ -111,9 +112,9 @@ class Job(BaseModel):
                 total_reward += traj.reward
                 valid_rewards += 1
                 if traj.reward >= 1.0:
-                     successful_tasks += 1
+                    successful_tasks += 1
             # Add more complex logic here if needed based on traj.evaluation_result or metadata
-            
+
         avg_reward = (total_reward / valid_rewards) if valid_rewards > 0 else None
         success_rate = (successful_tasks / task_count) * 100 if task_count > 0 else None
 
@@ -124,9 +125,13 @@ class Job(BaseModel):
             # Add other relevant stats here
         }
 
-async def create_job(name: str, gym_id: str | None = None,
-                     evalset_id: str | None = None,
-                     metadata: dict[str, Any] | None = None) -> Job:
+
+async def create_job(
+    name: str,
+    gym_id: str | None = None,
+    evalset_id: str | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> Job:
     """
     Creates a new job.
 
@@ -151,19 +156,19 @@ async def create_job(name: str, gym_id: str | None = None,
         },
         api_key=api_key,
     )
-    
+
     # Assume the backend API returns the full job data upon creation
     # or at least the necessary fields (id, name, metadata, created_at, status)
     # If not, we might need to make a subsequent GET request
-    job_data = data # Adjust if the API response structure is different
+    job_data = data  # Adjust if the API response structure is different
 
     logger.info("[HUD] View job at https://app.hud.so/jobs/%s.", job_data["id"])
 
     return Job(
         id=job_data["id"],
         name=job_data["name"],
-        metadata=job_data.get("metadata", {}), # Ensure metadata is dict
-        created_at=datetime.datetime.fromisoformat(job_data["created_at"]), # Parse datetime
+        metadata=job_data.get("metadata", {}),  # Ensure metadata is dict
+        created_at=datetime.datetime.fromisoformat(job_data["created_at"]),  # Parse datetime
         status=job_data["status"],
     )
 
@@ -179,54 +184,49 @@ async def load_job(job_id: str, api_key: str | None = None) -> Job:
         Job: The retrieved job instance
     """
     api_key = api_key or settings.api_key
-    
+
     data = await make_request(
         method="GET",
         url=f"{settings.base_url}/v2/jobs/{job_id}",
         api_key=api_key,
     )
-    
+
     if not data:
         raise ValueError(f"Job {job_id} not found")
-        
+
     # Validate and create the Job instance from the fetched data
     return Job.model_validate(data)
 
 
-def job(
-    name: str,
-    metadata: dict[str, Any] | None = None
-) -> Callable[[T], T]:
+def job(name: str, metadata: dict[str, Any] | None = None) -> Callable[[T], T]:
     """
     Decorator to automatically create and associate a job with all environments
     created within the decorated function.
-    
+
     Args:
         name: The name of the job
         metadata: Additional metadata for the job
-        
+
     Returns:
         A decorator function that creates a job and associates it with environments
     """
+
     def decorator(func: T) -> T:
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> Any:
             # Create a job for this function call using the new function
-            job = await create_job(
-                name=name,
-                metadata=metadata
-            )
-            
+            job = await create_job(name=name, metadata=metadata)
+
             # Store in global registry with a unique key based on function and call
             call_id = f"{func.__module__}.{func.__qualname__}_{id(wrapper)}"
             _ACTIVE_JOBS[call_id] = job
-            
+
             try:
                 # Add the function's frame to the stack for lookup
                 frame = inspect.currentframe()
                 if frame:
                     frame.f_locals["_job_call_id"] = call_id
-                
+
                 # Run the decorated function
                 result = await func(*args, **kwargs)
                 return result
@@ -234,8 +234,9 @@ def job(
                 # Clean up
                 if call_id in _ACTIVE_JOBS:
                     del _ACTIVE_JOBS[call_id]
-                    
+
         return cast(T, wrapper)
+
     return decorator
 
 
@@ -243,7 +244,7 @@ def get_active_job() -> Job | None:
     """
     Get the currently active job from the call stack, if any.
     Used internally by gym.make to automatically associate environments with jobs.
-    
+
     Returns:
         The active job or None if no job is active
     """
@@ -255,10 +256,9 @@ def get_active_job() -> Job | None:
             if call_id in _ACTIVE_JOBS:
                 return _ACTIVE_JOBS[call_id]
         frame = frame.f_back
-    
+
     return None
 
-# --- Moved helper functions from runner.py ---
 
 async def _execute_task(
     agent_cls: type[Agent],
@@ -329,17 +329,25 @@ async def _execute_task(
                     break
 
             except Exception as agent_step_err:
-                logger.exception("[Job: %s/%s, Task: %s] Step %d Error: %s", job.name, job.id,
-                                 task_id, step + 1, agent_step_err)
+                logger.exception(
+                    "[Job: %s/%s, Task: %s] Step %d Error: %s",
+                    job.name,
+                    job.id,
+                    task_id,
+                    step + 1,
+                    agent_step_err,
+                )
                 step_error = f"Error at step {step + 1}: {agent_step_err}"
                 # Store step error in job
-                job.errors.append({
-                    "task_id": task_id,
-                    "type": "step_error",
-                    "step": step + 1,
-                    "error": str(agent_step_err),
-                    "timestamp": datetime.datetime.now().isoformat()
-                })
+                job.errors.append(
+                    {
+                        "task_id": task_id,
+                        "type": "step_error",
+                        "step": step + 1,
+                        "error": str(agent_step_err),
+                        "timestamp": datetime.datetime.now().isoformat(),
+                    }
+                )
                 break
         else:
             logger.warning("[Job: %s/%s, Task: %s] Max steps reached.", job.name, job.id, task_id)
@@ -355,29 +363,38 @@ async def _execute_task(
                 status = "completed"
                 error_msg = None
             except Exception as eval_err:
-                logger.exception("[Job: %s/%s, Task: %s] Evaluation Error: %s", job.name,
-                                 job.id, task_id, eval_err)
+                logger.exception(
+                    "[Job: %s/%s, Task: %s] Evaluation Error: %s",
+                    job.name,
+                    job.id,
+                    task_id,
+                    eval_err,
+                )
                 status = "error"
                 error_msg = f"Evaluation failed: {eval_err}"
                 # Store evaluation error in job
-                job.errors.append({
-                    "task_id": task_id,
-                    "type": "evaluation_error",
-                    "error": str(eval_err),
-                    "timestamp": datetime.datetime.now().isoformat()
-                })
+                job.errors.append(
+                    {
+                        "task_id": task_id,
+                        "type": "evaluation_error",
+                        "error": str(eval_err),
+                        "timestamp": datetime.datetime.now().isoformat(),
+                    }
+                )
 
     except Exception as e:
         logger.exception("[Job: %s/%s, Task: %s] Setup/Run Error: %s", job.name, job.id, task_id, e)
         status = "error"
         error_msg = str(e)
         # Store setup/initialization error in job
-        job.errors.append({
-            "task_id": task_id,
-            "type": "setup_error",
-            "error": str(e),
-            "timestamp": datetime.datetime.now().isoformat()
-        })
+        job.errors.append(
+            {
+                "task_id": task_id,
+                "type": "setup_error",
+                "error": str(e),
+                "timestamp": datetime.datetime.now().isoformat(),
+            }
+        )
 
     finally:
         if tracker:
@@ -386,19 +403,29 @@ async def _execute_task(
             try:
                 await env.close()
             except Exception as close_err:
-                logger.exception("[Job: %s/%s, Task: %s] Close Error: %s", job.name, job.id,
-                                 task_id, close_err)
+                logger.exception(
+                    "[Job: %s/%s, Task: %s] Close Error: %s", job.name, job.id, task_id, close_err
+                )
                 # Store environment close error in job
-                job.errors.append({
-                    "task_id": task_id,
-                    "type": "env_close_error",
-                    "error": str(close_err),
-                    "timestamp": datetime.datetime.now().isoformat()
-                })
+                job.errors.append(
+                    {
+                        "task_id": task_id,
+                        "type": "env_close_error",
+                        "error": str(close_err),
+                        "timestamp": datetime.datetime.now().isoformat(),
+                    }
+                )
 
     log_suffix = f" Error: {error_msg}" if status == "error" else f" Eval: {evaluation_result}"
-    logger.info("[Job: %s/%s, Task: %s] Finished local execution. Status: %s.%s", job.name,
-                job.id, task_id, status, log_suffix)
+    logger.info(
+        "[Job: %s/%s, Task: %s] Finished local execution. Status: %s.%s",
+        job.name,
+        job.id,
+        task_id,
+        status,
+        log_suffix,
+    )
+
 
 async def _progress_monitor(tracker: StepProgressTracker, interval: float = 1.0) -> None:
     """Coroutine to periodically display progress using the tracker."""
@@ -422,6 +449,7 @@ async def _progress_monitor(tracker: StepProgressTracker, interval: float = 1.0)
 
 # --- New run_job function ---
 
+
 async def run_job(
     agent_cls: type[Agent],
     task_or_taskset: Task | TaskSet,
@@ -441,12 +469,12 @@ async def run_job(
     """
     Creates Job, executes tasks locally, linking them to the Job.
     Instantiates agent/adapter per task. Shows step-based progress.
-    
+
     Controls concurrency in three ways:
     1. Limits concurrent environment creations
     2. Limits concurrent agent predictions
     3. Limits overall concurrent tasks (when run_parallel=True)
-    
+
     All concurrency controls use semaphores for reliability.
     Tracks all errors that occur during execution in job.errors.
 
@@ -493,7 +521,7 @@ async def run_job(
     if not tasks_to_run:
         logger.warning("Job '%s' (%s): No tasks found to run.", created_job.name, created_job.id)
         return created_job
-        
+
     task_ids = [(str(task.id) if task.id else f"task_{i}") for i, task in enumerate(tasks_to_run)]
     num_tasks = len(tasks_to_run)
 
@@ -501,15 +529,17 @@ async def run_job(
     env_creation_sema = None
     if max_concurrent_env_creations and max_concurrent_env_creations > 0:
         env_creation_sema = asyncio.Semaphore(max_concurrent_env_creations)
-        logger.info("Limiting concurrent environment creations to %d.",
-                    max_concurrent_env_creations)
-    
+        logger.info(
+            "Limiting concurrent environment creations to %d.", max_concurrent_env_creations
+        )
+
     agent_predict_sema = None
     if max_concurrent_agent_predictions and max_concurrent_agent_predictions > 0:
         agent_predict_sema = asyncio.Semaphore(max_concurrent_agent_predictions)
-        logger.info("Limiting concurrent agent predictions to %d.",
-                    max_concurrent_agent_predictions)
-    
+        logger.info(
+            "Limiting concurrent agent predictions to %d.", max_concurrent_agent_predictions
+        )
+
     task_execution_sema = None
     effective_concurrency = num_tasks  # Default to running all if parallel
     if run_parallel and max_concurrent_tasks and max_concurrent_tasks > 0:
@@ -518,7 +548,7 @@ async def run_job(
         logger.info("Limiting concurrent task executions to %d.", effective_concurrency)
     elif not run_parallel:
         effective_concurrency = 1  # Sequential means concurrency of 1
-        
+
     # --- Instantiate Tracker & Start Monitor ---
     tracker = None
     monitor_task = None
@@ -528,51 +558,71 @@ async def run_job(
 
     # --- Execute Tasks ---
     job_desc_suffix = f" (Job ID: {created_job.id})"
-    
+
     async def task_wrapper(task_coro: Coroutine, semaphore: asyncio.Semaphore | None) -> None:
         if semaphore:
             async with semaphore:
                 await task_coro
         else:
-             await task_coro
+            await task_coro
 
     try:
         if run_parallel and is_taskset:
-            logger.info("Job '%s'%s: Running %d tasks with concurrency %d.", created_job.name,
-                        job_desc_suffix, num_tasks, effective_concurrency)
-            
+            logger.info(
+                "Job '%s'%s: Running %d tasks with concurrency %d.",
+                created_job.name,
+                job_desc_suffix,
+                num_tasks,
+                effective_concurrency,
+            )
+
             task_coroutines = [
                 _execute_task(
-                    agent_cls=agent_cls, adapter_cls=adapter_cls, agent_kwargs=agent_kwargs,
-                    adapter_kwargs=adapter_kwargs, task=task, job_name=created_job.name,
+                    agent_cls=agent_cls,
+                    adapter_cls=adapter_cls,
+                    agent_kwargs=agent_kwargs,
+                    adapter_kwargs=adapter_kwargs,
+                    task=task,
+                    job_name=created_job.name,
                     task_id=task_id,
-                    max_steps_per_task=max_steps_per_task, job=created_job, tracker=tracker,
+                    max_steps_per_task=max_steps_per_task,
+                    job=created_job,
+                    tracker=tracker,
                     env_creation_semaphore=env_creation_sema,
                     agent_predict_semaphore=agent_predict_sema,
                 )
                 for task, task_id in zip(tasks_to_run, task_ids, strict=True)
             ]
-            
+
             # Wrap coroutines with semaphore management if limiting concurrency
             wrapped_tasks = [
-                task_wrapper(coro, task_execution_sema)
-                for i, coro in enumerate(task_coroutines)
+                task_wrapper(coro, task_execution_sema) for i, coro in enumerate(task_coroutines)
             ]
-            
+
             # Run all wrapped tasks
             await asyncio.gather(*wrapped_tasks)
-            
+
         else:
             # SEQUENTIAL (or single task)
-            logger.info("Job '%s'%s: Running %d tasks sequentially.", created_job.name,
-                        job_desc_suffix, num_tasks)
+            logger.info(
+                "Job '%s'%s: Running %d tasks sequentially.",
+                created_job.name,
+                job_desc_suffix,
+                num_tasks,
+            )
             for i, task in enumerate(tasks_to_run):
                 task_id = task_ids[i]
                 await _execute_task(
-                    agent_cls=agent_cls, adapter_cls=adapter_cls, agent_kwargs=agent_kwargs,
-                    adapter_kwargs=adapter_kwargs, task=task, job_name=created_job.name,
+                    agent_cls=agent_cls,
+                    adapter_cls=adapter_cls,
+                    agent_kwargs=agent_kwargs,
+                    adapter_kwargs=adapter_kwargs,
+                    task=task,
+                    job_name=created_job.name,
                     task_id=task_id,
-                    max_steps_per_task=max_steps_per_task, job=created_job, tracker=tracker,
+                    max_steps_per_task=max_steps_per_task,
+                    job=created_job,
+                    tracker=tracker,
                     env_creation_semaphore=env_creation_sema,
                     agent_predict_semaphore=agent_predict_sema,
                 )
@@ -588,6 +638,10 @@ async def run_job(
             except Exception as e:
                 logger.error("Error awaiting progress monitor task: %s", e)
 
-    logger.info("Job '%s'%s finished local execution phase for %d tasks.", created_job.name,
-                job_desc_suffix, num_tasks)
+    logger.info(
+        "Job '%s'%s finished local execution phase for %d tasks.",
+        created_job.name,
+        job_desc_suffix,
+        num_tasks,
+    )
     return created_job
