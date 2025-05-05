@@ -27,7 +27,7 @@ from hud import gym, job
 from hud.task import Task
 from hud.agent import OperatorAgent # Example agent
 
-@job(name="my-evaluation-run", metadata={"agent_version": "1.1"})
+@register_job(name="my-evaluation-run", metadata={"agent_version": "1.1"})
 async def run_evaluation():
     task = Task(prompt="Example", gym="hud-browser")
     env = await gym.make(task) # Linked to "my-evaluation-run" job

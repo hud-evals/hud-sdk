@@ -43,13 +43,13 @@ This example uses the `OperatorAgent` to interact with a browser environment. It
 ```python
 import asyncio
 import os
-from hud import gym, job                  # Import gym for environments and job decorator
+from hud import gym, register_job                  # Import gym for environments and job decorator
 from hud.task import Task                 # Import Task to define the goal
 from hud.agent import OperatorAgent       # Import the agent
 # hud.settings automatically loads keys from .env or environment variables
 
 # Decorator to group this run under a job named "quickstart-run"
-@job("quickstart-run")
+@register_job("quickstart-run")
 async def main():
     # 1. Define a Task: What should the agent do?
     task = Task(
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     *   `agent.predict(obs)` gets the next action(s) from the agent.
     *   `env.step(actions)` executes the actions and gets the new observation.
 5.  **Evaluation & Close:** `env.evaluate()` checks if the task succeeded based on the `evaluate` definition. `env.close()` shuts down the environment.
-6.  **`@job` Decorator:** Wrapping `main` with `@job("quickstart-run")` automatically creates a Job. When `env.close()` is called, the recorded interactions (trajectory) are associated with this Job. You can view the job and its trajectory video on the [HUD Jobs page](https://app.hud.so/jobs).
+6.  **`@job` Decorator:** Wrapping `main` with `@register_job("quickstart-run")` automatically creates a Job. When `env.close()` is called, the recorded interactions (trajectory) are associated with this Job. You can view the job and its trajectory video on the [HUD Jobs page](https://app.hud.so/jobs).
 
 ## Next Steps
 

@@ -29,7 +29,7 @@ This is the most straightforward approach if your agent logic can directly gener
 
 ```python
 import asyncio
-from hud import gym, job
+from hud import gym, register_job
 from hud.task import Task
 from hud.env import Observation
 # Import specific CLA types you need
@@ -48,7 +48,7 @@ def my_custom_agent_logic(observation: Observation) -> list[CLA]:
     # Ensure the return type is list[CLA]
     return actions
 
-@job("custom-cla-agent-run")
+@register_job("custom-cla-agent-run")
 async def main():
     task = Task(prompt="Click and type", gym="hud-browser")
     env = await gym.make(task)
@@ -90,7 +90,7 @@ This approach leverages the SDK's structure for a more integrated solution.
 ```python
 import asyncio
 from typing import Any # Placeholder for your raw action type
-from hud import gym, job
+from hud import gym, register_job
 from hud.task import Task
 from hud.env import Observation
 from hud.agent import Agent # Import base class
@@ -136,7 +136,7 @@ class MyAdapter(Adapter):
         raise ValueError(f"Unknown raw action type: {raw_action}")
 
 # --- Usage ---
-@job("custom-agent-framework-run")
+@register_job("custom-agent-framework-run")
 async def main():
     task = Task(prompt="Use custom agent", gym="hud-browser")
     env = await gym.make(task)
@@ -181,13 +181,13 @@ This approach uses HUD primarily for environment provisioning and lifecycle mana
 ```python
 import asyncio
 import os
-from hud import gym, job
+from hud import gym, register_job
 from hud.task import Task
 from hud.utils import stream # For live view
 # Need external library, e.g., pyppeteer (pip install pyppeteer)
 # import pyppeteer
 
-@job("external-control-run")
+@register_job("external-control-run")
 async def main():
     task = Task(prompt="Externally controlled task", gym="hud-browser", setup=("goto", "google.com"))
     env = await gym.make(task)
