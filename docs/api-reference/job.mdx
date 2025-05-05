@@ -3,13 +3,13 @@ title: 'hud.job'
 description: 'API reference for Jobs and related functions/decorators'
 ---
 
-The `hud.job` module provides the `@job` decorator, functions to manage Jobs (`create_job`, `load_job`), and the `Job` class itself.
+The `hud.job` module provides the `@register_job` decorator, functions to manage Jobs (`create_job`, `load_job`), and the `Job` class itself.
 
 See the [Job Concepts](/concepts/job) page for explanations and usage examples.
 
 # Decorators
 
-## @job
+## @register_job
 
 ```python
 def job(
@@ -92,7 +92,7 @@ class Job(pydantic.BaseModel):
     ) -> list[Trajectory]: ...
 ```
 
-Represents a Job, typically obtained via `@job`, `create_job`, or `load_job`. Primarily used to access associated trajectories.
+Represents a Job, typically obtained via `@register_job`, `create_job`, or `load_job`. Primarily used to access associated trajectories.
 
 **Attributes:**
 

@@ -2,14 +2,21 @@ from __future__ import annotations
 
 import re
 from difflib import SequenceMatcher
-from typing import Any
+from typing import TYPE_CHECKING, Protocol
 
 from textdistance import levenshtein
 
 from hud.evaluators.base import EvaluationResult
 
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
-def match_single(response: Any, answer: Any) -> EvaluationResult:
+
+class _Stringable(Protocol):
+    def __str__(self) -> str: ...
+
+
+def match_single(response: _Stringable, answer: _Stringable) -> EvaluationResult:
     """Check if the answer is present within the response.
 
     Args:
@@ -27,7 +34,7 @@ def match_single(response: Any, answer: Any) -> EvaluationResult:
     )
 
 
-def match_all(response: Any, answers: list) -> EvaluationResult:
+def match_all(response: _Stringable, answers: Sequence[_Stringable]) -> EvaluationResult:
     """Count how many expected answers are in the response.
 
     Args:
@@ -54,7 +61,7 @@ def match_all(response: Any, answers: list) -> EvaluationResult:
     return EvaluationResult(score=score, reason=reason, mode="all")
 
 
-def match_fuzzy(response: Any, answer: Any) -> EvaluationResult:
+def match_fuzzy(response: _Stringable, answer: _Stringable) -> EvaluationResult:
     """Calculate similarity using Levenshtein distance.
 
     Args:
@@ -82,7 +89,7 @@ def match_fuzzy(response: Any, answer: Any) -> EvaluationResult:
     )
 
 
-def match_regex(response: Any, pattern: str) -> EvaluationResult:
+def match_regex(response: _Stringable, pattern: str) -> EvaluationResult:
     """Check if response matches regex pattern.
 
     Args:
@@ -104,7 +111,7 @@ def match_regex(response: Any, pattern: str) -> EvaluationResult:
         return EvaluationResult(score=0.0, reason="Invalid regex pattern", mode="regex")
 
 
-def match_diff(response: Any, answer: Any) -> EvaluationResult:
+def match_diff(response: _Stringable, answer: _Stringable) -> EvaluationResult:
     """Compare difference between response and answer.
 
     Args:
@@ -124,7 +131,7 @@ def match_diff(response: Any, answer: Any) -> EvaluationResult:
     return EvaluationResult(score=score, reason=reason, mode="diff")
 
 
-def _match_string_diff(response: Any, answer: Any) -> float:
+def _match_string_diff(response: _Stringable, answer: _Stringable) -> float:
     """Compare difference between response and answer strings."""
     matcher = SequenceMatcher(None, str(response), str(answer))
     return matcher.ratio()

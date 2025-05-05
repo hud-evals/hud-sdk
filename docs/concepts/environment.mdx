@@ -46,7 +46,7 @@ env_os = await gym.make("OSWorld-Ubuntu")
 # await env_os.close()
 ```
 
-Environments created this way won't have a default `Task` associated unless you explicitly reset them with one later using `env.reset()`. The `gym.make()` function also automatically links the environment to an active [Job](/concepts/job) if one was defined using the `@job` decorator.
+Environments created this way won't have a default `Task` associated unless you explicitly reset them with one later using `env.reset()`. The `gym.make()` function also automatically links the environment to an active [Job](/concepts/job) if one was defined using the `@register_job` decorator.
 
 ## Available Environment Types
 
@@ -110,5 +110,5 @@ The `Observation` object returned by `env.step()` contains:
 *   [Task](/concepts/task): Defines the environment type (`gym`), `setup`, and `evaluate` logic.
 *   [Agent](/concepts/agent): Interacts with the Environment via the `step` and `predict` methods.
 *   [Adapter](/concepts/adapter): Ensures actions passed to `step` are in the correct `CLA` format.
-*   [Job](/concepts/job): Groups environment runs; linking happens via `@job` or `gym.make(job=...)`.
+*   [Job](/concepts/job): Groups environment runs; linking happens via `@register_job` or `gym.make(job=...)`.
 *   [Trajectory](/concepts/trajectory): The recording generated when a job-linked environment is closed.

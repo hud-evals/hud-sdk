@@ -11,8 +11,8 @@ from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from pydantic import BaseModel, PrivateAttr, TypeAdapter
 
+import hud.server
 from hud import gym
-from hud.server import make_request
 from hud.settings import settings
 from hud.task import Task
 from hud.taskset import TaskSet
@@ -72,7 +72,7 @@ class Job(BaseModel):
         api_key = api_key or settings.api_key
 
         try:
-            data = await make_request(
+            data = await hud.server.make_request(
                 method="GET",
                 url=f"{settings.base_url}/v2/jobs/{self.id}/trajectories",
                 api_key=api_key,
@@ -145,7 +145,7 @@ async def create_job(
     api_key = settings.api_key
     metadata = metadata or {}
 
-    data = await make_request(
+    data = await hud.server.make_request(
         method="POST",
         url=f"{settings.base_url}/v2/jobs",
         json={
@@ -185,7 +185,7 @@ async def load_job(job_id: str, api_key: str | None = None) -> Job:
     """
     api_key = api_key or settings.api_key
 
-    data = await make_request(
+    data = await hud.server.make_request(
         method="GET",
         url=f"{settings.base_url}/v2/jobs/{job_id}",
         api_key=api_key,
@@ -257,9 +257,6 @@ def get_active_job() -> Job | None:
         frame = frame.f_back
 
     return None
-
-
-# --- Moved helper functions from runner.py ---
 
 
 async def _execute_task(

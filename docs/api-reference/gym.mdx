@@ -20,7 +20,7 @@ async def make(
 
 Creates and initializes an [Environment](/concepts/environment) instance based on a specification.
 
-This function handles selecting the correct client (local docker, remote docker, remote direct) based on the `env_src`, automatically linking to an active [Job](/concepts/job) (from `@job` decorator or the `job` parameter), and running the initial [Task](/concepts/task) setup if `env_src` is a `Task`.
+This function handles selecting the correct client (local docker, remote docker, remote direct) based on the `env_src`, automatically linking to an active [Job](/concepts/job) (from `@register_job` decorator or the `job` parameter), and running the initial [Task](/concepts/task) setup if `env_src` is a `Task`.
 
 **Parameters:**
 
@@ -28,7 +28,7 @@ This function handles selecting the correct client (local docker, remote docker,
     *   If a `str` (Gym ID like `"hud-browser"`, `"OSWorld-Ubuntu"`), creates a standard remote environment.
     *   If a `CustomGym` object, creates a custom environment based on its definition (local or remote docker).
     *   If a `Task` object, uses the `task.gym` attribute to determine the environment type and automatically runs `task.setup` after creation.
-*   **`job` (`Job` | None, optional):** A specific [Job](/concepts/job) object to associate this environment run with. If `None`, it attempts to find an active job created by the `@job` decorator.
+*   **`job` (`Job` | None, optional):** A specific [Job](/concepts/job) object to associate this environment run with. If `None`, it attempts to find an active job created by the `@register_job` decorator.
 *   **`metadata` (dict[str, Any] | None, optional):** Additional metadata to attach to the environment instance and its resulting trajectory.
 
 **Returns:**

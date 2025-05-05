@@ -46,9 +46,9 @@ async def make(
     else:
         # Try to get an active job from the decorator context
         try:
-            from hud.job import get_active_job
+            import hud.job
 
-            active_job = get_active_job()
+            active_job = hud.job.get_active_job()
             if active_job:
                 effective_job_id = active_job.id
         except ImportError:

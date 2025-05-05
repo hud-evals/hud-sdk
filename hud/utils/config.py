@@ -2,8 +2,12 @@ from __future__ import annotations
 
 import logging
 import re
+from typing import TYPE_CHECKING
 
 from hud.utils.common import FunctionConfig, FunctionConfigs
+
+if TYPE_CHECKING:
+    from typing import TypeGuard
 
 logger = logging.getLogger("hud.utils.config")
 
@@ -46,6 +50,11 @@ def _split_and_validate_path(path: str) -> None:
             raise ValueError(f"Invalid Python identifier in path: {part}")
 
 
+def _is_list_of_configs(config: FunctionConfigs) -> TypeGuard[list[FunctionConfig]]:
+    """Check if a config is a list of FunctionConfig objects."""
+    return isinstance(config, list) and all(isinstance(item, FunctionConfig) for item in config)
+
+
 def expand_config(config: FunctionConfigs) -> list[FunctionConfig]:
     """
     Process a config into a standardized list of FunctionConfig objects.
@@ -70,8 +79,8 @@ def expand_config(config: FunctionConfigs) -> list[FunctionConfig]:
         return [config]
 
     # If it's a list of FunctionConfigs, return as is
-    if isinstance(config, list) and all(isinstance(item, FunctionConfig) for item in config):
-        return config  # type: ignore
+    if _is_list_of_configs(config):
+        return config
 
     # Handle dictionary configuration
     if isinstance(config, dict):
