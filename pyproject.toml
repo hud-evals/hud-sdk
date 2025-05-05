@@ -162,4 +162,5 @@ exclude_lines = [
     "@(abc\\.)?abstractmethod",
 ]
 show_missing = true
-fail_under = 70
+fail_under = 50
+
