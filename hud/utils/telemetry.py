@@ -5,12 +5,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def stream(live_url: str | None = None) -> str:
+def stream(live_url: str) -> str:
     """
     Display a stream in the HUD system.
     """
-    if live_url is None:
-        raise ValueError("live_url cannot be None")
     from IPython.display import HTML, display
 
     html_content = f"""
