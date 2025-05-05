@@ -11,6 +11,16 @@ class StepProgressTracker:
     """
 
     def __init__(self, total_tasks: int, max_steps_per_task: int) -> None:
+        """
+        Initialize the StepProgressTracker.
+
+        Args:
+            total_tasks: The total number of tasks to track.
+            max_steps_per_task: The maximum number of steps per task.
+
+        Raises:
+            ValueError: If total_tasks or max_steps_per_task is not positive.
+        """
         if total_tasks <= 0:
             raise ValueError("total_tasks must be positive")
         if max_steps_per_task <= 0:

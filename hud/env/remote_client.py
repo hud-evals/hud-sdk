@@ -5,6 +5,7 @@ from base64 import b64decode
 from typing import TYPE_CHECKING, Any
 
 from hud.env.client import Client
+from hud.exceptions import HudResponseError
 from hud.server import make_request
 from hud.settings import settings
 from hud.types import EnvironmentStatus
@@ -41,7 +42,10 @@ class RemoteClient(Client):
             metadata: Metadata to associate with the environment
 
         Returns:
-            RemoteClient: An instance of the remote environment client
+            A tuple containing the remote environment client and the build metadata
+
+        Raises:
+            HudResponseError: If the environment creation is successful but the response is invalid.
         """
 
         # Validate arguments
@@ -67,7 +71,11 @@ class RemoteClient(Client):
         # Get the environment ID from the response
         env_id = response.get("id")
         if not env_id:
-            raise ValueError("Failed to create remote environment: No ID returned")
+            raise HudResponseError(
+                message="Failed to create remote environment: No ID returned in API response. "
+                "Please contact support if this issue persists.",
+                response_json=response,
+            )
 
         # Create the controller instance
         controller = cls(env_id)
