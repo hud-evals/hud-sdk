@@ -12,7 +12,7 @@ from hud.types import CustomGym, Gym
 from hud.utils.common import get_gym_id
 
 if TYPE_CHECKING:
-    from hud.jobs import Job
+    from hud.job import Job
     from hud.task import Task
 
 logger = logging.getLogger("hud.gym")
@@ -46,9 +46,9 @@ async def make(
     else:
         # Try to get an active job from the decorator context
         try:
-            import hud.jobs
+            import hud.job
 
-            active_job = hud.jobs.get_active_job()
+            active_job = hud.job.get_active_job()
             if active_job:
                 effective_job_id = active_job.id
         except ImportError:
