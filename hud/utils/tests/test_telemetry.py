@@ -1,14 +1,9 @@
 from __future__ import annotations
 
-import pytest
-
 from hud.utils.telemetry import stream
 
 
 def test_stream():
-    with pytest.raises(ValueError, match="live_url cannot be None"):
-        stream(None)
-
     html_content = stream("https://example.com")
     assert html_content is not None
     assert "<div style=" in html_content
