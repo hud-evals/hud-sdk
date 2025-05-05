@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from hud.job import Job, create_job, job, load_job, run_job
+import hud.jobs
 
 
 @pytest.fixture
@@ -24,10 +24,10 @@ def mock_job_data() -> dict[str, Any]:
 @pytest.mark.asyncio
 async def test_create_job(mock_job_data: dict[str, Any], mocker) -> None:
     """Test that a job can be created as expected from the response data."""
-    mock_make_request = mocker.patch("hud.job.make_request", new_callable=AsyncMock)
+    mock_make_request = mocker.patch("hud.server.make_request", new_callable=AsyncMock)
     mock_make_request.return_value = mock_job_data
-    result = await create_job(name="Test Job", metadata={"test": "data"})
-    assert isinstance(result, Job)
+    result = await hud.jobs.create_job(name="Test Job", metadata={"test": "data"})
+    assert isinstance(result, hud.jobs.Job)
     assert result.id == mock_job_data["id"]
     assert result.name == mock_job_data["name"]
     assert result.metadata == mock_job_data["metadata"]
@@ -38,10 +38,10 @@ async def test_create_job(mock_job_data: dict[str, Any], mocker) -> None:
 @pytest.mark.asyncio
 async def test_load_job(mock_job_data: dict[str, Any], mocker) -> None:
     """Test that a job can be loaded as expected from the response data."""
-    mock_make_request = mocker.patch("hud.job.make_request", new_callable=AsyncMock)
+    mock_make_request = mocker.patch("hud.server.make_request", new_callable=AsyncMock)
     mock_make_request.return_value = mock_job_data
-    result = await load_job(job_id="test-job-123")
-    assert isinstance(result, Job)
+    result = await hud.jobs.load_job(job_id="test-job-123")
+    assert isinstance(result, hud.jobs.Job)
     assert result.id == mock_job_data["id"]
     assert result.name == mock_job_data["name"]
     assert result.metadata == mock_job_data["metadata"]
@@ -53,12 +53,12 @@ async def test_load_job(mock_job_data: dict[str, Any], mocker) -> None:
 async def test_job_decorator(mocker):
     """Test that the job decorator works as expected."""
 
-    @job(name="Decorated Job", metadata={"test": "decorator"})
+    @hud.jobs.job(name="Decorated Job", metadata={"test": "decorator"})
     async def test_function():
         return "test result"
 
-    mock_create_job = mocker.patch("hud.job.create_job", new_callable=AsyncMock)
-    mock_create_job.return_value = Job(
+    mock_create_job = mocker.patch("hud.jobs.create_job", new_callable=AsyncMock)
+    mock_create_job.return_value = hud.jobs.Job(
         id="decorated-job-123",
         name="Decorated Job",
         metadata={"test": "decorator"},
@@ -90,8 +90,8 @@ async def test_run_job(mocker):
     mock_task = Task(id="test-task-1", prompt="Test Task")
     mock_taskset = TaskSet(tasks=[mock_task])
 
-    mock_create_job = mocker.patch("hud.job.create_job", new_callable=AsyncMock)
-    mock_create_job.return_value = Job(
+    mock_create_job = mocker.patch("hud.jobs.create_job", new_callable=AsyncMock)
+    mock_create_job.return_value = hud.jobs.Job(
         id="test-job-123",
         name="Test Job",
         metadata={"test": "data"},
@@ -106,7 +106,7 @@ async def test_run_job(mocker):
     mock_env.evaluate.return_value = {"success": True}
     mock_gym_make.return_value = mock_env
 
-    job = await run_job(
+    job = await hud.jobs.run_job(
         agent_cls=MockAgent,
         task_or_taskset=mock_task,
         job_name="Test Job",
@@ -128,7 +128,7 @@ async def test_run_job(mocker):
     mock_create_job.reset_mock()
     mock_gym_make.reset_mock()
 
-    job = await run_job(
+    job = await hud.jobs.run_job(
         agent_cls=MockAgent,
         task_or_taskset=mock_taskset,
         job_name="Test Job",
@@ -151,11 +151,9 @@ async def test_run_job(mocker):
 @pytest.mark.asyncio
 async def test_get_active_job(mocker):
     """Test that get_active_job correctly retrieves the active job from the call stack."""
-    from hud.job import get_active_job
+    assert hud.jobs.get_active_job() is None
 
-    assert get_active_job() is None
-
-    mock_job = Job(
+    mock_job = hud.jobs.Job(
         id="active-job-123",
         name="Active Job",
         metadata={"test": "data"},
@@ -163,18 +161,18 @@ async def test_get_active_job(mocker):
         status="created",
     )
 
-    @job(name="Test Job", metadata={"test": "decorator"})
+    @hud.jobs.job(name="Test Job", metadata={"test": "decorator"})
     async def test_function():
         """Test that while in the scope of a job, get_active_job returns the active job."""
-        active_job = get_active_job()
+        active_job = hud.jobs.get_active_job()
         assert active_job is not None
         assert active_job.id == mock_job.id
         assert active_job.name == mock_job.name
         assert active_job.metadata == mock_job.metadata
 
-    mock_create_job = mocker.patch("hud.job.create_job", new_callable=AsyncMock)
+    mock_create_job = mocker.patch("hud.jobs.create_job", new_callable=AsyncMock)
     mock_create_job.return_value = mock_job
 
     await test_function()
     # Should go back to None after the function returns.
-    assert get_active_job() is None
+    assert hud.jobs.get_active_job() is None

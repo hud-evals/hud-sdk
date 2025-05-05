@@ -11,7 +11,7 @@ from pydantic import ConfigDict
 from hud.env.client import Client
 from hud.env.environment import Environment
 from hud.gym import make
-from hud.job import Job
+from hud.jobs import Job
 from hud.task import Task
 from hud.types import CustomGym, EnvironmentStatus
 from hud.utils.config import FunctionConfig
