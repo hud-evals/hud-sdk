@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import re
 
-from hud.exceptions import ValueError
 from hud.utils.common import FunctionConfig, FunctionConfigs
 
 logger = logging.getLogger("hud.utils.config")
