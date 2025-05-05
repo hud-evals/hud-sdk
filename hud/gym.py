@@ -12,7 +12,7 @@ from hud.types import CustomGym, Gym
 from hud.utils.common import get_gym_id
 
 if TYPE_CHECKING:
-    from hud.jobss import Job
+    from hud.jobs import Job
     from hud.task import Task
 
 logger = logging.getLogger("hud.gym")
