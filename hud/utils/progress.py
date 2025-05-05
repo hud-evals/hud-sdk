@@ -3,8 +3,6 @@ from __future__ import annotations
 import time
 from collections import defaultdict
 
-from hud.exceptions import ValueError
-
 
 class StepProgressTracker:
     """
