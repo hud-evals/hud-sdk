@@ -18,12 +18,12 @@ Jobs help organize evaluation data, useful for:
 
 ## Creating Jobs
 
-### 1. The `@job` Decorator (Recommended)
+### 1. The `@register_job` Decorator (Recommended)
 
 Decorate an `async` function. A new Job is created per function call, and any environments created within using `hud.gym.make()` are automatically linked.
 
 ```python
-from hud import gym, job
+from hud import gym, register_job
 from hud.task import Task
 from hud.agent import OperatorAgent # Example agent
 
@@ -89,7 +89,7 @@ async def analyze_job(job_id: str):
 
 ## Best Practices
 
-*   Use `@job` for most scripts.
+*   Use `@register_job` for most scripts.
 *   Use descriptive names and metadata.
 *   Create separate jobs for distinct experiments.
 

@@ -111,7 +111,7 @@ if __name__ == "__main__":
     *   `agent.predict(obs)` gets the next action(s) from the agent.
     *   `env.step(actions)` executes the actions and gets the new observation.
 5.  **Evaluation & Close:** `env.evaluate()` checks if the task succeeded based on the `evaluate` definition. `env.close()` shuts down the environment.
-6.  **`@job` Decorator:** Wrapping `main` with `@register_job("quickstart-run")` automatically creates a Job. When `env.close()` is called, the recorded interactions (trajectory) are associated with this Job. You can view the job and its trajectory video on the [HUD Jobs page](https://app.hud.so/jobs).
+6.  **`@register_job` Decorator:** Wrapping `main` with `@register_job("quickstart-run")` automatically creates a Job. When `env.close()` is called, the recorded interactions (trajectory) are associated with this Job. You can view the job and its trajectory video on the [HUD Jobs page](https://app.hud.so/jobs).
 
 ## Next Steps
 
