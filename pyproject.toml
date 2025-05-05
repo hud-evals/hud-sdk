@@ -76,6 +76,7 @@ dev = [
     "openai",
     "anthropic",
     "dotenv",
+    "pytest-cov",
 ]
 
 [tool.ruff]
@@ -143,3 +144,22 @@ exclude = [
 ]
 pythonVersion = "3.10"
 typeCheckingMode = "basic"
+
+[tool.coverage.run]
+source = ["hud"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "pass",
+    "pytest.mark.skip",
+    "@(typing\\.)?overload",
+    "if TYPE_CHECKING:",
+    "if typing.TYPE_CHECKING:",
+    "class .*\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
+show_missing = true
+fail_under = 50
