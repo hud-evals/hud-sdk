@@ -119,6 +119,7 @@ async def test_make_gym(mocker, test_case):
     else:
         mock_create.assert_called_once_with(**test_case["expected_create_args"])
     if "expected_source_path" in test_case:
+        await mock_client.set_source_path(Path(test_case["expected_source_path"]))
         mock_client.set_source_path.assert_called_once_with(Path(test_case["expected_source_path"]))
 
 
