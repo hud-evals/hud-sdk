@@ -25,18 +25,19 @@ class Settings(BaseSettings):
         description="API key for authentication with the HUD API",
         validation_alias="HUD_API_KEY",
     )
-    
+
     anthropic_api_key: str | None = Field(
         default=None,
         description="API key for Anthropic models",
         validation_alias="ANTHROPIC_API_KEY",
     )
-    
+
     openai_api_key: str | None = Field(
         default=None,
         description="API key for OpenAI models",
         validation_alias="OPENAI_API_KEY",
     )
+
 
 # Create a singleton instance
 settings = Settings()

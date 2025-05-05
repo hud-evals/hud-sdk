@@ -5,6 +5,7 @@ from base64 import b64decode
 from typing import TYPE_CHECKING, Any
 
 from hud.env.client import Client
+from hud.exceptions import HudResponseError
 from hud.server import make_request
 from hud.settings import settings
 from hud.types import EnvironmentStatus
@@ -15,13 +16,14 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("hud.env.remote_env_client")
 
+
 class RemoteClient(Client):
     """
     Remote environment client implementation.
-    
+
     Uses the HUD API to manage a remote environment.
     """
-    
+
     @classmethod
     async def create(
         cls,
@@ -33,21 +35,23 @@ class RemoteClient(Client):
     ) -> tuple[RemoteClient, dict[str, Any]]:
         """
         Creates a remote environment client from a dockerfile or gym_id.
-        
+
         Args:
             dockerfile: The dockerfile content to build the environment
             gym_id: The gym_id of the environment to create
             metadata: Metadata to associate with the environment
-            
+
         Returns:
-            RemoteClient: An instance of the remote environment client
+            A tuple containing the remote environment client and the build metadata
+
+        Raises:
+            HudResponseError: If the environment creation is successful but the response is invalid.
         """
 
         # Validate arguments
         if metadata is None:
             metadata = {}
 
-        
         request_data = {
             # still named run_id for backwards compatibility
             "run_id": job_id,
@@ -63,33 +67,38 @@ class RemoteClient(Client):
             json=request_data,
             api_key=settings.api_key,
         )
-        
+
         # Get the environment ID from the response
         env_id = response.get("id")
         if not env_id:
-            raise ValueError("Failed to create remote environment: No ID returned")
-        
+            raise HudResponseError(
+                message="Failed to create remote environment: No ID returned in API response. "
+                "Please contact support if this issue persists.",
+                response_json=response,
+            )
+
         # Create the controller instance
         controller = cls(env_id)
-        
+
         build_data = response.get("metadata", {})
-        
+
         if response.get("readme"):
-            logger.info("[HUD] %s gym created, see how to use it at %s", gym_id,
-                        response.get("readme"))
-        
+            logger.info(
+                "[HUD] %s gym created, see how to use it at %s", gym_id, response.get("readme")
+            )
+
         return controller, build_data
 
     def __init__(self, env_id: str) -> None:
         """
         Initialize the RemoteClient.
-        
+
         Args:
             env_id: ID of the remote environment to control
         """
         super().__init__()
         self._env_id = env_id
-        
+
     @property
     def env_id(self) -> str:
         """The ID of the remote environment."""
@@ -98,7 +107,7 @@ class RemoteClient(Client):
     async def get_status(self) -> EnvironmentStatus:
         """
         Get the current status of the remote environment.
-        
+
         Returns:
             EnvironmentStatus: The current status of the environment
         """
@@ -111,7 +120,7 @@ class RemoteClient(Client):
             logger.debug("Environment status response: %s", response)
 
             status = response.get("state", "").lower()
-            
+
             if status == "running":
                 return EnvironmentStatus.RUNNING
             elif status == "initializing" or status == "pending":
@@ -122,12 +131,12 @@ class RemoteClient(Client):
                 # Any other status is considered an error
                 logger.warning("Abnormal environment status response: %s", response)
                 return EnvironmentStatus.ERROR
-                
+
         except Exception:
             # If we can't connect to the API or there's any other error
             logger.info("(potentially transient) Error getting environment status")
             return EnvironmentStatus.ERROR
-    
+
     async def execute(
         self,
         command: list[str],
@@ -138,11 +147,11 @@ class RemoteClient(Client):
         """
         Execute a command in the environment.
         No-op in some environments (like browser use).
-        
+
         Args:
             command: Command to execute
             workdir: Working directory for the command (ignored for remote environments)
-            
+
         Returns:
             ExecuteResult: Result of the command execution
         """
@@ -150,20 +159,19 @@ class RemoteClient(Client):
             method="POST",
             url=f"{settings.base_url}/v2/environments/{self.env_id}/execute",
             json={
-               "command": command,
-               "workdir": workdir,
-               "timeout": timeout,
+                "command": command,
+                "workdir": workdir,
+                "timeout": timeout,
             },
             api_key=settings.api_key,
         )
-        
+
         return ExecuteResult(
             stdout=b64decode(data["stdout"]),
             stderr=b64decode(data["stderr"]),
-            exit_code=data["exit_code"]
+            exit_code=data["exit_code"],
         )
 
-    
     async def invoke(self, config: FunctionConfig) -> tuple[Any, bytes, bytes]:
         """
         Invoke a function in the environment.
@@ -174,9 +182,8 @@ class RemoteClient(Client):
             json=config.model_dump(),
             api_key=settings.api_key,
         )
-        
-        return data["result"], b64decode(data["stdout"]), b64decode(data["stderr"])
 
+        return data["result"], b64decode(data["stdout"]), b64decode(data["stderr"])
 
     async def close(self) -> None:
         """

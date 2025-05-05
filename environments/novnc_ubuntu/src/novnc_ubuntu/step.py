@@ -32,4 +32,3 @@ def step(action: list[dict[str, Any]]) -> None:
     screenshot = screenshot_base64()
 
     return {"observation": {"screenshot": screenshot}}
-

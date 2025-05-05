@@ -11,95 +11,16 @@ from typing import Any
 
 import httpx
 
+from hud.exceptions import (
+    HudAuthenticationError,
+    HudNetworkError,
+    HudRequestError,
+    HudTimeoutError,
+)
+
 # Set up logger
 logger = logging.getLogger("hud.http")
 logger.setLevel(logging.DEBUG)
-
-
-class RequestError(Exception):
-    """Custom exception for API request errors"""
-
-    def __init__(
-        self,
-        message: str,
-        status_code: int | None = None,
-        response_text: str | None = None,
-        response_json: dict[str, Any] | None = None,
-        response_headers: dict[str, str] | None = None,
-    ) -> None:
-        self.message = message
-        self.status_code = status_code
-        self.response_text = response_text
-        self.response_json = response_json
-        self.response_headers = response_headers
-        super().__init__(message)
-
-    def __str__(self) -> str:
-        parts = [self.message]
-
-        if self.status_code:
-            parts.append(f"Status: {self.status_code}")
-
-        if self.response_text:
-            parts.append(f"Response Text: {self.response_text}")
-
-        if self.response_json:
-            parts.append(f"Response JSON: {self.response_json}")
-
-        if self.response_headers:
-            parts.append(f"Headers: {self.response_headers}")
-
-        return " | ".join(parts)
-
-    @classmethod
-    def from_http_error(
-        cls, error: httpx.HTTPStatusError, context: str = ""
-    ) -> RequestError:
-        """Create a RequestError from an HTTP error response"""
-        response = error.response
-        status_code = response.status_code
-        response_text = response.text
-        response_headers = dict(response.headers)
-
-        # Try to get detailed error info from JSON if available
-        response_json = None
-        try:
-            response_json = response.json()
-            detail = response_json.get("detail")
-            if detail:
-                message = f"Request failed: {detail}"
-            else:
-                # If no detail field but we have JSON, include a summary
-                message = f"Request failed with status {status_code}"
-                if (
-                    len(response_json) <= 5
-                ):  # If it's a small object, include it in the message
-                    message += f" - JSON response: {response_json}"
-        except Exception:
-            # Fallback to simple message if JSON parsing fails
-            message = f"Request failed with status {status_code}"
-
-        # Add context if provided
-        if context:
-            message = f"{context}: {message}"
-
-        # Log the error details
-        logger.error(
-            "HTTP error from HUD SDK: %s | URL: %s | Status: %s | Response: %s%s",
-            message,
-            response.url,
-            status_code,
-            response_text[:500],
-            "..." if len(response_text) > 500 else "",
-        )
-
-        return cls(
-            message=message,
-            status_code=status_code,
-            response_text=response_text,
-            response_json=response_json,
-            response_headers=response_headers,
-        )
 
 
 async def _handle_retry(
@@ -140,10 +61,13 @@ async def make_request(
         dict: JSON response from the server
 
     Raises:
-        RequestError: If API key is missing or request fails
+        HudAuthenticationError: If API key is missing or invalid.
+        HudRequestError: If the request fails with a non-retryable status code.
+        HudNetworkError: If there are network-related issues.
+        HudTimeoutError: If the request times out.
     """
     if not api_key:
-        raise RequestError("API key is required but not provided")
+        raise HudAuthenticationError("API key is required but not provided")
 
     headers = {"Authorization": f"Bearer {api_key}"}
     retry_status_codes = [502, 503, 504]
@@ -154,16 +78,14 @@ async def make_request(
 
         try:
             async with httpx.AsyncClient(
-                timeout=600.0, # Long running requests can take up to 10 minutes
+                timeout=600.0,  # Long running requests can take up to 10 minutes
                 limits=httpx.Limits(
                     max_connections=1000,
                     max_keepalive_connections=1000,
                     keepalive_expiry=10.0,
                 ),
             ) as client:
-                response = await client.request(
-                    method=method, url=url, json=json, headers=headers
-                )
+                response = await client.request(method=method, url=url, json=json, headers=headers)
 
             # Check if we got a retriable status code
             if response.status_code in retry_status_codes and attempt <= max_retries:
@@ -179,19 +101,19 @@ async def make_request(
             response.raise_for_status()
             result = response.json()
             return result
+        except httpx.TimeoutException as e:
+            raise HudTimeoutError(f"Request timed out: {e!s}") from None
         except httpx.HTTPStatusError as e:
-            raise RequestError.from_http_error(e) from None
+            raise HudRequestError.from_httpx_error(e) from None
         except httpx.RequestError as e:
             if attempt <= max_retries:
-                await _handle_retry(
-                    attempt, max_retries, retry_delay, url, f"Network error: {e}"
-                )
+                await _handle_retry(attempt, max_retries, retry_delay, url, f"Network error: {e}")
                 continue
             else:
-                raise RequestError(f"Network error: {e!s}") from None
+                raise HudNetworkError(f"Network error: {e!s}") from None
         except Exception as e:
-            raise RequestError(f"Unexpected error: {e!s}") from None
-    raise RequestError(f"Request failed after {max_retries} retries with unknown error")
+            raise HudRequestError(f"Unexpected error: {e!s}") from None
+    raise HudRequestError(f"Request failed after {max_retries} retries with unknown error")
 
 
 def make_request_sync(
@@ -216,10 +138,13 @@ def make_request_sync(
         dict: JSON response from the server
 
     Raises:
-        RequestError: If API key is missing or request fails
+        HudAuthenticationError: If API key is missing or invalid.
+        HudRequestError: If the request fails with a non-retryable status code.
+        HudNetworkError: If there are network-related issues.
+        HudTimeoutError: If the request times out.
     """
     if not api_key:
-        raise RequestError("API key is required but not provided")
+        raise HudAuthenticationError("API key is required but not provided")
 
     headers = {"Authorization": f"Bearer {api_key}"}
     retry_status_codes = [502, 503, 504]
@@ -230,16 +155,14 @@ def make_request_sync(
 
         try:
             with httpx.Client(
-                timeout=600.0, # Long running requests can take up to 10 minutes
+                timeout=600.0,  # Long running requests can take up to 10 minutes
                 limits=httpx.Limits(
                     max_connections=1000,
                     max_keepalive_connections=1000,
                     keepalive_expiry=10.0,
                 ),
             ) as client:
-                response = client.request(
-                    method=method, url=url, json=json, headers=headers
-                )
+                response = client.request(method=method, url=url, json=json, headers=headers)
 
             # Check if we got a retriable status code
             if response.status_code in retry_status_codes and attempt <= max_retries:
@@ -258,8 +181,10 @@ def make_request_sync(
             response.raise_for_status()
             result = response.json()
             return result
+        except httpx.TimeoutException as e:
+            raise HudTimeoutError(f"Request timed out: {e!s}") from None
         except httpx.HTTPStatusError as e:
-            raise RequestError.from_http_error(e) from None
+            raise HudRequestError.from_httpx_error(e) from None
         except httpx.RequestError as e:
             if attempt <= max_retries:
                 retry_time = retry_delay * (2 ** (attempt - 1))
@@ -274,7 +199,7 @@ def make_request_sync(
                 time.sleep(retry_time)
                 continue
             else:
-                raise RequestError(f"Network error: {e!s}") from None
+                raise HudNetworkError(f"Network error: {e!s}") from None
         except Exception as e:
-            raise RequestError(f"Unexpected error: {e!s}") from None
-    raise RequestError(f"Request failed after {max_retries} retries with unknown error")
+            raise HudRequestError(f"Unexpected error: {e!s}") from None
+    raise HudRequestError(f"Request failed after {max_retries} retries with unknown error")

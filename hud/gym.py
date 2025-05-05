@@ -17,6 +17,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("hud.gym")
 
+
 async def make(
     env_src: Gym | Task,
     *,
@@ -26,7 +27,7 @@ async def make(
 ) -> Environment:
     """
     Create an environment from an environment ID or a Task object.
-    
+
     Args:
         env_src: Environment ID or Task object
         job: Job object to associate with this environment
@@ -35,7 +36,7 @@ async def make(
     """
     if metadata is None:
         metadata = {}
-    
+
     # Handle job parameter
     effective_job_id = None
     if job is not None:
@@ -46,12 +47,13 @@ async def make(
         # Try to get an active job from the decorator context
         try:
             from hud.job import get_active_job
+
             active_job = get_active_job()
             if active_job:
                 effective_job_id = active_job.id
         except ImportError:
             pass  # Module not available, skip
-    
+
     gym = None
     task = None
     if isinstance(env_src, str | CustomGym):
@@ -77,7 +79,7 @@ async def make(
             )
         else:
             raise ValueError(f"Invalid environment location: {gym.location}")
-            
+
         # Set up the environment with a source path
         if gym.controller_source_dir:
             logger.info("Setting source path")
@@ -101,7 +103,7 @@ async def make(
 
     # Create the environment itself
     environment = Environment(client=client, metadata=metadata, task=task, build_data=build_data)
-    
+
     if task:
         await environment._setup()
 
