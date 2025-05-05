@@ -35,7 +35,7 @@ jobs:
 
       - name: Run ruff
         run: |
-          uv run --with=".[dev]" ruff format .
+          uv run --with=".[dev]" ruff format . --check
           uv run --with=".[dev]" ruff check .
 
   lint-pyright:

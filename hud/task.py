@@ -55,13 +55,13 @@ class Task(BaseModel):
     setup: FunctionConfigs | None = None
     evaluate: FunctionConfigs | None = None
     gym: Gym | None = None
-    
+
     target: str | list[str] | None = None
-    
+
     choices: list[str] | None = None
     files: dict[str, str] | None = None
     metadata: dict[str, Any] | None = None
-    
+
     config: dict[str, Any] | None = None
 
     @classmethod
@@ -75,7 +75,7 @@ class Task(BaseModel):
 
         Returns:
             Task instance
-        
+
         The Inspect Sample has these fields:
         - input (str | list[ChatMessage]): The input to be submitted to the model
         - choices (list[str] | None): Optional multiple choice answer list
@@ -104,7 +104,7 @@ class Task(BaseModel):
 
         task_gym: Gym | None = None
         task_setup: FunctionConfigs | None = None
-        
+
         sandbox = sample.sandbox
         dockerfile = None
         use_qa_gym = True
@@ -130,7 +130,6 @@ class Task(BaseModel):
             )
             task_setup = [x for x in convert_inspect_setup(sample.setup)] if sample.setup else None
             # TODO: Handle sample.files for CustomGym case if needed
-
 
         return cls(
             id=None,
