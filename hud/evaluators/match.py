@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Sequence
 from difflib import SequenceMatcher
-from typing import Protocol
+from typing import TYPE_CHECKING, Protocol
 
 from textdistance import levenshtein
 
 from hud.evaluators.base import EvaluationResult
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 
 class _Stringable(Protocol):

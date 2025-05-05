@@ -6,7 +6,7 @@ from typing import Any
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
-from pydantic import BaseModel, ConfigDict
+from pydantic import ConfigDict
 
 from hud.env.client import Client
 from hud.env.environment import Environment
@@ -14,7 +14,7 @@ from hud.gym import make
 from hud.job import Job
 from hud.task import Task
 from hud.types import CustomGym, EnvironmentStatus
-from hud.utils.config import FunctionConfig, FunctionConfigs
+from hud.utils.config import FunctionConfig
 
 
 class MockClient(Client):

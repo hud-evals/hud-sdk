@@ -13,7 +13,11 @@ def test_stream():
 def test_display_screenshot():
     from hud.utils.telemetry import display_screenshot
 
-    base64_image = "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+    # This is a simple 1x1 transparent PNG image in base64 format
+    base64_image = (
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQ"
+        "AAABJRU5ErkJggg=="
+    )
 
     html_content = display_screenshot(base64_image)
     assert html_content is not None

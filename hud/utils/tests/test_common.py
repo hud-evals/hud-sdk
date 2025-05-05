@@ -3,11 +3,14 @@ from __future__ import annotations
 import io
 import tarfile
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import pytest
-import pytest_mock
 
 from hud.utils.common import directory_to_tar_bytes, get_gym_id
+
+if TYPE_CHECKING:
+    import pytest_mock
 
 
 def test_directory_to_tar_bytes(tmpdir_factory: pytest.TempdirFactory):

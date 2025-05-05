@@ -232,10 +232,9 @@ def job(name: str, metadata: dict[str, Any] | None = None) -> Callable[[T], T]:
                 return result
             finally:
                 # Clean up
-                if call_id in _ACTIVE_JOBS:
-                    del _ACTIVE_JOBS[call_id]
+                _ACTIVE_JOBS.pop(call_id, None)
 
-        return cast(T, wrapper)
+        return cast("T", wrapper)
 
     return decorator
 
