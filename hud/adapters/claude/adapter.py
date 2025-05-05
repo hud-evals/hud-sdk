@@ -39,7 +39,7 @@ class ClaudeAdapter(Adapter):
     def _map_key(self, key: str) -> CLAKey:
         """Map a key to its standardized form."""
         return self.KEY_MAP.get(key.lower(), key.lower())  # type: ignore
-    
+
     def convert(self, data: Any) -> CLA:
         try:
             action_type = data.get("action")
@@ -47,9 +47,7 @@ class ClaudeAdapter(Adapter):
             if action_type == "key":
                 assert "text" in data
                 if "+" in data["text"]:
-                    keys: list[CLAKey] = [
-                        self._map_key(k) for k in (data["text"].split("+"))
-                    ]
+                    keys: list[CLAKey] = [self._map_key(k) for k in (data["text"].split("+"))]
                     assert len(keys) > 0
                     return PressAction(keys=keys)
                 return PressAction(keys=[self._map_key(data["text"])])
@@ -83,19 +81,12 @@ class ClaudeAdapter(Adapter):
                 assert len(coord) == 2
                 if (
                     len(self.memory) == 0
-                    or (
-                        self.memory[-1] is not MoveAction
-                        and self.memory[-1] is not ClickAction
-                    )
+                    or (self.memory[-1] is not MoveAction and self.memory[-1] is not ClickAction)
                     or self.memory[-1].point is None
                 ):
-                    raise ValueError(
-                        "Left click drag must be preceded by a move or click action"
-                    )
+                    raise ValueError("Left click drag must be preceded by a move or click action")
                 else:
-                    return DragAction(
-                        path=[self.memory[-1].point, Point(x=coord[0], y=coord[1])]
-                    )
+                    return DragAction(path=[self.memory[-1].point, Point(x=coord[0], y=coord[1])])
 
             elif action_type == "right_click":
                 assert "coordinate" in data

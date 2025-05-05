@@ -65,7 +65,7 @@ class Environment(BaseModel):
                         stderr.decode(),
                     )
         return results
-    
+
     async def _setup(self, config: FunctionConfigs | None = None) -> None:
         """
         Setup the environment.
@@ -94,8 +94,7 @@ class Environment(BaseModel):
             Any: Result of the evaluation
         """
         if isinstance(self.client, RemoteClient):
-            results = await self._invoke_all(
-                create_remote_config(self, config, REMOTE_EVALUATE))
+            results = await self._invoke_all(create_remote_config(self, config, REMOTE_EVALUATE))
         else:
             if config is not None:
                 results = await self._invoke_all(config)
@@ -107,11 +106,10 @@ class Environment(BaseModel):
             return results[0]
         else:
             return results
-        
 
-    async def reset(self, configs: FunctionConfigs | None = None) -> tuple[
-        Observation, dict[str, Any]
-    ]:
+    async def reset(
+        self, configs: FunctionConfigs | None = None
+    ) -> tuple[Observation, dict[str, Any]]:
         """
         Reset the environment.
 
@@ -122,15 +120,15 @@ class Environment(BaseModel):
             Observation: The first observation from the environment
             info: Dictionary of information about the environment
         """
-        #await self._setup(configs)
+        # await self._setup(configs)
         obs, _, _, info = await self.step()
         if self.task and self.task.prompt:
             obs.text = self.task.prompt
         return obs, info
 
-    async def step(self, actions: CLA | list[CLA] | None = None) -> tuple[
-        Observation, float, bool, dict[str, Any]
-    ]:
+    async def step(
+        self, actions: CLA | list[CLA] | None = None
+    ) -> tuple[Observation, float, bool, dict[str, Any]]:
         """Execute a step in the environment.
 
         Args:
@@ -148,7 +146,7 @@ class Environment(BaseModel):
         # TODO: Move this into the server side
         if self._maybe_store_response(actions):
             return Observation(text=self.final_response), 0, False, {}
-        
+
         result, stdout, stderr = await self.client.invoke(
             FunctionConfig(function="step", args=args)
         )
@@ -157,11 +155,10 @@ class Environment(BaseModel):
         if stderr:
             logger.warning("Step produced stderr: %s", stderr.decode())
 
-
         observation = Observation.model_validate(result["observation"], strict=True)
 
         return observation, 0, False, {}
-    
+
     def _maybe_store_response(self, actions: list[CLA]) -> bool:
         """Store the final response into the environment.
 
@@ -175,7 +172,6 @@ class Environment(BaseModel):
             self.final_response = actions[-1].text
             return True
         return False
-
 
     async def get_urls(self) -> dict[str, Any]:
         """Get URLs for the environment.
@@ -230,6 +226,7 @@ class Environment(BaseModel):
         if verbose:
             logger.info("[HUD] Evaluation result: %s", result)
         return result
+
 
 def create_remote_config(
     env: Environment | None = None,
@@ -322,43 +319,43 @@ def create_remote_config(
         if config:
             return expand_config(config)
         raise ValueError("Either function or config must be provided")
-    
+
     # Case 1: Explicit config provided
     if config:
         expanded_configs = expand_config(config)
         if env and env.final_response and expanded_configs[0].args[0] in LOCAL_EVALUATORS:
             # Ensure args is a list before appending
             if not isinstance(expanded_configs[0].args, list):
-                 expanded_configs[0].args = [expanded_configs[0].args]
-            expanded_configs[0].args.append(env.final_response) # for remote responses
+                expanded_configs[0].args = [expanded_configs[0].args]
+            expanded_configs[0].args.append(env.final_response)  # for remote responses
         return [FunctionConfig(function=function, args=expanded_configs)]
-    
+
     # Otherwise, use the environment's task
     task = env.task if env else None
-    
+
     # Must have a task for the remaining cases
     if task is None:
         raise ValueError("Either task or config must be provided")
-    
+
     # Case 2: Task has the specified function attribute
     task_config = getattr(task, function, None)
     if task_config:
         expanded_configs = expand_config(task_config)
         if task.id:
-            expanded_configs[0].id = task.id # for remote IDs
+            expanded_configs[0].id = task.id  # for remote IDs
         elif env and env.final_response and expanded_configs[0].args[0] in LOCAL_EVALUATORS:
             # Ensure args is a list before appending
             if not isinstance(expanded_configs[0].args, list):
-                 expanded_configs[0].args = [expanded_configs[0].args]
-            expanded_configs[0].args.append(env.final_response) # for remote responses
+                expanded_configs[0].args = [expanded_configs[0].args]
+            expanded_configs[0].args.append(env.final_response)  # for remote responses
         return [FunctionConfig(function=function, args=expanded_configs)]
-    
+
     # Case 3: Check for task.config
     if hasattr(task, "config") and task.config:
         # Ensure task.config is a dictionary before adding id
         final_args = task.config.copy() if isinstance(task.config, dict) else {}
         if task.id:
-            final_args["id"] = task.id # for remote IDs
+            final_args["id"] = task.id  # for remote IDs
         if env and env.final_response:
             # Append response, ensuring args exists and is a list
             if "args" not in final_args:
@@ -367,17 +364,16 @@ def create_remote_config(
                 final_args["args"] = [final_args["args"]]
             final_args["args"].append(env.final_response)
         return [FunctionConfig(function=function, args=[final_args])]
-    
+
     # Case 4: Use task.id
     if task.id:
         args_list = [task.id]
         if env and env.final_response:
-             args_list.append(env.final_response) # Append final response
+            args_list.append(env.final_response)  # Append final response
         return [FunctionConfig(function=f"{REMOTE_FUNCTION_PREFIX}{function}", args=args_list)]
-    
+
     # Case 5: No valid configuration found
     args_list = []
     if env and env.final_response:
         args_list.append(env.final_response)
     return [FunctionConfig(function=function, args=args_list)]
-

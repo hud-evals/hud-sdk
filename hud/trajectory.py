@@ -29,9 +29,7 @@ class Trajectory(BaseModel):
     def display(self) -> None:
         trajectory_start_timestamp_str = self.trajectory[0].start_timestamp
         t_start_dt = (
-            datetime.datetime.fromisoformat(
-                trajectory_start_timestamp_str.replace("Z", "+00:00")
-            )
+            datetime.datetime.fromisoformat(trajectory_start_timestamp_str.replace("Z", "+00:00"))
             if trajectory_start_timestamp_str
             else None
         )
@@ -48,16 +46,15 @@ class Trajectory(BaseModel):
                     display(Markdown(f"[Image Link]({step.observation_url})"))
                 except Exception as e:
                     print(f"    [Error processing image: {e}]")
-            elif not step.observation_text: # Only print if no image AND no text
-                 print("    No visual or text observation provided.")
-
+            elif not step.observation_text:  # Only print if no image AND no text
+                print("    No visual or text observation provided.")
 
             # Observation Text
             if step.observation_text:
                 print(f"    Observation Text: {step.observation_text}")
 
             # Actions
-            print(f"\n    Actions: {step.actions}") # Added newline for spacing
+            print(f"\n    Actions: {step.actions}")  # Added newline for spacing
 
             # Duration
             duration_str = "N/A"
@@ -84,7 +81,7 @@ class Trajectory(BaseModel):
                     total_seconds = total_duration.total_seconds() % 60
                     total_duration_str = f"{total_minutes}m {total_seconds:.2f}s"
                 except ValueError:
-                    duration_str = "Error parsing timestamps" # Handle potential format issues
+                    duration_str = "Error parsing timestamps"  # Handle potential format issues
             print(f"    Step Duration: {duration_str}")
             print(f"    Total Duration: {total_duration_str}")
-            display(Markdown("---")) # Use Markdown horizontal rule
+            display(Markdown("---"))  # Use Markdown horizontal rule

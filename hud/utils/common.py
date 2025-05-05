@@ -16,32 +16,39 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("hud.utils.common")
 
+
 class FunctionConfig(BaseModel):
     function: str  # Format: "x.y.z"
-    args: list[Any] # Must be json serializable
+    args: list[Any]  # Must be json serializable
 
-    id: str | None = None # Optional id for remote execution
+    id: str | None = None  # Optional id for remote execution
 
     def __len__(self) -> int:
         return len(self.args)
 
     def __getitem__(self, index: int) -> Any:
         return self.args[index]
-    
+
     def __iter__(self) -> Iterator[Any]:
         return iter(self.args)
-    
+
     def __str__(self) -> str:
         return f"{self.function}: {', '.join(str(arg) for arg in self.args)}"
+
 
 # Type alias for the shorthand config, which just converts to function name and args
 ShorthandConfig = tuple[str | dict[str, Any] | list[str] | list[dict[str, Any]], ...]
 
 # Type alias for multiple config formats
 FunctionConfigs = (
-    ShorthandConfig | FunctionConfig | list[FunctionConfig] | list[ShorthandConfig]
-    | dict[str, Any] | str
+    ShorthandConfig
+    | FunctionConfig
+    | list[FunctionConfig]
+    | list[ShorthandConfig]
+    | dict[str, Any]
+    | str
 )
+
 
 class Observation(BaseModel):
     """
@@ -55,6 +62,7 @@ class Observation(BaseModel):
     screenshot: str | None = None  # base64 string png
     text: str | None = None
 
+
 class ExecuteResult(TypedDict):
     """
     Result of an execute command.
@@ -64,26 +72,27 @@ class ExecuteResult(TypedDict):
         stderr: Standard error from the command
         exit_code: Exit code of the command
     """
+
     stdout: bytes
     stderr: bytes
     exit_code: int
-    
-    
+
+
 def directory_to_tar_bytes(directory_path: Path) -> bytes:
     """
     Converts a directory to a tar archive and returns it as bytes.
-    
+
     This function creates a tar archive of the specified directory in memory,
     without writing to a temporary file on disk.
-    
+
     Args:
         path: Path to the directory to convert
-        
+
     Returns:
         Bytes of the tar archive
     """
     output = io.BytesIO()
-    
+
     with tarfile.open(fileobj=output, mode="w") as tar:
         # Walk through the directory
         for file_path in directory_path.rglob("*"):
@@ -92,7 +101,7 @@ def directory_to_tar_bytes(directory_path: Path) -> bytes:
                 rel_path = file_path.relative_to(directory_path)
                 logger.debug("Adding %s to tar archive", rel_path)
                 tar.add(file_path, arcname=str(rel_path))
-    
+
     # Get the bytes from the BytesIO object
     output.seek(0)
     return output.getvalue()
