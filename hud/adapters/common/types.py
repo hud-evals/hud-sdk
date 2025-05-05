@@ -82,7 +82,7 @@ class DragAction(CLAAction):
 # RESPONSE ACTION from agent
 class ResponseAction(CLAAction):
     type: Literal["response"] = "response"
-    text: str # The final textual response from the agent
+    text: str  # The final textual response from the agent
 
 
 # SCREENSHOT ACTION

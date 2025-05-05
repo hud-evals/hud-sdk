@@ -19,15 +19,16 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("hud.env.docker_env_client")
 
+
 class LocalDockerClient(DockerClient):
     """
     Docker-based environment client implementation.
     """
 
     @classmethod
-    async def create(cls, dockerfile: str, ports: list[int] | None = None) -> tuple[
-            LocalDockerClient, dict[str, Any]
-        ]:
+    async def create(
+        cls, dockerfile: str, ports: list[int] | None = None
+    ) -> tuple[LocalDockerClient, dict[str, Any]]:
         """
         Creates a Docker environment client from a dockerfile.
 
@@ -86,9 +87,7 @@ class LocalDockerClient(DockerClient):
             "HostConfig": {
                 "PublishAllPorts": True,
             },
-            "ExposedPorts": {
-                f"{port}/tcp": {} for port in ports
-            },
+            "ExposedPorts": {f"{port}/tcp": {} for port in ports},
         }
 
         container = await docker_client.containers.create(config=container_config)
@@ -197,7 +196,6 @@ class LocalDockerClient(DockerClient):
             # TODO: Get the exit code from the output
             exit_code=0,
         )
-
 
     async def get_archive(self, path: str) -> bytes:
         """

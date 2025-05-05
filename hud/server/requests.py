@@ -52,9 +52,7 @@ class RequestError(Exception):
         return " | ".join(parts)
 
     @classmethod
-    def from_http_error(
-        cls, error: httpx.HTTPStatusError, context: str = ""
-    ) -> RequestError:
+    def from_http_error(cls, error: httpx.HTTPStatusError, context: str = "") -> RequestError:
         """Create a RequestError from an HTTP error response"""
         response = error.response
         status_code = response.status_code
@@ -71,9 +69,7 @@ class RequestError(Exception):
             else:
                 # If no detail field but we have JSON, include a summary
                 message = f"Request failed with status {status_code}"
-                if (
-                    len(response_json) <= 5
-                ):  # If it's a small object, include it in the message
+                if len(response_json) <= 5:  # If it's a small object, include it in the message
                     message += f" - JSON response: {response_json}"
         except Exception:
             # Fallback to simple message if JSON parsing fails
@@ -154,16 +150,14 @@ async def make_request(
 
         try:
             async with httpx.AsyncClient(
-                timeout=600.0, # Long running requests can take up to 10 minutes
+                timeout=600.0,  # Long running requests can take up to 10 minutes
                 limits=httpx.Limits(
                     max_connections=1000,
                     max_keepalive_connections=1000,
                     keepalive_expiry=10.0,
                 ),
             ) as client:
-                response = await client.request(
-                    method=method, url=url, json=json, headers=headers
-                )
+                response = await client.request(method=method, url=url, json=json, headers=headers)
 
             # Check if we got a retriable status code
             if response.status_code in retry_status_codes and attempt <= max_retries:
@@ -183,9 +177,7 @@ async def make_request(
             raise RequestError.from_http_error(e) from None
         except httpx.RequestError as e:
             if attempt <= max_retries:
-                await _handle_retry(
-                    attempt, max_retries, retry_delay, url, f"Network error: {e}"
-                )
+                await _handle_retry(attempt, max_retries, retry_delay, url, f"Network error: {e}")
                 continue
             else:
                 raise RequestError(f"Network error: {e!s}") from None
@@ -230,16 +222,14 @@ def make_request_sync(
 
         try:
             with httpx.Client(
-                timeout=600.0, # Long running requests can take up to 10 minutes
+                timeout=600.0,  # Long running requests can take up to 10 minutes
                 limits=httpx.Limits(
                     max_connections=1000,
                     max_keepalive_connections=1000,
                     keepalive_expiry=10.0,
                 ),
             ) as client:
-                response = client.request(
-                    method=method, url=url, json=json, headers=headers
-                )
+                response = client.request(method=method, url=url, json=json, headers=headers)
 
             # Check if we got a retriable status code
             if response.status_code in retry_status_codes and attempt <= max_retries:
