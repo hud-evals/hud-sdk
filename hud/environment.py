@@ -21,7 +21,7 @@ class BaseResponseWithLogs(BaseModel):
 
 
 class RewardResponse(BaseResponseWithLogs):
-    reward: float
+    reward: float | None = None
 
 
 logger = logging.getLogger("hud.environment")
