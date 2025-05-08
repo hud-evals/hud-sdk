@@ -29,13 +29,18 @@ class Server(socketserver.StreamRequestHandler):
         if connection_type == "step":
             actions_raw = self.rfile.readline().strip().decode("utf-8")
             actions = json.loads(actions_raw)
-            for action in actions:
-                if action.get("type") == "press":
-                    emulator.press_button_sequence(action.get("keys"))
-            observation = emulator.get_observation()
+            with lock:
+                for action in actions:
+                    if action.get("type") == "press":
+                        emulator.press_button_sequence(action.get("keys"))
+                    elif action.get("type") == "wait":
+                        frames = int(action.get("time") * 60 / 1000)
+                        emulator.tick(frames)
+                observation = emulator.get_observation()
             self.wfile.write(json.dumps(observation).encode("utf-8"))
         elif connection_type == "evaluate":
-            evaluate_result = emulator.get_evaluate_result()
+            with lock:
+                evaluate_result = emulator.get_evaluate_result()
             self.wfile.write(json.dumps(evaluate_result).encode("utf-8"))
         elif connection_type == "kill":
             Thread(target=self.server.shutdown).start()
@@ -52,7 +57,7 @@ def process_signal_thread() -> None:
         server.serve_forever()
     print("Server closed")
 
-
+# Main game loop
 def main(game_name: str) -> None:
     global emulator
     emulator = Emulator(rom_path=f"gamefiles/{game_name}.gb")

@@ -4,10 +4,13 @@ import socket
 import subprocess
 import sys
 
-from .kill import kill
-
+available_games = ["pokemon_red"]
 
 def setup(game_name: str) -> None:
+    # Validate if game is available
+    if game_name not in available_games:
+        raise ValueError(f"Game {game_name} is not available. Available games: {available_games}")
+        
     # If there is already a  emulator running, kill it and run a new one
     connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     try:
@@ -18,7 +21,7 @@ def setup(game_name: str) -> None:
         pass
     # Run a new emulator
     subprocess.Popen(
-        ["python", "-m", "hud_controller.main", game_name],
+        [sys.executable, "-m", "hud_controller.main", game_name],
         stdin=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL,
         start_new_session=True,

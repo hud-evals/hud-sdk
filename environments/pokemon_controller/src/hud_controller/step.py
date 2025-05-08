@@ -25,6 +25,7 @@ def step(actions: list[dict[str, Any]]) -> dict[str, Any]:
     # Send actions
     connection.sendall(json.dumps(actions).encode("utf-8"))
     connection.sendall(b"\n")
+    
     # Receive observation
     observation_raw = connection.recv(1000000).decode("utf-8")
     observation = json.loads(observation_raw)
