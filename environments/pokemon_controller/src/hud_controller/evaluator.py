@@ -6,7 +6,7 @@ import time
 from typing import Any
 
 
-def step(actions: list[dict[str, Any]]) -> dict[str, Any]:
+def evaluate() -> dict[str, Any]:
     connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     # If cant connect, try 5 times
@@ -19,18 +19,10 @@ def step(actions: list[dict[str, Any]]) -> dict[str, Any]:
             time.sleep(1)
             connection = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    connection_type = "step\n"
+    connection_type = "evaluate\n"
     connection.sendall(connection_type.encode("utf-8"))
 
-    # Send actions
-    connection.sendall(json.dumps(actions).encode("utf-8"))
-    connection.sendall(b"\n")
-    # Receive observation
-    observation_raw = connection.recv(1000000).decode("utf-8")
-    observation = json.loads(observation_raw)
+    # Receive result
+    result = json.loads(connection.recv(1000000).decode("utf-8"))
     connection.close()
-    return {"observation": observation}
-
-
-if __name__ == "__main__":
-    print(step([]))
+    return result

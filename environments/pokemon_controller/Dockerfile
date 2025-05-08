@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-# Copy the package files
+# Copy the package files 
 RUN mkdir -p /controller
 COPY src /controller/src
 COPY pyproject.toml /controller/pyproject.toml
@@ -29,4 +29,4 @@ COPY gamefiles ./gamefiles
 RUN pip install -e /controller --break-system-packages
 
 # Set the command to run the controller
-CMD ["python", "-m", "hud_controller.main"]
+CMD ["tail", "-f", "/dev/null"]

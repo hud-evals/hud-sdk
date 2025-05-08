@@ -78,8 +78,8 @@ class Environment(BaseModel):
         else:
             if config is not None:
                 await self._invoke_all(config)
-            elif self.task and self.task.config is not None:
-                await self._invoke_all(self.task.config)
+            elif self.task and self.task.setup is not None:
+                await self._invoke_all(self.task.setup)
             else:
                 raise ValueError("No config or task provided for local environment")
 
@@ -98,8 +98,8 @@ class Environment(BaseModel):
         else:
             if config is not None:
                 results = await self._invoke_all(config)
-            elif self.task and self.task.config is not None:
-                results = await self._invoke_all(self.task.config)
+            elif self.task and self.task.evaluate is not None:
+                results = await self._invoke_all(self.task.evaluate)
             else:
                 raise ValueError("No config or task provided for local environment")
         if len(results) == 1:

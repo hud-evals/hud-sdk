@@ -102,6 +102,20 @@ class Emulator:
             # Return default/error values
             return {"player_x": -1, "player_y": -1, "map_id": -1, "error": str(e)}
 
+    def get_evaluate_result(self) -> dict:
+        """Extract the progress made by the agent:
+        - Number of badges
+        - Number of pokemon in party
+        - Current money
+        - Current map id
+        """
+        return {
+            "badges": self.pyboy.memory[0xD356],
+            "num_pokemon_in_party": self.pyboy.memory[0xD163],
+            "money": self.pyboy.memory[0xD347],
+            "map_id": self.pyboy.memory[0xD35E],
+        }
+
     def get_game_context_log(self) -> dict:
         """Extracts a wider range of game context information for logging."""
         if not self.pyboy:
