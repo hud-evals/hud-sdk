@@ -18,11 +18,7 @@ RUN apt-get update && apt-get install -y \
 # Set working directory
 WORKDIR /app
 
-<<<<<<< HEAD
 # Copy the package files 
-=======
-# Copy the package files
->>>>>>> 92f0d50 (working local docker)
 RUN mkdir -p /controller
 COPY src /controller/src
 COPY pyproject.toml /controller/pyproject.toml
@@ -33,8 +29,4 @@ COPY gamefiles ./gamefiles
 RUN pip install -e /controller --break-system-packages
 
 # Set the command to run the controller
-<<<<<<< HEAD
 CMD ["tail", "-f", "/dev/null"]
-=======
-CMD ["python", "-m", "hud_controller.main"]
->>>>>>> 92f0d50 (working local docker)

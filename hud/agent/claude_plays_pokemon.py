@@ -1,22 +1,40 @@
-from hud.agent import Agent
-from hud.adapters import Adapter
-from hud.settings import settings
-from hud.env.environment import Observation
-from anthropic import AsyncAnthropic
+from __future__ import annotations
+
+import json
+import logging
 from typing import Any, cast
 
-import logging
-import json
-
+from anthropic import AsyncAnthropic
 from anthropic.types.beta import (
     BetaMessageParam,
     BetaTextBlockParam,
     BetaImageBlockParam,
 )
 
+from hud.agent import Agent
+from hud.adapters import Adapter
+from hud.settings import settings
+from hud.env.environment import Observation
+
 logger = logging.getLogger(__name__)
 
+# Constants
+DEFAULT_MODEL = "claude-3-7-sonnet-20250219"
+DEFAULT_MAX_TOKENS = 4096
+DEFAULT_MAX_ITERATIONS = 10
+DEFAULT_TEMPERATURE = 0.7
+DEFAULT_MAX_MESSAGE_MEMORY = 20
+
+
 def generate_system_prompt(game_name: str) -> str:
+    """Generate the system prompt for the AI agent.
+    
+    Args:
+        game_name: Name of the game being played
+        
+    Returns:
+        str: The system prompt for the AI agent
+    """
     return """You are a specialized AI assistant designed to play Pokémon games via screenshot analysis and text instructions. Your task is to understand the current game state from visual input, determine appropriate actions, and respond with structured outputs that control the game.
 
 For each turn, you will receive:
@@ -66,46 +84,81 @@ IMPORTANT: Do not include any conversation markers like <<ASSISTANT_CONVERSATION
 7. **Memory**: Maintain awareness of the game history and your previous actions to avoid repetitive behaviors
 
 Always provide thoughtful analysis and clear reasoning for your decisions. If you're uncertain about the best course of action, prioritize safe moves that gather more information.
-""" # This can be improved further by adding more details about the game mechanics and rules.
+"""
 
-def extract_action_from_response_block(block: dict[str, Any]) -> list[str]:
+
+def extract_action_from_response_block(block: dict[str, Any]) -> list[dict[str, Any]]:
+    """Extract actions from a response block.
+    
+    Args:
+        block: The response block containing actions
+        
+    Returns:
+        list[dict[str, Any]]: List of actions extracted from the block
+    """
     if "actions" in block:
         actions = block["actions"]
         if isinstance(actions, list):
             return actions
     return []
 
-# Clear any text before and after the JSON response
+
 def extract_json_from_response(response: str) -> str:
-    # JSON Block starts with ```json and ends with ```
+    """Extract JSON from a response string.
+    
+    Args:
+        response: The response string containing JSON
+        
+    Returns:
+        str: The extracted JSON string
+    """
+    # Try to find JSON block with markdown code block markers
     start = response.find("```json")
     end = response.rfind("```")
     if start != -1 and end != -1:
         start += len("```json")
         return response[start:end].strip()
-    
+
+    # Try to find JSON object directly
     start = response.find("{")
     end = response.rfind("}")
     if start != -1 and end != -1:
-        return response[start:end+1].strip()
+        return response[start : end + 1].strip()
 
     return response.strip()
 
+
 class ClaudePlaysPokemon(Agent[AsyncAnthropic, None]):
+    """AI agent that plays Pokémon games using Claude."""
+
     def __init__(
         self,
         client: AsyncAnthropic | None = None,
         adapter: Adapter | None = None,
-        model: str = "claude-3-7-sonnet-20250219",
-        max_tokens: int = 4096,
-        max_iterations: int = 10,
-        temperature: float = 0.7,
-        max_message_memory: int = 20,
-    ):
+        model: str = DEFAULT_MODEL,
+        max_tokens: int = DEFAULT_MAX_TOKENS,
+        max_iterations: int = DEFAULT_MAX_ITERATIONS,
+        temperature: float = DEFAULT_TEMPERATURE,
+        max_message_memory: int = DEFAULT_MAX_MESSAGE_MEMORY,
+    ) -> None:
+        """Initialize the Claude Plays Pokémon agent.
+        
+        Args:
+            client: Anthropic API client
+            adapter: Game adapter
+            model: Claude model to use
+            max_tokens: Maximum tokens for response
+            max_iterations: Maximum number of iterations
+            temperature: Response temperature
+            max_message_memory: Maximum number of messages to remember
+            
+        Raises:
+            ValueError: If API key is not provided
+        """
         if client is None:
             api_key = settings.anthropic_api_key
             if not api_key:
-                raise ValueError("Anthropic API key is required.")
+                raise ValueError("Anthropic API key is required")
             client = AsyncAnthropic(api_key=api_key)
 
         if adapter is None:
@@ -117,23 +170,35 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, None]):
         )
 
         self.model = model
-    
         self.max_tokens = max_tokens
         self.max_iterations = max_iterations
         self.temperature = temperature
         self.max_message_memory = max_message_memory
 
-        self.system_prompts: list[BetaMessageParam] = [{
-            "role": "assistant",
-            "content": generate_system_prompt("Pokemon Red"),
-        }]
+        self.system_prompts: list[BetaMessageParam] = [
+            {
+                "role": "assistant",
+                "content": generate_system_prompt("Pokemon Red"),
+            }
+        ]
 
         self.messages: list[BetaMessageParam] = []
+
+    async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool]:
+        """Fetch a response from Claude based on the current observation.
         
-    async def fetch_response(self, observation: Observation) -> tuple[list[Any], bool]:
+        Args:
+            observation: The current game observation
+            
+        Returns:
+            tuple[list[dict[str, Any]], bool]: List of actions and whether the game is done
+            
+        Raises:
+            ValueError: If client is not initialized
+        """
         if not self.client:
-            raise ValueError("Client is not initialized.")
-        
+            raise ValueError("Client is not initialized")
+
         user_content: list[BetaTextBlockParam | BetaImageBlockParam] = []
 
         if observation.text:
@@ -143,16 +208,20 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, None]):
                     "text": observation.text,
                 }
             )
-        
+
         if observation.screenshot:
-            logger.debug(f"Screenshot data: {observation.screenshot}",)
+            logger.debug("Processing screenshot data")
             user_content.append(
                 {
                     "type": "image",
-                    "source": {"type": "base64", "media_type": "image/png", "data": observation.screenshot},
+                    "source": {
+                        "type": "base64",
+                        "media_type": "image/png",
+                        "data": observation.screenshot,
+                    },
                 }
             )
-        
+
         self.messages.append(
             {
                 "role": "user",
@@ -160,7 +229,7 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, None]):
             }
         )
 
-        logger.debug(f"User messages: {self.system_prompts + self.messages}")
+        logger.debug("Sending messages to Claude", extra={"messages": self.system_prompts + self.messages})
 
         response = await self.client.beta.messages.create(
             model=self.model,
@@ -180,35 +249,30 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, None]):
             )
         )
 
-        # If there are more than max_message_memory messages, remove the oldest ones
+        # Maintain message memory limit
         while len(self.messages) > self.max_message_memory:
             self.messages.pop(0)
-        
-        action_list: list[Any] = []
 
-        # Parse the response content to extract the action and reasoning
+        action_list: list[dict[str, Any]] = []
+
+        # Parse response content to extract actions
         for block in response_content:
             if block.type == "text":
                 text_json = extract_json_from_response(block.text)
-                # Extract the action and reasoning from the text
-                # text should be serialized as JSON
                 try:
                     text = json.loads(text_json)
                     if not isinstance(text, dict):
-                        logger.error(f"Action is not a dictionary: {text}")
-                        raise ValueError("Action is not a dictionary.")
+                        logger.error("Invalid response format", extra={"text": text})
+                        raise ValueError("Response is not a dictionary")
 
                     action_list.extend(extract_action_from_response_block(text))
 
-                except json.JSONDecodeError:
-                    logger.error("Failed to parse action from response content.")
-                    logger.error(f"Response content: {text_json}")
-                
+                except json.JSONDecodeError as e:
+                    logger.error("Failed to parse response", extra={"error": str(e), "text": text_json})
+
             else:
-                logger.error("Unexpected block type in response content.")
-                logger.error(f"Block type: {type(block)}")
-        
-        logger.debug(f"Action list: {action_list}")
+                logger.error("Unexpected block type", extra={"type": type(block)})
+
+        logger.debug("Extracted actions", extra={"actions": action_list})
 
         return action_list, False
-

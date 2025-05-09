@@ -102,7 +102,6 @@ class Emulator:
             # Return default/error values
             return {"player_x": -1, "player_y": -1, "map_id": -1, "error": str(e)}
 
-<<<<<<< HEAD
     def get_evaluate_result(self) -> dict:
         """Extract the progress made by the agent:
         - Number of badges
@@ -117,8 +116,6 @@ class Emulator:
             "map_id": self.pyboy.memory[0xD35E],
         }
 
-=======
->>>>>>> 92f0d50 (working local docker)
     def get_game_context_log(self) -> dict:
         """Extracts a wider range of game context information for logging."""
         if not self.pyboy:
