@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+# package name is always hud_controller so that it can be used in the HUD SDK
+name = "hud_controller"
+version = "0.1.0"
+description = "A controller for a text-based question answering environment"
+authors = [
+    {name = "hud team", email = "founders@hud.so"}
+]
+requires-python = ">=3.10"
+dependencies = [
+    "pyboy",
+    "Pillow",
+    "python-dotenv",
+    "pygame"
+]

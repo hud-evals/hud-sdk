@@ -16,6 +16,7 @@ This directory contains example notebooks demonstrating different aspects of the
    - [tasks.ipynb](tasks.ipynb) - Learn how to create and customize tasks for different environments
    - [osworld.ipynb](osworld.ipynb) - Explore OS-based environments with Claude agent integration
    - [local.ipynb](local.ipynb) - Develop and test with local custom environments
+   - [pokemon.ipynb](pokemon.ipynb) - Learn how to use emulator environments with a Pokemon game example
 
 ## Key Concepts
 
