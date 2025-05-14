@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import io
 import logging
 import textwrap
+import time
 import uuid
 from typing import TYPE_CHECKING, Any
 
@@ -92,6 +94,27 @@ class LocalDockerClient(DockerClient):
 
         container = await docker_client.containers.create(config=container_config)
         await container.start()
+
+        inspection = await container.show()
+        if health_check_config := inspection["Config"].get("Healthcheck"):
+            # Using the interval as spinup deadline is a bit implicit - could
+            # consider adding explicitly to API if there's demand
+            window_usecs = health_check_config.get("Interval", int(30 * 1e9))
+            window_secs = window_usecs // 1_000_000
+
+            deadline = time.monotonic() + window_secs
+            logger.debug("Waiting for container %s to become healthy", container.id)
+            while True:
+                state = (await container.show())["State"]
+                if state.get("Health", {}).get("Status") == "healthy":
+                    break
+                if state.get("Status") in {"exited", "dead"}:
+                    raise RuntimeError("Container crashed before becoming healthy")
+                now = time.monotonic()
+                if now > deadline:
+                    raise TimeoutError(f"{container.id} not healthy after {window_secs}s")
+                await asyncio.sleep(1)
+            logger.debug("Container %s is healthy", container.id)
 
         # Return the controller instance
         return cls(docker_client, container.id)
