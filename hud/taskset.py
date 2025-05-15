@@ -31,11 +31,6 @@ class TaskSet(BaseModel):
     description: str | None = None
     tasks: list[Task] = []
 
-    def __init__(self, tasks: list[Task] | None = None) -> None:
-        super().__init__(tasks=tasks)
-        if tasks is not None:
-            self.tasks = tasks
-
     def __getitem__(self, index: int) -> Task:
         """
         Allows accessing tasks by index using square bracket notation.
