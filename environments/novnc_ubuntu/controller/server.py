@@ -8,12 +8,12 @@ from mcp.server.fastmcp import FastMCP, Image
 mcp = FastMCP("StatefulServer", port=8483)
 
 @mcp.tool("step")
-def step(action: list[dict[str, Any]]) -> Image:
+def step(actions: list[dict[str, Any]]) -> Image:
     """
     Execute a sequence of actions.
     """
     pyautogui_rosetta = PyAutoGUIRosetta()
-    pyautogui_rosetta.execute_sequence(action)
+    pyautogui_rosetta.execute_sequence(actions)
 
     buffer = BytesIO()
     pyautogui.screenshot().save(buffer, format="PNG")

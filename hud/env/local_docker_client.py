@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Any
 import aiodocker
 from aiohttp import ClientTimeout
 
-from hud.env.docker_client import DockerClient, EnvironmentStatus
+from hud.env.docker_client import HUD_MCP_PORT, DockerClient, EnvironmentStatus
 from hud.utils import ExecuteResult
 from hud.utils.common import directory_to_tar_bytes
 
@@ -90,6 +90,10 @@ class LocalDockerClient(DockerClient):
             "HostConfig": {
                 "PublishAllPorts": True,
             },
+            "ExposedPorts": {
+                f"{HUD_MCP_PORT}/tcp": {},
+            },
+            "Remove": True,
         }
 
         container = await docker_client.containers.create(config=container_config)
@@ -115,6 +119,12 @@ class LocalDockerClient(DockerClient):
                     raise TimeoutError(f"{container.id} not healthy after {window_secs}s")
                 await asyncio.sleep(1)
             logger.debug("Container %s is healthy", container.id)
+
+        # TODO: make this available somehow so we can stream logs optionally?
+        exec = await container.exec(
+            cmd=["/bin/bash", "-c", "cd /hud/ && uv run -m controller.server &> /hud/controller.log"],
+        )
+        await exec.start(detach=True)
 
         # Return the controller instance
         return cls(docker_client, container.id)
@@ -212,24 +222,6 @@ class LocalDockerClient(DockerClient):
                 stdout_data.extend(message.data)
             elif message.stream == 2:  # stderr
                 stderr_data.extend(message.data)
-
-        if "No module named 'hud_controller'" in stderr_data.decode():
-            if self._source_path is None:
-                message = textwrap.dedent("""\
-                Your environment is not set up correctly.
-                You are using a prebuilt image, so please ensure the following:
-                1. Your image cannot be a generic python image, it must contain a python package
-                   called hud_controller.
-                """)
-            else:
-                message = textwrap.dedent("""\
-                Your environment is not set up correctly.
-                You are using a local controller, so please ensure the following:
-                1. Your package name is hud_controller
-                2. You installed the package in the Dockerfile.
-                3. The package is visible from the global python environment (no venv, conda, or uv)
-                """)
-            logger.error(message)
 
         return ExecuteResult(
             stdout=bytes(stdout_data),
