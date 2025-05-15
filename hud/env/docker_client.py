@@ -14,6 +14,9 @@ from hud.env.client import Client
 from hud.types import EnvironmentStatus
 from hud.utils.common import directory_to_tar_bytes
 
+from mcp.client.streamable_http import streamablehttp_client
+from mcp import ClientSession
+
 if TYPE_CHECKING:
     from hud.utils import ExecuteResult
     from hud.utils.config import FunctionConfig
@@ -236,52 +239,25 @@ class DockerClient(Client):
             ExecuteResult: The result of the command
         """
 
-    async def invoke(self, config: FunctionConfig) -> tuple[Any, bytes, bytes]:
+    async def invoke(self, config: "FunctionConfig") -> tuple[Any, bytes, bytes]:
         """
-        Invoke a function in the environment. Supported by all environments.
-
-        Args:
-            config: The configuration to invoke
-
-        Returns:
-            tuple[Any, bytes, bytes]: The result of the invocation, stdout, and stderr
+        Invoke a tool on the MCP server using streamable HTTP.
         """
         if await self.needs_update():
-            logger.info("Environment needs update, updating")
             await self.update()
-
-        async with streamablehttp_client("http://localhost:32858/mcp") as (
-            read_stream,
-            write_stream,
-            _,
-        ):
+        url = await self.get_mcp_server_endpoint()
+        async with streamablehttp_client(url) as (read_stream, write_stream, _):
             async with ClientSession(read_stream, write_stream) as session:
                 await session.initialize()
-                tool_result = await session.call_tool("step", {"action": config})
-
-        return tool_result, b"", b""
-
-        # # generate a random uuid as a divider
-        # divider = str(uuid.uuid4())
-
-        # template = invoke_template(config, PACKAGE_NAME, divider)
-        # logger.debug("Invoking template: %s", template)
-
-        # result = await self.execute(["python3", "-c", template])
-
-        # # parse the result
-        # # we take the whole stderr as the stderr, and the stdout is the result pre-divider
-        # stderr = result["stderr"]
-        # stdout_parts = result["stdout"].split(divider.encode())
-        # stdout = stdout_parts[0]
-
-        # # parse the json part of the stdout (if it exists)
-        # if len(stdout_parts) > 1:
-        #     result = json.loads(stdout_parts[1])
-        # else:
-        #     raise InvokeError(stdout, stderr)
-
-        # return result, stdout, stderr
+                # Prepare tool arguments
+                if len(config.args) == 1 and isinstance(config.args[0], dict):
+                    arguments = config.args[0]
+                elif not config.args:
+                    arguments = None
+                else:
+                    arguments = {"args": config.args}
+                result = await session.call_tool(config.function, arguments)
+        return result, b"", b""
 
     @abc.abstractmethod
     async def get_archive(self, path: str) -> bytes:
@@ -304,3 +280,36 @@ class DockerClient(Client):
             path: The path to put the archive at
             data: The data to put in the archive
         """
+    async def request(
+        self,
+        method: str,
+        container_port: int,
+        path: str = "",
+        **kwargs: Any,
+    ) -> Any:
+        """
+        Query an exposed port on the container.
+
+        Args:
+            method: HTTP method to use, e.g. 'GET' or 'POST'.
+            container_port: Port number inside the container.
+            path: URL path to query on the container.
+            **kwargs: Additional arguments to pass to the HTTP client (e.g., params, json, data, headers, timeout).
+
+        Returns:
+            Any: The HTTP response object (client-dependent).
+
+        Raises:
+            NotImplementedError: If port querying is not supported for this client.
+        """
+        raise NotImplementedError(
+            "Port querying is not supported for this environment client."
+        )
+    @abc.abstractmethod
+    async def get_mcp_server_endpoint(self) -> str:
+        """
+        Return the full URL for the MCP streamable HTTP endpoint for this environment.
+        """
+        raise NotImplementedError(
+            "MCP endpoint resolution not supported for this environment client"
+        )

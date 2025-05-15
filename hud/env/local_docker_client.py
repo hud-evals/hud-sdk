@@ -9,7 +9,11 @@ import uuid
 from typing import TYPE_CHECKING, Any
 
 import aiodocker
+import httpx
 from aiohttp import ClientTimeout
+
+from mcp.client.streamable_http import streamablehttp_client
+from mcp.client.session import ClientSession
 
 from hud.env.docker_client import HUD_MCP_PORT, DockerClient, EnvironmentStatus
 from hud.utils import ExecuteResult
@@ -20,6 +24,7 @@ if TYPE_CHECKING:
 
     from aiodocker.containers import DockerContainer
     from aiodocker.stream import Stream
+    from hud.utils.common import FunctionConfig
 
 logger = logging.getLogger(__name__)
 
@@ -280,3 +285,19 @@ class LocalDockerClient(DockerClient):
             logger.warning("Error during Docker container cleanup: %s", e)
         finally:
             await self._docker.close()
+
+    async def get_mcp_server_endpoint(self) -> str:
+        """
+        Return the full HTTP URL for the MCP streamable HTTP endpoint of this container.
+        """
+        container = await self._get_container()
+        info = await container.show()
+        ports = info.get("NetworkSettings", {}).get("Ports", {})
+        binding = ports.get(f"{HUD_MCP_PORT}/tcp")
+        if not binding or not isinstance(binding, list):
+            raise ValueError(f"Container port {HUD_MCP_PORT} is not exposed or bound to a host port")
+        host_port = binding[0].get("HostPort")
+        if not host_port:
+            raise ValueError(f"No host port found for container port {HUD_MCP_PORT}")
+        return f"http://localhost:{host_port}/mcp/"
+
