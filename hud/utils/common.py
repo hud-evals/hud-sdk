@@ -4,7 +4,8 @@ import io
 import logging
 import tarfile
 import zipfile
-from typing import TYPE_CHECKING, Any, TypedDict
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, TypedDict, TypeVar
 
 from pydantic import BaseModel
 
@@ -63,6 +64,7 @@ class Observation(BaseModel):
 
     screenshot: str | None = None  # base64 string png
     text: str | None = None
+    file: str | bytes | None = None
 
 
 class ExecuteResult(TypedDict):
@@ -132,3 +134,29 @@ async def get_gym_id(gym_name_or_id: str) -> str:
     )
 
     return data["id"]
+
+
+T = TypeVar("T")
+
+
+def only(iterable: Iterable[T]) -> T:
+    """
+    Get the only element in an iterable. Raises ValueError if the iterable is empty or has more than one element.
+
+    Args:
+        iterable: An iterable containing exactly one element.
+
+    Returns:
+        The only element in the iterable.
+
+    Raises:
+        ValueError: If the iterable is empty or contains more than one element.
+    """
+    iterator = iter(iterable)
+    try:
+        value = next(iterator)
+    except StopIteration:
+        raise ValueError("The iterable is empty.") from None
+    if next(iterator, None) is not None:
+        raise ValueError("The iterable has more than one element.")
+    return value

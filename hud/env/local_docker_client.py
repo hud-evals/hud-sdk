@@ -3,19 +3,20 @@ from __future__ import annotations
 import asyncio
 import io
 import logging
-import textwrap
+import tempfile
 import time
 import uuid
 from typing import TYPE_CHECKING, Any
 
 import aiodocker
-import httpx
 from aiohttp import ClientTimeout
 
-from mcp.client.streamable_http import streamablehttp_client
-from mcp.client.session import ClientSession
-
-from hud.env.docker_client import HUD_MCP_PORT, DockerClient, EnvironmentStatus
+from hud.env.docker_client import (
+    HUD_CONTROLLER_LOG_PATH,
+    HUD_MCP_PORT,
+    DockerClient,
+    EnvironmentStatus,
+)
 from hud.utils import ExecuteResult
 from hud.utils.common import directory_to_tar_bytes
 
@@ -24,7 +25,7 @@ if TYPE_CHECKING:
 
     from aiodocker.containers import DockerContainer
     from aiodocker.stream import Stream
-    from hud.utils.common import FunctionConfig
+
 
 logger = logging.getLogger(__name__)
 
@@ -127,12 +128,55 @@ class LocalDockerClient(DockerClient):
 
         # TODO: make this available somehow so we can stream logs optionally?
         exec = await container.exec(
-            cmd=["/bin/bash", "-c", "cd /hud/ && uv run -m controller.server &> /hud/controller.log"],
+            cmd=[
+                "/bin/bash",
+                "-c",
+                f"cd /hud/ && uv run -m controller.server &> {HUD_CONTROLLER_LOG_PATH}",
+            ],
         )
         await exec.start(detach=True)
 
+        # TODO: bit hacky to call .execute before returning the client, maybe move it to a util function?
+        client = cls(docker_client, container.id)
+
+        # TODO: for some reason without this sleep I get a false positive here - I'm 99% sure the server side doesn't lie about this, but couldn't yet track down the culprit
+        await asyncio.sleep(1)
+        server_startup_timeout_secs = 5
+        server_health_check_cmd = [
+            "/bin/bash",
+            "-c",
+            f"wget --spider -q http://localhost:{HUD_MCP_PORT}/health || cat {HUD_CONTROLLER_LOG_PATH} && exit 1",
+        ]
+
+        deadline = time.monotonic() + server_startup_timeout_secs
+        logger.debug("Waiting for MCP server to spin up")
+        while True:
+            health_check_result = await client.execute(server_health_check_cmd)
+            health_check_stdout = health_check_result["stdout"].decode().strip()
+            logger.debug("Health check output: %s", health_check_stdout)
+            logger.debug("Health check stderr: %s", health_check_result["stderr"].decode().strip())
+            logger.debug("Health check exit code: %s", health_check_result["exit_code"])
+
+            if health_check_stdout == "":
+                break
+
+            now = time.monotonic()
+            if now > deadline:
+                formatted_stdout = health_check_stdout
+                if len(formatted_stdout) > 250:
+                    formatted_stdout = formatted_stdout[:250] + "..."
+                    with tempfile.NamedTemporaryFile(
+                        mode="w+", delete=False, suffix=".log"
+                    ) as temp_log_file:
+                        temp_log_file.write(health_check_stdout)
+                    formatted_stdout += f"\n\nFull log saved to {temp_log_file.name}"
+                raise TimeoutError(
+                    f"MCP server not healthy after {server_startup_timeout_secs}s.\nServer log:\n{formatted_stdout}"
+                )
+            await asyncio.sleep(1)
+
         # Return the controller instance
-        return cls(docker_client, container.id)
+        return client
 
     def __init__(self, docker_conn: aiodocker.Docker, container_id: str) -> None:
         """
@@ -295,9 +339,10 @@ class LocalDockerClient(DockerClient):
         ports = info.get("NetworkSettings", {}).get("Ports", {})
         binding = ports.get(f"{HUD_MCP_PORT}/tcp")
         if not binding or not isinstance(binding, list):
-            raise ValueError(f"Container port {HUD_MCP_PORT} is not exposed or bound to a host port")
+            raise ValueError(
+                f"Container port {HUD_MCP_PORT} is not exposed or bound to a host port"
+            )
         host_port = binding[0].get("HostPort")
         if not host_port:
             raise ValueError(f"No host port found for container port {HUD_MCP_PORT}")
         return f"http://localhost:{host_port}/mcp/"
-

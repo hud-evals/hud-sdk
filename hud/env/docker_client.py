@@ -4,18 +4,15 @@ import abc
 import json
 import logging
 import os
-import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-import toml
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
 
 from hud.env.client import Client
 from hud.types import EnvironmentStatus
-from hud.utils.common import directory_to_tar_bytes
-
-from mcp.client.streamable_http import streamablehttp_client
-from mcp import ClientSession
+from hud.utils.common import directory_to_tar_bytes, only
 
 if TYPE_CHECKING:
     from hud.utils import ExecuteResult
@@ -31,6 +28,7 @@ STATUS_MESSAGES = {
 
 PACKAGE_NAME = "hud_controller"
 HUD_MCP_PORT = 8483
+HUD_CONTROLLER_LOG_PATH = "/hud/controller.log"
 
 
 class InvokeError(Exception):
@@ -183,7 +181,7 @@ class DockerClient(Client):
         Base update method for environment controllers.
         For self-managed controllers and controllers with no source path, this is a no-op.
         """
-        # TODO: self-managed controllers 
+        # TODO: self-managed controllers
 
         # If no source path, nothing to update
         if not self._source_path:
@@ -239,7 +237,7 @@ class DockerClient(Client):
             ExecuteResult: The result of the command
         """
 
-    async def invoke(self, config: "FunctionConfig") -> tuple[Any, bytes, bytes]:
+    async def invoke(self, config: FunctionConfig) -> tuple[Any, bytes, bytes]:
         """
         Invoke a tool on the MCP server using streamable HTTP.
         """
@@ -249,15 +247,27 @@ class DockerClient(Client):
         async with streamablehttp_client(url) as (read_stream, write_stream, _):
             async with ClientSession(read_stream, write_stream) as session:
                 await session.initialize()
-                # Prepare tool arguments
-                if len(config.args) == 1 and isinstance(config.args[0], dict):
-                    arguments = config.args[0]
-                elif not config.args:
-                    arguments = None
-                else:
-                    arguments = {"args": config.args}
-                result = await session.call_tool(config.function, arguments)
-        return result, b"", b""
+
+                # FunctionConfig currently only has args, but MCP operates
+                # around kwargs; we should probably update FunctionConfig to
+                # use kwargs but for now we're working around it
+                result = await session.list_tools()
+                relevant_tool = only(tool for tool in result.tools if tool.name == "step")
+                arg_names = list(relevant_tool.inputSchema["properties"].keys())
+                assert len(arg_names) == len(config.args), (
+                    f"Expected {len(arg_names)} args ({arg_names}), but "
+                    f"{len(config.args)} were provided"
+                )
+                args = {arg_name: config.args[i] for i, arg_name in enumerate(arg_names)}
+                result = await session.call_tool(config.function, args)
+                content = only(result.content)
+                raw_observation = dict(
+                    text=content.text if content.type == "text" else None,
+                    screenshot=content.data if content.type == "image" else None,
+                    file=...,
+                )
+
+        return raw_observation, b"", b""
 
     @abc.abstractmethod
     async def get_archive(self, path: str) -> bytes:
@@ -280,6 +290,7 @@ class DockerClient(Client):
             path: The path to put the archive at
             data: The data to put in the archive
         """
+
     async def request(
         self,
         method: str,
@@ -302,9 +313,8 @@ class DockerClient(Client):
         Raises:
             NotImplementedError: If port querying is not supported for this client.
         """
-        raise NotImplementedError(
-            "Port querying is not supported for this environment client."
-        )
+        raise NotImplementedError("Port querying is not supported for this environment client.")
+
     @abc.abstractmethod
     async def get_mcp_server_endpoint(self) -> str:
         """
