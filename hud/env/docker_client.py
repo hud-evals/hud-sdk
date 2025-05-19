@@ -70,9 +70,6 @@ class DockerClient(Client):
     _last_update_time: int = 0
     _last_file_mtimes: dict[str, float] = {}  # noqa: RUF012 - Not recognized as Pydantic model
     _source_path: Path | None = None
-    _log_streaming_thread: threading.Thread | None = None
-    _mcp_health_event: asyncio.Event | None = None
-    _mcp_error_message: str | None = None
 
     @property
     def source_path(self) -> Path | None:
