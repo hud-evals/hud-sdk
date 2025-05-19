@@ -4,9 +4,13 @@ import asyncio
 import io
 import logging
 import tempfile
+import threading
 import time
 import uuid
-from typing import TYPE_CHECKING, Any
+import sys
+import atexit
+import weakref
+from typing import TYPE_CHECKING, Any, ClassVar
 
 import aiodocker
 from aiohttp import ClientTimeout
@@ -30,10 +34,135 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+async def stream_mcp_logs(
+    container_id: str, health_event: asyncio.Event, error_message_ref: list[str]
+) -> None:
+    """Stream logs from the MCP server and monitor for errors.
+
+    Args:
+        container_id: Docker container ID
+        health_event: Event to set when MCP is healthy
+        error_message_ref: List to store error message if MCP fails
+    """
+    docker = aiodocker.Docker()
+    try:
+        ctr = await docker.containers.get(container_id)
+
+        exec_inst = await ctr.exec(
+            cmd=[
+                "/bin/bash",
+                "-c",
+                f"cd /hud/ && uv run -m controller.server 2>&1 | tee {HUD_CONTROLLER_LOG_PATH}",
+            ],
+            stdout=True,
+            stderr=True,
+            tty=False,
+        )
+
+        logger.debug("Running exec command")
+        stream = exec_inst.start(detach=False)
+
+        stdout_data = bytearray()
+        stderr_data = bytearray()
+
+        # Wait for up to 30 seconds for the MCP server to start
+        start_time = time.monotonic()
+        timeout = 30  # seconds
+
+        try:
+            while True:
+                if time.monotonic() - start_time > timeout:
+                    error_message_ref[0] = f"MCP server failed to start within {timeout} seconds"
+                    break
+
+                msg = await stream.read_out()
+                logger.debug("Received message: %s", msg)
+                if msg is None:  # EOF
+                    # If we get EOF too early, it might indicate the process crashed
+                    exec_info = await exec_inst.inspect()
+                    if exec_info.get("ExitCode", 0) != 0:
+                        error_message_ref[0] = (
+                            f"MCP server crashed with exit code {exec_info.get('ExitCode')}"
+                        )
+                    break
+
+                if msg.stream == 1:
+                    stdout_data.extend(msg.data)
+                    # Check for indication that server is ready
+                    if b"Started server process" in msg.data:
+                        health_event.set()
+                        logger.info("MCP server is running")
+                elif msg.stream == 2:
+                    stderr_data.extend(msg.data)
+
+                prefix = "MCP stdout: " if msg.stream == 1 else "MCP stderr: "
+                logger.debug("%s%s", prefix, msg.data.decode(errors="replace").strip())
+        finally:
+            # If we exited the loop without setting the health event, something went wrong
+            if not health_event.is_set():
+                stderr_text = stderr_data.decode(errors="replace")
+                stdout_text = stdout_data.decode(errors="replace")
+
+                if not error_message_ref[0]:
+                    error_message_ref[0] = (
+                        f"MCP server failed to start properly\n\nStdout:\n{stdout_text}\n\nStderr:\n{stderr_text}"
+                    )
+
+                # Save full logs to a file if they're large
+                if len(stdout_data) + len(stderr_data) > 1024:
+                    with tempfile.NamedTemporaryFile(
+                        mode="w",
+                        suffix=".log",
+                        delete=False,
+                    ) as log_file:
+                        formatted_output = f"stdout: {stdout_text}\n\nstderr: {stderr_text}"
+                        log_file.write(formatted_output)
+                        error_message_ref[0] += f"\n\nFull logs saved to {log_file.name}"
+
+            await stream.close()
+    finally:
+        await docker.close()
+
+
+def thread_worker(
+    container_id: str, health_event: asyncio.Event, error_message_ref: list[str]
+) -> None:
+    """Run the log streaming in a separate thread with its own event loop.
+
+    Args:
+        container_id: Docker container ID
+        health_event: Event to set when MCP is healthy
+        error_message_ref: List to store error message if MCP fails
+    """
+    asyncio.run(stream_mcp_logs(container_id, health_event, error_message_ref))
+
+
 class LocalDockerClient(DockerClient):
     """
     Docker-based environment client implementation.
     """
+
+    # Track active clients with container_id as key and weakref to client as value
+    _active_clients: ClassVar[weakref.WeakValueDictionary] = weakref.WeakValueDictionary()
+
+    @classmethod
+    def _cleanup_clients(cls) -> None:
+        """
+        Clean up any remaining clients at program exit.
+        """
+        for container_id, client_ref in list(cls._active_clients.items()):
+            client = client_ref()
+            if client is None:  # Reference has been garbage collected
+                continue
+
+            try:
+                # Create a new event loop for cleanup
+                loop = asyncio.new_event_loop()
+                loop.run_until_complete(client.close())
+                loop.close()
+                logger.info("Successfully cleaned up container %s at exit", container_id)
+            except Exception as e:
+                logger.warning("Error cleaning up container %s at exit: %s", container_id, e)
 
     @classmethod
     async def build_image(cls, build_context: Path) -> tuple[str, dict[str, Any]]:
@@ -126,56 +255,46 @@ class LocalDockerClient(DockerClient):
                 await asyncio.sleep(1)
             logger.debug("Container %s is healthy", container.id)
 
-        # TODO: make this available somehow so we can stream logs optionally?
-        exec = await container.exec(
-            cmd=[
-                "/bin/bash",
-                "-c",
-                f"cd /hud/ && uv run -m controller.server &> {HUD_CONTROLLER_LOG_PATH}",
-            ],
+        # Create an event to signal when the MCP server is running
+        health_event = asyncio.Event()
+        # Use a list to hold error message, if any (to pass by reference)
+        error_message = [""]
+
+        # Start the log streaming thread
+        log_thread = threading.Thread(
+            target=thread_worker, args=(container.id, health_event, error_message), daemon=True
         )
-        await exec.start(detach=True)
+        log_thread.start()
 
-        # TODO: bit hacky to call .execute before returning the client, maybe move it to a util function?
+        # Wait for the MCP server to start or fail
+        try:
+            # Wait for up to 30 seconds for the server to start
+            timeout = 30
+            start_time = time.monotonic()
+            while not health_event.is_set() and time.monotonic() - start_time < timeout:
+                await asyncio.sleep(0.1)
+                if error_message[0]:
+                    raise RuntimeError(error_message[0])
+
+            if not health_event.is_set():
+                raise TimeoutError(f"MCP server did not start within {timeout} seconds")
+        except Exception as e:
+            # If anything goes wrong, make sure to clean up
+            await container.stop()
+            await container.delete()
+            raise e
+        finally:
+            await docker_client.close()
+
+        # Create the client instance
         client = cls(docker_client, container.id)
+        client._log_streaming_thread = log_thread
+        client._mcp_health_event = health_event
+        client._mcp_error_message = error_message[0] if error_message[0] else None
 
-        # TODO: for some reason without this sleep I get a false positive here - I'm 99% sure the server side doesn't lie about this, but couldn't yet track down the culprit
-        await asyncio.sleep(1)
-        server_startup_timeout_secs = 5
-        server_health_check_cmd = [
-            "/bin/bash",
-            "-c",
-            f"wget --spider -q http://localhost:{HUD_MCP_PORT}/health || cat {HUD_CONTROLLER_LOG_PATH} && exit 1",
-        ]
+        # Add to active clients dictionary
+        cls._active_clients[container.id] = client
 
-        deadline = time.monotonic() + server_startup_timeout_secs
-        logger.debug("Waiting for MCP server to spin up")
-        while True:
-            health_check_result = await client.execute(server_health_check_cmd)
-            health_check_stdout = health_check_result["stdout"].decode().strip()
-            logger.debug("Health check output: %s", health_check_stdout)
-            logger.debug("Health check stderr: %s", health_check_result["stderr"].decode().strip())
-            logger.debug("Health check exit code: %s", health_check_result["exit_code"])
-
-            if health_check_stdout == "":
-                break
-
-            now = time.monotonic()
-            if now > deadline:
-                formatted_stdout = health_check_stdout
-                if len(formatted_stdout) > 250:
-                    formatted_stdout = formatted_stdout[:250] + "..."
-                    with tempfile.NamedTemporaryFile(
-                        mode="w+", delete=False, suffix=".log"
-                    ) as temp_log_file:
-                        temp_log_file.write(health_check_stdout)
-                    formatted_stdout += f"\n\nFull log saved to {temp_log_file.name}"
-                raise TimeoutError(
-                    f"MCP server not healthy after {server_startup_timeout_secs}s.\nServer log:\n{formatted_stdout}"
-                )
-            await asyncio.sleep(1)
-
-        # Return the controller instance
         return client
 
     def __init__(self, docker_conn: aiodocker.Docker, container_id: str) -> None:
@@ -324,6 +443,11 @@ class LocalDockerClient(DockerClient):
             container = await self._get_container()
             await container.stop()
             await container.delete()
+
+            # Remove from active clients dictionary
+            if self.container_id in self.__class__._active_clients:
+                del self.__class__._active_clients[self.container_id]
+
         except Exception as e:
             # Log the error but don't raise it since this is cleanup
             logger.warning("Error during Docker container cleanup: %s", e)
@@ -346,3 +470,7 @@ class LocalDockerClient(DockerClient):
         if not host_port:
             raise ValueError(f"No host port found for container port {HUD_MCP_PORT}")
         return f"http://localhost:{host_port}/mcp/"
+
+
+# Register atexit handler to clean up any remaining Docker containers
+atexit.register(LocalDockerClient._cleanup_clients)
