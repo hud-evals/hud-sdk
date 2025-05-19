@@ -23,6 +23,7 @@ dependencies = [
     "openai",
     "langchain",
     "langchain-openai",
+    "mcp[cli]>=1.8.1,<2",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
