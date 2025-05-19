@@ -64,7 +64,6 @@ class Observation(BaseModel):
 
     screenshot: str | None = None  # base64 string png
     text: str | None = None
-    file: str | bytes | None = None
 
 
 class ExecuteResult(TypedDict):

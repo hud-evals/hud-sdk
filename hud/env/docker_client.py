@@ -11,6 +11,7 @@ import asyncio
 
 from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
+from mcp.types import TextContent
 
 from hud.env.client import Client
 from hud.types import EnvironmentStatus
@@ -198,9 +199,11 @@ class DockerClient(Client):
         self._last_file_mtimes = self._get_all_file_mtimes()
 
         # Create tar archive of the source code and send it to the container
+        await self.execute(["mkdir", "-p", "/hud/controller", "/hud/scripts"], timeout=5)
         tar_bytes = directory_to_tar_bytes(self._source_path / "controller")
-        await self.execute(["mkdir", "-p", "/hud/controller"], timeout=5)
         await self.put_archive("/hud/controller", tar_bytes)
+        tar_bytes = directory_to_tar_bytes(Path(__file__).parent / "scripts")
+        await self.put_archive("/hud/scripts", tar_bytes)
 
         # Check if requirements.txt exists and parse it
         requirements_path = self._source_path / "requirements.txt"
@@ -224,6 +227,8 @@ class DockerClient(Client):
                 logger.debug("STDERR:\n%s", result["stderr"])
             self._last_requirements_str = current_requirements_content
 
+        await self.start_controller()
+
     @abc.abstractmethod
     async def execute(
         self,
@@ -244,11 +249,11 @@ class DockerClient(Client):
 
     async def invoke(self, config: FunctionConfig) -> tuple[Any, bytes, bytes]:
         """
-        Invoke a tool on the MCP server using streamable HTTP.
+        Invoke a function in the environment.
         """
         if await self.needs_update():
             await self.update()
-        url = await self.get_mcp_server_endpoint()
+        url = await self.get_controller_endpoint()
         async with streamablehttp_client(url) as (read_stream, write_stream, _):
             async with ClientSession(read_stream, write_stream) as session:
                 await session.initialize()
@@ -266,13 +271,22 @@ class DockerClient(Client):
                 args = {arg_name: config.args[i] for i, arg_name in enumerate(arg_names)}
                 result = await session.call_tool(config.function, args)
                 content = only(result.content)
+
+                if result.isError:
+                    assert isinstance(content, TextContent)
+                    raise ValueError(content.text) from None
+
+                if content.type == "resource":
+                    # TODO: decide if we want to match MCP api and support EmbeddedResource-like objects in Observation
+                    raise NotImplementedError()
+
                 raw_observation = dict(
                     text=content.text if content.type == "text" else None,
                     screenshot=content.data if content.type == "image" else None,
-                    file=...,
                 )
 
-        return raw_observation, b"", b""
+        # TODO: there is currently no way for the underlying env to send reward, truncated, done and info here
+        return dict(observation=raw_observation), b"", b""
 
     @abc.abstractmethod
     async def get_archive(self, path: str) -> bytes:
@@ -296,35 +310,14 @@ class DockerClient(Client):
             data: The data to put in the archive
         """
 
-    async def request(
-        self,
-        method: str,
-        container_port: int,
-        path: str = "",
-        **kwargs: Any,
-    ) -> Any:
+    @abc.abstractmethod
+    async def start_controller(self) -> None:
         """
-        Query an exposed port on the container.
-
-        Args:
-            method: HTTP method to use, e.g. 'GET' or 'POST'.
-            container_port: Port number inside the container.
-            path: URL path to query on the container.
-            **kwargs: Additional arguments to pass to the HTTP client (e.g., params, json, data, headers, timeout).
-
-        Returns:
-            Any: The HTTP response object (client-dependent).
-
-        Raises:
-            NotImplementedError: If port querying is not supported for this client.
+        Start the HUD controller in the environment. If a controller is already running, it will be stopped and a new one will be started in its place.
         """
-        raise NotImplementedError("Port querying is not supported for this environment client.")
 
     @abc.abstractmethod
-    async def get_mcp_server_endpoint(self) -> str:
+    async def get_controller_endpoint(self) -> str:
         """
-        Return the full URL for the MCP streamable HTTP endpoint for this environment.
+        Return the Streamable-HTTP URL for the controller MCP server
         """
-        raise NotImplementedError(
-            "MCP endpoint resolution not supported for this environment client"
-        )

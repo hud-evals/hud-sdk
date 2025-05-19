@@ -19,4 +19,4 @@ def step(actions: list[dict[str, Any]]) -> Image:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="streamable-http")
+    server.run(transport="streamable-http")
