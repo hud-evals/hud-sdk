@@ -6,8 +6,6 @@ import logging
 import os
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
-import threading
-import asyncio
 
 from mcp import ClientSession
 from mcp.client.streamable_http import streamablehttp_client
@@ -275,7 +273,7 @@ class DockerClient(Client):
 
                 if content.type == "resource":
                     # TODO: decide if we want to match MCP api and support EmbeddedResource-like objects in Observation
-                    raise NotImplementedError()
+                    raise NotImplementedError
 
                 raw_observation = dict(
                     text=content.text if content.type == "text" else None,

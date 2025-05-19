@@ -7,9 +7,8 @@ import tempfile
 import threading
 import time
 import uuid
-import sys
-from typing import TYPE_CHECKING, Any, Optional
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 import aiodocker
 
@@ -32,7 +31,6 @@ logger = logging.getLogger(__name__)
 class ControllerError(RuntimeError):
     """Exception raised when the MCP server fails to start or crashes."""
 
-    pass
 
 
 class ControllerManager:
@@ -52,11 +50,11 @@ class ControllerManager:
 
         # Error handling
         self._error_lock = threading.Lock()
-        self._error: Optional[Exception] = None
+        self._error: Exception | None = None
 
-        self._log_thread: Optional[threading.Thread] = None
+        self._log_thread: threading.Thread | None = None
         self._is_running = False
-        self._exec_id: Optional[str] = None
+        self._exec_id: str | None = None
         self._stream: Any = None  # Will be set in start
 
     @property
@@ -65,7 +63,7 @@ class ControllerManager:
         return self._is_running and self.ready_event.is_set() and self.error is None
 
     @property
-    def error(self) -> Optional[Exception]:
+    def error(self) -> Exception | None:
         """Returns the error that occurred during MCP server startup, if any."""
         with self._error_lock:
             return self._error
@@ -117,7 +115,7 @@ class ControllerManager:
         """Stop the controller if it's running."""
         # Signal the log thread to stop
         self.stop_event.set()
-        
+
         container = await self._docker.containers.get(self.container_id)
 
         result = await execute_command_in_container(
@@ -135,12 +133,12 @@ class ControllerManager:
         self._clear_error()  # Clear any error state
         self._exec_id = None
         self._stream = None
-        
+
         # Wait for the log thread to terminate
         if self._log_thread and self._log_thread.is_alive():
             self._log_thread.join(timeout=5)
         self._log_thread = None
-        
+
         # Reset the stop event for potential future use
         self.stop_event.clear()
 
@@ -197,7 +195,7 @@ class ControllerManager:
                     if self.stop_event.is_set():
                         logger.debug("Stop event detected, terminating log streaming")
                         break
-                        
+
                     if (
                         time.monotonic() - start_time > timeout_secs
                         and not self.ready_event.is_set()
@@ -215,7 +213,7 @@ class ControllerManager:
                     except asyncio.TimeoutError:
                         # No data received within timeout, check stop event again
                         continue
-                        
+
                     if msg is None:
                         # If we get EOF too early, it might indicate the process crashed
                         if not self.ready_event.is_set():
@@ -243,7 +241,11 @@ class ControllerManager:
             finally:
                 # If we exited the loop without setting the ready event, something went wrong
                 # BUT only set an error if we're not in the stopping process
-                if not self.ready_event.is_set() and self.error is None and not self.stop_event.is_set():
+                if (
+                    not self.ready_event.is_set()
+                    and self.error is None
+                    and not self.stop_event.is_set()
+                ):
                     stderr_text = stderr_data.decode(errors="replace")
                     stdout_text = stdout_data.decode(errors="replace")
 
@@ -293,7 +295,7 @@ class LocalDockerClient(DockerClient):
         self._docker = docker_conn
 
         # MCP server manager
-        self._controller_manager: Optional[ControllerManager] = None
+        self._controller_manager: ControllerManager | None = None
 
     @classmethod
     async def build_image(cls, build_context: Path) -> tuple[str, dict[str, Any]]:
@@ -454,7 +456,6 @@ class LocalDockerClient(DockerClient):
             timeout_secs=timeout,
         )
 
-        
     async def get_archive(self, path: str) -> bytes:
         """
         Get an archive of a path from the container.

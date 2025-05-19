@@ -1,9 +1,12 @@
-from io import BytesIO
-import pyautogui
-from controller.pyautogui_rosetta import PyAutoGUIRosetta
+from __future__ import annotations
 
+from io import BytesIO
 from typing import Any
-from mcp.server.fastmcp import Context, FastMCP, Image
+
+import pyautogui
+from mcp.server.fastmcp import FastMCP, Image
+
+from controller.pyautogui_rosetta import PyAutoGUIRosetta
 
 server = FastMCP("StatefulServer", port=8483)
 

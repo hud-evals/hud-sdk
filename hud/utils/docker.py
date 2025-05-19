@@ -1,14 +1,18 @@
-from typing import Optional, Sequence
+from __future__ import annotations
+
+from collections.abc import Sequence
+
 from aiodocker.containers import DockerContainer
 from aiodocker.stream import Stream
 from aiohttp import ClientTimeout
 
 from hud.utils.common import ExecuteResult
 
+
 async def execute_command_in_container(
     container: DockerContainer,
     command: Sequence[str],
-    timeout_secs: Optional[float] = 30.,
+    timeout_secs: float | None = 30.0,
 ) -> ExecuteResult:
     """
     Execute a command in the container.
@@ -44,4 +48,3 @@ async def execute_command_in_container(
         stderr=bytes(stderr_data),
         exit_code=inspection.get("ExitCode", -1),
     )
-

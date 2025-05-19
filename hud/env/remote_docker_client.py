@@ -286,8 +286,8 @@ class RemoteDockerClient(DockerClient):
             api_key=settings.api_key,
         )
 
-    async def get_mcp_server_endpoint(self) -> str:
+    async def get_controller_endpoint(self) -> str:
         """
-        Return the full HTTP URL for the MCP streamable HTTP endpoint of this container.
+        Return the Streamable-HTTP URL for the controller MCP server
         """
         raise NotImplementedError("TODO")
