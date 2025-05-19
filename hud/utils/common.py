@@ -4,7 +4,6 @@ import io
 import logging
 import tarfile
 import zipfile
-from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, TypedDict, TypeVar
 
 from pydantic import BaseModel
@@ -13,7 +12,7 @@ from hud.server.requests import make_request
 from hud.settings import settings
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator
     from pathlib import Path
 
 logger = logging.getLogger("hud.utils.common")
@@ -140,7 +139,8 @@ T = TypeVar("T")
 
 def only(iterable: Iterable[T]) -> T:
     """
-    Get the only element in an iterable. Raises ValueError if the iterable is empty or has more than one element.
+    Get the only element in an iterable. Raises ValueError if the iterable is
+    empty or has more than one element.
 
     Args:
         iterable: An iterable containing exactly one element.

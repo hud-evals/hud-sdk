@@ -1,12 +1,16 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
-from aiodocker.containers import DockerContainer
-from aiodocker.stream import Stream
 from aiohttp import ClientTimeout
 
 from hud.utils.common import ExecuteResult
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
+
+    from aiodocker.containers import DockerContainer
+    from aiodocker.stream import Stream
 
 
 async def execute_command_in_container(

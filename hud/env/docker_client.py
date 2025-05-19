@@ -249,38 +249,44 @@ class DockerClient(Client):
         if await self.needs_update():
             await self.update()
         url = await self.get_controller_endpoint()
-        async with streamablehttp_client(url) as (read_stream, write_stream, _):
-            async with ClientSession(read_stream, write_stream) as session:
-                await session.initialize()
+        async with (
+            streamablehttp_client(url) as (read_stream, write_stream, _),
+            ClientSession(read_stream, write_stream) as session,
+        ):
+            await session.initialize()
 
-                # FunctionConfig currently only has args, but MCP operates
-                # around kwargs; we should probably update FunctionConfig to
-                # use kwargs but for now we're working around it
-                result = await session.list_tools()
-                relevant_tool = only(tool for tool in result.tools if tool.name == "step")
-                arg_names = list(relevant_tool.inputSchema["properties"].keys())
-                assert len(arg_names) == len(config.args), (
+            # FunctionConfig currently only has args, but MCP operates
+            # around kwargs; we should probably update FunctionConfig to
+            # use kwargs but for now we're working around it
+            result = await session.list_tools()
+            relevant_tool = only(tool for tool in result.tools if tool.name == "step")
+            arg_names = list(relevant_tool.inputSchema["properties"].keys())
+            if len(arg_names) != len(config.args):
+                raise ValueError(
                     f"Expected {len(arg_names)} args ({arg_names}), but "
                     f"{len(config.args)} were provided"
                 )
-                args = {arg_name: config.args[i] for i, arg_name in enumerate(arg_names)}
-                result = await session.call_tool(config.function, args)
-                content = only(result.content)
+            args = {arg_name: config.args[i] for i, arg_name in enumerate(arg_names)}
+            result = await session.call_tool(config.function, args)
+            content = only(result.content)
 
-                if result.isError:
-                    assert isinstance(content, TextContent)
-                    raise ValueError(content.text) from None
+            if result.isError:
+                if not isinstance(content, TextContent):
+                    raise ValueError("Expected TextContent, but got %s", type(content))
+                raise ValueError(content.text) from None
 
-                if content.type == "resource":
-                    # TODO: decide if we want to match MCP api and support EmbeddedResource-like objects in Observation
-                    raise NotImplementedError
+            if content.type == "resource":
+                # TODO: decide if we want to match MCP api and support
+                # EmbeddedResource-like objects in Observation
+                raise NotImplementedError
 
-                raw_observation = dict(
-                    text=content.text if content.type == "text" else None,
-                    screenshot=content.data if content.type == "image" else None,
-                )
+            raw_observation = dict(
+                text=content.text if content.type == "text" else None,
+                screenshot=content.data if content.type == "image" else None,
+            )
 
-        # TODO: there is currently no way for the underlying env to send reward, truncated, done and info here
+        # TODO: there is currently no way for the underlying env to send
+        # reward, truncated, done and info here
         return dict(observation=raw_observation), b"", b""
 
     @abc.abstractmethod
@@ -308,7 +314,8 @@ class DockerClient(Client):
     @abc.abstractmethod
     async def start_controller(self) -> None:
         """
-        Start the HUD controller in the environment. If a controller is already running, it will be stopped and a new one will be started in its place.
+        Start the HUD controller in the environment. If a controller is already
+        running, it will be stopped and a new one will be started in its place.
         """
 
     @abc.abstractmethod

@@ -17,12 +17,13 @@ from hud.env.docker_client import (
     DockerClient,
     EnvironmentStatus,
 )
-from hud.utils import ExecuteResult
 from hud.utils.common import directory_to_tar_bytes
 from hud.utils.docker import execute_command_in_container
 
 if TYPE_CHECKING:
     from aiodocker.containers import DockerContainer
+
+    from hud.utils import ExecuteResult
 
 
 logger = logging.getLogger(__name__)
@@ -32,11 +33,10 @@ class ControllerError(RuntimeError):
     """Exception raised when the MCP server fails to start or crashes."""
 
 
-
 class ControllerManager:
     """Manages the lifecycle of an MCP server including startup, monitoring, and shutdown."""
 
-    def __init__(self, container_id: str):
+    def __init__(self, container_id: str) -> None:
         """
         Initialize the MCP server manager.
 
@@ -222,7 +222,8 @@ class ControllerManager:
                             if exec_info.get("ExitCode", 0) != 0:
                                 self._set_error(
                                     ControllerError(
-                                        f"Controller crashed with exit code {exec_info.get('ExitCode')}"
+                                        "Controller crashed with exit code"
+                                        + exec_info.get("ExitCode")
                                     )
                                 )
                         break
@@ -249,7 +250,10 @@ class ControllerManager:
                     stderr_text = stderr_data.decode(errors="replace")
                     stdout_text = stdout_data.decode(errors="replace")
 
-                    error_msg = f"Controller failed to start properly\n\nStdout:\n{stdout_text}\n\nStderr:\n{stderr_text}"
+                    error_msg = (
+                        "Controller failed to start properly\n\n"
+                        + f"Stdout:\n{stdout_text}\n\nStderr:\n{stderr_text}"
+                    )
 
                     # Save full logs to a file if they're large
                     if len(stdout_data) + len(stderr_data) > 1024:
@@ -495,7 +499,8 @@ class LocalDockerClient(DockerClient):
 
     async def start_controller(self) -> ControllerManager:
         """
-        Start the HUD controller in the environment. If a controller is already running, it will be stopped and a new one will be started in its place.
+        Start the HUD controller in the environment. If a controller is already
+        running, it will be stopped and a new one will be started in its place.
 
         Returns:
             ControllerManager: The controller manager instance
@@ -509,7 +514,8 @@ class LocalDockerClient(DockerClient):
         )
         if mkdir_result["exit_code"] != 0:
             raise RuntimeError(
-                f"Failed to create scripts directory: {mkdir_result['stderr'].decode(errors='replace')}"
+                "Failed to create scripts directory: "
+                + f"{mkdir_result['stderr'].decode(errors='replace')}"
             )
 
         tar_bytes = directory_to_tar_bytes(Path(__file__).parent / "scripts")
