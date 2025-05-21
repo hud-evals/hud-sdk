@@ -122,6 +122,7 @@ lint.ignore = [
 "**/openai_adapter*.py" = ["ALL"] # Disables all rules for example modules
 "**/examples/**/*.py" = ["ALL"]
 "**/agent/**/*.py" = ["ALL"]
+"**/environments/**/*.py" = ["ALL"]
 
 
 [tool.ruff.format]
