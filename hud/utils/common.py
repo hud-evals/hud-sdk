@@ -3,8 +3,8 @@ from __future__ import annotations
 import io
 import logging
 import tarfile
-from typing import TYPE_CHECKING, Any, TypedDict
 import zipfile
+from typing import TYPE_CHECKING, Any, TypedDict
 
 from pydantic import BaseModel
 
