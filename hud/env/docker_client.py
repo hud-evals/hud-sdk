@@ -4,15 +4,16 @@ import abc
 import json
 import logging
 import os
-import uuid
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-import toml
+from mcp import ClientSession
+from mcp.client.streamable_http import streamablehttp_client
+from mcp.types import TextContent
 
 from hud.env.client import Client
 from hud.types import EnvironmentStatus
-from hud.utils.common import directory_to_tar_bytes
+from hud.utils.common import directory_to_tar_bytes, only
 
 if TYPE_CHECKING:
     from hud.utils import ExecuteResult
@@ -27,6 +28,8 @@ STATUS_MESSAGES = {
 }
 
 PACKAGE_NAME = "hud_controller"
+HUD_MCP_PORT = 8483
+HUD_CONTROLLER_LOG_PATH = "/hud/controller.log"
 
 
 class InvokeError(Exception):
@@ -61,7 +64,7 @@ class DockerClient(Client):
     Handles updating the environment when local files change.
     """
 
-    _last_pyproject_toml_str: str | None = None
+    _last_requirements_str: str | None = None
     _last_update_time: int = 0
     _last_file_mtimes: dict[str, float] = {}  # noqa: RUF012 - Not recognized as Pydantic model
     _source_path: Path | None = None
@@ -90,20 +93,6 @@ class DockerClient(Client):
             raise FileNotFoundError(f"Source path {source_path} does not exist")
         if not source_path.is_dir():
             raise NotADirectoryError(f"Source path {source_path} is not a directory")
-
-        # Parse pyproject.toml to get package name
-        pyproject_path = source_path / "pyproject.toml"
-        if not pyproject_path.exists():
-            raise FileNotFoundError(f"pyproject.toml not found in {source_path}")
-
-        # validate package name
-        pyproject_data = toml.load(pyproject_path)
-        package_name = pyproject_data.get("project", {}).get("name")
-        if not package_name:
-            raise ValueError("Could not find package name in pyproject.toml")
-        if package_name != PACKAGE_NAME:
-            raise ValueError(f"Package name in pyproject.toml must be {PACKAGE_NAME}")
-
         self._source_path = source_path
 
         # set current mtimes
@@ -191,8 +180,10 @@ class DockerClient(Client):
     async def update(self) -> None:
         """
         Base update method for environment controllers.
-        For controllers with no source path, this is a no-op.
+        For self-managed controllers and controllers with no source path, this is a no-op.
         """
+        # TODO: self-managed controllers
+
         # If no source path, nothing to update
         if not self._source_path:
             return
@@ -203,37 +194,35 @@ class DockerClient(Client):
         self._last_file_mtimes = self._get_all_file_mtimes()
 
         # Create tar archive of the source code and send it to the container
-        tar_bytes = directory_to_tar_bytes(self._source_path)
-        await self.execute(["mkdir", "-p", "/controller"], timeout=5)
-        await self.put_archive("/controller", tar_bytes)
+        await self.execute(["mkdir", "-p", "/hud/controller", "/hud/scripts"], timeout=5)
+        tar_bytes = directory_to_tar_bytes(self._source_path / "controller")
+        await self.put_archive("/hud/controller", tar_bytes)
+        tar_bytes = directory_to_tar_bytes(Path(__file__).parent / "scripts")
+        await self.put_archive("/hud/scripts", tar_bytes)
 
-        # Check if pyproject.toml exists and parse it
-        pyproject_path = self._source_path / "pyproject.toml"
-        if not pyproject_path.exists():
-            raise FileNotFoundError(f"pyproject.toml not found in {self._source_path}")
+        # Check if requirements.txt exists and parse it
+        requirements_path = self._source_path / "requirements.txt"
+        if not requirements_path.exists():
+            raise FileNotFoundError(f"requirements.txt not found in {self._source_path}")
 
         # Read and parse the current content of pyproject.toml
-        current_pyproject_content = pyproject_path.read_text()
+        current_requirements_content = requirements_path.read_text()
         if (
-            self._last_pyproject_toml_str is None
-            or self._last_pyproject_toml_str != current_pyproject_content
+            self._last_requirements_str is None
+            or self._last_requirements_str != current_requirements_content
         ):
-            # Update package name if pyproject.toml changed
-            pyproject_data = toml.loads(current_pyproject_content)
-            self._package_name = pyproject_data.get("project", {}).get("name")
-            if not self._package_name:
-                raise ValueError("Could not find package name in pyproject.toml")
-            logger.info("Installing %s in /controller", self._package_name)
+            logger.info("Installing requirements from %s", requirements_path.absolute())
             result = await self.execute(
-                ["bash", "-c", "cd /controller && pip install -e . --break-system-packages"],
+                ["bash", "-c", "cd /hud && uv pip install --requirements requirements.txt"],
                 timeout=60,
             )
             if result["stdout"]:
-                logger.info("STDOUT:\n%s", result["stdout"])
+                logger.debug("STDOUT:\n%s", result["stdout"])
             if result["stderr"]:
-                logger.warning("STDERR:\n%s", result["stderr"])
-            # Save current pyproject.toml content
-            self._last_pyproject_toml_str = current_pyproject_content
+                logger.debug("STDERR:\n%s", result["stderr"])
+            self._last_requirements_str = current_requirements_content
+
+        await self.start_controller()
 
     @abc.abstractmethod
     async def execute(
@@ -247,7 +236,6 @@ class DockerClient(Client):
 
         Args:
             command: The command to execute
-            workdir: The working directory to execute the command in
             timeout: The timeout for the command
 
         Returns:
@@ -256,40 +244,50 @@ class DockerClient(Client):
 
     async def invoke(self, config: FunctionConfig) -> tuple[Any, bytes, bytes]:
         """
-        Invoke a function in the environment. Supported by all environments.
-
-        Args:
-            config: The configuration to invoke
-
-        Returns:
-            tuple[Any, bytes, bytes]: The result of the invocation, stdout, and stderr
+        Invoke a function in the environment.
         """
-
         if await self.needs_update():
-            logger.info("Environment needs update, updating")
             await self.update()
+        url = await self.get_controller_endpoint()
+        async with (
+            streamablehttp_client(url) as (read_stream, write_stream, _),
+            ClientSession(read_stream, write_stream) as session,
+        ):
+            await session.initialize()
 
-        # generate a random uuid as a divider
-        divider = str(uuid.uuid4())
+            # FunctionConfig currently only has args, but MCP operates
+            # around kwargs; we should probably update FunctionConfig to
+            # use kwargs but for now we're working around it
+            result = await session.list_tools()
+            relevant_tool = only(tool for tool in result.tools if tool.name == "step")
+            arg_names = list(relevant_tool.inputSchema["properties"].keys())
+            if len(arg_names) != len(config.args):
+                raise ValueError(
+                    f"Expected {len(arg_names)} args ({arg_names}), but "
+                    f"{len(config.args)} were provided"
+                )
+            args = {arg_name: config.args[i] for i, arg_name in enumerate(arg_names)}
+            result = await session.call_tool(config.function, args)
+            content = only(result.content)
 
-        template = invoke_template(config, PACKAGE_NAME, divider)
-        logger.debug("Invoking template: %s", template)
+            if result.isError:
+                if not isinstance(content, TextContent):
+                    raise ValueError("Expected TextContent, but got %s", type(content))
+                raise ValueError(content.text) from None
 
-        result = await self.execute(["python3", "-c", template])
+            if content.type == "resource":
+                # TODO: decide if we want to match MCP api and support
+                # EmbeddedResource-like objects in Observation
+                raise NotImplementedError
 
-        # parse the result
-        # we take the whole stderr as the stderr, and the stdout is the result pre-divider
-        stderr = result["stderr"]
-        stdout_parts = result["stdout"].split(divider.encode())
-        stdout = stdout_parts[0]
+            raw_observation = dict(
+                text=content.text if content.type == "text" else None,
+                screenshot=content.data if content.type == "image" else None,
+            )
 
-        # parse the json part of the stdout (if it exists)
-        if len(stdout_parts) > 1:
-            result = json.loads(stdout_parts[1])
-        else:
-            raise InvokeError(stdout, stderr)
-
-        return result, stdout, stderr
+        # TODO: there is currently no way for the underlying env to send
+        # reward, truncated, done and info here
+        return dict(observation=raw_observation), b"", b""
 
     @abc.abstractmethod
     async def get_archive(self, path: str) -> bytes:
@@ -311,4 +309,17 @@ class DockerClient(Client):
         Args:
             path: The path to put the archive at
             data: The data to put in the archive
+        """
+
+    @abc.abstractmethod
+    async def start_controller(self) -> None:
+        """
+        Start the HUD controller in the environment. If a controller is already
+        running, it will be stopped and a new one will be started in its place.
+        """
+
+    @abc.abstractmethod
+    async def get_controller_endpoint(self) -> str:
+        """
+        Return the Streamable-HTTP URL for the controller MCP server
         """

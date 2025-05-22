@@ -1,0 +1,4 @@
+mcp[cli]==1.8.1
+pillow==11.2.1
+pyautogui==0.9.54
+python-xlib==0.33
