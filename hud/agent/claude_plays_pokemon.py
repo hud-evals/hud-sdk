@@ -28,10 +28,10 @@ DEFAULT_MAX_MESSAGE_MEMORY = 20
 
 def generate_system_prompt(game_name: str) -> str:
     """Generate the system prompt for the AI agent.
-    
+
     Args:
         game_name: Name of the game being played
-        
+
     Returns:
         str: The system prompt for the AI agent
     """
@@ -89,10 +89,10 @@ Always provide thoughtful analysis and clear reasoning for your decisions. If yo
 
 def extract_action_from_response_block(block: dict[str, Any]) -> list[dict[str, Any]]:
     """Extract actions from a response block.
-    
+
     Args:
         block: The response block containing actions
-        
+
     Returns:
         list[dict[str, Any]]: List of actions extracted from the block
     """
@@ -105,10 +105,10 @@ def extract_action_from_response_block(block: dict[str, Any]) -> list[dict[str, 
 
 def extract_json_from_response(response: str) -> str:
     """Extract JSON from a response string.
-    
+
     Args:
         response: The response string containing JSON
-        
+
     Returns:
         str: The extracted JSON string
     """
@@ -142,7 +142,7 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, None]):
         max_message_memory: int = DEFAULT_MAX_MESSAGE_MEMORY,
     ) -> None:
         """Initialize the Claude Plays Pokémon agent.
-        
+
         Args:
             client: Anthropic API client
             adapter: Game adapter
@@ -151,7 +151,7 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, None]):
             max_iterations: Maximum number of iterations
             temperature: Response temperature
             max_message_memory: Maximum number of messages to remember
-            
+
         Raises:
             ValueError: If API key is not provided
         """
@@ -186,13 +186,13 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, None]):
 
     async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool]:
         """Fetch a response from Claude based on the current observation.
-        
+
         Args:
             observation: The current game observation
-            
+
         Returns:
             tuple[list[dict[str, Any]], bool]: List of actions and whether the game is done
-            
+
         Raises:
             ValueError: If client is not initialized
         """
@@ -229,7 +229,9 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, None]):
             }
         )
 
-        logger.debug("Sending messages to Claude", extra={"messages": self.system_prompts + self.messages})
+        logger.debug(
+            "Sending messages to Claude", extra={"messages": self.system_prompts + self.messages}
+        )
 
         response = await self.client.beta.messages.create(
             model=self.model,
@@ -268,7 +270,9 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, None]):
                     action_list.extend(extract_action_from_response_block(text))
 
                 except json.JSONDecodeError as e:
-                    logger.error("Failed to parse response", extra={"error": str(e), "text": text_json})
+                    logger.error(
+                        "Failed to parse response", extra={"error": str(e), "text": text_json}
+                    )
 
             else:
                 logger.error("Unexpected block type", extra={"type": type(block)})
