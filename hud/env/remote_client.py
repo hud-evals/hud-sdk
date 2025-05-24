@@ -84,7 +84,7 @@ class RemoteClient(Client):
 
         if response.get("readme"):
             logger.info(
-                "[HUD] %s gym created, see how to use it at %s", gym_id, response.get("readme")
+                "[hud] %s gym created, see how to use it at %s", gym_id, response.get("readme")
             )
 
         return controller, build_data

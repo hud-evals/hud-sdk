@@ -5,9 +5,11 @@ from venv import logger
 
 from pydantic import BaseModel
 
+from hud.env.environment import create_remote_config
 from hud.server import make_request
 from hud.settings import settings
 from hud.task import Task
+from hud.utils.config import REMOTE_EVALUATE, REMOTE_SETUP
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -79,6 +81,22 @@ class TaskSet(BaseModel):
         if api_key is None:
             api_key = settings.api_key
 
+        # Convert all tasks to expanded configs
+        processed_tasks = []
+        for task in self.tasks:
+            setup_config = create_remote_config(None, task.setup, REMOTE_SETUP)[0].args[0]
+            evaluate_config = create_remote_config(None, task.evaluate, REMOTE_EVALUATE)[0].args[0]
+
+            processed_tasks.append(
+                {
+                    "prompt": task.prompt,
+                    "gym": task.gym,
+                    "setup": setup_config.model_dump(),
+                    "evaluate": evaluate_config.model_dump(),
+                    "config": task.config,
+                }
+            )
+
         await make_request(
             method="POST",
             url=f"{settings.base_url}/v2/tasksets",
@@ -86,11 +104,11 @@ class TaskSet(BaseModel):
             json={
                 "name": name,
                 "description": description,
-                "tasks": [task.model_dump() for task in self.tasks],
+                "tasks": processed_tasks,
             },
         )
         logger.info(
-            "[HUD] Taskset %s uploaded successfully, see it on app.hud.so/tasksets/%s", name, name
+            "[hud] Taskset %s uploaded successfully, see it on app.hud.so/evalsets/%s", name, name
         )
 
 
@@ -115,7 +133,7 @@ async def load_taskset(taskset_id: str, api_key: str | None = None) -> TaskSet:
         api_key=api_key,
     )
 
-    logger.info(f"[HUD] Taskset {taskset_id} loaded successfully")
+    logger.info(f"[hud] Taskset {taskset_id} loaded successfully")
 
     return TaskSet.model_validate(
         {

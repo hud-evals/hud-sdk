@@ -1,8 +1,71 @@
+---
+title: 'Ubuntu'
+description: 'A remote Ubuntu OS instance with a graphical desktop, accessed via a VNC connection displayed in the browser.'
+---
+
 # HUD Ubuntu Environment
+
+<Warning>
+**Deprecated Environment**
+
+The `hud-ubuntu` environment is deprecated and will be removed in a future release. For desktop application testing and GUI interactions, we recommend using [Custom Environments](/environments/custom) with Docker containers.
+
+**Migration Path**: 
+- For Ubuntu desktop: Use `environments/novnc_ubuntu/` from the community examples
+- For custom GUI applications: Create your own Docker environment following the [Custom Environments guide](/environments/custom)
+- For web-based testing: Use the [`hud-browser`](/environments/browser) environment instead
+</Warning>
 
 ## Introduction
 
 The `hud-ubuntu` environment provides a remote Ubuntu OS instance with a graphical desktop, accessed via a VNC connection displayed in the browser. It's suitable for tasks requiring interaction with GUI applications, the file system, or running specific software within a Linux desktop environment.
+
+**Note**: This environment is being phased out in favor of more flexible custom Docker environments that provide better control, community contributions, and easier maintenance.
+
+## Recommended Alternatives
+
+### For Ubuntu Desktop Testing
+Use the community-contributed environment instead:
+
+```python
+from hud.types import CustomGym
+
+gym = CustomGym(
+    image_or_build_context="./environments/novnc_ubuntu",
+    location="local"
+)
+```
+
+### For Custom Desktop Applications
+Create your own environment following the [Custom Environments guide](/environments/custom):
+
+```python
+from hud.types import CustomGym
+
+# Your custom desktop environment
+gym = CustomGym(
+    image_or_build_context="./my-desktop-env",
+    location="local"
+)
+```
+
+### For Web-based Testing
+Use the browser environment for web applications:
+
+```python
+task = Task(
+    prompt="Test the web application",
+    gym="hud-browser",
+    setup=("goto", "http://localhost:3000"),
+    evaluate=("page_contains", "success")
+)
+```
+
+## Legacy Usage (Deprecated)
+
+<Warning>
+The following documentation is maintained for backward compatibility but should not be used for new projects.
+</Warning>
 
 ## Setup
 

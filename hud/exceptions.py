@@ -169,6 +169,7 @@ class HudNetworkError(HudException):
 
 class GymMakeException(HudException):
     """Raised when environment creation or setup fails, includes context data."""
+
     def __init__(self, message: str, data: dict[str, Any]) -> None:
         super().__init__(message)
         self.data = data

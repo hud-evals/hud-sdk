@@ -1,0 +1,201 @@
+---
+title: 'Tasks'
+description: 'Design, build, and share evaluation scenarios for browser-based agents'
+icon: 'flag'
+---
+
+# Creating Tasks & TaskSets
+
+Tasks define what browser-based agents should accomplish and how success is measured. TaskSets group these tasks for benchmarking and sharing.
+
+## Core Task Workflow
+
+1.  **Define Task**: Specify prompt, setup, and evaluation criteria for a specific environment.
+2.  **Test Locally**: Use `gym.make(task)` and `env.run(agent)` to iterate on your task.
+3.  **(Optional) Group into TaskSet**: Collect related tasks for benchmarking or organized evaluation.
+4.  **(Optional) Upload TaskSet**: Share your TaskSet on the HUD platform.
+
+## Task Structure
+
+While tasks can be designed for various environments, this guide focuses on tasks for the `hud-browser`.
+For creating tasks that operate in specialized Docker environments (e.g., desktop applications, custom web apps), please see the [Environment Creation & Contribution Guide](/environment-creation).
+
+```python
+from hud.task import Task
+
+# Example of a browser-focused task
+task = Task(
+    prompt="Navigate to the main news section and find articles about AI.",
+    gym="hud-browser", 
+    setup=("goto", "https://news.example.com"), # Function to run at env.reset()
+    evaluate=("page_contains", "artificial intelligence") # Function to run at env.evaluate()
+)
+```
+
+## Setup Functions (for `hud-browser`)
+
+| Function                     | Description                                                                 |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| `goto(url)`                  | Navigates to a URL.                                                         |
+| `load_html_content(html)`    | Loads static HTML content into the browser.                                 |
+| `sheets_from_xlsx(url)` | Downloads XLSX, converts to Google Sheet, and navigates to it.              |
+
+<Info>
+Actions such as clicking elements, typing text, complex page manipulations, or waiting for dynamic content to appear *after* an initial page load are typically performed by the agent via `env.step()` calls during the task execution, not as part of the initial `Task.setup`.
+</Info>
+
+For a detailed list of all setup functions available in the `hud-browser` environment and their usage examples, please see the **[Browser Environment Setup Functions Documentation](/environments/browser#setup-functions)**.
+
+## Evaluate Functions (Verifying Task Success)
+
+Evaluate functions are called by `env.evaluate()` *after* the agent has completed its interactions (or reached a step limit) to determine if the task objectives were met.
+
+For `hud-browser` tasks, evaluation functions commonly check page content, URL, browser state, or the agent's actions and final response:
+
+| Category         | Common Functions                                       |
+| ---------------- | ------------------------------------------------------ |
+| Content          | `page_contains`, `element_exists`, `text_matches` |
+| URL/Navigation   | `url_contains`, `url_match`                              |
+| Browser State    | `cookie_exists`                    |
+| Agent Response   | `response_includes`             |
+| Action History   | `selector_history`, `verify_type_action`, `history_length`, `raw_last_action_is` |
+| Spreadsheets     | `sheets_cell_values`                                   |
+
+For a detailed list of all evaluation functions available in the `hud-browser` environment, their parameters, and usage examples, please see the **[Browser Environment Evaluate Functions Documentation](/environments/browser#evaluate-functions)**.
+
+## TaskSet Creation & Management
+
+TaskSets are collections of related `Task` objects, useful for running benchmarks, organizing evaluations, or sharing common scenarios.
+
+### Creating a TaskSet
+
+```python
+from hud.task import Task
+from hud.taskset import TaskSet
+
+# Define individual tasks (browser-focused by default)
+task1 = Task(prompt="Test login", gym="hud-browser", ...)
+task2 = Task(prompt="Test search", gym="hud-browser", ...)
+
+my_custom_taskset = TaskSet(
+    name="My Browser Tests",
+    description="A set of tests for core browser functionality.",
+    tasks=[task1, task2]
+)
+```
+
+### Uploading & Publishing TaskSets
+
+Once created, you can upload your TaskSet to the HUD platform to make it available for yourself, your team, or the public.
+
+```python
+# Assuming my_website_tests TaskSet is defined
+
+# Upload with the name and description defined in the TaskSet object
+await my_website_tests.upload()
+
+# Or, override name/description during upload:
+# await my_website_tests.upload(
+#     name="Public - Example.com Tests V2", 
+#     description="Updated tests for public use."
+# )
+
+print(f"TaskSet '{my_website_tests.name}' uploaded!")
+```
+
+### Publishing and Sharing
+Once uploaded, TaskSets can be:
+- **Private**: Visible only to you by default.
+- **Public**: Optionally publish to the wider HUD community.
+- **Shared with Team**: (Coming Soon) Share within your HUD organization.
+
+Uploaded TaskSets are managed at [app.hud.so/evalsets](https://app.hud.so/evalsets).
+
+## Pre-built TaskSets
+
+Load and run existing benchmarks:
+```python
+from hud import load_taskset, run_job
+from hud.agent import ClaudeAgent # Or your preferred agent
+
+# Load a benchmark for web navigation
+web_voyager_taskset = await load_taskset("WebVoyager")
+
+# Run the job
+job_results = await run_job(
+    ClaudeAgent,
+    web_voyager_taskset, 
+    "claude-on-webvoyager"
+)
+print(f"Job complete: {job_results.id}")
+```
+
+**Available TaskSets on hud:**
+- **WebVoyager**: Web navigation and complex interaction.
+- **Mind2Web**: Tasks on real-world websites.
+- **GAIA**: Challenging reasoning and multi-hop QA.
+- **OSWorld-Ubuntu**: Desktop environment tasks (requires custom OS environments).
+- **hud-samples**: Introductory examples to get started.
+
+## MCP Telemetry with Tasks
+
+When using MCP-enabled agents, HUD automatically traces tool calls made during task execution if wrapped in `hud.trace()`:
+
+```python
+import hud
+from hud import gym, Task
+from your_mcp_agent import MCPAgent # Agent using MCP tools
+
+# Define your task
+task = Task(prompt="Research AI safety and summarize findings.", gym="hud-browser", ...)
+
+with hud.trace("ai_news_summary_mcp"):
+    env = await gym.make(task)
+    agent = MCPAgent()
+    # Agent's .run() or .predict() methods making MCP calls will be traced
+    await env.run(agent)
+    await env.close()
+
+# View detailed trace, including MCP calls, on app.hud.so/jobs/traces/{trace_id}
+```
+
+## Best Practices for Task Design
+
+1.  **Clear Prompts**: Ensure agent understands the goal and success criteria.
+2.  **Atomic Tasks**: Break down complex goals into smaller, testable tasks.
+3.  **Robust Setup**: Create consistent starting states.
+4.  **Comprehensive Evaluation**: Use multiple evaluation functions to validate success.
+5.  **Iterate**: Test and refine tasks, especially evaluation logic.
+
+## Advanced Patterns
+
+### Environment-Specific Evaluation
+```python
+# Browser-specific evaluation
+if task.gym == "hud-browser":
+    evaluate=("element_exists", ".success-indicator")
+
+# Response-only evaluation  
+if task.gym == "qa":
+    evaluate=("response_includes", "expected_answer")
+```
+
+### Dynamic Task Generation
+```python
+def create_search_task(query, expected_result):
+    return Task(
+        prompt=f"Search for '{query}' and find information about it",
+        gym="hud-browser",
+        setup=("goto", "google.com"),
+        evaluate=("response_includes", expected_result)
+    )
+
+task = create_search_task("artificial intelligence", "machine learning")
+```
+
+## Related Guides
+
+- **[Browser Environment](/environments/browser)**: Detailed guide on using `hud-browser`, including all its setup and evaluation functions.
+- **[Environment Creation & Contribution](/environment-creation)**: For tasks requiring specialized Docker-based environments.
+- **[Quickstart](/quickstart)**: Introductory examples and common usage patterns.
+- **[API Reference](/api-reference/)**: Comprehensive details for all SDK modules and classes.

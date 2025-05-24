@@ -1,0 +1,356 @@
+---
+title: 'Environments'
+description: 'Build, test, and share custom Docker environments for HUD'
+icon: 'display'
+---
+
+# Environment Creation & Contribution Guide
+
+This guide walks you through creating custom Web App or Docker-based environments for the HUD SDK, testing them, and contributing them to the community.
+
+Custom environments allow you to evaluate agents in highly specific scenarios, such as:
+- Your own web applications or internal tools.
+- Desktop applications with GUI interaction (e.g., via VNC).
+- Specialized software stacks or game environments.
+- Any scenario requiring a controlled, reproducible Docker setup.
+
+## 1. Understanding Custom Environments
+
+Custom environments in hud could be written two ways:
+
+1. **Simple Web App Hosting**: You can produce a static website or a simple web application and have `hud-browser` launch with `setup=("goto", "yourwebsite.com")` and `evaluate=("page_contains", "your_success_criteria")`
+2. **Controller-Based Environments**: For more complex interactions or non-web environments, you can create a `hud_controller` Python package within a Docker image. This controller exposes custom `setup` and `evaluate` functions that HUD can call.
+
+Refer to [browser environment](/environments/browser) for more on how to use the `hud-browser` environment.
+This tutorial will focus on the second option.
+
+## 2. Designing Your Custom Environment
+
+Before you start coding:
+
+- **Define the Purpose**: What specific agent capabilities will this environment test?
+- **Identify Key Interactions**: What are the core setup steps and success criteria?
+- **Choose Technology**: Will it be a web app (see [browser environment](/environments/browser)), a desktop app (via VNC), or something else? This influences your Docker base image.
+
+## 3. Building a Controller-Based Environment
+
+This is for environments where you need custom Python logic running *inside* the Docker container for setup and evaluation.
+
+### Directory Structure
+Organize your environment in a dedicated folder, for example `environments/my_new_env/`:
+
+```
+my_new_env/
+├── Dockerfile              # Defines the Docker image
+├── pyproject.toml          # Defines the hud_controller package
+├── README.md               # Instructions for your environment
+└── src/
+    └── hud_controller/
+        ├── __init__.py
+        └── main.py         # Your custom setup/evaluate Python functions
+```
+
+### a. `Dockerfile`
+Your Dockerfile sets up the base system, installs dependencies, and copies your controller code.
+
+```dockerfile
+# Example: Ubuntu base with Python for the controller
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip \
+    # ... other system dependencies for your environment (e.g., desktop, browsers) ...
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy your controller source code
+WORKDIR /app
+COPY ./src /app/src
+COPY ./pyproject.toml /app/
+
+# Install the hud_controller package and its dependencies
+# Ensure hud-python is also a dependency if your controller imports from it
+RUN pip3 install --no-cache-dir -e . # This installs hud_controller from pyproject.toml
+
+# Your environment's entrypoint or CMD (e.g., start a VNC server, a web server, etc.)
+# CMD ["python3", "-m", "hud_controller.main"] # If your main.py is executable
+CMD ["tail", "-f", "/dev/null"] # Or keep alive for agent interaction
+```
+
+### b. `pyproject.toml` (for `hud_controller`)
+This makes your controller code an installable Python package named `hud_controller`.
+
+```toml
+[project]
+name = "hud_controller"
+version = "0.1.0"
+description = "Custom controller logic for My New Environment."
+dependencies = [
+    "hud-python", # If your controller needs to import from hud sdk
+    # Add any other Python dependencies your controller needs
+    # e.g., "Flask>=2.0" for a web app controller
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+# Optional: if you want a command-line entry point for your controller
+# my-controller-cli = "hud_controller.main:cli_entrypoint"
+```
+
+### c. `src/hud_controller/main.py` (Controller Logic)
+Implement Python functions that can be called by `Task.setup` and `Task.evaluate`.
+
+```python
+# src/hud_controller/main.py
+import os
+import logging
+
+logger = logging.getLogger(__name__)
+
+def initialize_environment(config_param: str) -> dict:
+    """Example setup function for a Task."""
+    logger.info(f"Controller: Initializing environment with {config_param=}")
+    # ... perform setup actions inside the container ...
+    # e.g., create files, start services, configure applications
+    with open("/app_data/status.txt", "w") as f:
+        f.write(f"Ready with {config_param}")
+    return {"status": "Setup complete", "config_used": config_param}
+
+def verify_output_file(expected_content: str) -> float:
+    """Example evaluation function for a Task."""
+    logger.info(f"Controller: Evaluating, expecting content: {expected_content}")
+    try:
+        with open("/app_data/output_file.txt", "r") as f:
+            content = f.read().strip()
+        if content == expected_content:
+            logger.info("Evaluation successful: Output matches.")
+            return 1.0 # Success
+        else:
+            logger.warning(f"Evaluation failed: Expected '{expected_content}', got '{content}'")
+            return 0.0 # Failure
+    except FileNotFoundError:
+        logger.error("Evaluation failed: Output file not found.")
+        return 0.0 # Failure
+
+# You can add more functions as needed for different setup/evaluation logic
+```
+
+## 4. Building & Testing Locally
+
+### a. Define `CustomGym`
+In your local Python script or notebook:
+```python
+from hud.types import CustomGym
+from pathlib import Path
+
+my_env_gym = CustomGym(
+    location="local",
+    image_or_build_context=Path("./environments/my_new_env") # Path to your env folder
+)
+```
+
+### b. Create a Test Task
+```python
+from hud.task import Task
+
+test_task = Task(
+    prompt="Perform an action that creates /app_data/output_file.txt with 'hello world' content.",
+    gym=my_env_gym,
+    setup=[
+        ("initialize_environment", "my_test_config") # Calls initialize_environment in your controller
+    ],
+    evaluate=[
+        ("verify_output_file", "hello world") # Calls verify_output_file in your controller
+    ]
+)
+```
+
+### c. Run and Debug
+```python
+import asyncio
+from hud import gym
+from hud.agent import YourAgent # Replace with an agent that can achieve the task
+
+async def run_test():
+    env = await gym.make(test_task) # This will build the Docker image if it's the first time
+    
+    # For controller-based environments, you might need an agent that knows how
+    # to interact with your specific setup (e.g., execute shell commands, interact with a GUI via VNC)
+    # or the agent's actions might be simple if the controller handles complexity.
+    # For now, let's assume a placeholder agent or manual interaction for testing setup/eval.
+    
+    print("Environment resetting (runs setup)...")
+    obs, _ = await env.reset() 
+    print(f"Initial observation: {obs}")
+
+    # --- Simulate agent creating the output file ---
+    # In a real scenario, your agent would perform actions leading to this.
+    # For testing the controller, you might invoke a controller function directly if possible,
+    # or manually create the expected state if the agent part isn't ready.
+    # Example: If your environment has a way to execute commands:
+    # await env.client.execute_command("echo 'hello world' > /app_data/output_file.txt")
+    print("Simulating agent action that creates the output file...")
+    # For this test, assume this happens through agent interaction which we are not fully simulating here
+
+    print("Evaluating...")
+    evaluation_result = await env.evaluate()
+    print(f"Evaluation Result: {evaluation_result}") # Should be 1.0 if setup/eval works
+    
+    await env.close()
+
+# asyncio.run(run_test())
+```
+
+<Note>
+**Local to Remote**: Once your environment is working well locally, you can easily transition it to remote execution for scaled testing and wider accessibility. See the "Scaling Up: Remote Execution & Parallel Testing" section below for details on pushing your image to a registry and updating your `CustomGym` configuration.
+</Note>
+
+### Hot Reloading (for Controller-Based Environments)
+HUD supports hot reloading for your `hud_controller` code:
+1.  Make changes to your Python files in `src/hud_controller/`.
+2.  The next time `gym.make(your_custom_gym_with_build_context)` is called, HUD will detect changes and reinstall your `hud_controller` package *inside the running container* (if one is reused) or in a new container, without a full Docker image rebuild for controller code changes.
+    - *Note: Changes to `Dockerfile` or `pyproject.toml` dependencies will still require an image rebuild.*
+
+## 5. Scaling Up: Remote Execution & Parallel Testing
+
+Once you've developed and tested your custom environment locally (defined by a Dockerfile in a local directory), HUD makes it incredibly easy to run it on our remote infrastructure for scaled evaluations and parallel testing across multiple tasks.
+
+### a. Seamless Local-to-Remote Execution with Build Context Upload
+
+You **do not** necessarily need to manually build, push to a Docker registry, and then reference that image for remote execution if your environment is defined by a local build context (a directory with a Dockerfile).
+
+**How it Works:**
+
+When you define a `CustomGym` with `location="remote"` and provide a local `Path` to `image_or_build_context`:
+
+```python
+from hud.types import CustomGym
+from pathlib import Path
+
+# Your local environment defined by a Dockerfile in this directory
+my_local_build_context = Path("./environments/my_new_env") 
+
+remote_gym_from_local_build = CustomGym(
+    location="remote",
+    image_or_build_context=my_local_build_context 
+)
+
+# When you use this gym in a task and call hud.gym.make():
+# task = Task(prompt="...", gym=remote_gym_from_local_build, ...)
+# env = await gym.make(task) 
+```
+
+The HUD SDK will automatically:
+1.  **Package your local build context**: It zips the contents of the directory specified in `image_or_build_context`.
+2.  **Upload to HUD**: Securely uploads this zipped build context to the HUD platform.
+3.  **Remote Docker Build**: The HUD platform builds your Docker image from the uploaded context in its own isolated environment.
+4.  **Remote Execution**: The platform then runs this newly built image to create the environment instance for your task.
+
+This streamlined process means you can iterate locally, and when ready for scaled runs or sharing (without requiring local Docker on other machines), simply ensure `location="remote"` when using a local `Path` as the build context. The HUD platform handles the build and execution.
+
+### b. Using Pre-Pushed Images (Alternative for Remote Execution)
+
+If you prefer to manage your own Docker image registry or have images already built and pushed (e.g., to Docker Hub, GCR, ECR), you can directly specify the image name for remote execution:
+
+```python
+from hud.types import CustomGym
+
+remote_gym_from_registry = CustomGym(
+    location="remote",
+    image_or_build_context="yourusername/your-custom-image:latest" 
+)
+```
+In this case, the HUD platform will pull and run the specified pre-built image from the registry.
+
+### c. Parallel Task Execution on the HUD Platform
+
+When you run a `TaskSet` using `run_job()` and your `CustomGym` is configured for `location="remote"` (either via automatic build context upload or a pre-pushed image), the HUD platform automatically parallelizes the execution of tasks across multiple instances of your custom environment. This significantly speeds up large-scale evaluations.
+
+### Benefits of HUD's Remote Execution:
+- **Simplified Workflow**: Easy transition from local Dockerfile-based development to remote execution.
+- **Automatic Build & Deploy (for local contexts)**: HUD handles the build context upload and remote image creation for you when a local path is provided for remote execution.
+- **Scalability**: Run many tasks in parallel without consuming local resources.
+- **Consistency**: Ensures all evaluations use the same controlled cloud build and runtime.
+- **Accessibility**: Team members or CI systems can run evaluations without needing local Docker setups.
+
+## 6. Contributing Your Environment
+
+We strongly encourage community contributions! If you've built a useful custom environment, share it with others.
+
+**When contributing, consider making your image publicly available on Docker Hub if it's a pre-built image. If it's defined by a build context, ensure the Dockerfile and any necessary files are self-contained within its directory for others to build locally or for HUD to build remotely.**
+
+### Contribution Workflow:
+
+1.  **Fork & Branch**: Fork the [HUD SDK GitHub repository](https://github.com/hud-evals/hud-sdk) and create a new branch for your environment.
+2.  **Directory Structure**: Place your environment code within the `environments/` directory. Follow the structure outlined above (e.g., `environments/your_env_name/`).
+3.  **README.md**: Create a `README.md` inside your environment's folder (`environments/your_env_name/README.md`). This should explain:
+    *   What your environment does and its purpose.
+    *   Any prerequisites (e.g., specific software, API keys needed *inside* the env).
+    *   How to build/run it locally.
+    *   Example `Task` definitions demonstrating its use with `setup` and `evaluate`.
+4.  **Dockerfile Best Practices**: Keep your Dockerfile clean, commented, and use minimal base images where possible.
+5.  **Controller (if applicable)**: Ensure your `hud_controller` is well-structured and functions are documented.
+6.  **Test Thoroughly**: 
+    *   Test image building.
+    *   Test `gym.make()` with your `CustomGym` spec.
+    *   Verify `Task.setup` and `Task.evaluate` functions work as expected with your controller.
+7.  **Submit a PR**:
+    *   Target the `main` branch of the `hud-evals/hud-sdk` repository.
+    *   Provide a clear description of your environment and its use cases in the PR.
+    *   Link to any relevant issues.
+8.  **Code Review**: The HUD team will review your contribution for clarity, functionality, and adherence to guidelines.
+
+### Example Community Environments:
+Check the `environments/` directory in the SDK for inspiration:
+-   `environments/novnc_ubuntu/`: Provides an Ubuntu desktop accessible via VNC, for GUI-based tasks.
+-   `environments/custom_website/`: A template for packaging and testing your own web application.
+-   `environments/gameboy/`: Example of a retro gaming environment.
+
+## Using Remote Custom Environments
+
+This section now primarily refers to using images that are already in a registry or are built remotely by HUD from your local context.
+
+If your Docker image is publicly accessible (e.g., on Docker Hub or another registry) OR if you are using a local build context with `location="remote"`:
+
+```python
+# Using a pre-pushed image from a registry
+remote_env_from_registry = CustomGym(
+    location="remote",
+    image_or_build_context="yourusername/your-custom-image:latest"
+)
+
+# Using a local build context that HUD will build and run remotely
+from pathlib import Path
+remote_env_from_local_path = CustomGym(
+    location="remote",
+    image_or_build_context=Path("./environments/my_custom_app_setup")
+)
+
+# These tasks will run on the HUD platform's infrastructure
+task_on_remote1 = Task(
+    prompt="Interact with my remote environment (from registry).",
+    gym=remote_env_from_registry,
+    # ... setup and evaluate ...
+)
+
+task_on_remote2 = Task(
+    prompt="Interact with my remote environment (from local path).",
+    gym=remote_env_from_local_path,
+    # ... setup and evaluate ...
+)
+```
+
+## Tips for Robust Environments
+
+-   **Health Checks**: If your Docker image starts services, implement a health check in your Dockerfile or an initial setup step to ensure they are ready before the agent interacts.
+-   **Deterministic Behavior**: Aim for environments that reset to the same state each time for reproducible evaluations.
+-   **Minimize Image Size**: Use multi-stage builds or `.dockerignore` to keep image sizes manageable.
+
+## Related Guides
+
+- **[Task Creation](/task-creation)**: How to define tasks that use your custom environments.
+- **[Custom Environments Overview](/environments/custom)**: Higher-level concepts of custom environments.
+- **[Browser Environment](/environments/browser)**: For standard web interaction tasks. 

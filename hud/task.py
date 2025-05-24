@@ -13,6 +13,7 @@ from hud.utils.common import FunctionConfig, FunctionConfigs
 if TYPE_CHECKING:
     from inspect_ai.dataset import Sample
 
+
 def convert_inspect_setup(setup: str) -> list[FunctionConfig]:
     """
     Inspect setup is a single bash string to run in the environment.
@@ -54,6 +55,10 @@ class Task(BaseModel):
     config: dict[str, Any] | None = None
 
     @classmethod
+    def from_dict(cls, data: dict[str, Any]) -> Task:
+        return cls(**data)
+
+    @classmethod
     def from_inspect_sample(cls, sample: Sample) -> Task:
         """Create a Task from an Inspect dataset sample.
         Automatically detects if a CustomGym (docker) or QA Gym is needed based on sample.sandbox.
@@ -87,14 +92,16 @@ class Task(BaseModel):
         evaluate_config = None
         if sample.target:
             if isinstance(sample.target, str):
-                evaluate_config = ("response_includes", [sample.target])
+                evaluate_config = FunctionConfig(function="response_includes", args=[sample.target])
             elif isinstance(sample.target, list):
-                evaluate_config = ("match_all", sample.target)
+                evaluate_config = FunctionConfig(function="match_all", args=sample.target)
 
-        task_setup: FunctionConfigs | None = convert_inspect_setup(sample.setup) if sample.setup else None
+        task_setup: FunctionConfigs | None = (
+            convert_inspect_setup(sample.setup) if sample.setup else None
+        )
 
         sandbox = sample.sandbox
-       
+
         match sandbox:
             case "docker":
                 task_gym = CustomGym(
@@ -116,7 +123,6 @@ class Task(BaseModel):
                 task_setup = None
             case _:
                 raise ValueError(f"Unsupported sandbox type: {sandbox}")
-
 
         return cls(
             id=None,

@@ -1,0 +1,210 @@
+---
+title: 'MCP & multi-tool agents'
+description: 'Capture and analyze tool usage of MCP-enabled agents with HUD Telemetry.'
+icon: 'circle-nodes'
+--- 
+
+# Example: Tracing an MCP Agent
+
+This guide demonstrates how to use HUD's telemetry to trace the interactions of an agent that utilizes the Model Context Protocol (MCP) for its tool-calling capabilities. This is invaluable for debugging agent behavior, understanding tool usage patterns, and analyzing performance.
+
+We'll use a conceptual `MCPAgent` (similar to agents built with `mcp-use` or other MCP-compliant libraries) that interacts with a mock Airbnb MCP server.
+
+**Goal**: Trace an agent as it uses an MCP tool (e.g., an Airbnb search tool) to find accommodation information, potentially within the context of a HUD browser task.
+
+**Concepts Covered**:
+- Setting up an `MCPClient` with server configurations.
+- Using `hud.trace()` to automatically capture MCP calls.
+- Integrating MCP agent actions with HUD environments (e.g., `hud-browser` or `qa`).
+- Viewing MCP call details (requests, responses, errors, timing) in the HUD platform.
+
+## Prerequisites
+
+- HUD SDK installed.
+- An MCP-enabled agent library (e.g., `mcp-use`).
+- API keys for HUD and any LLM used by the agent (e.g., `OPENAI_API_KEY`).
+- An MCP server available (for this example, we simulate one based on an Airbnb example).
+
+## Step 1: Configure MCP Client and Agent
+
+First, set up the `MCPClient` to connect to your tool server(s) and initialize your `MCPAgent`.
+
+```python
+import asyncio
+import logging
+from dotenv import load_dotenv
+
+# Assuming you have mcp-use or a similar library
+from mcp_use import MCPAgent, MCPClient 
+from langchain_openai import ChatOpenAI # Or your preferred LLM provider
+
+import hud
+from hud import gym, Task
+from hud.adapters import ResponseAction # For submitting final text to HUD env
+
+# Load environment variables (e.g., API keys)
+load_dotenv()
+
+# Configure logging
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+logging.getLogger("hud").setLevel(logging.DEBUG) # See HUD SDK logs
+
+# Example MCP server configuration (replace with your actual server setup)
+# This simulates an MCP server for Airbnb search that can be run via npx.
+mcp_server_config = {
+    "mcpServers": {
+        "airbnb_search_tool": {
+            "command": "npx",
+            "args": ["-y", "@openbnb/mcp-server-airbnb", "--ignore-robots-txt"], # Example package
+            "env": {"IGNORE_ROBOTS_TXT": "true"} 
+        }
+    }
+}
+
+# Initialize MCPClient and MCPAgent
+mcp_client = MCPClient.from_dict(mcp_server_config)
+llm = ChatOpenAI(model="gpt-4o") # Configure your LLM
+
+# This agent will use tools available via MCP servers defined in mcp_client
+mcp_agent = MCPAgent(
+    llm=llm, 
+    client=mcp_client, 
+    max_steps=10, # Max MCP tool calls per .run()
+    verbose=True # Set to False for less mcp-use library logging
+)
+```
+
+<Note>
+The `mcp_server_config` above is just an example, you can use any MCP-compliant tool server.
+</Note>
+
+## Step 2: Define a Task (Optional HUD Environment Interaction)
+
+Your MCP agent might operate independently or its results might be used in a HUD environment.
+
+**Scenario A: MCP Agent acts, then updates a HUD Browser Task**
+
+```python
+# Task for the HUD Browser environment
+browser_task = Task(
+    prompt=(
+        "Find a pet-friendly Airbnb in Barcelona for 2 adults for a week in August "
+        "with good reviews. Summarize the top 3 options."
+    ),
+    gym="hud-browser", # Agent will use MCP tools, then might interact with browser
+    setup=("goto", "https://www.google.com/travel/hotels/Barcelona"), # Initial browser page
+    evaluate=("response_includes", ["Barcelona", "pool", "pet-friendly"]) # Check final response
+)
+```
+
+**Scenario B: MCP Agent uses tools, task is primarily QA (no browser interaction)**
+
+```python
+qa_task = Task(
+    prompt=(
+        "Using available tools, find a pet-friendly Airbnb in Barcelona for 2 adults for a week "
+        "in August with good reviews. Provide a summary of the top option."
+    ),
+    gym="qa", # No interactive browser needed for the agent's core work
+    evaluate=("response_includes", ["Barcelona", "pet-friendly"])
+)
+```
+
+## Step 3: Run Agent with HUD Telemetry Tracing
+
+Wrap the agent's execution in `hud.trace()` to capture all MCP calls.
+
+```python
+# (Continuing from previous setup)
+
+async def run_mcp_agent_with_tracing(task_definition: Task):
+    logger.info(f"Starting task: {task_definition.prompt}")
+
+    with hud.trace(name="airbnb_search_mcp_trace", attributes={"city": "Barcelona", "agent_type": "MCPAgent"}):
+        # Initialize HUD environment if the task uses one
+        env = await gym.make(task_definition)
+        await env.reset() # Runs task_definition.setup
+
+        logger.info("Running MCP agent...")
+        # The MCPAgent.run() method will make one or more MCP calls to its configured servers.
+        # These calls (requests, responses, errors, timings) will be captured by hud.trace.
+        try:
+            agent_final_output = await mcp_agent.run(
+                task_definition.prompt # Agent receives the main prompt
+            )
+            logger.info(f"MCPAgent final output: {agent_final_output}")
+            
+            # Submit the agent's final textual output to the HUD environment for evaluation
+            # This is crucial if your Task.evaluate depends on ResponseAction
+            if agent_final_output and isinstance(agent_final_output, str):
+                await env.step([ResponseAction(text=agent_final_output)])
+            
+        except Exception as e:
+            logger.error(f"MCPAgent run failed: {e}")
+            agent_final_output = f"Agent error: {e}" # Log error as part of the output
+            # Optionally submit error as a response if needed for evaluation logic
+            await env.step([ResponseAction(text=agent_final_output)])
+
+        # Evaluate the task based on its definition (e.g., checking browser state or agent_final_output)
+        evaluation_result = await env.evaluate()
+        logger.info(f"HUD Evaluation Result: {evaluation_result}")
+        
+        await env.close()
+        logger.info("Environment closed.")
+        
+    # The trace is automatically submitted at the end of the `with` block.
+    # View it on app.hud.so/jobs/traces/{trace_id} (trace_id logged by HUD)
+
+# Example of how to run it:
+# async def main():
+#     # hud.init_telemetry() # Ensure telemetry is initialized
+#     await run_mcp_agent_with_tracing(browser_task) # or qa_task
+#     await asyncio.sleep(10) # Allow time for background telemetry export
+#     hud.flush() # Ensure all telemetry is sent before exiting
+
+# if __name__ == "__main__":
+#     asyncio.run(main())
+```
+
+## Step 4: Analyzing MCP Traces in HUD
+
+After the run, navigate to your trace URL (logged by HUD, typically `https://app.hud.so/jobs/traces/{trace_id}`).
+
+**In the HUD trace view, you will see:**
+- **Trace Overview**: Name, attributes, duration.
+- **MCP Calls List**: Each MCP interaction made by the agent.
+    - **Request**: The method and parameters sent to the MCP server.
+    - **Response**: The result or error returned by the MCP server.
+    - **Timing**: Duration of each MCP call.
+    - **Status**: Success or failure of the call.
+- **HUD Environment Interactions**: If the agent also interacted with a HUD environment (like `hud-browser`), those CLA actions will also be part of the overall job trajectory associated with this trace (though the MCP trace focuses on the tool calls).
+
+This detailed view allows you to debug issues like:
+- Incorrect tool parameters.
+- Unexpected errors from MCP servers.
+- Slow tool performance.
+- The sequence of tools an agent chose to use.
+
+## Decorator for Tracing Functions
+
+If your MCP agent logic is encapsulated in a function, you can use the `@hud.register_trace` decorator:
+
+```python
+@hud.register_trace(name="find_accommodation_mcp")
+async def find_accommodation(prompt_query: str, agent_instance: MCPAgent):
+    logger.info(f"Agent received query: {prompt_query}")
+    # All MCP calls made by agent_instance.run() here will be traced.
+    result = await agent_instance.run(prompt_query)
+    return result
+
+# Later in your code:
+# accommodation_summary = await find_accommodation("Book a hotel in Paris", mcp_agent)
+```
+
+## Key Takeaways
+
+- `hud.trace()` automatically captures MCP calls made by compatible agents (like those from `mcp-use`).
+- This works whether the MCP agent is interacting with a HUD environment or operating with its own set of tools.
+- Traces provide deep visibility into tool usage, essential for debugging and optimizing complex agents.
+- Combine MCP tracing with HUD environments to evaluate both tool use and interaction with UIs like browsers. 

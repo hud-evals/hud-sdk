@@ -1,0 +1,232 @@
+---
+title: 'Benchmarking agents'
+description: 'Compare the performance of different AI agents on standard TaskSets using HUD.'
+icon: 'chart-simple'
+---
+
+# Example: Benchmarking Agents
+
+This guide demonstrates how to use HUD to benchmark and compare the performance of different AI agents on a standardized set of tasks. This is crucial for understanding agent capabilities and identifying areas for improvement.
+
+**Goal**: Evaluate two different agents (e.g., `ClaudeAgent` and `OperatorAgent`) on the `hud-samples` TaskSet and compare their results.
+
+**Concepts Covered**:
+- Loading pre-built `TaskSet` objects.
+- Configuring and running different `Agent` implementations.
+- Using `run_job()` for batch evaluation.
+- Accessing and interpreting `Job` analytics.
+- Viewing detailed results and trajectories on the HUD platform.
+
+## Prerequisites
+
+- HUD SDK installed ([Installation Guide](/installation)).
+- API keys for the agents you want to benchmark (e.g., `ANTHROPIC_API_KEY` for Claude, `OPENAI_API_KEY` for Operator) set in your environment or `.env` file.
+- `HUD_API_KEY` set for uploading results to the HUD platform.
+
+## Step 1: Load a Standard TaskSet
+
+We'll use the `hud-samples` TaskSet, which contains a set of 10 tasks suitable for general agent evaluation. You can replace this with other TaskSets like `WebVoyager` or `GAIA` for more specific benchmarks.
+
+```python
+import asyncio
+from hud import load_taskset, run_job, ClaudeAgent, OperatorAgent
+
+async def run_benchmarks():
+    print("Loading hud-samples TaskSet...")
+    taskset = await load_taskset("hud-samples")
+    if not taskset.tasks:
+        print("TaskSet is empty. Please ensure 'hud-samples' is a valid and populated TaskSet.")
+        return
+    print(f"Loaded TaskSet with {len(taskset.tasks)} tasks.")
+```
+
+## Step 2: Configure Your Agents
+
+Initialize the agents you want to compare. For this example, we'll use `ClaudeAgent` and `OperatorAgent` (which requires OpenAI).
+
+```python
+    # In the same async def run_benchmarks():
+
+    # Agent 1: ClaudeAgent
+    claude_agent = ClaudeAgent()
+    # You can customize agent parameters if needed, e.g.:
+    # claude_agent_custom = ClaudeAgent(model="claude-3-opus-20240229")
+
+    # Agent 2: OperatorAgent (OpenAI)
+    # Make sure OPENAI_API_KEY is set for this agent and your organization allows for Operator agent use
+    try:
+        operator_agent = OperatorAgent()
+    except ValueError as e:
+        print(f"Could not initialize OperatorAgent: {e}. Skipping OperatorAgent benchmark.")
+        operator_agent = None
+
+    agents_to_benchmark = []
+    agents_to_benchmark.append({"name": "ClaudeAgent", "instance": claude_agent})
+    if operator_agent:
+        agents_to_benchmark.append({"name": "OperatorAgent", "instance": operator_agent})
+
+    if not agents_to_benchmark:
+        print("No agents available for benchmarking.")
+        return
+```
+
+## Step 3: Run Evaluations for Each Agent
+
+Use `run_job()` to execute the TaskSet for each agent. Each run will create a separate Job on the HUD platform.
+
+```python
+    # In the same async def run_benchmarks():
+
+    job_results = {}
+
+    for agent_info in agents_to_benchmark:
+        agent_name = agent_info["name"]
+        agent_instance = agent_info["instance"]
+        
+        print(f"\nRunning benchmark for: {agent_name}...")
+        job_instance = await run_job(
+            agent_cls=type(agent_instance), # Pass the class of the agent -- this is so every paralellized agent is a different instance
+            agent_kwargs={}, # Pass any specific init kwargs for this agent if needed, otherwise uses defaults
+            task_or_taskset=taskset,
+            job_name=f"{agent_name} on hud-samples Benchmark",
+            # adapter_cls can be specified if not using agent's default
+        )
+        print(f"Job for {agent_name} completed. Job ID: {job_instance.id}")
+        print(f"View results at: https://app.hud.so/jobs/{job_instance.id}")
+        job_results[agent_name] = job_instance
+```
+
+<Note>
+When passing `agent_cls` to `run_job`, you provide the class itself (e.g., `ClaudeAgent`, not `claude_agent`). If your agent instance `agent_instance` was initialized with non-default parameters (e.g., a specific model), you would pass those parameters via `agent_kwargs` to `run_job`.
+For agents like `OperatorAgent` that might take an `environment` argument in their `__init__`, this would also go into `agent_kwargs` if not using the default (e.g., `agent_kwargs={"environment": "browser"}`).
+</Note>
+
+## Step 4: Compare Analytics
+
+After the jobs are complete, you can fetch and compare their summary analytics.
+
+```python
+    # In the same async def run_benchmarks():
+
+    print("\n--- Benchmark Summary ---")
+    for agent_name, job_instance in job_results.items():
+        try:
+            analytics = await job_instance.get_analytics()
+            print(f"\nResults for {agent_name} (Job ID: {job_instance.id}):")
+            print(f"  Task Count: {analytics.get('task_count')}")
+            print(f"  Success Rate: {analytics.get('success_rate'):.2f}%")
+            print(f"  Average Reward: {analytics.get('avg_reward')}") # Might be None if not applicable
+        except Exception as e:
+            print(f"Could not fetch analytics for {agent_name} (Job ID: {job_instance.id}): {e}")
+
+    print("\nDetailed trajectories and comparisons available at https://app.hud.so/jobs")
+
+# To run the benchmark:
+# if __name__ == "__main__":
+#     asyncio.run(run_benchmarks())
+```
+
+## Full Code Example
+
+```python
+import asyncio
+import logging
+from hud import load_taskset, run_job, ClaudeAgent, OperatorAgent # Make sure agents are imported
+
+# Optional: Configure logging to see HUD SDK logs
+logging.basicConfig(level=logging.INFO)
+logging.getLogger("hud").setLevel(logging.DEBUG) # For more detailed HUD logs
+
+async def run_benchmarks():
+    print("Loading hud-samples TaskSet...")
+    try:
+        taskset = await load_taskset("hud-samples")
+    except Exception as e:
+        print(f"Failed to load TaskSet 'hud-samples': {e}")
+        return
+
+    if not taskset or not taskset.tasks:
+        print("TaskSet 'hud-samples' is empty or could not be loaded.")
+        return
+    print(f"Loaded TaskSet '{taskset.name if taskset.name else taskset.id}' with {len(taskset.tasks)} tasks.")
+
+    # Agent 1: ClaudeAgent
+    claude_agent_instance = ClaudeAgent()
+
+    # Agent 2: OperatorAgent (OpenAI)
+    operator_agent_instance = None
+    try:
+        # OperatorAgent often requires an environment type for its tool configuration
+        operator_agent_instance = OperatorAgent(environment="browser") 
+    except ValueError as e:
+        print(f"NOTICE: Could not initialize OperatorAgent (OpenAI API key might be missing or invalid): {e}. Skipping OperatorAgent benchmark.")
+    except Exception as e:
+        print(f"NOTICE: An unexpected error occurred while initializing OperatorAgent: {e}. Skipping.")
+
+    agents_to_benchmark = []
+    agents_to_benchmark.append({"name": "ClaudeAgent", "instance": claude_agent_instance, "init_kwargs": {}})
+    if operator_agent_instance:
+        # For OperatorAgent, if it needs specific init args like 'environment', pass them via agent_kwargs to run_job
+        agents_to_benchmark.append({"name": "OperatorAgent", "instance": operator_agent_instance, "init_kwargs": {"environment": "browser"}})
+
+    if not agents_to_benchmark:
+        print("No agents available for benchmarking.")
+        return
+
+    job_results = {}
+
+    for agent_info in agents_to_benchmark:
+        agent_name = agent_info["name"]
+        agent_instance = agent_info["instance"]
+        agent_init_kwargs = agent_info["init_kwargs"]
+
+        print(f"\nRunning benchmark for: {agent_name}...")
+        try:
+            job_instance = await run_job(
+                agent_cls=type(agent_instance),
+                agent_kwargs=agent_init_kwargs, # Pass agent-specific init args here
+                task_or_taskset=taskset,
+                job_name=f"{agent_name} on {taskset.name if taskset.name else taskset.id} Benchmark",
+            )
+            print(f"Job for {agent_name} completed. Job ID: {job_instance.id}")
+            print(f"View results at: https://app.hud.so/jobs/{job_instance.id}")
+            job_results[agent_name] = job_instance
+        except Exception as e:
+            print(f"Failed to run job for {agent_name}: {e}")
+            job_results[agent_name] = None # Mark as failed or skip
+
+    print("\n--- Benchmark Summary ---")
+    for agent_name, job_instance in job_results.items():
+        if not job_instance:
+            print(f"\nResults for {agent_name}: Job execution failed.")
+            continue
+        try:
+            analytics = await job_instance.get_analytics()
+            print(f"\nResults for {agent_name} (Job ID: {job_instance.id}):")
+            print(f"  Task Count: {analytics.get('task_count')}")
+            success_rate = analytics.get('success_rate')
+            avg_reward = analytics.get('avg_reward')
+            print(f"  Success Rate: {success_rate:.2f}%" if success_rate is not None else "  Success Rate: N/A")
+            print(f"  Average Reward: {avg_reward}" if avg_reward is not None else "  Average Reward: N/A")
+        except Exception as e:
+            print(f"Could not fetch analytics for {agent_name} (Job ID: {job_instance.id}): {e}")
+
+    print("\nDetailed trajectories and comparisons for successful jobs available at https://app.hud.so/jobs")
+
+if __name__ == "__main__":
+    # Ensure HUD_API_KEY and agent-specific keys (e.g., ANTHROPIC_API_KEY) are set
+    # in your environment or .env file.
+    asyncio.run(run_benchmarks())
+```
+
+## Interpreting Results
+
+- **HUD Platform**: The most comprehensive way to compare agents is by viewing their jobs on [app.hud.so](https://app.hud.so). You can see side-by-side video recordings of trajectories, detailed action logs, and evaluation results for each task.
+- **`job.get_analytics()`**: Provides a quick summary of performance, including `success_rate` and `avg_reward` (if applicable based on your evaluation functions).
+- **Custom Analysis**: You can further analyze by loading trajectories (`await job_instance.load_trajectories()`) and inspecting raw data like action sequences, errors, and timing for each task.
+
+## Next Steps
+
+- **Explore other TaskSets**: Try benchmarks like `WebVoyager`, `Mind2Web`, or `GAIA` for more targeted evaluations.
+- **Customize Agents**: Experiment with different models, system prompts, or adapter settings for your agents.
+- **Create Your Own TaskSets**: Design specific evaluations tailored to your agent's capabilities using the [Task Creation Guide](/task-creation). 

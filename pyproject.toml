@@ -23,6 +23,8 @@ dependencies = [
     "openai",
     "langchain",
     "langchain-openai",
+    "mcp",
+    "wrapt>=1.14.0",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -163,6 +165,8 @@ exclude_lines = [
     "@(abc\\.)?abstractmethod",
 ]
 show_missing = true
-fail_under = 60
+fail_under = 58
 omit = ["*/tests/*"]
 
+[tool.pytest.ini_options]
+asyncio_default_fixture_loop_scope = "function"

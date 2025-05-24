@@ -28,6 +28,7 @@ STATUS_MESSAGES = {
 
 PACKAGE_NAME = "hud_controller"
 
+
 class InvokeError(Exception):
     """
     Error raised when an invoke fails.
@@ -117,7 +118,6 @@ class DockerClient(Client):
         Returns:
             tuple[str, dict[str, Any]]: The image tag and build output
         """
-
 
     @classmethod
     @abc.abstractmethod

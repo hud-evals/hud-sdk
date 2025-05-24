@@ -162,7 +162,7 @@ async def create_job(
     # If not, we might need to make a subsequent GET request
     job_data = data  # Adjust if the API response structure is different
 
-    logger.info("[HUD] View job at https://app.hud.so/jobs/%s.", job_data["id"])
+    logger.info("[hud] View job at https://app.hud.so/jobs/%s.", job_data["id"])
 
     return Job(
         id=job_data["id"],
@@ -270,6 +270,7 @@ async def _execute_task(
     max_steps_per_task: int,
     job: Job,
     tracker: StepProgressTracker | None = None,
+    auto_reply_question: bool = False,
     # Use semaphores instead of rate limiter
     env_creation_semaphore: asyncio.Semaphore | None = None,
     agent_predict_semaphore: asyncio.Semaphore | None = None,
@@ -316,6 +317,11 @@ async def _execute_task(
                 if tracker:
                     tracker.increment_step(task_id)
 
+                if auto_reply_question and action[0].type == "response" and "?" in action[0].text:
+                    obs.text = "Yes!"
+                    obs.screenshot = None
+                    continue
+
                 if action is None and not done:
                     done = True
 
@@ -347,7 +353,7 @@ async def _execute_task(
                         "timestamp": datetime.datetime.now().isoformat(),
                     }
                 )
-                break
+                continue
         else:
             logger.warning("[Job: %s/%s, Task: %s] Max steps reached.", job.name, job.id, task_id)
 
@@ -361,6 +367,7 @@ async def _execute_task(
                 evaluation_result = await env.evaluate()
                 status = "completed"
                 error_msg = None
+                logger.info("Evaluation result: %s", evaluation_result)
             except Exception as eval_err:
                 logger.exception(
                     "[Job: %s/%s, Task: %s] Evaluation Error: %s",
@@ -460,6 +467,7 @@ async def run_job(
     run_parallel: bool = True,
     job_metadata: dict[str, Any] | None = None,
     show_progress: bool = True,
+    auto_reply_question: bool = False,
     # Concurrency control with semaphores
     max_concurrent_env_creations: int | None = 30,  # Limits env.make calls
     max_concurrent_agent_predictions: int | None = 30,  # Limits agent.predict calls
@@ -606,6 +614,7 @@ async def run_job(
                     tracker=tracker,
                     env_creation_semaphore=env_creation_sema,
                     agent_predict_semaphore=agent_predict_sema,
+                    auto_reply_question=auto_reply_question,
                 )
                 for task, task_id in zip(tasks_to_run, task_ids, strict=True)
             ]
@@ -641,6 +650,7 @@ async def run_job(
                     tracker=tracker,
                     env_creation_semaphore=env_creation_sema,
                     agent_predict_semaphore=agent_predict_sema,
+                    auto_reply_question=auto_reply_question,
                 )
 
     finally:

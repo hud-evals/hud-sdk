@@ -1,0 +1,56 @@
+---
+title: 'OSWorld-Ubuntu'
+description: 'An actively maintained environment for OSWorld'
+---
+
+# OSWorld-Ubuntu Environment
+
+## Introduction
+
+The `OSWorld-Ubuntu` environment is an environment designed for the [OSWorld](https://os-world.github.io/) evaluation. 
+It offers the following benefits over running it locally:
+- The official OSWorld image uses Google Drive for asset storage, which is frequently rate limited. HUD hosts the assets on its own servers, so you can run the environment without worrying about rate limits.
+- OSWorld requires many sites which have anti-botting measures. HUD uses a residential proxy, so you can run the environment without worrying about being blocked.
+- OSWorld's implementation runs all tasks sequentially, which results in a long wait time. HUD runs tasks in parallel, so you can get results faster.
+- We implemented various small quality of life improvements to the environment, such as:
+  - Disabling ubuntu updates
+  - Removing libreoffice "tip of the day"
+  - NoVNC server
+
+## Setup
+
+Setup functions for OSWorld-Ubuntu utilize the OSWorld task config structure as in the [original repository](https://github.com/xlang-ai/OSWorld).
+
+```python
+example = {
+    "id": "94d95f96-9699-4208-98ba-3c3119edf9c2",
+    "instruction": "I want to install Spotify on my current system. Could you please help me?",
+    "config": [
+        {
+            "type": "execute",
+            "parameters": {
+                "command": [
+                    "python",
+                    "-c",
+                    "import pyautogui; import time; pyautogui.click(960, 540); time.sleep(0.5);"
+                ]
+            }
+        }
+    ],
+    "evaluator": {
+        "func": "check_include_exclude",
+        "result": {
+            "type": "vm_command_line",
+            "command": "which spotify"
+        },
+        "expected": {
+            "type": "rule",
+            "rules": {
+                "include": ["spotify"],
+                "exclude": ["not found"]
+            }
+        }
+    }
+}
+```
+

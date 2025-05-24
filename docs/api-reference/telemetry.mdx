@@ -1,0 +1,125 @@
+---
+title: 'hud.telemetry'
+description: 'API reference for telemetry and tracing functionality'
+---
+
+The `hud.telemetry` module provides functionality for capturing and reporting telemetry data from MCP calls, allowing you to trace and analyze agent interactions.
+
+# Module Functions
+
+## trace
+
+```python
+def trace(
+    name: str | None = None,
+    attributes: dict[str, Any] | None = None,
+) -> contextlib.ContextManager[str]:
+```
+
+A context manager for tracing a block of code. Captures all MCP calls made within the context and uploads them to the HUD platform for analysis.
+
+**Parameters:**
+
+- **`name` (str | None, optional):** Optional name for this trace, will be added to attributes.
+- **`attributes` (dict[str, Any] | None, optional):** Optional dictionary of attributes to associate with this trace.
+
+**Returns:**
+
+- A context manager that yields the generated task run ID (UUID string) used for this trace.
+
+**Example:**
+
+```python
+import hud
+from mcp_use import MCPAgent, MCPClient
+
+client = MCPClient.from_dict({...})
+agent = MCPAgent(llm=llm, client=client)
+
+with hud.trace("my_trace", attributes={"query": "Find information"}):
+    result = await agent.run("Find information", max_steps=5)
+```
+
+## register_trace
+
+```python
+def register_trace(
+    name: str | None = None,
+    attributes: dict[str, Any] | None = None
+) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+```
+
+Decorator to wrap a synchronous or asynchronous function call within a `hud.telemetry.trace` context. Works with both regular functions and coroutines.
+
+**Parameters:**
+
+- **`name` (str | None, optional):** Optional name for the trace. If not provided, the function name is used.
+- **`attributes` (dict[str, Any] | None, optional):** Optional dictionary of attributes for the trace.
+
+**Returns:**
+
+- A decorator function that wraps the target function in a trace context.
+
+**Example:**
+
+```python
+import hud
+
+@hud.register_trace(name="search_function", attributes={"type": "search"})
+async def perform_search(query: str):
+    # Function implementation
+    # All MCP calls will be traced
+    return result
+```
+
+## get_current_task_run_id
+
+```python
+def get_current_task_run_id() -> str | None:
+```
+
+Get the task_run_id for the current trace context.
+
+**Returns:**
+
+- The current task run ID string, or None if not in a trace context.
+
+## set_current_task_run_id
+
+```python
+def set_current_task_run_id(task_run_id: str | None) -> None:
+```
+
+Set the task_run_id for the current trace context. This is typically used internally by the SDK.
+
+**Parameters:**
+
+- **`task_run_id` (str | None):** The task run ID to set, or None to clear it.
+
+## flush
+
+```python
+def flush() -> None:
+```
+
+Manually flush any pending telemetry data to ensure it's uploaded. This is typically called automatically when a trace context exits.
+
+# Internal Components
+
+The telemetry module includes several internal components that are not typically used directly:
+
+## Context Management
+
+- **`context.py`**: Manages the trace context using Python's `contextvars` module.
+- **`mcp_models.py`**: Defines Pydantic models for representing MCP calls and telemetry data.
+
+## Instrumentation
+
+- **`instrumentation/`**: Contains code for instrumenting MCP calls to capture telemetry data.
+- **`instrumentation/mcp.py`**: Specific instrumentation for MCP calls.
+
+## Exporting
+
+- **`exporter.py`**: Handles exporting telemetry data to the HUD platform.
+
+These internal components are automatically initialized when the HUD SDK is imported and don't require direct interaction in most cases.

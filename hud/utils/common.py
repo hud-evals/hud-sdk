@@ -23,6 +23,7 @@ class FunctionConfig(BaseModel):
     args: list[Any]  # Must be json serializable
 
     id: str | None = None  # Optional id for remote execution
+    metadata: dict[str, Any] | None = None  # Optional metadata for telemetry
 
     def __len__(self) -> int:
         return len(self.args)
@@ -38,7 +39,8 @@ class FunctionConfig(BaseModel):
 
 
 # Type alias for the shorthand config, which just converts to function name and args
-ShorthandConfig = tuple[str | dict[str, Any] | list[str] | list[dict[str, Any]], ...]
+BasicType = str | int | float | bool | None
+ShorthandConfig = tuple[BasicType | dict[str, Any] | list[BasicType] | list[dict[str, Any]], ...]
 
 # Type alias for multiple config formats
 FunctionConfigs = (
@@ -107,6 +109,7 @@ def directory_to_tar_bytes(directory_path: Path) -> bytes:
     output.seek(0)
     return output.getvalue()
 
+
 def directory_to_zip_bytes(context_dir: Path) -> bytes:
     """Zip a directory and return the zip archive as bytes."""
     output = io.BytesIO()
@@ -117,6 +120,7 @@ def directory_to_zip_bytes(context_dir: Path) -> bytes:
                 logger.debug("Adding %s to zip archive", rel_path)
                 zipf.write(str(file_path), arcname=str(rel_path))
     return output.getvalue()
+
 
 async def get_gym_id(gym_name_or_id: str) -> str:
     """

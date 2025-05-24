@@ -2,8 +2,7 @@ from __future__ import annotations
 
 import logging
 from base64 import b64decode, b64encode
-from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import httpx
 
@@ -15,7 +14,11 @@ from hud.types import EnvironmentStatus
 from hud.utils import ExecuteResult
 from hud.utils.common import directory_to_zip_bytes, get_gym_id
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
 logger = logging.getLogger("hud.env.remote_env_client")
+
 
 async def upload_bytes_to_presigned_url(presigned_url: str, data_bytes: bytes) -> None:
     try:
@@ -28,6 +31,7 @@ async def upload_bytes_to_presigned_url(presigned_url: str, data_bytes: bytes) -
     except httpx.RequestError as e:
         logger.exception("Network error uploading to presigned URL")
         raise HudResponseError(message=f"Network error uploading to presigned URL: {e}") from e
+
 
 class RemoteDockerClient(DockerClient):
     """
@@ -75,7 +79,7 @@ class RemoteDockerClient(DockerClient):
             api_key=settings.api_key,
         )
         logger.info("Build completed")
-        
+
         return response["uri"], {"logs": response["logs"]}
 
     @classmethod
@@ -109,7 +113,8 @@ class RemoteDockerClient(DockerClient):
 
         logger.info("Creating remote environment")
 
-        true_gym_id = await get_gym_id("docker")
+        true_gym_id = await get_gym_id("local-docker")
+        # true_gym_id = await get_gym_id("docker")
 
         # augment metadata with dockerfile
         if "environment_config" not in metadata:
@@ -143,7 +148,6 @@ class RemoteDockerClient(DockerClient):
             )
 
         return cls(env_id)
-
 
     def __init__(self, env_id: str) -> None:
         """

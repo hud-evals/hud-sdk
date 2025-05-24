@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "willow",
-  "name": "HUD SDK",
+  "name": "hud SDK",
   "colors": {
     "primary": "#4F46E5",
     "light": "#818CF8",
@@ -10,60 +10,60 @@
   "favicon": "/favicon.png",
   "navigation": {
     "groups": [
-      {
-        "group": "Getting Started",
-        "pages": [
-          "quickstart",
-          "running-your-agent",
-          "installation"
-        ]
-      },
-      {
-        "group": "Core Concepts",
-        "pages": [
-          "concepts/environment",
-          "concepts/task",
-          "concepts/agent",
-          "concepts/adapter",
-          "concepts/job",
-          "concepts/trajectory"
-        ]
-      },
-      {
-        "group": "Environments",
-        "pages": [
-          "environments/hud-browser",
-          "environments/hud-ubuntu",
-          "environments/qa"
-        ]
-      },
-      {
-        "group": "Advanced Topics",
-        "pages": [
-          "advanced/uploading",
-          "advanced/cla-details",
-          "advanced/custom-environments",
-          "advanced/environment-control"
-        ]
-      },
-      {
-        "group": "API Reference",
-        "pages": [
-              "api-reference/gym",
-              "api-reference/env",
-              "api-reference/task",
-              "api-reference/taskset",
-              "api-reference/job",
-              "api-reference/trajectory",
-              "api-reference/agent",
-              "api-reference/adapters"
-            ]
-      }
+    {
+      "group": "Getting Started",
+      "pages": [
+        "quickstart",
+        "task-creation",
+        "environment-creation",
+        "running-your-agent"
+      ]
+    },
+    {
+      "group": "Examples",
+      "pages": [
+        "examples/benchmarking-agents",
+        "examples/alignment-evaluation",
+        "examples/custom-os-env",
+        "examples/mcp-agent-tracing",
+        "examples/web-app-testing"
+      ]
+    },
+    {
+      "group": "Features",
+      "pages": [
+        "advanced/tracing",
+        "advanced/cla-details",
+        "advanced/environment-control",
+        "advanced/uploading"
+      ]
+    },
+    {
+      "group": "Concepts",
+      "pages": [
+        "concepts/agent",
+        "concepts/adapter",
+        "concepts/environment",
+        "concepts/job",
+        "concepts/task",
+        "concepts/trajectory"
+      ]
+    },
+    {
+      "group": "Environments",
+      "pages": [
+        "environments/browser",
+        "environments/custom", 
+        "environments/qa",
+        "environments/ubuntu",
+        "environments/osworld-ubuntu"
+      ]
+    }
     ]
   },
   "logo": {
-    "light": "/logo/HUD-light-optimized.svg",
-    "dark": "/logo/HUD.svg"
+    "light": "/logo/hud_logo.svg",
+    "dark": "/logo/hud_logo_dark.svg"
   },
   "navbar": {
     "links": [

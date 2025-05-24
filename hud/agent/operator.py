@@ -34,7 +34,7 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
         self,
         client: OpenAI | None = None,
         model: str = "computer-use-preview",
-        environment: Literal["windows", "mac", "linux", "browser"] = "windows",
+        environment: Literal["windows", "mac", "linux", "browser"] = "linux",
         adapter: Adapter | None = None,
         max_iterations: int = 8,
     ):
@@ -81,6 +81,7 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
         self.last_response_id = None
         self.pending_call_id = None
         self.initial_prompt = None
+        self.pending_safety_checks = []
 
     async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool]:
         """
@@ -153,10 +154,12 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
                                 "type": "input_image",
                                 "image_url": f"data:image/png;base64,{observation.screenshot}",
                             },
+                            "acknowledged_safety_checks": self.pending_safety_checks,
                         },
                     )
                 ],
             )
+            self.pending_safety_checks = []
 
             # Call OpenAI API for follow-up (synchronous call)
             response = self.client.responses.create(
@@ -188,6 +191,7 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
             for computer_call in computer_calls:
                 self.pending_call_id = computer_call.call_id
                 action = computer_call.action
+                self.pending_safety_checks = computer_call.pending_safety_checks
                 actions.append(action.model_dump())  # Convert Pydantic model to dict
                 logger.info(f"Computer call action: {action}")
         else:

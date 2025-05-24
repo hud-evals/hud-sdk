@@ -20,7 +20,7 @@ class Point(BaseModel):
 class ClickAction(CLAAction):
     type: Literal["click"] = "click"
     point: Point | None = None
-    button: Literal["left", "right", "wheel", "back", "forward"] = "left"
+    button: CLAButton = "left"
     pattern: list[int] | None = None  # [delay_1, delay_2, ...]
     hold_keys: list[CLAKey] | None = None
 
@@ -315,3 +315,6 @@ CLAKey: TypeAlias = Literal[
     "}",
     "~",
 ]
+
+
+CLAButton: TypeAlias = Literal["left", "right", "middle", "back", "forward"]

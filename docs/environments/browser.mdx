@@ -1,0 +1,153 @@
+---
+title: 'Browser'
+description: 'Using the hud-browser for web-based agent evaluation'
+---
+
+# Browser Environment (`hud-browser`)
+
+<Info>
+**Primary Environment**
+
+The `hud-browser` is the default and most commonly used environment in HUD. Most examples and TaskSets use this environment for web-based agent evaluation.
+</Info>
+
+## Introduction
+
+The `hud-browser` environment provides a remote Chromium browser instance for agents to interact with websites. It's ideal for web navigation, form filling, information retrieval, testing web applications, and question answering with web research.
+
+## Key Features & Usage
+
+### Creating a Browser Environment
+
+```python
+from hud import gym
+from hud.task import Task
+
+# Define a task that uses the browser
+task = Task(
+    prompt="Find the official Python website.",
+    gym="hud-browser",
+    setup=("goto", "https://google.com"),
+    evaluate=("url_contains", "python.org")
+)
+
+# Create the environment
+env = await gym.make(task)
+# ... use the environment ...
+await env.close()
+```
+
+### Live Streaming
+View the browser session in real-time during agent interaction:
+
+```python
+env = await gym.make(task)
+await env.stream()  # Opens live view in your notebook or default browser
+# ... run your agent ...
+```
+
+### CDP (Chrome DevTools Protocol) Integration
+For advanced control or integration with tools like `browser_use`:
+
+```python
+from browser_use import Agent as BrowserUseAgent, Browser, BrowserConfig
+from langchain_openai import ChatOpenAI
+
+# Create HUD environment
+env = await gym.make(task) 
+cdp_url = env.url # This is the CDP endpoint
+
+# Connect browser_use to the same browser instance
+bu_browser = Browser(config=BrowserConfig(cdp_url=cdp_url))
+bu_agent = BrowserUseAgent(task=task.prompt, llm=ChatOpenAI(model="gpt-4o"), browser=bu_browser)
+
+# Run the browser_use agent
+bu_result = await bu_agent.run()
+
+# Evaluate the agent's performance
+evaluation = await env.evaluate()
+print(f"Evaluation: {evaluation}")
+```
+
+## Setup Functions (Initial State)
+
+These functions configure the browser's state via `Task.setup` before the agent starts:
+
+| Function                     | Description                                                                 |
+| ---------------------------- | --------------------------------------------------------------------------- |
+| `goto(url)`                  | Navigates to a URL.                                                         |
+| `load_html_content(html)`    | Loads static HTML content.                                                  |
+| `sheets_from_xlsx(url, name?)` | Converts an XLSX from URL to a new Google Sheet and opens it.             |
+
+## Agent Interactions (CLA Actions)
+
+Agents interact with the browser using [CLA Actions](../advanced/cla-details.mdx) passed to `env.step()`:
+
+- **Mouse**: `ClickAction`, `ScrollAction`, `DragAction`, `MoveAction`
+- **Keyboard**: `TypeAction`, `PressAction`
+- **Response**: `ResponseAction` (for submitting final answers)
+
+## Evaluation Functions
+
+These functions, used in `Task.evaluate`, verify task completion within the browser:
+
+| Category         | Function                        | Description                                                      |
+| ---------------- | ------------------------------- | ---------------------------------------------------------------- |
+| Page Content     | `page_contains(list[str])`      | Text exists on page.                                             |
+|                  | `element_exists(selector)`      | Element is present.                                              |
+|                  | `text_matches(sel, pattern)`    | Element text matches regex.                                      |
+| URL & Navigation | `url_contains(substring)`       | URL contains substring.                                          |
+|                  | `url_match(expected_url)`       | Exact URL match.                                                 |
+| Browser State    | `cookie_exists(list[str])`      | Required cookies present.                                        |
+| Agent Response   | `response_includes(text)`       | Agent's final answer contains text.                               |
+| Action History   | `selector_history(sel, idx?)`   | Selector was interacted with (default: last).                    |
+|                  | `verify_type_action(sel, val)`  | Last action was typing `val` into `sel`.                         |
+|                  | `history_length(len_spec)`      | Agent actions count matches `len_spec` (int or dict).            |
+|                  | `raw_last_action_is(dict)`      | Last raw agent action matches dict.                              |
+| Spreadsheets     | `sheets_cell_values(map)`       | Google Sheet cells match `{"A1": "Val"}`.                        |
+
+
+## Common Task Examples
+
+### Web Research
+```python
+Task(
+    prompt="Find the current CEO of OpenAI.",
+    gym="hud-browser",
+    setup=("goto", "https://google.com"),
+    evaluate=("response_includes", "Sam Altman")
+)
+```
+
+### E-commerce: Add to Cart
+```python
+Task(
+    prompt="Search for 'wireless mouse' and add the first result to cart.",
+    gym="hud-browser",
+    setup=("goto", "https://www.amazon.com"),
+    evaluate=("page_contains", "Added to Cart")
+)
+```
+
+### Data Entry with Spreadsheets
+```python
+Task(
+    prompt="Open the provided sheet and enter 'Complete' in cell C5.",
+    gym="hud-browser",
+    setup=("sheets_from_xlsx", "https://example.com/spreadsheet.xlsx"),
+    evaluate=("sheets_cell_values", {"C5": "Complete"})
+)
+```
+
+## Troubleshooting
+
+- **Element Not Found**: Use `wait_for_element` in your *agent's logic* or ensure setup is complete.
+- **Incorrect Evaluation**: Test evaluation functions manually using `env.evaluate()` after steps.
+- **Live View**: Use `await env.stream()` for real-time debugging.
+
+## Related Guides
+
+- **[Task Creation](/task-creation)**: The primary guide for defining what agents do.
+- **[Quickstart](/quickstart)**: Practical examples using the browser environment.
+- **[Custom Environments](/environments/custom)**: For testing your own web applications.
+- **[CLA Action Details](/advanced/cla-details)**: Full list of agent actions.

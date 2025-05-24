@@ -31,7 +31,7 @@ def test_from_inspect_sample_qa():
 
 
 def test_from_inspect_sample_docker():
-    samp = FakeSample(input="Run ls", sandbox=("docker", "FROM ubuntu:latest"), setup="echo hi")
+    samp = FakeSample(input="Run ls", sandbox="docker", setup="echo hi")
     task = Task.from_inspect_sample(samp)  # type: ignore[arg-type]
     from hud.types import CustomGym
 

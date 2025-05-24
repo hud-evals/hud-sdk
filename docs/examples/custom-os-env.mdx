@@ -1,0 +1,333 @@
+---
+title: 'Custom OS environment'
+description: 'Build and use a Dockerized custom OS environment with a Python controller for HUD evaluations.'
+icon: 'server'
+---
+
+# Example: Custom OS Environment (File System Tasks)
+
+This guide demonstrates how to create a controller-based custom OS environment using Docker. This type of environment is useful for tasks that require interaction with a specific operating system, file system manipulations, or running command-line tools, going beyond what `hud-browser` offers.
+
+**Goal**: Create a simple Linux environment where an agent is tasked to create a specific file structure and write content to a file. The environment's controller will handle setting up an initial state and evaluating the final file system state.
+
+**Concepts Covered**:
+- Building a `CustomGym` with a Python `hud_controller`.
+- Defining a `Dockerfile` for the OS environment.
+- Writing `pyproject.toml` for the controller package.
+- Implementing custom `setup` and `evaluate` functions in the controller.
+- Creating and running a `Task` that uses this custom OS environment.
+- Contributing custom environments.
+
+This example builds upon the concepts in the main [Environment Creation & Contribution Guide](/environment-creation).
+
+## 1. Environment Design: File Organizer Task
+
+-   **Purpose**: Test an agent's ability to understand instructions and perform basic file system operations (create directories, create files, write to files).
+-   **Environment**: A minimal Linux container with Python available for the `hud_controller`.
+-   **Setup**: The controller will create a base directory (e.g., `/workspace/task_data`).
+-   **Agent Task**: Given a list of files and content, create them in a nested structure within `/workspace/task_data`.
+-   **Evaluation**: The controller will check if the specified files and directories exist and if files contain the correct content.
+
+## 2. Directory Structure
+
+Create a folder, for example, `environments/file_organizer_env/`:
+
+```
+file_organizer_env/
+├── Dockerfile
+├── pyproject.toml
+├── README.md 
+└── src/
+    └── hud_controller/
+        ├── __init__.py
+        └── main.py
+```
+
+## 3. Implementing the Environment
+
+### a. `Dockerfile`
+
+Defines a simple Python environment.
+
+```dockerfile
+# environments/file_organizer_env/Dockerfile
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy controller source code and project file
+COPY ./src /app/src
+COPY ./pyproject.toml /app/
+
+# Install the hud_controller package
+# hud-python might be needed if your controller imports from it for types, etc.
+RUN pip install --no-cache-dir -e .
+
+# Create a directory for the agent to work in
+RUN mkdir -p /workspace/task_data
+
+# Keep the container running (e.g., for interactive tasks or if services need to stay up)
+# For simple command execution tasks, this might not be strictly necessary if the agent
+# interacts via execute_command from the client side, but good for general-purpose envs.
+CMD ["tail", "-f", "/dev/null"]
+```
+
+### b. `pyproject.toml`
+
+Defines the `hud_controller` package.
+
+```toml
+# environments/file_organizer_env/pyproject.toml
+[project]
+name = "hud_controller"
+version = "0.1.0"
+description = "Controller for the File Organizer custom OS environment."
+dependencies = [
+    "hud-python" # If you use types from hud.py or other utilities
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+```
+
+### c. `src/hud_controller/main.py` (Controller Logic)
+
+```python
+# environments/file_organizer_env/src/hud_controller/main.py
+import os
+import logging
+import shutil # For cleaning up
+
+logger = logging.getLogger(__name__)
+BASE_TASK_DIR = "/workspace/task_data"
+
+def setup_file_task(initial_message: str = "Setup complete.") -> dict:
+    """Clears and prepares the base directory for a new file task."""
+    logger.info(f"Controller: Setting up file task. Base dir: {BASE_TASK_DIR}")
+    # Clean up any previous task data
+    if os.path.exists(BASE_TASK_DIR):
+        shutil.rmtree(BASE_TASK_DIR)
+    os.makedirs(BASE_TASK_DIR, exist_ok=True)
+    logger.info(f"Controller: Directory {BASE_TASK_DIR} ensured.")
+    return {"status": initial_message, "work_directory": BASE_TASK_DIR}
+
+def evaluate_file_structure(expected_structure: dict) -> float:
+    """
+    Evaluates if the file structure and content in BASE_TASK_DIR match expected.
+    expected_structure = {
+        "directories": ["docs", "src/utils"],
+        "files": {
+            "docs/README.md": "This is a test readme.",
+            "src/main.py": "print('hello')"
+        }
+    }
+    """
+    logger.info(f"Controller: Evaluating file structure. Expected: {expected_structure}")
+    all_correct = True
+
+    # Check directories
+    for dir_path_rel in expected_structure.get("directories", []):
+        full_dir_path = os.path.join(BASE_TASK_DIR, dir_path_rel)
+        if not os.path.isdir(full_dir_path):
+            logger.warning(f"Directory missing: {full_dir_path}")
+            all_correct = False
+            # break # Optionally break early
+    
+    # Check files and their content
+    for file_path_rel, expected_content in expected_structure.get("files", {}).items():
+        full_file_path = os.path.join(BASE_TASK_DIR, file_path_rel)
+        if not os.path.isfile(full_file_path):
+            logger.warning(f"File missing: {full_file_path}")
+            all_correct = False
+            continue
+        try:
+            with open(full_file_path, "r") as f:
+                actual_content = f.read()
+            if actual_content.strip() != expected_content.strip():
+                logger.warning(
+                    f"File content mismatch for {full_file_path}: "
+                    f"Expected '{expected_content[:50]}...', Got '{actual_content[:50]}...'"
+                )
+                all_correct = False
+        except Exception as e:
+            logger.error(f"Error reading file {full_file_path}: {e}")
+            all_correct = False
+
+    reward = 1.0 if all_correct else 0.0
+    logger.info(f"File structure evaluation result: {reward}")
+    return reward
+```
+
+## 4. Using the Custom OS Environment
+
+### a. Define `CustomGym` and `Task`
+
+```python
+import asyncio
+from hud import Task, gym, run_job 
+from hud.types import CustomGym
+from hud.agent.base import Agent # Import base Agent
+from hud.adapters.common.types import ResponseAction # For submitting text
+from hud.utils.common import Observation # For type hinting
+from pathlib import Path
+
+# For Langchain LLM
+from langchain_openai import ChatOpenAI
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+
+# Define the CustomGym for our file organizer environment
+file_organizer_gym = CustomGym(
+    location="local", 
+    image_or_build_context=Path("./environments/file_organizer_env")
+)
+
+# Define a task for this environment
+create_project_task = Task(
+    prompt=(
+        "Create a project structure: a 'docs' directory with a README.md inside it containing "
+        "'Project Documentation', and a 'src' directory with a 'main.py' file inside it containing "
+        "'print(\"Hello Project!\")'. All files and directories should be inside /workspace/task_data."
+    ),
+    gym=file_organizer_gym,
+    setup=("setup_file_task", "File organization area prepared."),
+    evaluate=(
+        "evaluate_file_structure", 
+        {
+            "directories": ["docs", "src"],
+            "files": {
+                "docs/README.md": "Project Documentation",
+                "src/main.py": "print(\"Hello Project!\")"
+            }
+        }
+    )
+)
+
+# Agent that uses Langchain OpenAI to generate shell commands
+class FileSystemAgentLLM(Agent[Any, Any]): # Generic types for client and raw action
+    def __init__(self, llm_model_name: str = "gpt-3.5-turbo"):
+        super().__init__(client=None, adapter=None) # No HUD client/adapter needed for this agent's core logic
+        self.llm = ChatOpenAI(model=llm_model_name, temperature=0)
+        self.prompt_template = ChatPromptTemplate.from_messages([
+            ("system", "You are an expert at generating shell commands for Linux to manage files and directories. Given a natural language instruction, provide a sequence of shell commands (one command per line) to achieve the objective. The working directory will be /workspace/task_data. Only output the shell commands."),
+            ("human", "Instruction: {instruction}")
+        ])
+        self.parser = StrOutputParser()
+        self.chain = self.prompt_template | self.llm | self.parser
+        self.env_client = None # To be set if we want to execute commands
+
+    async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool]:
+        instruction = observation.text # The task prompt
+        if not instruction:
+            return [{"type": "response", "text": "No instruction provided."}], True
+
+        print(f"Agent received instruction: {instruction}")
+        shell_commands_str = await self.chain.ainvoke({"instruction": instruction})
+        print(f"LLM generated shell commands:\n{shell_commands_str}")
+
+        # For this example, we return the commands as text in a ResponseAction.
+        # In a full system, these would be parsed and executed.
+        # We can also define a custom action type like {"type": "shell_commands", "commands": shell_commands_list}
+        # For now, we'll just make the agent respond with the commands it would run.
+        # The task is considered "done" by the agent after generating commands.
+        return [{"type": "response", "text": f"# Shell commands to execute:\n{shell_commands_str}"}], True
+
+async def main():
+    env = await gym.make(create_project_task)
+    
+    # Initialize the LLM-based agent
+    # Make sure OPENAI_API_KEY is set in your environment for ChatOpenAI
+    try:
+        agent = FileSystemAgentLLM(llm_model_name="gpt-4o") # or "gpt-3.5-turbo"
+    except Exception as e:
+        print(f"Failed to initialize FileSystemAgentLLM (check OpenAI API key): {e}")
+        await env.close()
+        return
+
+    # This agent doesn't directly use env.client for this example, but a real one might.
+    # If you had env.client.execute() and wanted the agent to use it:
+    # agent.env_client = env.client
+
+    print("Resetting environment (runs setup)...")
+    obs, _ = await env.reset()
+    print(f"Initial observation: {obs}") # Will contain output from setup_file_task
+
+    print("Agent predicting actions...")
+    # The agent's predict method (via fetch_response) will call the LLM
+    # It returns a ResponseAction containing the shell commands as text.
+    actions, done = await agent.predict(obs)
+    
+    # For this example, we are not executing the shell commands returned by the agent.
+    # We will manually create the files to test the evaluation logic.
+    # In a real scenario, you would parse `actions` if it contained structured commands,
+    # or if it's a ResponseAction as here, you might have an orchestrator that takes
+    # the text, identifies commands, and executes them via `env.client.execute()`.
+
+    if actions and isinstance(actions[0], dict) and actions[0].get("type") == "response":
+        print(f"Agent proposed actions (shell commands as text):\n{actions[0].get('text')}")
+
+    # --- Manually create expected files for testing the evaluate function --- 
+    # This simulates the SUCCESSFUL execution of the LLM-generated commands.
+    # This part is for verifying `evaluate_file_structure`.
+    # In a real end-to-end test of the AGENT, you'd remove this manual creation
+    # and ensure your agent + execution mechanism correctly creates the files.
+    print("\nManually creating files to simulate successful agent execution for evaluation testing...")
+    base_dir = "/workspace/task_data" # This path is INSIDE the Docker container
+    # We can't directly os.makedirs on the host. We'd use env.client.execute if available.
+    # For testing the example, we assume these would be executed by the agent.
+    # If YourClientWithExecute and env.client.execute were available:
+    # await env.client.execute(["mkdir", "-p", os.path.join(base_dir, "docs")])
+    # await env.client.execute(["mkdir", "-p", os.path.join(base_dir, "src")])
+    # await env.client.execute(["sh", "-c", f"echo 'Project Documentation' > {os.path.join(base_dir, 'docs/README.md')}"])
+    # await env.client.execute(["sh", "-c", f"echo 'print(\"Hello Project!\")' > {os.path.join(base_dir, 'src/main.py')}"])
+    print("(Skipping actual file creation in this example script - would be done by agent + env.client.execute)")
+    print("To make this test pass, you'd need to manually create these files inside the running Docker container, ")
+    print(f"or modify the test to mock the results of env.client.execute() if testing the agent's command generation.")
+    # To actually test evaluate_file_structure, one would need to ensure files are created in the container.
+    # For a self-contained doc example, it's hard to show file creation inside the container easily.
+    # We will mock the file creation for the sake of this example to show evaluation passing.
+    
+    # MOCKING: To make the `evaluate_file_structure` pass for this example, you might need to mock os.path.isdir and open
+    # if running this script directly without a mechanism to execute commands in the Docker container.
+    # This is beyond the scope of a simple documentation example for now.
+    # We will assume the evaluation might fail here unless files are manually created in the container
+    # or the evaluation step is also mocked.
+
+    print("\nEvaluating task...")
+    # The evaluate function will run INSIDE the Docker container via the controller.
+    # If the files were not created (e.g. by the agent via env.client.execute()), it will likely return 0.0.
+    result = await env.evaluate()
+    print(f"Evaluation Result: {result}")
+
+    await env.close()
+
+# if __name__ == "__main__":
+#     # Ensure OPENAI_API_KEY is set in your .env file or environment variables
+#     asyncio.run(main())
+```
+
+<Warning>
+The `FileSystemAgentLLM` in this example generates shell commands but does not execute them. A full implementation would require:
+1.  The `CustomGym` environment (`file_organizer_env`) to have an `env.client` that supports an `execute(command_list)` method (like `DockerClient` or a custom VNC client that can run shell commands).
+2.  The agent or an orchestrator to parse the LLM-generated commands and call `await env.client.execute()` for each.
+
+The manual file creation section is illustrative for testing the `evaluate_file_structure` controller function. In a real agent test, the agent itself would be responsible for creating the files using the environment's execution capabilities.
+</Warning>
+
+## 5. Contributing This Environment
+
+Follow the general [Contribution Workflow](/environment-creation#contribution-workflow):
+1.  Ensure your `file_organizer_env/` directory (with `Dockerfile`, `pyproject.toml`, `src/`, and `README.md`) is complete.
+2.  Test it thoroughly locally.
+3.  Push to your fork and open a PR to the `hud-evals/hud-sdk` repository.
+
+Your `README.md` for this environment should explain how to use it, what controller functions are available, and an example task.
+
+## Next Steps
+
+-   Explore other [Example Community Environments](/environment-creation#example-community-environments).
+-   Learn about [Scaling to Remote Execution](/environment-creation#scaling-up-remote-execution-parallel-testing).
+-   Integrate this environment into a `TaskSet` for broader evaluations.
+

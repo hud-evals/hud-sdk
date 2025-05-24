@@ -1,0 +1,129 @@
+---
+title: 'Tracing'
+description: 'Capture and analyze MCP calls with tracing functionality'
+---
+
+# Tracing
+
+The HUD SDK provides tracing functionality to capture and analyze MCP (Model-Client-Provider) calls during agent execution. This is particularly useful for debugging, performance analysis, and understanding the interaction between your agent and external services.
+
+## Overview
+
+Tracing in HUD allows you to:
+
+-   Capture all MCP calls made by an agent within a specific code block or decorated function.
+-   Automatically upload these traces to the HUD platform ([app.hud.so](https://app.hud.so)) for detailed analysis.
+-   View comprehensive information about each call, including request/response payloads, timing, status, and any errors.
+-   Associate traces with specific task runs, jobs, and custom attributes for better organization and filtering.
+
+This capability is essential whether your agent is interacting with HUD environments (like `hud-browser`) or using its own set of MCP-based tools independently.
+
+## Using Tracing
+
+There are two main ways to use tracing in your code:
+
+### 1. Context Manager: `hud.trace()`
+
+Use the `trace()` context manager to wrap a block of code where you want to capture MCP calls:
+
+```python
+import hud
+from mcp_use import MCPAgent, MCPClient
+from langchain_openai import ChatOpenAI
+
+# Create MCP components
+client = MCPClient.from_dict({
+    "mcpServers": {
+        "example_server": {
+            "command": "npx",
+            "args": ["-y", "@example/mcp-server", "--option"],
+            "env": {
+                "OPTION_FLAG": "true"
+            }
+        }
+    }
+})
+llm = ChatOpenAI(model="gpt-4o")
+agent = MCPAgent(llm=llm, client=client, max_steps=5)
+
+# Wrap the agent execution with tracing
+with hud.trace("my_mcp_trace", attributes={"query": "Find information about X"}):
+    result = await agent.run(
+        "Find information about X",
+        max_steps=5,
+    )
+
+# Trace is automatically uploaded and available at https://app.hud.so/jobs/traces/[id]
+```
+
+**Parameters:**
+
+- `name` (str, optional): A name for this trace, useful for identification
+- `attributes` (dict, optional): Additional metadata to associate with the trace
+
+### 2. Decorator: `@hud.register_trace`
+
+Use the `@register_trace` decorator to automatically trace an entire function:
+
+```python
+import hud
+from mcp_use import MCPAgent, MCPClient
+from langchain_openai import ChatOpenAI
+
+@hud.register_trace(name="mcp_search_function", attributes={"type": "search"})
+async def perform_search(query: str):
+    client = MCPClient.from_dict({
+        "mcpServers": {
+            "search_server": {
+                "command": "npx",
+                "args": ["-y", "@search/mcp-server"],
+            }
+        }
+    })
+    llm = ChatOpenAI(model="gpt-4o")
+    agent = MCPAgent(llm=llm, client=client, max_steps=5)
+    
+    return await agent.run(query, max_steps=5)
+
+# Call the function - tracing happens automatically
+result = await perform_search("What is the capital of France?")
+```
+
+**Parameters:**
+
+- `name` (str, optional): A name for this trace, defaults to the function name
+- `attributes` (dict, optional): Additional metadata to associate with the trace
+
+## Viewing Traces
+
+After a trace is captured, it's automatically uploaded to the HUD platform. You'll see a log message with a URL where you can view the trace:
+
+```
+[hud] View trace at https://app.hud.so/jobs/traces/[trace_id]
+```
+
+The trace view shows:
+
+- Timeline of all MCP calls
+- Request and response payloads
+- Timing information
+- Error details (if any)
+
+## Best Practices
+
+- **Use descriptive names**: Choose meaningful names for your traces to make them easier to identify
+- **Add relevant attributes**: Include metadata that will help you filter and analyze traces later
+- **Limit trace scope**: Trace specific sections of code rather than entire applications to keep traces focused
+- **Clean up resources**: Traces are automatically uploaded when the context manager exits or the decorated function completes
+
+## Limitations
+
+- Tracing only captures MCP calls, not other types of API calls or internal function calls
+- Large traces with many calls may take longer to upload and display
+- Trace data is temporarily stored in memory before being uploaded
+
+## Related Concepts
+
+- [Job](/concepts/job): Jobs can contain multiple traces
+- [Environment](/concepts/environment): Environments can be associated with traces
+- [Task](/concepts/task): Tasks can be traced to analyze performance

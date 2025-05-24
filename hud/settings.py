@@ -38,6 +38,12 @@ class Settings(BaseSettings):
         validation_alias="OPENAI_API_KEY",
     )
 
+    telemetry_enabled: bool = Field(
+        default=True,
+        description="Enable telemetry for the HUD SDK",
+        validation_alias="TELEMETRY_ENABLED",
+    )
+
 
 # Create a singleton instance
 settings = Settings()

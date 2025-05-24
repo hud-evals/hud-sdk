@@ -58,6 +58,12 @@ class TaskSet(pydantic.BaseModel):
     # Supports len() and indexing (taskset[index])
     def __len__(self) -> int: ...
     def __getitem__(self, index: int) -> Task: ...
+    
+    async def upload(
+        name: str,
+        description: str | None = None,
+        api_key: str | None = None
+    ) -> None: ...
 ```
 
 Represents a collection of related [Task](/concepts/task) objects. Primarily used as a container when loading predefined sets using `hud.load_taskset()`.
@@ -74,3 +80,8 @@ See the [Tasks and TaskSets Concepts](/concepts/task#taskset) page for more deta
 
 *   **`__len__(self)`:** Returns the number of tasks in the `tasks` list. Allows using `len(taskset)`.
 *   **`__getitem__(self, index)`:** Returns the `Task` at the specified index. Allows using `taskset[index]`.
+*   **`upload(self, name, description, api_key)`:** Uploads the taskset to the HUD platform.
+    *   **`name` (str):** The name to give the uploaded taskset.
+    *   **`description` (str | None, optional):** Optional description for the taskset.
+    *   **`api_key` (str | None, optional):** HUD API key. If `None`, uses the key from `hud.settings`.
+    *   **Returns:** None. Logs a success message with a link to view the taskset on the HUD platform.
