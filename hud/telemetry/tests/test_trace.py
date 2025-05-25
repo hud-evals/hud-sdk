@@ -89,7 +89,7 @@ class TestTrace:
         mock_submit_loop = mocker.patch(
             "hud.telemetry._trace.submit_to_worker_loop", return_value=MagicMock(), autospec=True
         )
-        
+
         async def mock_export(*args, **kwargs):
             return None
 
