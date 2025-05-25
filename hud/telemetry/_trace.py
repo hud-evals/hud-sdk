@@ -14,13 +14,13 @@ from typing import (
     overload,
 )
 
+from hud.telemetry import exporter
 from hud.telemetry.context import (
     flush_buffer,
     get_current_task_run_id,
     is_root_trace,
     set_current_task_run_id,
 )
-from hud.telemetry import exporter
 from hud.telemetry.exporter import submit_to_worker_loop
 from hud.telemetry.instrumentation.registry import registry
 
