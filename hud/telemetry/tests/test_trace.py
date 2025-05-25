@@ -79,7 +79,8 @@ class TestTrace:
         mock_flush.assert_called_once()
         mock_submit_loop.assert_called_once()
 
-    def test_trace_with_mcp_calls_exports(self, mocker):
+    @pytest.mark.asyncio
+    async def test_trace_with_mcp_calls_exports(self, mocker):
         """Test trace with MCP calls exports telemetry with correct data."""
         mock_mcp_calls = [MagicMock(), MagicMock()]
         mock_flush = mocker.patch(
@@ -88,8 +89,13 @@ class TestTrace:
         mock_submit_loop = mocker.patch(
             "hud.telemetry._trace.submit_to_worker_loop", return_value=MagicMock(), autospec=True
         )
+        
+        async def mock_export(*args, **kwargs):
+            return None
+
         mock_export_actual_coro = mocker.patch(
-            "hud.telemetry._trace.export_telemetry_coro", autospec=True
+            "hud.telemetry._trace.exporter.export_telemetry",
+            side_effect=mock_export,
         )
 
         test_attrs = {"custom_attr": "test_val"}

@@ -20,7 +20,7 @@ from hud.telemetry.context import (
     is_root_trace,
     set_current_task_run_id,
 )
-from hud.telemetry.exporter import export_telemetry as export_telemetry_coro
+from hud.telemetry import exporter
 from hud.telemetry.exporter import submit_to_worker_loop
 from hud.telemetry.instrumentation.registry import registry
 
@@ -94,7 +94,7 @@ def trace(
 
         if is_root and mcp_calls:
             try:
-                coro_to_submit = export_telemetry_coro(
+                coro_to_submit = exporter.export_telemetry(
                     task_run_id=task_run_id,
                     trace_attributes=trace_attributes_final,
                     mcp_calls=mcp_calls,
