@@ -64,6 +64,23 @@ dependencies = [
   "jupyter",
 ]
 
+[dependency-groups]
+dev = [
+    "ruff ==0.11.8",
+    "pytest >=8.1.1,<9",
+    "pytest-asyncio",
+    "pytest-mock",
+    "pyright==1.1.364",
+    "ipykernel",
+    "ipython <9",
+    "jupyter_client",
+    "jupyter_core",
+    "openai",
+    "anthropic",
+    "dotenv",
+    "pytest-cov",
+]
+
 [project.optional-dependencies]
 dev = [
     "ruff ==0.11.8",

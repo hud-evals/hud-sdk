@@ -2,19 +2,19 @@ from __future__ import annotations
 
 import asyncio
 import uuid
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
-from hud.telemetry.context import get_current_task_run_id as actual_get_current_task_run_id
-from hud.telemetry.context import is_root_trace as actual_is_root_trace
-from hud.telemetry.context import reset_context
-from hud.telemetry.context import set_current_task_run_id as actual_set_current_task_run_id
-from hud.telemetry.trace import (
+from hud.telemetry._trace import (
     init_telemetry,
     register_trace,
     trace,
 )
+from hud.telemetry.context import get_current_task_run_id as actual_get_current_task_run_id
+from hud.telemetry.context import is_root_trace as actual_is_root_trace
+from hud.telemetry.context import reset_context
+from hud.telemetry.context import set_current_task_run_id as actual_set_current_task_run_id
 
 
 @pytest.fixture(autouse=True)
@@ -28,9 +28,9 @@ def reset_telemetry_context_fixture():
 class TestInitTelemetry:
     """Test telemetry initialization."""
 
-    @patch("hud.telemetry.trace.registry")
-    def test_init_telemetry(self, mock_registry):
+    def test_init_telemetry(self, mocker):
         """Test telemetry initialization calls registry.install_all."""
+        mock_registry = mocker.patch("hud.telemetry._trace.registry", autospec=True)
         init_telemetry()
         mock_registry.install_all.assert_called_once()
 
@@ -38,12 +38,14 @@ class TestInitTelemetry:
 class TestTrace:
     """Test the trace context manager."""
 
-    @patch("hud.telemetry.trace.submit_to_worker_loop")
-    @patch("hud.telemetry.trace.flush_buffer")
-    def test_trace_basic(self, mock_flush, mock_submit_loop):
+    def test_trace_basic(self, mocker):
         """Test basic trace functionality and context setting."""
-        mock_flush.return_value = []
-        mock_submit_loop.return_value = MagicMock()
+        mock_flush = mocker.patch(
+            "hud.telemetry._trace.flush_buffer", return_value=[], autospec=True
+        )
+        mock_submit_loop = mocker.patch(
+            "hud.telemetry._trace.submit_to_worker_loop", return_value=MagicMock(), autospec=True
+        )
 
         initial_root_state = actual_is_root_trace.get()
 
@@ -58,13 +60,15 @@ class TestTrace:
         mock_flush.assert_called_once()
         mock_submit_loop.assert_not_called()
 
-    @patch("hud.telemetry.trace.submit_to_worker_loop")
-    @patch("hud.telemetry.trace.flush_buffer")
-    def test_trace_with_name_and_attributes(self, mock_flush, mock_submit_loop):
+    def test_trace_with_name_and_attributes(self, mocker):
         """Test trace with name and attributes, checking they are passed on."""
         mock_mcp_calls = [MagicMock()]
-        mock_flush.return_value = mock_mcp_calls
-        mock_submit_loop.return_value = MagicMock()
+        mock_flush = mocker.patch(
+            "hud.telemetry._trace.flush_buffer", return_value=mock_mcp_calls, autospec=True
+        )
+        mock_submit_loop = mocker.patch(
+            "hud.telemetry._trace.submit_to_worker_loop", return_value=MagicMock(), autospec=True
+        )
 
         trace_name = "test_trace_with_data"
         attrs = {"key": "value", "number": 42}
@@ -75,19 +79,18 @@ class TestTrace:
         mock_flush.assert_called_once()
         mock_submit_loop.assert_called_once()
 
-    @patch("hud.telemetry.trace.submit_to_worker_loop")
-    @patch("hud.telemetry.trace.flush_buffer")
-    @patch("hud.telemetry.trace.export_telemetry_coro")
-    def test_trace_with_mcp_calls_exports(
-        self,
-        mock_export_actual_coro,
-        mock_flush,
-        mock_submit_loop,
-    ):
+    def test_trace_with_mcp_calls_exports(self, mocker):
         """Test trace with MCP calls exports telemetry with correct data."""
         mock_mcp_calls = [MagicMock(), MagicMock()]
-        mock_flush.return_value = mock_mcp_calls
-        mock_submit_loop.return_value = MagicMock()
+        mock_flush = mocker.patch(
+            "hud.telemetry._trace.flush_buffer", return_value=mock_mcp_calls, autospec=True
+        )
+        mock_submit_loop = mocker.patch(
+            "hud.telemetry._trace.submit_to_worker_loop", return_value=MagicMock(), autospec=True
+        )
+        mock_export_actual_coro = mocker.patch(
+            "hud.telemetry._trace.export_telemetry_coro", autospec=True
+        )
 
         test_attrs = {"custom_attr": "test_val"}
         test_name = "mcp_export_test"
@@ -109,15 +112,17 @@ class TestTrace:
         assert "duration" in kwargs["trace_attributes"]
         assert kwargs["trace_attributes"]["is_root"] is True
 
-    @patch("hud.telemetry.trace.submit_to_worker_loop")
-    @patch("hud.telemetry.trace.flush_buffer")
-    def test_trace_nested(self, mock_flush_internal, mock_submit_loop_internal):
+    def test_trace_nested(self, mocker):
         """Test nested traces, verifying context restoration and root trace logic."""
         actual_set_current_task_run_id(None)
         actual_is_root_trace.set(False)
 
-        mock_flush_internal.return_value = []
-        mock_submit_loop_internal.return_value = MagicMock()
+        mock_flush_internal = mocker.patch(
+            "hud.telemetry._trace.flush_buffer", return_value=[], autospec=True
+        )
+        mock_submit_loop_internal = mocker.patch(
+            "hud.telemetry._trace.submit_to_worker_loop", return_value=MagicMock(), autospec=True
+        )
 
         assert actual_get_current_task_run_id() is None
         assert actual_is_root_trace.get() is False
@@ -137,17 +142,19 @@ class TestTrace:
         assert mock_flush_internal.call_count == 2
         mock_submit_loop_internal.assert_not_called()
 
-    @patch("hud.telemetry.trace.submit_to_worker_loop")
-    @patch("hud.telemetry.trace.flush_buffer")
-    def test_trace_exception_handling(self, mock_flush, mock_submit_loop):
+    def test_trace_exception_handling(self, mocker):
         """Test trace handles exceptions properly and restores context."""
         initial_task_id_before_trace = "pre_existing_id_123"
         initial_root_state_before_trace = True
         actual_set_current_task_run_id(initial_task_id_before_trace)
         actual_is_root_trace.set(initial_root_state_before_trace)
 
-        mock_flush.return_value = []
-        mock_submit_loop.return_value = MagicMock()
+        mock_flush = mocker.patch(
+            "hud.telemetry._trace.flush_buffer", return_value=[], autospec=True
+        )
+        mock_submit_loop = mocker.patch(
+            "hud.telemetry._trace.submit_to_worker_loop", return_value=MagicMock(), autospec=True
+        )
 
         with pytest.raises(ValueError, match="Test exception"), trace(name="trace_with_exception"):
             assert actual_get_current_task_run_id() != initial_task_id_before_trace
@@ -163,8 +170,8 @@ class TestTrace:
 class TestRegisterTrace:
     """Test the register_trace decorator."""
 
-    @patch("hud.telemetry.trace.trace")
-    def test_register_trace_sync_function(self, mock_trace_context_manager):
+    def test_register_trace_sync_function(self, mocker):
+        mock_trace_context_manager = mocker.patch("hud.telemetry._trace.trace", autospec=True)
         mock_trace_context_manager.return_value.__enter__.return_value = "mocked_task_id"
         mock_trace_context_manager.return_value.__exit__.return_value = None
 
@@ -176,8 +183,8 @@ class TestRegisterTrace:
         assert result == 3
         mock_trace_context_manager.assert_called_once_with(name="test_func_sync", attributes=None)
 
-    @patch("hud.telemetry.trace.trace")
-    def test_register_trace_async_function(self, mock_trace_context_manager):
+    def test_register_trace_async_function(self, mocker):
+        mock_trace_context_manager = mocker.patch("hud.telemetry._trace.trace", autospec=True)
         mock_trace_context_manager.return_value.__enter__.return_value = "mocked_task_id"
         mock_trace_context_manager.return_value.__exit__.return_value = None
 
@@ -194,11 +201,18 @@ class TestRegisterTrace:
 
         asyncio.run(run_test())
 
-    @patch("hud.telemetry.trace.trace")
-    def test_register_trace_with_attributes(self, mock_trace_context_manager):
+    def test_register_trace_with_attributes(self, mocker):
         """Test register_trace with attributes."""
-        mock_trace_context_manager.return_value.__enter__.return_value = "task_id"
-        mock_trace_context_manager.return_value.__exit__.return_value = None
+        mock_trace_context_manager = mocker.patch("hud.telemetry._trace.trace", autospec=True)
+
+        class _MockTraceContextManager:
+            def __enter__(self):
+                return "task_id"
+
+            def __exit__(self, exc_type, exc_value, traceback):
+                return None
+
+        mock_trace_context_manager.return_value = _MockTraceContextManager()
 
         attrs = {"operation": "add"}
 
@@ -210,9 +224,9 @@ class TestRegisterTrace:
         assert result == 10
         mock_trace_context_manager.assert_called_once_with(name="test_func", attributes=attrs)
 
-    @patch("hud.telemetry.trace.trace")
-    def test_register_trace_without_name(self, mock_trace_context_manager):
+    def test_register_trace_without_name(self, mocker):
         """Test register_trace uses function name when name not provided."""
+        mock_trace_context_manager = mocker.patch("hud.telemetry._trace.trace", autospec=True)
         mock_trace_context_manager.return_value.__enter__.return_value = "task_id"
         mock_trace_context_manager.return_value.__exit__.return_value = None
 
@@ -234,9 +248,9 @@ class TestRegisterTrace:
         assert original_function.__name__ == "original_function"
         assert original_function.__doc__ == "Original docstring."
 
-    @patch("hud.telemetry.trace.trace")
-    def test_register_trace_exception_propagation(self, mock_trace_context_manager):
+    def test_register_trace_exception_propagation(self, mocker):
         """Test register_trace propagates exceptions."""
+        mock_trace_context_manager = mocker.patch("hud.telemetry._trace.trace", autospec=True)
         mock_trace_context_manager.return_value.__enter__.return_value = "task_id"
         mock_trace_context_manager.return_value.__exit__.return_value = None
 

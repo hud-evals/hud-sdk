@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-import asyncio  # For checking if function is async
+import asyncio
 import logging
 import time
 import uuid
 from contextlib import contextmanager
-from functools import wraps  # For creating decorators
-from typing import (  # Added overload, ParamSpec
+from functools import wraps
+from typing import (
     TYPE_CHECKING,
     Any,
     ParamSpec,
@@ -135,7 +135,7 @@ def register_trace(
 ) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
     """
     Decorator to wrap a synchronous or asynchronous function call
-    within a hud.telemetry.trace context.
+    within a hud._telemetry.trace context.
 
     Args:
         name: Optional name for the trace.
