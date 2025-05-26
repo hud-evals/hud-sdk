@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import asyncio
-import datetime
 import functools
 import inspect
 import logging
 import sys
 from collections.abc import Callable, Coroutine
+from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from pydantic import BaseModel, PrivateAttr, TypeAdapter
@@ -44,7 +44,7 @@ class Job(BaseModel):
     id: str
     name: str
     metadata: dict[str, Any] | None = None
-    created_at: datetime.datetime
+    created_at: datetime
     status: str
 
     # Internal cache for trajectories
@@ -164,13 +164,16 @@ async def create_job(
     # If not, we might need to make a subsequent GET request
     job_data = data  # Adjust if the API response structure is different
 
+    created_at = datetime.strptime(job_data["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
+    created_at = created_at.replace(tzinfo=timezone.utc)
+
     logger.info("View job at https://app.hud.so/jobs/%s.", job_data["id"])
 
     return Job(
         id=job_data["id"],
         name=job_data["name"],
         metadata=job_data.get("metadata", {}),  # Ensure metadata is dict
-        created_at=datetime.datetime.fromisoformat(job_data["created_at"]),  # Parse datetime
+        created_at=created_at,  # Parse datetime
         status=job_data["status"],
     )
 
@@ -379,7 +382,7 @@ async def _execute_task(
                         "type": "step_error",
                         "step": step + 1,
                         "error": str(agent_step_err),
-                        "timestamp": datetime.datetime.now().isoformat(),
+                        "timestamp": datetime.now().isoformat(),
                     }
                 )
                 continue
@@ -413,7 +416,7 @@ async def _execute_task(
                         "task_id": task_id,
                         "type": "evaluation_error",
                         "error": str(eval_err),
-                        "timestamp": datetime.datetime.now().isoformat(),
+                        "timestamp": datetime.now().isoformat(),
                     }
                 )
 
@@ -427,7 +430,7 @@ async def _execute_task(
                 "task_id": task_id,
                 "type": "setup_error",
                 "error": str(e),
-                "timestamp": datetime.datetime.now().isoformat(),
+                "timestamp": datetime.now().isoformat(),
             }
         )
 
@@ -447,7 +450,7 @@ async def _execute_task(
                         "task_id": task_id,
                         "type": "env_close_error",
                         "error": str(close_err),
-                        "timestamp": datetime.datetime.now().isoformat(),
+                        "timestamp": datetime.now().isoformat(),
                     }
                 )
 
