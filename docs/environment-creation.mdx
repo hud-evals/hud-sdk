@@ -63,8 +63,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     # ... other system dependencies for your environment (e.g., desktop, browsers) ...
     && rm -rf /var/lib/apt/lists/*
 
+# Upgrade pip and setuptools to ensure PEP 660 support
+RUN pip3 install --upgrade pip setuptools>=64.0.0 wheel
+
 # Copy your controller source code
 WORKDIR /app
+RUN mkdir /app_data
+
 COPY ./src /app/src
 COPY ./pyproject.toml /app/
 
@@ -92,7 +97,7 @@ dependencies = [
 ]
 
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=64.0.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project.scripts]
@@ -135,7 +140,24 @@ def verify_output_file(expected_content: str) -> float:
         logger.error("Evaluation failed: Output file not found.")
         return 0.0 # Failure
 
+def step(action: str) -> str:
+    """Example step function for a Task."""
+    logger.info(f"Controller: Stepping with {action=}")
+    
+    return {
+        "observation": {
+            "text": "Sample Text",
+            "screenshot": None
+        }
+    }
+
 # You can add more functions as needed for different setup/evaluation logic
+```
+
+### d. `src/hud_controller/__init__.py`
+
+```python
+from .main import initialize_environment, verify_output_file, step
 ```
 
 ## 4. Building & Testing Locally
