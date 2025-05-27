@@ -8,6 +8,7 @@ import asyncio
 import logging
 import time
 from typing import Any
+import ssl
 
 import httpx
 
@@ -37,7 +38,7 @@ async def _handle_retry(
 ) -> None:
     """Helper function to handle retry logic and logging."""
     retry_time = retry_delay * (2 ** (attempt - 1))  # Exponential backoff
-    logger.warning(
+    logger.debug(
         "%s from %s, retrying in %.2f seconds (attempt %d/%d)",
         error_msg,
         url,
@@ -140,6 +141,14 @@ async def make_request(
                     continue
                 else:
                     raise HudNetworkError(f"Network error: {e!s}") from None
+            except ssl.SSLError as e:
+                if attempt <= max_retries:
+                    await _handle_retry(
+                        attempt, max_retries, retry_delay, url, f"SSL error: {e}"
+                    )
+                    continue
+                else:
+                    raise HudNetworkError(f"SSL error: {e!s}") from None
             except Exception as e:
                 raise HudRequestError(f"Unexpected error: {e!s}") from None
         raise HudRequestError(f"Request failed after {max_retries} retries with unknown error")
@@ -201,7 +210,7 @@ def make_request_sync(
                 # Check if we got a retriable status code
                 if response.status_code in retry_status_codes and attempt <= max_retries:
                     retry_time = retry_delay * (2 ** (attempt - 1))  # Exponential backoff
-                    logger.warning(
+                    logger.debug(
                         "Received status %d from %s, retrying in %.2f seconds (attempt %d/%d)",
                         response.status_code,
                         url,
@@ -234,6 +243,21 @@ def make_request_sync(
                     continue
                 else:
                     raise HudNetworkError(f"Network error: {e!s}") from None
+            except ssl.SSLError as e:
+                if attempt <= max_retries:
+                    retry_time = retry_delay * (2 ** (attempt - 1)) # Exponential backoff
+                    logger.debug(
+                        "SSL error %s from %s, retrying in %.2f seconds (attempt %d/%d)",
+                        str(e),
+                        url,
+                        retry_time,
+                        attempt,
+                        max_retries,
+                    )
+                    time.sleep(retry_time)
+                    continue
+                else:
+                    raise HudNetworkError(f"SSL error: {e!s}") from None
             except Exception as e:
                 raise HudRequestError(f"Unexpected error: {e!s}") from None
         raise HudRequestError(f"Request failed after {max_retries} retries with unknown error")
