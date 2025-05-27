@@ -86,15 +86,27 @@ class TaskSet(BaseModel):
         # Convert all tasks to expanded configs
         processed_tasks = []
         for task in self.tasks:
-            setup_config = create_remote_config(None, task.setup, REMOTE_SETUP)[0].args[0]
-            evaluate_config = create_remote_config(None, task.evaluate, REMOTE_EVALUATE)[0].args[0]
+            if task.setup is not None:
+                setup_config = (
+                    create_remote_config(None, task.setup, REMOTE_SETUP)[0].args[0].model_dump()
+                )
+            else:
+                setup_config = None
+            if task.evaluate is not None:
+                evaluate_config = (
+                    create_remote_config(None, task.evaluate, REMOTE_EVALUATE)[0]
+                    .args[0]
+                    .model_dump()
+                )
+            else:
+                evaluate_config = None
 
             processed_tasks.append(
                 {
                     "prompt": task.prompt,
                     "gym": task.gym,
-                    "setup": setup_config.model_dump(),
-                    "evaluate": evaluate_config.model_dump(),
+                    "setup": setup_config,
+                    "evaluate": evaluate_config,
                     "config": task.config,
                 }
             )
