@@ -21,7 +21,7 @@ from hud.exceptions import (
 
 # Set up logger
 logger = logging.getLogger("hud.http")
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 
 # Long running requests can take up to 10 minutes.
@@ -231,7 +231,7 @@ def make_request_sync(
             except httpx.RequestError as e:
                 if attempt <= max_retries:
                     retry_time = retry_delay * (2 ** (attempt - 1))
-                    logger.warning(
+                    logger.debug(
                         "Network error %s from %s, retrying in %.2f seconds (attempt %d/%d)",
                         str(e),
                         url,
