@@ -144,6 +144,9 @@ lint.ignore = [
 "**/agent/**/*.py" = ["ALL"]
 "**/environments/**/*.py" = ["ALL"]
 
+[tool.ruff.format.extend-per-file-ignores]
+"**/examples/**/*.py" = ["ALL"]
+
 
 [tool.ruff.format]
 docstring-code-format = true
