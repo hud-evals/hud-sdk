@@ -140,9 +140,13 @@ class TestMCPCallBuffer:
 
         # Flush should return all calls from both tasks
         result = flush_buffer()
-        assert len(result) == 2
-        assert result[0] == mock_call_1
-        assert result[1] == mock_call_2
+        assert len(result) == 1
+        assert result[0] == mock_call_2
+
+        set_current_task_run_id("task-1")
+        result2 = flush_buffer()
+        assert len(result2) == 1
+        assert result2[0] == mock_call_1
 
     def test_buffer_mcp_call_without_task_id(self):
         """Test adding MCP call when no task run ID is set."""
