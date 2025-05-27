@@ -6,7 +6,7 @@ import inspect
 import logging
 import sys
 from collections.abc import Callable, Coroutine
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from pydantic import BaseModel, PrivateAttr, TypeAdapter
@@ -164,8 +164,9 @@ async def create_job(
     # If not, we might need to make a subsequent GET request
     job_data = data  # Adjust if the API response structure is different
 
-    created_at = datetime.strptime(job_data["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
-    created_at = created_at.replace(tzinfo=timezone.utc)
+    created_at = datetime.fromisoformat(
+        job_data["created_at"].replace("Z", "+00:00")
+    )
 
     logger.info("View job at https://app.hud.so/jobs/%s.", job_data["id"])
 
