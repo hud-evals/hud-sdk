@@ -31,9 +31,6 @@ from hud.telemetry.mcp_models import DirectionType, MCPCallType, MCPManualTestCa
 
 logger = logging.getLogger(__name__)
 
-# Ensure no OTel imports remain
-# from opentelemetry import context as otel_context, propagate # Should be removed
-
 
 class MCPInstrumentor:
     """
