@@ -532,8 +532,6 @@ async def run_job(
     Returns:
         The created Job object with errors stored in job.errors.
     """
-    hud_logger = logging.getLogger("hud")
-    hud_logger.setLevel(logging.CRITICAL)
 
     tasks_to_run: list[Task] = []
     created_job: Job | None = None
