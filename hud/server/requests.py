@@ -143,9 +143,7 @@ async def make_request(
                     raise HudNetworkError(f"Network error: {e!s}") from None
             except ssl.SSLError as e:
                 if attempt <= max_retries:
-                    await _handle_retry(
-                        attempt, max_retries, retry_delay, url, f"SSL error: {e}"
-                    )
+                    await _handle_retry(attempt, max_retries, retry_delay, url, f"SSL error: {e}")
                     continue
                 else:
                     raise HudNetworkError(f"SSL error: {e!s}") from None
@@ -245,7 +243,7 @@ def make_request_sync(
                     raise HudNetworkError(f"Network error: {e!s}") from None
             except ssl.SSLError as e:
                 if attempt <= max_retries:
-                    retry_time = retry_delay * (2 ** (attempt - 1)) # Exponential backoff
+                    retry_time = retry_delay * (2 ** (attempt - 1))  # Exponential backoff
                     logger.debug(
                         "SSL error %s from %s, retrying in %.2f seconds (attempt %d/%d)",
                         str(e),
