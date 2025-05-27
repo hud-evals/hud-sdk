@@ -15,7 +15,7 @@ See [Installation](/installation) for more details on development setup.
 
 ## 2. API Key Setup
 
-Set your API keys in a `.env` file:
+Set your API keys in a `.env` file (get your HUD API key from [app.hud.so](https://app.hud.so)):
 
 ```bash
 HUD_API_KEY=sk-hud-...
@@ -51,7 +51,7 @@ async def main():
     await env.close()
 
 if __name__ == "__main__":
-        asyncio.run(main())
+    asyncio.run(main())
 ```
 
 ### Manual Agent Loop
