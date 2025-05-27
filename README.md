@@ -3,14 +3,14 @@
 </div>
 
 <h3>
-Create, evaluate, and improve AI agents across web browsers, desktop environments, and custom scenarios.
+Evaluate your AI agents across web browsers, desktop environments, and custom scenarios.
 </h3>
 
-> ### 🚀 Are you a startup building agents?
-> 
-> [📅 Hop on a call ](https://cal.com/jay-ram-z6st6w/demo) or [📧 founders@hud.so](mailto:founders@hud.so)
-> 
-> We're here to help with eval strategies, custom environments, or improving your agent architecture!
+### 🚀 Are you a startup building agents?
+
+[📅 Hop on a call ](https://cal.com/jay-ram-z6st6w/demo) or [📧 founders@hud.so](mailto:founders@hud.so)
+
+We're here to help with eval strategies, custom environments, or improving your agent architecture!
 
 
 > **Early Release Notice**: This SDK is currently in early release status. The API is evolving and may change in future releases as we gather feedback and improve functionality.
