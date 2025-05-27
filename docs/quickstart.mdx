@@ -54,6 +54,9 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
+Each gym (`hud-browser`, `OSWorld-Ubuntu`, custom) has it's own set of setup and evaluate funcitons, and you can define your own.
+See [setup](/environments/browser#setup-functions-initial-state) and [evalutors](/environments/browser#evaluation-functions) for more info on available functions.
+
 ### Manual Agent Loop
 ```python
 env = await gym.make(task)
