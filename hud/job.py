@@ -164,9 +164,7 @@ async def create_job(
     # If not, we might need to make a subsequent GET request
     job_data = data  # Adjust if the API response structure is different
 
-    created_at = datetime.fromisoformat(
-        job_data["created_at"].replace("Z", "+00:00")
-    )
+    created_at = datetime.fromisoformat(job_data["created_at"].replace("Z", "+00:00"))
 
     logger.info("View job at https://app.hud.so/jobs/%s.", job_data["id"])
 
