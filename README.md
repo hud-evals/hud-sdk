@@ -3,7 +3,7 @@
 </div>
 
 <h3>
-Evaluate your AI agents across web browsers, desktop environments, and custom scenarios.
+Evaluate your Computer Use AI agents across web browsers, desktop environments, and custom scenarios.
 </h3>
 
 ### 🚀 Are you a startup building agents?
@@ -61,7 +61,15 @@ with hud.trace("my-agent-run"):
     result = await agent.run(task)
 ```
 
-## API Key Setup
+## Quick Start
+
+### Installation
+
+```bash
+pip install hud-python
+```
+
+### API Key Setup
 
 Before getting started, you'll need to obtain an API key:
 
@@ -70,14 +78,6 @@ Before getting started, you'll need to obtain an API key:
 
 ```bash
 export HUD_API_KEY=your_api_key_here
-```
-
-## Quick Start
-
-### Installation
-
-```bash
-pip install hud-python
 ```
 
 ### Simple Browser Example with Claude Computer Use
