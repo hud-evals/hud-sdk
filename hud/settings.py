@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="allow")
 
     base_url: str = Field(
-        default="https://orcstaging.hud.so/hud-gym/api",
+        default="https://orchestration.hud.so/hud-gym/api",
         description="Base URL for the HUD API",
         validation_alias="base_url",
     )
