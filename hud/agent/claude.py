@@ -9,7 +9,7 @@ from anthropic.types.beta import (
     BetaToolComputerUse20250124Param,
     BetaTextBlockParam,
     BetaImageBlockParam,
-    BetaCacheControlEphemeralParam
+    BetaCacheControlEphemeralParam,
 )
 
 from hud.adapters import Adapter
@@ -162,7 +162,6 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         )
 
         # Call Claude API using async client
-
 
         # first, make a copy and add prompt caching to the last message
         messages_cached = copy.deepcopy(self.messages)

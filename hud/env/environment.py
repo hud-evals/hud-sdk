@@ -364,13 +364,7 @@ def create_remote_config(
             if not isinstance(expanded_configs[0].args, list):
                 expanded_configs[0].args = [expanded_configs[0].args]
             expanded_configs[0].args.append(env.final_response)  # for remote responses
-        return [
-            FunctionConfig(
-                function=function,
-                args=expanded_configs,
-                metadata=metadata
-            )
-        ]
+        return [FunctionConfig(function=function, args=expanded_configs, metadata=metadata)]
 
     # Case 3: Check for task.config
     if hasattr(task, "config") and task.config:
@@ -385,11 +379,7 @@ def create_remote_config(
             if not isinstance(final_args["args"], list):
                 final_args["args"] = [final_args["args"]]
             final_args["args"].append(env.final_response)
-        return [
-            FunctionConfig(
-                function=function, args=[final_args], metadata=metadata
-            )
-        ]
+        return [FunctionConfig(function=function, args=[final_args], metadata=metadata)]
 
     # Case 4: Use task.id
     if task.id:

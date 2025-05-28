@@ -344,7 +344,7 @@ async def _execute_task(
                         async with agent_predict_semaphore:
                             action, done = await agent_instance.predict(obs)
                     else:
-                       action, done = await agent_instance.predict(obs)
+                        action, done = await agent_instance.predict(obs)
                 except Exception as e:
                     # if agent prediction fails, pass back the error to the agent
                     obs = Observation(text=str(e))
