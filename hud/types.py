@@ -52,3 +52,5 @@ ServerGym: TypeAlias = Literal["qa", "hud-browser", "OSWorld-Ubuntu"]
 
 # Gyms can be either custom or server-side
 Gym: TypeAlias = CustomGym | ServerGym
+
+MetadataKeys: TypeAlias = Literal["partial"]

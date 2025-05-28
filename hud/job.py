@@ -543,10 +543,14 @@ async def run_job(
     tasks_to_run: list[Task] = []
     created_job: Job | None = None
 
+    # Get hud logger
+    logger = logging.getLogger("hud")
+    logger.setLevel(logging.CRITICAL)
+
     evalset_id = None
     if isinstance(task_or_taskset, TaskSet):
         evalset_id = task_or_taskset.id
-        await task_or_taskset.fit(agent_cls)
+        task_or_taskset.fit(agent_cls)
 
     gym_id = None
     if isinstance(task_or_taskset, Task):

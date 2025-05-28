@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 from venv import logger
 
 from pydantic import BaseModel
@@ -125,7 +125,15 @@ class TaskSet(BaseModel):
             "Taskset %s uploaded successfully, see it on app.hud.so/evalsets/%s", name, name
         )
 
-    async def fit(self, agent: Agent | type[Agent]) -> None:
+    def _apply(self, dict: dict[str, Any]) -> None:
+        """
+        Applies a parameter to all tasks in the taskset.
+        """
+        for task in self.tasks:
+            for key, value in dict.items():
+                setattr(task, key, value)
+
+    def fit(self, agent: Agent | type[Agent]) -> None:
         """
         Automatically adapts the taskset to the agent's transfer_gyms.
         """
@@ -138,14 +146,18 @@ class TaskSet(BaseModel):
             task.gym = agent.transfer_gyms.get(task.gym, task.gym)
 
 
-async def load_taskset(taskset_id: str, api_key: str | None = None) -> TaskSet:
+async def load_taskset(
+    taskset_id: str,
+    api_key: str | None = None,
+    metadata: dict[str, Any] | None = None,
+) -> TaskSet:
     """
     Loads a TaskSet by its ID.
 
     Args:
         taskset_id: The ID of the taskset to load
         api_key: Optional API key to use for the request
-
+        metadata: Optional metadata to apply to the taskset
     Returns:
         TaskSet: The loaded taskset
     """
@@ -161,12 +173,16 @@ async def load_taskset(taskset_id: str, api_key: str | None = None) -> TaskSet:
 
     logger.info(f"Taskset {taskset_id} loaded successfully")
 
-    return TaskSet.model_validate(
+    taskset = TaskSet.model_validate(
         {
             "id": taskset_id,
             "tasks": data["evalset"],
         }
     )
+
+    taskset._apply({"metadata": metadata})
+
+    return taskset
 
 
 def load_from_inspect(dataset: Dataset) -> TaskSet:

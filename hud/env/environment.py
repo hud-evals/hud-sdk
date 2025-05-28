@@ -86,7 +86,11 @@ class Environment(BaseModel):
                     "No config, task or task setup function provided for local environment"
                 )
 
-    async def evaluate(self, config: FunctionConfigs | None = None) -> Any:
+    async def evaluate(
+        self,
+        config: FunctionConfigs | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> Any:
         """
         Evaluate the environment.
 
@@ -97,7 +101,9 @@ class Environment(BaseModel):
             Any: Result of the evaluation
         """
         if isinstance(self.client, RemoteClient):
-            results = await self._invoke_all(create_remote_config(self, config, REMOTE_EVALUATE))
+            results = await self._invoke_all(
+                create_remote_config(self, config, REMOTE_EVALUATE, metadata)
+            )
         else:
             if config is not None:
                 results = await self._invoke_all(config)
@@ -234,6 +240,7 @@ def create_remote_config(
     env: Environment | None = None,
     config: FunctionConfigs | None = None,
     function: str | None = None,
+    metadata: dict[str, Any] | None = None,
 ) -> list[FunctionConfig]:
     """
     Create a remote configuration for setup or evaluate, determining the final
@@ -317,6 +324,8 @@ def create_remote_config(
              `[FunctionConfig(function='evaluate', args=[])]`
     """
     # If no function provided, just expand the config and return it directly
+    if metadata is None:
+        metadata = {}
     if function is None:
         if config:
             return expand_config(config)
@@ -330,7 +339,7 @@ def create_remote_config(
             if not isinstance(expanded_configs[0].args, list):
                 expanded_configs[0].args = [expanded_configs[0].args]
             expanded_configs[0].args.append(env.final_response)  # for remote responses
-        return [FunctionConfig(function=function, args=expanded_configs)]
+        return [FunctionConfig(function=function, args=expanded_configs, metadata=metadata)]
 
     # Otherwise, use the environment's task
     task = env.task if env else None
@@ -338,6 +347,11 @@ def create_remote_config(
     # Must have a task for the remaining cases
     if task is None:
         raise ValueError("Either task or config must be provided")
+
+    metadata["task"] = task.model_dump()
+    if task.metadata:
+        for key, value in task.metadata.items():
+            metadata[str(key)] = value
 
     # Case 2: Task has the specified function attribute
     task_config = getattr(task, function, None)
@@ -352,7 +366,9 @@ def create_remote_config(
             expanded_configs[0].args.append(env.final_response)  # for remote responses
         return [
             FunctionConfig(
-                function=function, args=expanded_configs, metadata={"task": task.model_dump()}
+                function=function,
+                args=expanded_configs,
+                metadata=metadata
             )
         ]
 
@@ -371,7 +387,7 @@ def create_remote_config(
             final_args["args"].append(env.final_response)
         return [
             FunctionConfig(
-                function=function, args=[final_args], metadata={"task": task.model_dump()}
+                function=function, args=[final_args], metadata=metadata
             )
         ]
 
@@ -384,7 +400,7 @@ def create_remote_config(
             FunctionConfig(
                 function=f"{REMOTE_FUNCTION_PREFIX}{function}",
                 args=args_list,
-                metadata={"task": task.model_dump()},
+                metadata=metadata,
             )
         ]
 
@@ -392,4 +408,4 @@ def create_remote_config(
     args_list = []
     if env and env.final_response:
         args_list.append(env.final_response)
-    return [FunctionConfig(function=function, args=args_list, metadata={"task": task.model_dump()})]
+    return [FunctionConfig(function=function, args=args_list, metadata=metadata)]
