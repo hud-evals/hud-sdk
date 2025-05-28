@@ -351,7 +351,7 @@ async def _execute_task(
                 if action is None and not done:
                     done = True
 
-                if done and response_agent:
+                if done and response_agent and action and len(action) > 0:
                     obs, finish = await _maybe_resample_action(obs, action[-1], response_agent)
                     if not finish:
                         continue
