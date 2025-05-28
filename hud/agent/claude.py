@@ -1,3 +1,4 @@
+import copy
 import logging
 from typing import Any, cast
 
@@ -8,6 +9,7 @@ from anthropic.types.beta import (
     BetaToolComputerUse20250124Param,
     BetaTextBlockParam,
     BetaImageBlockParam,
+    BetaCacheControlEphemeralParam
 )
 
 from hud.adapters import Adapter
@@ -160,10 +162,24 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         )
 
         # Call Claude API using async client
+
+
+        # first, make a copy and add prompt caching to the last message
+        messages_cached = copy.deepcopy(self.messages)
+        # Mark last user message with cache control for prompt caching
+        last_msg = messages_cached[-1]
+        if last_msg.get("role") == "user":
+            last_content = last_msg["content"]
+            if isinstance(last_content, list):
+                for block in last_content:
+                    if not block["type"] == "thinking" and not block["type"] == "redacted_thinking":
+                        cache_control: BetaCacheControlEphemeralParam = {"type": "ephemeral"}
+                        block["cache_control"] = cache_control
+
         response = await self.client.beta.messages.create(
             model=self.model,
             max_tokens=self.max_tokens,
-            messages=self.messages,
+            messages=messages_cached,
             tools=[COMPUTER_TOOL],
             betas=["computer-use-2025-01-24"],
             tool_choice={"type": "auto", "disable_parallel_tool_use": True},
