@@ -339,11 +339,16 @@ async def _execute_task(
             action, done = (None, False)
             try:
                 # Agent prediction with semaphore
-                if agent_predict_semaphore:
-                    async with agent_predict_semaphore:
-                        action, done = await agent_instance.predict(obs)
-                else:
-                    action, done = await agent_instance.predict(obs)
+                try:
+                    if agent_predict_semaphore:
+                        async with agent_predict_semaphore:
+                            action, done = await agent_instance.predict(obs)
+                    else:
+                       action, done = await agent_instance.predict(obs)
+                except Exception as e:
+                    # if agent prediction fails, pass back the error to the agent
+                    obs = Observation(text=str(e))
+                    continue
 
                 if tracker:
                     tracker.increment_step(task_id)
