@@ -138,7 +138,16 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
         if not human_content:
             logger.warning("LangchainAgent received an observation with no text or screenshot.")
             # Decide how to handle empty observation - perhaps return no action?
-            return [], False, [{"type": "warning", "message": "LangchainAgent received an observation with no text or screenshot."}]
+            return (
+                [],
+                False,
+                [
+                    {
+                        "type": "warning",
+                        "message": "LangchainAgent received an observation with no text or screenshot.",
+                    }
+                ],
+            )
 
         current_human_message = HumanMessage(content=human_content)
 
@@ -162,7 +171,11 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
         except Exception as e:
             logger.error(f"Langchain model invocation failed: {e}", exc_info=True)
             # Decide how to handle LLM errors - maybe retry or return empty action?
-            return [], False, [{"type": "error", "message": f"Langchain model invocation failed: {e}"}]
+            return (
+                [],
+                False,
+                [{"type": "error", "message": f"Langchain model invocation failed: {e}"}],
+            )
 
         # 5. Process the structured response
         is_done = False
@@ -193,7 +206,16 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
             else:
                 ai_message_content_for_history = repr(ai_response_structured)
             # Return no action as we didn't get the expected structure
-            return [], False, [{"type": "error", "message": f"Langchain model did not return the expected StepAction structure. {ai_message_content_for_history}"}]
+            return (
+                [],
+                False,
+                [
+                    {
+                        "type": "error",
+                        "message": f"Langchain model did not return the expected StepAction structure. {ai_message_content_for_history}",
+                    }
+                ],
+            )
 
         # 6. Update history
         self.history.append(current_human_message)
@@ -207,4 +229,13 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
             return [actual_action], is_done, [ai_message_content_for_history]
         else:
             # Should ideally not happen if structure validation worked, but as a fallback
-            return [], is_done, [{"type": "error", "message": f"Langchain model did not return the expected StepAction structure. {ai_message_content_for_history}"}]
+            return (
+                [],
+                is_done,
+                [
+                    {
+                        "type": "error",
+                        "message": f"Langchain model did not return the expected StepAction structure. {ai_message_content_for_history}",
+                    }
+                ],
+            )

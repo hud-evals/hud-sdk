@@ -109,7 +109,9 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         self.messages: list[BetaMessageParam] = []
         self.pending_computer_use_tool_id = None
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[Any], bool, list[str | dict[str, Any]] | None]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[Any], bool, list[str | dict[str, Any]] | None]:
         """
         Fetch a response from Claude based on the observation.
 

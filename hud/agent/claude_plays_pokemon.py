@@ -185,7 +185,9 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, CLA]):
 
         self.messages: list[BetaMessageParam] = []
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool, list[str | dict[str, Any]] | None]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[dict[str, Any]], bool, list[str | dict[str, Any]] | None]:
         """Fetch a response from Claude based on the current observation.
 
         Args:

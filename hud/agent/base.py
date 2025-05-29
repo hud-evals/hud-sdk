@@ -62,7 +62,9 @@ class Agent(Generic[ClientT, ActionT], ABC):
         return processed_obs
 
     @abstractmethod
-    async def fetch_response(self, observation: Observation) -> tuple[list[ActionT], bool, list[str | dict[str, Any]] | None]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[ActionT], bool, list[str | dict[str, Any]] | None]:
         """
         Fetch a response from the model based on the observation.
 
@@ -76,7 +78,9 @@ class Agent(Generic[ClientT, ActionT], ABC):
         """
         pass
 
-    def postprocess(self, actions: list[ActionT], logs: list[str | dict[str, Any]] | None) -> list[CLA]:
+    def postprocess(
+        self, actions: list[ActionT], logs: list[str | dict[str, Any]] | None
+    ) -> list[CLA]:
         """
         Convert model actions to HUD actions.
 

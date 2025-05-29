@@ -300,6 +300,7 @@ async def _export_trace_payload_async(payload: dict[str, Any]) -> None:
 
     await send_telemetry_to_server(task_run_id, data_to_send)
 
+
 async def send_telemetry_to_server(task_run_id: str, data: dict[str, Any]) -> None:
     telemetry_url = f"{settings.base_url}/v2/task_runs/{task_run_id}/telemetry-upload"
 

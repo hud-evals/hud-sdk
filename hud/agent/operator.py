@@ -86,7 +86,9 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
         self.initial_prompt = None
         self.pending_safety_checks = []
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool, list[str | dict[str, Any]] | None]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[dict[str, Any]], bool, list[str | dict[str, Any]] | None]:
         """
         Fetch a response from the model based on the observation.
 
@@ -142,7 +144,16 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
             # This is a response to a previous action
             if not observation.screenshot:
                 logger.warning("No screenshot provided for response to action")
-                return [], True, [{"type": "warning", "message": "No screenshot provided for response to action"}]
+                return (
+                    [],
+                    True,
+                    [
+                        {
+                            "type": "warning",
+                            "message": "No screenshot provided for response to action",
+                        }
+                    ],
+                )
 
             # Create a response to the previous action with the new screenshot
             input_param_followup = cast(

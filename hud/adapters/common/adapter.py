@@ -168,4 +168,4 @@ class Adapter:
             raise ValueError("Please provide a list of actions")
         if logs is None or len(logs) != len(actions):
             return [self.adapt(action) for action in actions]
-        return [self.adapt(action, log) for action, log in zip(actions, logs)]
+        return [self.adapt(action, log) for action, log in zip(actions, logs, strict=False)]

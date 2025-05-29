@@ -224,7 +224,11 @@ class Environment(BaseModel):
         for i in range(max_steps):
             action, done = await agent.predict(obs, verbose=verbose)
             if verbose:
-                logger.info("Step %d: Action: %s", i, action)
+                logger.info(
+                    "Step %d: Action: %s",
+                    i,
+                    [str(a) for a in action] if len(action) > 1 else str(action[0]),
+                )
             obs, reward, terminated, info = await self.step(action)
             if verbose:
                 logger.info("Step %d: Observation: %s", i, obs)

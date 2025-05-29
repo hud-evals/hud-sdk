@@ -1,16 +1,39 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, TypeAlias
+from typing import Annotated, Any, Literal, TypeAlias
 
 from pydantic import BaseModel, Field
 
-JSONPrimitive = str | int | float | bool | None
-JSONType = JSONPrimitive | list["JSONType"] | dict[str, "JSONType"]
+
+# Helper function to format logs for display
+def _format_logs_for_display(
+    logs: str | dict[str, Any] | list[str | dict[str, Any]] | None,
+    max_log_len: int = 277,
+) -> str:
+    if not logs:
+        return ""
+    log_repr = repr(logs)
+    truncated_log = log_repr[:max_log_len] + "..." if len(log_repr) > max_log_len else log_repr
+    return f" │ Logs: {truncated_log}"
+
 
 # Base class for all actions
 class CLAAction(BaseModel):
     type: str
-    logs: JSONType | None = None
+    logs: str | dict[str, Any] | list[str | dict[str, Any]] | None = None
+
+    def __str__(self) -> str:
+        # Basic representation for actions that don't have a specific override
+        # This base __str__ will NOT include logs by default, subclasses should handle it.
+        attributes = ", ".join(
+            f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}"
+            for k, v in self.model_dump().items()
+            if k != "type" and v is not None and k != "logs"
+        )
+        action_str = f"{self.type.capitalize()}Action ({attributes})"
+        action_str += _format_logs_for_display(self.logs)  # Add logs if present via helper
+        return action_str
+
 
 # Basic Point model for coordinates
 class Point(BaseModel):
@@ -23,8 +46,20 @@ class ClickAction(CLAAction):
     type: Literal["click"] = "click"
     point: Point | None = None
     button: CLAButton = "left"
-    pattern: list[int] | None = None  # [delay_1, delay_2, ...]
+    pattern: list[int] | None = None
     hold_keys: list[CLAKey] | None = None
+
+    def __str__(self) -> str:
+        parts = ["💥 Click"]
+        if self.point:
+            parts.append(f"at ({self.point.x}, {self.point.y})")
+        if self.button != "left":
+            parts.append(f"with {self.button} button")
+        if self.hold_keys:
+            parts.append(f"holding {self.hold_keys}")
+        action_str = " ".join(parts)
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
 
 
 # PRESS ACTION for key presses/hotkeys
@@ -32,11 +67,21 @@ class PressAction(CLAAction):
     type: Literal["press"] = "press"
     keys: list[CLAKey]
 
+    def __str__(self) -> str:
+        action_str = f"🎹 Press keys: {'+'.join(self.keys)}"
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
+
 
 # KEYDOWN ACTION for key presses/hotkeys
 class KeyDownAction(CLAAction):
     type: Literal["keydown"] = "keydown"
     keys: list[CLAKey]
+
+    def __str__(self) -> str:
+        action_str = f"👇 KeyDown: {'+'.join(self.keys)}"
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
 
 
 # KEYUP ACTION for key presses/hotkeys
@@ -44,12 +89,24 @@ class KeyUpAction(CLAAction):
     type: Literal["keyup"] = "keyup"
     keys: list[CLAKey]
 
+    def __str__(self) -> str:
+        action_str = f"👆 KeyUp: {'+'.join(self.keys)}"
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
+
 
 # TYPE ACTION for text typing
 class TypeAction(CLAAction):
     type: Literal["type"] = "type"
     text: str
     enter_after: bool | None = False
+
+    def __str__(self) -> str:
+        action_str = f'✍️ Type: "{self.text}"'
+        if self.enter_after:
+            action_str += " (and press Enter)"
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
 
 
 # SCROLL ACTION
@@ -59,6 +116,18 @@ class ScrollAction(CLAAction):
     scroll: Point | None = None
     hold_keys: list[CLAKey] | None = None
 
+    def __str__(self) -> str:
+        parts = ["📄 Scroll"]
+        if self.point:
+            parts.append(f"at ({self.point.x}, {self.point.y})")
+        if self.scroll:
+            parts.append(f"by ({self.scroll.x}, {self.scroll.y})")
+        if self.hold_keys:  # Added hold_keys for scroll
+            parts.append(f"holding {self.hold_keys}")
+        action_str = " ".join(parts)
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
+
 
 # MOVE ACTION for mouse movement
 class MoveAction(CLAAction):
@@ -66,11 +135,26 @@ class MoveAction(CLAAction):
     point: Point | None = None
     offset: Point | None = None
 
+    def __str__(self) -> str:
+        parts = ["✨ Move"]
+        if self.point:
+            parts.append(f"to ({self.point.x},{self.point.y})")
+        if self.offset:
+            parts.append(f"by ({self.offset.x},{self.offset.y})")
+        action_str = " ".join(parts)
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
+
 
 # WAIT ACTION
 class WaitAction(CLAAction):
     type: Literal["wait"] = "wait"
-    time: int  # in milliseconds
+    time: int
+
+    def __str__(self) -> str:
+        action_str = f"💤 Wait for {self.time}ms"
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
 
 
 # DRAG ACTION
@@ -80,25 +164,62 @@ class DragAction(CLAAction):
     pattern: list[int] | None = None  # [delay_1, delay_2, ...]
     hold_keys: list[CLAKey] | None = None
 
+    def __str__(self) -> str:
+        parts = ["🤏 Drag"]
+        if self.path and len(self.path) > 0:
+            if len(self.path) == 1:
+                parts.append(f"at ({self.path[0].x},{self.path[0].y})")
+            else:
+                parts.append(
+                    f"from ({self.path[0].x}, {self.path[0].y}) to "
+                    f"({self.path[-1].x}, {self.path[-1].y})"
+                )
+        if self.hold_keys:  # Added hold_keys for drag
+            parts.append(f"holding {self.hold_keys}")
+        action_str = " ".join(parts)
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
+
 
 # RESPONSE ACTION from agent
 class ResponseAction(CLAAction):
     type: Literal["response"] = "response"
     text: str  # The final textual response from the agent
 
+    def __str__(self) -> str:
+        displayed_text = self.text if len(self.text) < 50 else self.text[:47] + "..."
+        action_str = f'💬 Response: "{displayed_text}"'
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
+
 
 # SCREENSHOT ACTION
 class ScreenshotFetch(CLAAction):
     type: Literal["screenshot"] = "screenshot"
 
+    def __str__(self) -> str:
+        action_str = "📸 Screenshot"
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
+
 
 class PositionFetch(CLAAction):
     type: Literal["position"] = "position"
+
+    def __str__(self) -> str:
+        action_str = "📍 Position"
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
 
 
 class CustomAction(CLAAction):
     type: Literal["custom"] = "custom"
     action: str
+
+    def __str__(self) -> str:
+        action_str = f"⚙️ Custom: {self.action}"
+        action_str += _format_logs_for_display(self.logs)
+        return action_str
 
 
 # Union of all possible actions
