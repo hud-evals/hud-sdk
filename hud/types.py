@@ -53,4 +53,8 @@ ServerGym: TypeAlias = Literal["qa", "hud-browser", "OSWorld-Ubuntu"]
 # Gyms can be either custom or server-side
 Gym: TypeAlias = CustomGym | ServerGym
 
-MetadataKeys: TypeAlias = Literal["partial"]
+# Metadata keys for the environment.
+# partial: Whether the environment evaluator should give partial grades.
+# eval_model: The model to use for evaluation when running a VLM. Wraps langchain.
+ServerMetadataKeys: TypeAlias = Literal["partial", "eval_model"]
+MetadataKeys: TypeAlias = str | ServerMetadataKeys
