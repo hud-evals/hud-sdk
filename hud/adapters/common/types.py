@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Annotated, Literal, TypeAlias
+from typing import Annotated, Any, Literal, TypeAlias
 
 from pydantic import BaseModel, Field
 
@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 # Base class for all actions
 class CLAAction(BaseModel):
     type: str
-
+    logs: str | dict[str, Any] | None = None
 
 # Basic Point model for coordinates
 class Point(BaseModel):

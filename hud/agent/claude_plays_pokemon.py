@@ -185,14 +185,14 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, CLA]):
 
         self.messages: list[BetaMessageParam] = []
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool]:
+    async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool, list[str | dict[str, Any]] | None]:
         """Fetch a response from Claude based on the current observation.
 
         Args:
             observation: The current game observation
 
         Returns:
-            tuple[list[dict[str, Any]], bool]: List of actions and whether the game is done
+            tuple[list[dict[str, Any]], bool, list[str | dict[str, Any]] | None]: List of actions, whether the game is done, and a list of strings or dictionaries of logs.
 
         Raises:
             ValueError: If client is not initialized
@@ -280,4 +280,4 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, CLA]):
 
         logger.debug("Extracted actions", extra={"actions": action_list})
 
-        return action_list, False
+        return action_list, False, [response.model_dump()]

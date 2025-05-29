@@ -109,7 +109,7 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         self.messages: list[BetaMessageParam] = []
         self.pending_computer_use_tool_id = None
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[Any], bool]:
+    async def fetch_response(self, observation: Observation) -> tuple[list[Any], bool, list[str | dict[str, Any]] | None]:
         """
         Fetch a response from Claude based on the observation.
 
@@ -117,8 +117,8 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
             observation: The preprocessed observation
 
         Returns:
-            tuple[list[Any], bool]: A tuple containing the list of raw actions and a
-                                   boolean indicating if the agent believes the task is complete
+            tuple[list[Any], bool, list[str | dict[str, Any]] | None]: A tuple containing the list of raw actions,
+                                   boolean indicating if the agent believes the task is complete, and a list of strings or dictionaries of logs.
         """
         if not self.client:
             raise ValueError("Client is required")
@@ -231,4 +231,4 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
             # logger.info("No tool use and no final text block found.")
             # Keep done = True, actions remains empty
 
-        return actions, done
+        return actions, done, [response.model_dump()]
