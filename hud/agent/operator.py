@@ -217,8 +217,8 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
                 # No ResponseAgent logic here anymore - just return the response
                 actions = [{"type": "response", "text": final_text_response}]
                 done = True
-            # else:
-            #     logger.info("No computer calls and no final text message found.")
+            else:
+                logger.info("No computer calls and no final text message found.")
             # Keep done = True, actions remains empty
 
         return actions, done
