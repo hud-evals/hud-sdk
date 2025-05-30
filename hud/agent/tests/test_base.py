@@ -7,7 +7,7 @@ import pytest
 
 from hud.agent.base import Agent
 from hud.adapters import Adapter
-from hud.adapters.common.types import ClickAction, Point
+from hud.adapters.common.types import ClickAction, LogType, Point
 from hud.utils.common import Observation
 
 
@@ -21,13 +21,13 @@ class ConcreteAgent(Agent[Any, dict[str, Any]]):
 
     async def fetch_response(
         self, observation: Observation
-    ) -> tuple[list[dict[str, Any]], bool, list[str | dict[str, Any]] | None]:
+    ) -> tuple[list[dict[str, Any]], bool, list[LogType] | None]:
         """Mock implementation that returns predefined responses."""
         if self.call_count < len(self.mock_responses):
             # Ensure we return a 3-tuple including None for logs
-            actions, done = self.mock_responses[self.call_count]
+            actions, done, logs = self.mock_responses[self.call_count]
             self.call_count += 1
-            return actions, done, None
+            return actions, done, logs
         return [], True, None
 
 
@@ -123,7 +123,7 @@ class TestAgentBase:
         observation = Observation(text="test", screenshot="screenshot")
         agent_with_adapter.mock_responses = [([{"type": "click", "x": 100, "y": 200}], False, None)]
 
-        actions, done, _ = await agent_with_adapter.predict(observation, verbose=False)
+        actions, done = await agent_with_adapter.predict(observation, verbose=False)
 
         assert len(actions) == 1
         assert isinstance(actions[0], ClickAction)
@@ -136,7 +136,7 @@ class TestAgentBase:
         observation = Observation(text="test", screenshot="screenshot")
         agent_with_adapter.mock_responses = [([{"type": "click", "x": 100, "y": 200}], True, None)]
 
-        actions, done, _ = await agent_with_adapter.predict(observation, verbose=True)
+        actions, done = await agent_with_adapter.predict(observation, verbose=True)
 
         # Verify verbose logging was called
         mock_logger.info.assert_any_call("Predicting action...")
@@ -153,7 +153,7 @@ class TestAgentBase:
         raw_actions = [{"type": "click", "x": 100, "y": 200}]
         agent_without_adapter.mock_responses = [(raw_actions, True, None)]
 
-        actions, done, _ = await agent_without_adapter.predict(observation, verbose=False)
+        actions, done = await agent_without_adapter.predict(observation, verbose=False)
 
         # Should return raw actions, not processed ones
         assert actions == raw_actions
@@ -165,7 +165,7 @@ class TestAgentBase:
         observation = Observation(text="test", screenshot="screenshot")
         agent_with_adapter.mock_responses = [([], True, None)]
 
-        actions, done, _ = await agent_with_adapter.predict(observation, verbose=False)
+        actions, done = await agent_with_adapter.predict(observation, verbose=False)
 
         # Should return empty actions without calling adapter
         assert actions == []
@@ -179,14 +179,14 @@ class TestAgentBase:
         raw_actions = [{"type": "click", "x": 150, "y": 250}]
         agent_with_adapter.mock_responses = [(raw_actions, False, None)]
 
-        actions, done, _ = await agent_with_adapter.predict(observation, verbose=True)
+        actions, done = await agent_with_adapter.predict(observation, verbose=True)
 
         # Verify all stages were called
         # Stage 1: Preprocessing
         mock_adapter.rescale.assert_called_once_with("original_screenshot")
 
         # Stage 3: Postprocessing
-        mock_adapter.adapt_list.assert_called_once_with(raw_actions)
+        mock_adapter.adapt_list.assert_called_once_with(raw_actions, None)
 
         assert len(actions) == 1
         assert isinstance(actions[0], ClickAction)
@@ -199,7 +199,7 @@ class TestAgentBase:
         raw_actions = [{"type": "response", "text": "Task completed"}]
         agent_with_adapter.mock_responses = [(raw_actions, True, None)]
 
-        actions, done, _ = await agent_with_adapter.predict(observation, verbose=False)
+        actions, done = await agent_with_adapter.predict(observation, verbose=False)
 
         assert len(actions) == 1
         assert done is True

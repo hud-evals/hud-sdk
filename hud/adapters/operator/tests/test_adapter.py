@@ -359,7 +359,7 @@ class TestOperatorAdapterIntegration:
             {"type": "keypress", "keys": ["return"]},
         ]
 
-        results = adapter.adapt_list(actions, None)
+        results = adapter.adapt_list(actions)
 
         assert len(results) == 3
         assert isinstance(results[0], ClickAction)
