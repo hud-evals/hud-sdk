@@ -4,10 +4,12 @@ from typing import Annotated, Any, Literal, TypeAlias
 
 from pydantic import BaseModel, Field
 
+LogType = str | dict[str, Any] | list[str | dict[str, Any]] | None
+
 
 # Helper function to format logs for display
 def _format_logs_for_display(
-    logs: str | dict[str, Any] | list[str | dict[str, Any]] | None,
+    logs: LogType,
     max_log_len: int = 277,
 ) -> str:
     if not logs:
@@ -20,7 +22,7 @@ def _format_logs_for_display(
 # Base class for all actions
 class CLAAction(BaseModel):
     type: str
-    logs: str | dict[str, Any] | list[str | dict[str, Any]] | None = None
+    logs: LogType = None
 
     def __str__(self) -> str:
         # Basic representation for actions that don't have a specific override

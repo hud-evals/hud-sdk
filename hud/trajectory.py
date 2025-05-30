@@ -2,9 +2,12 @@
 from __future__ import annotations
 
 import datetime
+from typing import Any
 
 from IPython.display import HTML, Markdown, display
 from pydantic import BaseModel, Field
+
+from .adapters.common.types import LogType
 
 
 class TrajectoryStep(BaseModel):
@@ -13,6 +16,7 @@ class TrajectoryStep(BaseModel):
     observation_url: str | None = None
     observation_text: str | None = None
     actions: list[dict]
+    logs: LogType | None = None
     start_timestamp: str | None = None
     end_timestamp: str | None = None
 

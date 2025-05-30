@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 from pydantic import TypeAdapter, ValidationError
 
-from .types import CLA
+from .types import CLA, LogType
 
 if TYPE_CHECKING:
     from typing_extensions import TypeIs
@@ -146,7 +146,7 @@ class Adapter:
 
         return processed_action
 
-    def adapt(self, action: Any, log: str | dict[str, Any] | None = None) -> CLA:
+    def adapt(self, action: Any, log: LogType = None) -> CLA:
         # any preprocessing steps
         action = self.preprocess(action)
 
@@ -163,7 +163,7 @@ class Adapter:
         # convert back to CLA
         return TypeAdapter(CLA).validate_python(rescaled_action)
 
-    def adapt_list(self, actions: list[Any], logs: list[str | dict[str, Any]] | None) -> list[CLA]:
+    def adapt_list(self, actions: list[Any], logs: list[LogType] | None) -> list[CLA]:
         if not isinstance(actions, list):
             raise ValueError("Please provide a list of actions")
         if logs is None or len(logs) != len(actions):
