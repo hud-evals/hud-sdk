@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any, Sequence, TypeVar, Generic
 
 from hud.adapters import Adapter, CLA
+from hud.adapters.common.types import LogType
 from hud.types import Gym
 from hud.utils.common import Observation
 import logging
@@ -64,7 +65,7 @@ class Agent(Generic[ClientT, ActionT], ABC):
     @abstractmethod
     async def fetch_response(
         self, observation: Observation
-    ) -> tuple[list[ActionT], bool, list[str | dict[str, Any]] | None]:
+    ) -> tuple[list[ActionT], bool, list[LogType] | None]:
         """
         Fetch a response from the model based on the observation.
 
@@ -78,9 +79,7 @@ class Agent(Generic[ClientT, ActionT], ABC):
         """
         pass
 
-    def postprocess(
-        self, actions: list[ActionT], logs: list[str | dict[str, Any]] | None
-    ) -> list[CLA]:
+    def postprocess(self, actions: list[ActionT], logs: list[LogType] | None) -> list[CLA]:
         """
         Convert model actions to HUD actions.
 

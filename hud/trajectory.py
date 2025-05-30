@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import datetime
-from typing import Any
 
 from IPython.display import HTML, Markdown, display
 from pydantic import BaseModel, Field

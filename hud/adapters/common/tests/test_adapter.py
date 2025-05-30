@@ -243,7 +243,7 @@ def test_adapt_list(adapter):
     mock_adapt = MagicMock(side_effect=[click_action, type_action])
     with patch.object(adapter, "adapt", mock_adapt):
         actions = [{"type": "click"}, {"type": "type"}]
-        result = adapter.adapt_list(actions)
+        result = adapter.adapt_list(actions, None)
 
         assert adapter.adapt.call_count == 2
         assert len(result) == 2
@@ -254,7 +254,7 @@ def test_adapt_list(adapter):
 def test_adapt_list_invalid(adapter):
     """Test adapt_list with invalid input."""
     with pytest.raises(ValueError):
-        adapter.adapt_list("not a list")  # type: ignore
+        adapter.adapt_list("not a list", None)  # type: ignore
 
 
 def test_integration(adapter):

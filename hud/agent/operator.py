@@ -19,6 +19,7 @@ from hud.adapters.operator import OperatorAdapter
 from hud.types import Gym
 from hud.utils.common import Observation
 from hud.settings import settings
+from hud.adapters.common.types import LogType
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +89,7 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
 
     async def fetch_response(
         self, observation: Observation
-    ) -> tuple[list[dict[str, Any]], bool, list[str | dict[str, Any]] | None]:
+    ) -> tuple[list[dict[str, Any]], bool, list[LogType] | None]:
         """
         Fetch a response from the model based on the observation.
 
@@ -96,7 +97,7 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
             observation: The preprocessed observation
 
         Returns:
-            tuple[list[dict[str, Any]], bool, list[str | dict[str, Any]] | None]: A tuple containing the list of raw actions,
+            tuple[list[dict[str, Any]], bool, list[LogType] | None]: A tuple containing the list of raw actions,
                                              boolean indicating if the agent believes the task is complete, and a list of strings or dictionaries of logs.
         """
         if not self.client:

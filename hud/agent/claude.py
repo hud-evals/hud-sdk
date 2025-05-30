@@ -18,6 +18,7 @@ from hud.adapters.claude import ClaudeAdapter
 from hud.types import Gym
 from hud.utils.common import Observation
 from hud.settings import settings
+from hud.adapters.common.types import LogType
 
 logger = logging.getLogger(__name__)
 
@@ -111,7 +112,7 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
 
     async def fetch_response(
         self, observation: Observation
-    ) -> tuple[list[Any], bool, list[str | dict[str, Any]] | None]:
+    ) -> tuple[list[Any], bool, list[LogType] | None]:
         """
         Fetch a response from Claude based on the observation.
 

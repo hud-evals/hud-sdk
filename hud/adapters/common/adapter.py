@@ -163,7 +163,7 @@ class Adapter:
         # convert back to CLA
         return TypeAdapter(CLA).validate_python(rescaled_action)
 
-    def adapt_list(self, actions: list[Any], logs: list[LogType] | None) -> list[CLA]:
+    def adapt_list(self, actions: list[Any], logs: list[LogType] | None = None) -> list[CLA]:
         if not isinstance(actions, list):
             raise ValueError("Please provide a list of actions")
         if logs is None or len(logs) != len(actions):

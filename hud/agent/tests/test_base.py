@@ -19,13 +19,16 @@ class ConcreteAgent(Agent[Any, dict[str, Any]]):
         self.mock_responses = []
         self.call_count = 0
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[dict[str, Any]], bool, list[str | dict[str, Any]] | None]:
         """Mock implementation that returns predefined responses."""
         if self.call_count < len(self.mock_responses):
-            response = self.mock_responses[self.call_count]
+            # Ensure we return a 3-tuple including None for logs
+            actions, done = self.mock_responses[self.call_count]
             self.call_count += 1
-            return response
-        return [], True
+            return actions, done, None
+        return [], True, None
 
 
 class TestAgentBase:
@@ -103,14 +106,14 @@ class TestAgentBase:
         actions = [{"type": "click", "x": 100, "y": 200}]
 
         with pytest.raises(ValueError, match="Cannot postprocess actions without an adapter"):
-            agent_without_adapter.postprocess(actions)
+            agent_without_adapter.postprocess(actions, None)
 
     def test_postprocess_with_adapter(self, agent_with_adapter, mock_adapter):
         """Test postprocess with adapter."""
         actions = [{"type": "click", "x": 100, "y": 200}]
-        result = agent_with_adapter.postprocess(actions)
+        result = agent_with_adapter.postprocess(actions, None)
 
-        mock_adapter.adapt_list.assert_called_once_with(actions)
+        mock_adapter.adapt_list.assert_called_once_with(actions, None)
         assert len(result) == 1
         assert isinstance(result[0], ClickAction)
 
@@ -118,9 +121,9 @@ class TestAgentBase:
     async def test_predict_without_verbose(self, agent_with_adapter):
         """Test predict method without verbose logging."""
         observation = Observation(text="test", screenshot="screenshot")
-        agent_with_adapter.mock_responses = [([{"type": "click", "x": 100, "y": 200}], False)]
+        agent_with_adapter.mock_responses = [([{"type": "click", "x": 100, "y": 200}], False, None)]
 
-        actions, done = await agent_with_adapter.predict(observation, verbose=False)
+        actions, done, _ = await agent_with_adapter.predict(observation, verbose=False)
 
         assert len(actions) == 1
         assert isinstance(actions[0], ClickAction)
@@ -131,9 +134,9 @@ class TestAgentBase:
     async def test_predict_with_verbose_logging(self, mock_logger, agent_with_adapter):
         """Test predict method with verbose logging (covers missing lines 100-116)."""
         observation = Observation(text="test", screenshot="screenshot")
-        agent_with_adapter.mock_responses = [([{"type": "click", "x": 100, "y": 200}], True)]
+        agent_with_adapter.mock_responses = [([{"type": "click", "x": 100, "y": 200}], True, None)]
 
-        actions, done = await agent_with_adapter.predict(observation, verbose=True)
+        actions, done, _ = await agent_with_adapter.predict(observation, verbose=True)
 
         # Verify verbose logging was called
         mock_logger.info.assert_any_call("Predicting action...")
@@ -148,9 +151,9 @@ class TestAgentBase:
         """Test predict without adapter returns raw actions."""
         observation = Observation(text="test", screenshot=None)
         raw_actions = [{"type": "click", "x": 100, "y": 200}]
-        agent_without_adapter.mock_responses = [(raw_actions, True)]
+        agent_without_adapter.mock_responses = [(raw_actions, True, None)]
 
-        actions, done = await agent_without_adapter.predict(observation, verbose=False)
+        actions, done, _ = await agent_without_adapter.predict(observation, verbose=False)
 
         # Should return raw actions, not processed ones
         assert actions == raw_actions
@@ -160,9 +163,9 @@ class TestAgentBase:
     async def test_predict_with_empty_actions(self, agent_with_adapter):
         """Test predict when fetch_response returns empty actions."""
         observation = Observation(text="test", screenshot="screenshot")
-        agent_with_adapter.mock_responses = [([], True)]
+        agent_with_adapter.mock_responses = [([], True, None)]
 
-        actions, done = await agent_with_adapter.predict(observation, verbose=False)
+        actions, done, _ = await agent_with_adapter.predict(observation, verbose=False)
 
         # Should return empty actions without calling adapter
         assert actions == []
@@ -174,9 +177,9 @@ class TestAgentBase:
         # Set up observation with screenshot that will be rescaled
         observation = Observation(text="test input", screenshot="original_screenshot")
         raw_actions = [{"type": "click", "x": 150, "y": 250}]
-        agent_with_adapter.mock_responses = [(raw_actions, False)]
+        agent_with_adapter.mock_responses = [(raw_actions, False, None)]
 
-        actions, done = await agent_with_adapter.predict(observation, verbose=True)
+        actions, done, _ = await agent_with_adapter.predict(observation, verbose=True)
 
         # Verify all stages were called
         # Stage 1: Preprocessing
@@ -194,9 +197,9 @@ class TestAgentBase:
         """Test predict integration when observation has no screenshot."""
         observation = Observation(text="test input", screenshot=None)
         raw_actions = [{"type": "response", "text": "Task completed"}]
-        agent_with_adapter.mock_responses = [(raw_actions, True)]
+        agent_with_adapter.mock_responses = [(raw_actions, True, None)]
 
-        actions, done = await agent_with_adapter.predict(observation, verbose=False)
+        actions, done, _ = await agent_with_adapter.predict(observation, verbose=False)
 
         assert len(actions) == 1
         assert done is True

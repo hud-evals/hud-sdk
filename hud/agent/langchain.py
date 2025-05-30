@@ -24,6 +24,7 @@ from hud.adapters.common.types import (
     WaitAction,
     ResponseAction,
     CustomAction,
+    LogType,
     # Exclude ScreenshotFetch, PositionFetch as they are internal
 )
 
@@ -107,7 +108,7 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
 
     async def fetch_response(
         self, observation: Observation
-    ) -> tuple[list[dict | SingleCLAction], bool, list[str | dict[str, Any]] | None]:
+    ) -> tuple[list[dict | SingleCLAction], bool, list[LogType] | None]:
         """
         Fetches a response from the configured Langchain model, expecting a single
         structured CLA action.
