@@ -177,7 +177,8 @@ class TestAgentBase:
         # Set up observation with screenshot that will be rescaled
         observation = Observation(text="test input", screenshot="original_screenshot")
         raw_actions = [{"type": "click", "x": 150, "y": 250}]
-        agent_with_adapter.mock_responses = [(raw_actions, False, None)]
+        sample_logs = ["Log message 1", {"key": "value"}]
+        agent_with_adapter.mock_responses = [(raw_actions, False, sample_logs)]
 
         actions, done = await agent_with_adapter.predict(observation, verbose=True)
 
@@ -186,7 +187,7 @@ class TestAgentBase:
         mock_adapter.rescale.assert_called_once_with("original_screenshot")
 
         # Stage 3: Postprocessing
-        mock_adapter.adapt_list.assert_called_once_with(raw_actions, None)
+        mock_adapter.adapt_list.assert_called_once_with(raw_actions, sample_logs)
 
         assert len(actions) == 1
         assert isinstance(actions[0], ClickAction)
