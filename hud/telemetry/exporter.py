@@ -298,12 +298,10 @@ async def _export_trace_payload_async(payload: dict[str, Any]) -> None:
         "telemetry": payload.get("mcp_calls", []),
     }
 
-    # Ensure mcp_calls is not empty if that's a requirement, or send as is. For now, send as is.
-    # if not data_to_send["mcp_calls"]:
-    #     logger.debug("No MCP calls in payload for task run %s, skipping specific export if "
-    #                  "desired.", task_run_id)
-    #     # Depending on backend, might not want to send empty mcp_calls list, or it's fine.
+    await send_telemetry_to_server(task_run_id, data_to_send)
 
+
+async def send_telemetry_to_server(task_run_id: str, data: dict[str, Any]) -> None:
     telemetry_url = f"{settings.base_url}/v2/task_runs/{task_run_id}/telemetry-upload"
 
     try:
@@ -320,7 +318,7 @@ async def _export_trace_payload_async(payload: dict[str, Any]) -> None:
             )
             response = await client.post(
                 telemetry_url,
-                json=data_to_send,  # Send the structured attributes and mcp_calls
+                json=data,  # Send the structured attributes and mcp_calls
                 headers=headers,
                 timeout=30.0,
             )

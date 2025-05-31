@@ -505,7 +505,7 @@ class TestClaudeAdapterIntegration:
             {"action": "screenshot"},
         ]
 
-        results = adapter.adapt_list(actions)
+        results = adapter.adapt_list(actions, None)
 
         assert len(results) == 6
         assert isinstance(results[0], MoveAction)

@@ -67,8 +67,8 @@ class Observation(BaseModel):
 
     def __str__(self) -> str:
         return f"""Observation(screenshot={
-            self.screenshot[:100] if self.screenshot else "None"
-        }..., text={self.text}...)"""
+            f"{self.screenshot[:100]}..." if self.screenshot else "None"
+        }, text={f"{self.text[:100]}..." if self.text else "None"})"""
 
 
 class ExecuteResult(TypedDict):
