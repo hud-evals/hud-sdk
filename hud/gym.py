@@ -91,7 +91,7 @@ async def make(
                 logger.info("Creating local environment")
                 if gym.host_config:
                     logger.info("Using host config: %s", gym.host_config)
-                    client = await LocalDockerClient.create(uri, host_config=gym.host_config)
+                    client = await LocalDockerClient.create(uri, gym.host_config)
                 else:
                     client = await LocalDockerClient.create(uri)
 
