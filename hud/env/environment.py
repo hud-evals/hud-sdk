@@ -69,6 +69,7 @@ class Environment(BaseModel):
     async def _setup(self, config: FunctionConfigs | None = None) -> None:
         """
         Setup the environment.
+        No-op if no config or task is provided.
 
         Args:
             config: The configuration to use for the setup
@@ -81,10 +82,7 @@ class Environment(BaseModel):
                 await self._invoke_all(config)
             elif self.task and self.task.setup is not None:
                 await self._invoke_all(self.task.setup)
-            else:
-                raise ValueError(
-                    "No config, task or task setup function provided for local environment"
-                )
+
 
     async def evaluate(
         self,
