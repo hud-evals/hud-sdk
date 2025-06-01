@@ -89,9 +89,13 @@ async def make(
 
             if gym.location == "local":
                 logger.info("Creating local environment")
-                client = await LocalDockerClient.create(uri)
+                client = await LocalDockerClient.create(uri, host_config=gym.host_config)
             elif gym.location == "remote":
                 logger.info("Creating remote environment")
+
+                if gym.host_config:
+                    raise ValueError("host_config is not supported for remote environments")
+                
                 client = await RemoteDockerClient.create(
                     image_uri=uri,
                     job_id=effective_job_id,
