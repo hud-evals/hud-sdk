@@ -32,6 +32,7 @@ class CustomGym(BaseModel):
     # refer to official docker api documentation for available configs.
     host_config: dict[str, Any] | None = None
 
+
 class EnvironmentStatus(str, enum.Enum):
     """
     Status of the environment.

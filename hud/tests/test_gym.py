@@ -64,6 +64,17 @@ class MockClient(Client):
             "check_build_data": False,
         },
         {
+            "name": "custom_local_gym_with_host_config",
+            "env_src": CustomGym(
+                location="local",
+                image_or_build_context="test-image:latest",
+                host_config={"NetworkMode": "host"},
+            ),
+            "expected_create_args": ("test-image:latest",{"NetworkMode": "host"}),
+            "config": [FunctionConfig(function="test", args=[])],
+            "check_build_data": False,
+        },
+        {
             "name": "custom_local_gym_with_image",
             "env_src": CustomGym(
                 location="local",
