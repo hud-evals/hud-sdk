@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import io
 import logging
 import textwrap
 import time
 import uuid
 from typing import TYPE_CHECKING, Any
-import contextlib
 
 import aiodocker
 from aiohttp import ClientTimeout
@@ -112,7 +112,7 @@ class LocalDockerClient(DockerClient):
                         raw = raw.decode(errors="replace")
                     logger.info("container %s | %s", container.id[:12], raw.rstrip())
             except asyncio.CancelledError:
-                # task cancelled during cleanup – silently exit
+                # task cancelled during cleanup - silently exit
                 return
             except Exception:
                 logger.exception("error while streaming logs from %s", container.id[:12])

@@ -31,10 +31,10 @@ class ClaudeAdapter(Adapter):
         "left shift": "shift",
     }
 
-    def __init__(self) -> None:
+    def __init__(self, width: int = 1024, height: int = 768) -> None:
         super().__init__()
-        self.agent_width = 1024  # Claude's preferred width
-        self.agent_height = 768  # Claude's preferred height
+        self.agent_width = width  # Claude's preferred width
+        self.agent_height = height  # Claude's preferred height
 
     def _map_key(self, key: str) -> CLAKey:
         """Map a key to its standardized form."""
