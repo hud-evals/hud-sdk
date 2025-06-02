@@ -173,7 +173,7 @@ class LocalDockerClient(DockerClient):
 
         # Stop the log stream now that the container is ready
         log_task.cancel()
-        with contextlib.suppress(Exception):
+        with contextlib.suppress(asyncio.CancelledError):
             await log_task
 
         # Return the controller instance
