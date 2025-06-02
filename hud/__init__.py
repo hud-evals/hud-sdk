@@ -22,7 +22,7 @@ hud_logger.setLevel(logging.INFO)
 
 if not hud_logger.handlers:
     handler = logging.StreamHandler()
-    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    formatter = logging.Formatter("[%(levelname)s] %(asctime)s | %(name)s | %(message)s")
     handler.setFormatter(formatter)
     hud_logger.addHandler(handler)
 

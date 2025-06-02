@@ -19,7 +19,7 @@ We're here to help with eval strategies, custom environments, or improving your 
 
 ## ✨ What You Can Do
 
-**Evaluate Existing Benchmarks**
+**[Evaluate Existing Benchmarks](https://docs.hud.so/examples/benchmarking-agents)**
 ```python
 from hud import load_taskset, run_job, ClaudeAgent
 
@@ -27,7 +27,7 @@ taskset = await load_taskset("WebVoyager")  # or GAIA, OSWorld-Ubuntu, Mind2Web
 job = await run_job(ClaudeAgent, taskset, "my-evaluation")
 ```
 
-**Create Custom Tasks**
+**[Create Custom Tasks](https://docs.hud.so/task-creation)** 
 ```python
 from hud.task import Task
 
@@ -39,7 +39,7 @@ task = Task(
 )
 ```
 
-**Build Custom Environments**
+**[Build Custom Environments](https://docs.hud.so/environment-creation)**
 ```python
 from hud.types import CustomGym
 
@@ -52,7 +52,7 @@ custom_gym = CustomGym(
 # Or create complex Docker environments - see environments/ folder for examples
 ```
 
-**Trace Tool Calls Alongside HUD Environments (or Independently)**
+**[Trace Tool Calls Alongside HUD Environments (or Independently)](https://docs.hud.so/examples/mcp-agent-tracing)**
 ```python
 import hud
 

@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any
 from inspect_ai.util._sandbox import SandboxEnvironmentSpec
 from pydantic import BaseModel
 
-from hud.types import CustomGym, Gym
+from hud.types import CustomGym, Gym, MetadataKeys
 from hud.utils.common import FunctionConfig, FunctionConfigs
 
 if TYPE_CHECKING:
@@ -55,6 +55,8 @@ class Task(BaseModel):
     evaluate: FunctionConfigs | None = None
     gym: Gym | None = None
     config: dict[str, Any] | None = None
+
+    metadata: dict[MetadataKeys, Any] | None = None
 
     description: str | None = None
 

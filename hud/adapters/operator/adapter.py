@@ -56,9 +56,9 @@ class OperatorAdapter(Adapter):
                 return ClickAction(point=Point(x=x, y=y), button="left", pattern=[100])
 
             elif action_type == "scroll":
-                x, y = data.get("x", 0), data.get("y", 0)
-                scroll_x = data.get("scroll_x", 0)
-                scroll_y = data.get("scroll_y", 0)
+                x, y = int(data.get("x", 0)), int(data.get("y", 0))
+                scroll_x = int(data.get("scroll_x", 0))
+                scroll_y = int(data.get("scroll_y", 0))
                 return ScrollAction(point=Point(x=x, y=y), scroll=Point(x=scroll_x, y=scroll_y))
 
             elif action_type == "type":

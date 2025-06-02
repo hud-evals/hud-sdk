@@ -19,6 +19,7 @@ from hud.adapters.operator import OperatorAdapter
 from hud.types import Gym
 from hud.utils.common import Observation
 from hud.settings import settings
+from hud.adapters.common.types import LogType
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +87,9 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
         self.initial_prompt = None
         self.pending_safety_checks = []
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[dict[str, Any]], bool, list[LogType] | None]:
         """
         Fetch a response from the model based on the observation.
 
@@ -94,8 +97,8 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
             observation: The preprocessed observation
 
         Returns:
-            tuple[list[dict[str, Any]], bool]: A tuple containing the list of raw actions and a
-                                             boolean indicating if the agent believes the task is complete
+            tuple[list[dict[str, Any]], bool, list[LogType] | None]: A tuple containing the list of raw actions,
+                                             boolean indicating if the agent believes the task is complete, and a list of strings or dictionaries of logs.
         """
         if not self.client:
             raise ValueError("Client is required")
@@ -142,7 +145,16 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
             # This is a response to a previous action
             if not observation.screenshot:
                 logger.warning("No screenshot provided for response to action")
-                return [], True
+                return (
+                    [],
+                    True,
+                    [
+                        {
+                            "type": "warning",
+                            "message": "No screenshot provided for response to action",
+                        }
+                    ],
+                )
 
             # Create a response to the previous action with the new screenshot
             input_param_followup = cast(
@@ -217,8 +229,8 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
                 # No ResponseAgent logic here anymore - just return the response
                 actions = [{"type": "response", "text": final_text_response}]
                 done = True
-            # else:
-            #     logger.info("No computer calls and no final text message found.")
+            else:
+                logger.info("No computer calls and no final text message found.")
             # Keep done = True, actions remains empty
 
-        return actions, done
+        return actions, done, [response.model_dump()]

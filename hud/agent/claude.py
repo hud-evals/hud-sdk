@@ -1,3 +1,4 @@
+import copy
 import logging
 from typing import Any, cast
 
@@ -8,6 +9,7 @@ from anthropic.types.beta import (
     BetaToolComputerUse20250124Param,
     BetaTextBlockParam,
     BetaImageBlockParam,
+    BetaCacheControlEphemeralParam,
 )
 
 from hud.adapters import Adapter
@@ -16,6 +18,7 @@ from hud.adapters.claude import ClaudeAdapter
 from hud.types import Gym
 from hud.utils.common import Observation
 from hud.settings import settings
+from hud.adapters.common.types import LogType
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +110,9 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         self.messages: list[BetaMessageParam] = []
         self.pending_computer_use_tool_id = None
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[Any], bool]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[Any], bool, list[LogType] | None]:
         """
         Fetch a response from Claude based on the observation.
 
@@ -115,8 +120,8 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
             observation: The preprocessed observation
 
         Returns:
-            tuple[list[Any], bool]: A tuple containing the list of raw actions and a
-                                   boolean indicating if the agent believes the task is complete
+            tuple[list[Any], bool, list[str | dict[str, Any]] | None]: A tuple containing the list of raw actions,
+                                   boolean indicating if the agent believes the task is complete, and a list of strings or dictionaries of logs.
         """
         if not self.client:
             raise ValueError("Client is required")
@@ -160,10 +165,23 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         )
 
         # Call Claude API using async client
+
+        # first, make a copy and add prompt caching to the last message
+        messages_cached = copy.deepcopy(self.messages)
+        # Mark last user message with cache control for prompt caching
+        last_msg = messages_cached[-1]
+        if last_msg.get("role") == "user":
+            last_content = last_msg["content"]
+            if isinstance(last_content, list):
+                for block in last_content:
+                    if not block["type"] == "thinking" and not block["type"] == "redacted_thinking":
+                        cache_control: BetaCacheControlEphemeralParam = {"type": "ephemeral"}
+                        block["cache_control"] = cache_control
+
         response = await self.client.beta.messages.create(
             model=self.model,
             max_tokens=self.max_tokens,
-            messages=self.messages,
+            messages=messages_cached,
             tools=[COMPUTER_TOOL],
             betas=["computer-use-2025-01-24"],
             tool_choice={"type": "auto", "disable_parallel_tool_use": True},
@@ -216,4 +234,4 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
             # logger.info("No tool use and no final text block found.")
             # Keep done = True, actions remains empty
 
-        return actions, done
+        return actions, done, [response.model_dump()]

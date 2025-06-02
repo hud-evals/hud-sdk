@@ -30,6 +30,10 @@ task = Task(
     setup=("goto", "https://news.example.com"), # Function to run at env.reset()
     evaluate=("page_contains", "artificial intelligence") # Function to run at env.evaluate()
 )
+
+# Create environment
+env = gym.make(task)
+# ...
 ```
 
 ## Setup Functions (for `hud-browser`)

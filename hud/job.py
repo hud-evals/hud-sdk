@@ -275,7 +275,7 @@ async def _maybe_resample_action(
                 decision = await response_agent.determine_response(response_text)
                 if decision == "CONTINUE":
                     logger.info("ResponseAgent indicated CONTINUE. Retrying...")
-                    obs = Observation(text="Please continue.")
+                    obs.text = "Please continue."
                     return obs, False
                 elif decision == "CONTINUE":
                     logger.warning("Max continue retries reached. Stopping despite CONTINUE.")
@@ -339,19 +339,21 @@ async def _execute_task(
             action, done = (None, False)
             try:
                 # Agent prediction with semaphore
-                if agent_predict_semaphore:
-                    async with agent_predict_semaphore:
+                try:
+                    if agent_predict_semaphore:
+                        async with agent_predict_semaphore:
+                            action, done = await agent_instance.predict(obs)
+                    else:
                         action, done = await agent_instance.predict(obs)
-                else:
-                    action, done = await agent_instance.predict(obs)
+                except Exception as e:
+                    # if agent prediction fails, pass back the error to the agent
+                    obs = Observation(text=str(e))
+                    continue
 
                 if tracker:
                     tracker.increment_step(task_id)
 
-                if action is None and not done:
-                    done = True
-
-                if done and response_agent:
+                if done and response_agent and action and len(action) > 0:
                     obs, finish = await _maybe_resample_action(obs, action[-1], response_agent)
                     if not finish:
                         continue
@@ -499,6 +501,7 @@ async def run_job(
     run_parallel: bool = True,
     job_metadata: dict[str, Any] | None = None,
     show_progress: bool = True,
+    verbose: bool = False,
     # Concurrency control with semaphores
     max_concurrent_env_creations: int | None = 30,  # Limits gym.make calls
     max_concurrent_agent_predictions: int | None = None,  # No limit on LLM calls
@@ -538,10 +541,16 @@ async def run_job(
     tasks_to_run: list[Task] = []
     created_job: Job | None = None
 
+    # Get hud logger
+    if not verbose:
+        logger = logging.getLogger("hud")
+        logger.setLevel(logging.CRITICAL)
+    logger = logging.getLogger("hud.job")
+
     evalset_id = None
     if isinstance(task_or_taskset, TaskSet):
         evalset_id = task_or_taskset.id
-        await task_or_taskset.fit(agent_cls)
+        task_or_taskset.fit(agent_cls)
 
     gym_id = None
     if isinstance(task_or_taskset, Task):
