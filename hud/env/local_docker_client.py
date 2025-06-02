@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 
 async def wait_until_healthy_container(
     container: DockerContainer,
-    timeout: int | None = None,
+    timeout: int = 3600,
 ) -> None:
     """
     Wait until the container is healthy.
@@ -42,9 +42,6 @@ async def wait_until_healthy_container(
         RuntimeError: If the container does not have a health check configured.
         TimeoutError: If the container does not become healthy within the specified time window.
     """
-
-    if timeout is None:
-        timeout = 3600  # Default timeout of 1 hour
 
     inspection = await container.show()
     if inspection["Config"].get("Healthcheck") is None:
