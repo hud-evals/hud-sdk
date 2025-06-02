@@ -25,6 +25,65 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+async def wait_until_healthy_container(
+    container: DockerContainer,
+    timeout: int | None = None,
+) -> None:
+    """
+    Wait until the container is healthy.
+    This function checks the health status of a Docker container and waits until it is healthy.
+    If the container exits or becomes unhealthy before it is healthy, an exception is raised.
+    Args:
+        container: The Docker container to check.
+        timeout: The maximum time to wait for the container to become healthy, in seconds.
+                 If None, defaults to 3600 seconds (1 hour).
+    Raises:
+        RuntimeError: If the container crashes before becoming healthy.
+        RuntimeError: If the container does not have a health check configured.
+        TimeoutError: If the container does not become healthy within the specified time window.
+    """
+
+    if timeout is None:
+       timeout = 3600  # Default timeout of 1 hour
+
+    inspection = await container.show()
+    if inspection["Config"].get("Healthcheck") is None:
+        raise RuntimeError("Container does not have a health check configured")
+
+    deadline = time.monotonic() + timeout
+    logger.debug("Waiting for container %s to become healthy", container.id)
+    while True:
+        state = (await container.show())["State"]
+        if state.get("Health", {}).get("Status") == "healthy":
+            break
+        if state.get("Status") in {"exited", "dead"}:
+            raise RuntimeError("Container crashed before becoming healthy")
+        now = time.monotonic()
+        if now > deadline:
+            raise TimeoutError(f"{container.id} not healthy after {timeout}s")
+        await asyncio.sleep(1)
+    logger.debug("Container %s is healthy", container.id)
+
+
+async def _stream_logs(container: DockerContainer) -> None:
+    """
+    Stream logs from the container and log them using the logger.
+    Args:
+        container: The Docker container to stream logs from.
+    """
+    try:
+        # .log() with follow=True -> async iterator of bytes/str
+        async for raw in container.log(stdout=True, stderr=True, follow=True):
+            if isinstance(raw, bytes):
+                raw = raw.decode(errors="replace")
+            logger.info("container %s | %s", container.id[:12], raw.rstrip())
+    except asyncio.CancelledError:
+        # task cancelled during cleanup - silently exit
+        return
+    except Exception:
+        logger.exception("error while streaming logs from %s", container.id[:12])
+
+
 class LocalDockerClient(DockerClient):
     """
     Docker-based environment client implementation.
@@ -101,23 +160,8 @@ class LocalDockerClient(DockerClient):
         container = await docker_client.containers.create(config=container_config)
         await container.start()
 
-        # --------------------------------------------------
-        # Stream container logs while we wait for readiness
-        # --------------------------------------------------
-        async def _stream_logs() -> None:
-            try:
-                # .log() with follow=True -> async iterator of bytes/str
-                async for raw in container.log(stdout=True, stderr=True, follow=True):
-                    if isinstance(raw, bytes):
-                        raw = raw.decode(errors="replace")
-                    logger.info("container %s | %s", container.id[:12], raw.rstrip())
-            except asyncio.CancelledError:
-                # task cancelled during cleanup - silently exit
-                return
-            except Exception:
-                logger.exception("error while streaming logs from %s", container.id[:12])
-
-        log_task: asyncio.Task | None = asyncio.create_task(_stream_logs())
+        # Stream logs from the container
+        log_task: asyncio.Task = asyncio.create_task(_stream_logs(container))
 
         inspection = await container.show()
         if health_check_config := inspection["Config"].get("Healthcheck"):
@@ -125,32 +169,15 @@ class LocalDockerClient(DockerClient):
             # consider adding explicitly to API if there's demand
             window_usecs = health_check_config.get("Interval", int(30 * 1e9))
             window_secs = window_usecs // 1_000_000
+            await wait_until_healthy_container(container, window_secs)
 
-            deadline = time.monotonic() + window_secs
-            logger.debug("Waiting for container %s to become healthy", container.id)
-            while True:
-                state = (await container.show())["State"]
-                if state.get("Health", {}).get("Status") == "healthy":
-                    break
-                if state.get("Status") in {"exited", "dead"}:
-                    raise RuntimeError("Container crashed before becoming healthy")
-                now = time.monotonic()
-                if now > deadline:
-                    raise TimeoutError(f"{container.id} not healthy after {window_secs}s")
-                await asyncio.sleep(1)
-            logger.debug("Container %s is healthy", container.id)
-
-            # Stop the log stream now that the container is ready
-            if log_task is not None:
-                log_task.cancel()
-                with contextlib.suppress(Exception):
-                    await log_task
-                log_task = None
+        # Stop the log stream now that the container is ready
+        log_task.cancel()
+        with contextlib.suppress(Exception):
+            await log_task
 
         # Return the controller instance
         client = cls(docker_client, container.id)
-        # store the task so close() can cancel if it is still running
-        client._log_task = log_task  # type: ignore[attr-defined]
         return client
 
     def __init__(self, docker_conn: aiodocker.Docker, container_id: str) -> None:
@@ -168,9 +195,6 @@ class LocalDockerClient(DockerClient):
 
         # Docker client will be initialized when needed
         self._docker = docker_conn
-
-        # Background task for streaming logs (may be None)
-        self._log_task: asyncio.Task | None = None
 
     @property
     def container_id(self) -> str:
@@ -325,9 +349,3 @@ class LocalDockerClient(DockerClient):
             logger.warning("Error during Docker container cleanup: %s", e)
         finally:
             await self._docker.close()
-
-        # Cancel background log forwarding first (if still active)
-        if self._log_task is not None:
-            self._log_task.cancel()
-            with contextlib.suppress(Exception):
-                await self._log_task
