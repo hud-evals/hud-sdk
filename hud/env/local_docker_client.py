@@ -44,7 +44,7 @@ async def wait_until_healthy_container(
     """
 
     if timeout is None:
-       timeout = 3600  # Default timeout of 1 hour
+        timeout = 3600  # Default timeout of 1 hour
 
     inspection = await container.show()
     if inspection["Config"].get("Healthcheck") is None:
