@@ -35,6 +35,7 @@ class LocalDockerClient(DockerClient):
         """
         Build an image from a build context.
         """
+        logger.info("Building image from %s", build_context)
         # Create a unique image tag
         image_tag = f"hud-env-{uuid.uuid4().hex[:8]}"
 
@@ -139,13 +140,15 @@ class LocalDockerClient(DockerClient):
                     raise TimeoutError(f"{container.id} not healthy after {window_secs}s")
                 await asyncio.sleep(1)
             logger.debug("Container %s is healthy", container.id)
+        else:
+            logger.debug("Container %s has no healthcheck, assuming ready", container.id)
 
-            # Stop the log stream now that the container is ready
-            if log_task is not None:
-                log_task.cancel()
-                with contextlib.suppress(Exception):
-                    await log_task
-                log_task = None
+        # Stop the log stream now that the container is ready
+        if log_task is not None:
+            log_task.cancel()
+            with contextlib.suppress(Exception):
+                await log_task
+            log_task = None
 
         # Return the controller instance
         client = cls(docker_client, container.id)
