@@ -91,6 +91,7 @@ class ExecuteResult(TypedDict):
 # Helper functions for handling ignore patterns
 # ---------------------------------------------------------------------------
 
+
 def _read_ignore_file(file_path: Path) -> list[str]:
     """Return patterns from *file_path* (ignoring blanks / comments)."""
     if not file_path.exists():
@@ -138,7 +139,9 @@ def _gather_ignore_patterns(root_dir: Path, filename: str) -> list[str]:
     return gathered
 
 
-def _compile_pathspec(directory: Path, *, respect_gitignore: bool, respect_dockerignore: bool) -> PathSpec | None:
+def _compile_pathspec(
+    directory: Path, *, respect_gitignore: bool, respect_dockerignore: bool
+) -> PathSpec | None:
     """Compile a PathSpec from all relevant ignore files under *directory*."""
     patterns: list[str] = []
 
