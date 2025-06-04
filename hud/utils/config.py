@@ -103,6 +103,9 @@ def expand_config(config: FunctionConfigs) -> list[FunctionConfig]:
 
         return [FunctionConfig(function=function_name, args=args)]
 
+    if isinstance(config, list):
+        return [FunctionConfig(function=item[0], args=item[1:]) for item in config]
+
     # Unknown configuration type
     error_msg = f"Unknown configuration type: {type(config)}"
     logger.error(error_msg)

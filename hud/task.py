@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import tempfile
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from inspect_ai.util._sandbox import SandboxEnvironmentSpec
 from pydantic import BaseModel
@@ -63,6 +63,37 @@ class Task(BaseModel):
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Task:
         return cls(**data)
+
+    @classmethod
+    def from_serialized(cls, data: dict[str, Any]) -> Task:
+        gym_data = data.get("gym")
+        parsed_gym: Gym | None = gym_data
+
+        parsed_setup = [(param, entry) for param, entry in data.get("setup", [])]
+        parsed_evaluate = [(param, entry) for param, entry in data.get("evaluate", [])]
+        
+        # Convert dict gym data to CustomGym if needed
+        if (
+            isinstance(gym_data, dict)
+            and gym_data.get("type") == "public"
+            and gym_data.get("location") in ("local", "remote")
+            and gym_data.get("image_or_build_context") is not None
+        ):
+            parsed_gym = CustomGym(
+                type=cast(Literal["public"], gym_data["type"]),
+                location=cast(Literal["local", "remote"], gym_data["location"]),
+                image_or_build_context=Path(gym_data["image_or_build_context"]),
+            )
+
+        return cls(
+            id=data.get("id"),
+            prompt=data.get("prompt", ""),
+            setup=parsed_setup,
+            evaluate=parsed_evaluate,
+            gym=parsed_gym,
+            config=data.get("config"),
+            description=data.get("description"),
+        )
 
     @classmethod
     def from_inspect_sample(cls, sample: Sample) -> Task:
@@ -146,3 +177,30 @@ class Task(BaseModel):
         if self.gym is None:
             return
         self.gym = agent.transfer_gyms.get(self.gym, self.gym)
+    
+    def serialize(self) -> dict[str, Any]:
+        if isinstance(self.setup, list):
+            parsed_setup = [[param, entry] for param, entry in self.setup]
+        else:
+            parsed_setup = self.setup
+        if isinstance(self.evaluate, list):
+            parsed_evaluate = [[param, entry] for param, entry in self.evaluate]
+        else:
+            parsed_evaluate = self.evaluate
+
+        if isinstance(self.gym, CustomGym):
+            parsed_gym = self.gym.model_dump()
+            parsed_gym["image_or_build_context"] = str(parsed_gym["image_or_build_context"])
+        else:  # is ServerGym
+            parsed_gym = self.gym
+
+        return {
+            "id": self.id,
+            "prompt": self.prompt,
+            "config": self.config,
+            "description": self.description,
+
+            "setup": parsed_setup,
+            "evaluate": parsed_evaluate,
+            "gym": parsed_gym,
+        }
