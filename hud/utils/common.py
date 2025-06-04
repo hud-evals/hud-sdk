@@ -172,7 +172,6 @@ def _iter_files(
         rel_path = file_path.relative_to(directory)
         rel_str = rel_path.as_posix()
         if spec and spec.match_file(rel_str):
-            logger.info("Ignoring %s due to ignore patterns", rel_path)
             continue
         yield file_path, rel_path
 
