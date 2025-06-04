@@ -4,16 +4,17 @@ import io
 import logging
 import tarfile
 import zipfile
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypedDict
 
 from pydantic import BaseModel
+from pathspec import PathSpec  # type: ignore
 
 from hud.server.requests import make_request
 from hud.settings import settings
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
-    from pathlib import Path
 
 logger = logging.getLogger("hud.utils.common")
 
@@ -86,44 +87,139 @@ class ExecuteResult(TypedDict):
     exit_code: int
 
 
-def directory_to_tar_bytes(directory_path: Path) -> bytes:
+# ---------------------------------------------------------------------------
+# Helper functions for handling ignore patterns
+# ---------------------------------------------------------------------------
+
+def _read_ignore_file(file_path: Path) -> list[str]:
+    """Return patterns from *file_path* (ignoring blanks / comments)."""
+    if not file_path.exists():
+        return []
+
+    patterns: list[str] = []
+    for line in file_path.read_text().splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#"):
+            continue
+        patterns.append(stripped)
+    return patterns
+
+
+def _gather_ignore_patterns(root_dir: Path, filename: str) -> list[str]:
+    """Collect *filename* patterns throughout *root_dir* respecting hierarchy.
+
+    For a nested ignore file located at ``sub/dir/.gitignore`` containing the
+    pattern ``foo/``, the returned pattern will be ``sub/dir/foo/`` so that it
+    is evaluated relative to *root_dir* when passed to ``PathSpec``.
+    """
+    gathered: list[str] = []
+
+    root_dir = root_dir.resolve()
+
+    for ignore_file in root_dir.rglob(filename):
+        prefix = ignore_file.parent.relative_to(root_dir).as_posix()
+        base_prefix = "" if prefix == "." else prefix
+
+        for pat in _read_ignore_file(ignore_file):
+            negate = pat.startswith("!")
+            pat_body = pat[1:] if negate else pat
+
+            # Leading slash means relative to the directory the ignore file is
+            # located in – remove it so we can prepend *prefix* below.
+            if pat_body.startswith("/"):
+                pat_body = pat_body.lstrip("/")
+
+            full_pattern = f"{base_prefix}/{pat_body}" if base_prefix else pat_body
+            if negate:
+                full_pattern = f"!{full_pattern}"
+
+            gathered.append(full_pattern)
+
+    return gathered
+
+
+def _compile_pathspec(directory: Path, *, respect_gitignore: bool, respect_dockerignore: bool) -> PathSpec | None:
+    """Compile a PathSpec from all relevant ignore files under *directory*."""
+    patterns: list[str] = []
+
+    if respect_gitignore:
+        patterns.extend(_gather_ignore_patterns(directory, ".gitignore"))
+    if respect_dockerignore:
+        patterns.extend(_gather_ignore_patterns(directory, ".dockerignore"))
+
+    if not patterns:
+        return None
+
+    return PathSpec.from_lines("gitwildmatch", patterns)
+
+
+def _iter_files(
+    directory: Path,
+    *,
+    respect_gitignore: bool = True,
+    respect_dockerignore: bool = True,
+):
+    """Yield (file_path, relative_path) while respecting ignore files."""
+    spec = _compile_pathspec(
+        directory,
+        respect_gitignore=respect_gitignore,
+        respect_dockerignore=respect_dockerignore,
+    )
+
+    for file_path in directory.rglob("*"):
+        if not file_path.is_file():
+            continue
+        rel_path = file_path.relative_to(directory)
+        rel_str = rel_path.as_posix()
+        if spec and spec.match_file(rel_str):
+            logger.info("Ignoring %s due to ignore patterns", rel_path)
+            continue
+        yield file_path, rel_path
+
+
+def directory_to_tar_bytes(
+    directory_path: Path,
+    *,
+    respect_gitignore: bool = True,
+    respect_dockerignore: bool = True,
+) -> bytes:
     """
     Converts a directory to a tar archive and returns it as bytes.
 
-    This function creates a tar archive of the specified directory in memory,
-    without writing to a temporary file on disk.
-
-    Args:
-        path: Path to the directory to convert
-
-    Returns:
-        Bytes of the tar archive
+    The function respects ignore rules defined in `.gitignore` and
+    `.dockerignore` by default (configurable via kwargs).
     """
     output = io.BytesIO()
 
     with tarfile.open(fileobj=output, mode="w") as tar:
-        # Walk through the directory
-        for file_path in directory_path.rglob("*"):
-            if file_path.is_file():
-                # Calculate relative path for the archive
-                rel_path = file_path.relative_to(directory_path)
-                logger.debug("Adding %s to tar archive", rel_path)
-                tar.add(file_path, arcname=str(rel_path))
+        for file_path, rel_path in _iter_files(
+            directory_path,
+            respect_gitignore=respect_gitignore,
+            respect_dockerignore=respect_dockerignore,
+        ):
+            logger.debug("Adding %s to tar archive", rel_path)
+            tar.add(file_path, arcname=str(rel_path))
 
-    # Get the bytes from the BytesIO object
     output.seek(0)
     return output.getvalue()
 
 
-def directory_to_zip_bytes(context_dir: Path) -> bytes:
-    """Zip a directory and return the zip archive as bytes."""
+def directory_to_zip_bytes(
+    context_dir: Path,
+    *,
+    respect_gitignore: bool = True,
+    respect_dockerignore: bool = True,
+) -> bytes:
+    """Zip a directory and return the zip archive as bytes, respecting ignore rules."""
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as zipf:
-        for file_path in context_dir.rglob("*"):
-            if file_path.is_file():
-                rel_path = file_path.relative_to(context_dir)
-                logger.debug("Adding %s to zip archive", rel_path)
-                zipf.write(str(file_path), arcname=str(rel_path))
+        for file_path, rel_path in _iter_files(
+            context_dir,
+            respect_gitignore=respect_gitignore,
+            respect_dockerignore=respect_dockerignore,
+        ):
+            logger.debug("Adding %s to zip archive", rel_path)
+            zipf.write(str(file_path), arcname=str(rel_path))
     return output.getvalue()
 
 
