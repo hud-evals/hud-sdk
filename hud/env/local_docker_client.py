@@ -91,6 +91,7 @@ class LocalDockerClient(DockerClient):
         """
         Build an image from a build context.
         """
+        logger.info("Building image from %s", build_context)
         # Create a unique image tag
         image_tag = f"hud-env-{uuid.uuid4().hex[:8]}"
 
@@ -167,6 +168,9 @@ class LocalDockerClient(DockerClient):
             window_usecs = health_check_config.get("Interval", int(30 * 1e9))
             window_secs = window_usecs // 1_000_000
             await wait_until_healthy_container(container, window_secs)
+            logger.debug("Container %s is healthy", container.id)
+        else:
+            logger.debug("Container %s has no healthcheck, assuming ready", container.id)
 
         # Stop the log stream now that the container is ready
         log_task.cancel()

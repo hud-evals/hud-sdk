@@ -44,6 +44,12 @@ class Settings(BaseSettings):
         validation_alias="TELEMETRY_ENABLED",
     )
 
+    fancy_logging: bool = Field(
+        default=False,
+        description="Enable fancy logging for the HUD SDK",
+        validation_alias="FANCY_LOGGING",
+    )
+
 
 # Create a singleton instance
 settings = Settings()
