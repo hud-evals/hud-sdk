@@ -83,7 +83,6 @@ class Environment(BaseModel):
             elif self.task and self.task.setup is not None:
                 await self._invoke_all(self.task.setup)
 
-
     async def evaluate(
         self,
         config: FunctionConfigs | None = None,

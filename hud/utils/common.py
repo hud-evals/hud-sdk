@@ -4,17 +4,17 @@ import io
 import logging
 import tarfile
 import zipfile
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypedDict
 
-from pydantic import BaseModel
 from pathspec import PathSpec  # type: ignore
+from pydantic import BaseModel
 
 from hud.server.requests import make_request
 from hud.settings import settings
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from pathlib import Path
 
 logger = logging.getLogger("hud.utils.common")
 
@@ -91,6 +91,7 @@ class ExecuteResult(TypedDict):
 # Helper functions for handling ignore patterns
 # ---------------------------------------------------------------------------
 
+
 def _read_ignore_file(file_path: Path) -> list[str]:
     """Return patterns from *file_path* (ignoring blanks / comments)."""
     if not file_path.exists():
@@ -125,7 +126,7 @@ def _gather_ignore_patterns(root_dir: Path, filename: str) -> list[str]:
             pat_body = pat[1:] if negate else pat
 
             # Leading slash means relative to the directory the ignore file is
-            # located in – remove it so we can prepend *prefix* below.
+            # located in - remove it so we can prepend *prefix* below.
             if pat_body.startswith("/"):
                 pat_body = pat_body.lstrip("/")
 
@@ -138,7 +139,9 @@ def _gather_ignore_patterns(root_dir: Path, filename: str) -> list[str]:
     return gathered
 
 
-def _compile_pathspec(directory: Path, *, respect_gitignore: bool, respect_dockerignore: bool) -> PathSpec | None:
+def _compile_pathspec(
+    directory: Path, *, respect_gitignore: bool, respect_dockerignore: bool
+) -> PathSpec | None:
     """Compile a PathSpec from all relevant ignore files under *directory*."""
     patterns: list[str] = []
 
@@ -158,7 +161,7 @@ def _iter_files(
     *,
     respect_gitignore: bool = True,
     respect_dockerignore: bool = True,
-):
+) -> Iterator[tuple[Path, Path]]:
     """Yield (file_path, relative_path) while respecting ignore files."""
     spec = _compile_pathspec(
         directory,
