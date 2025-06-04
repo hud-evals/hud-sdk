@@ -4,17 +4,17 @@ import io
 import logging
 import tarfile
 import zipfile
-from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypedDict
 
+from pathspec import PathSpec
 from pydantic import BaseModel
-from pathspec import PathSpec  # type: ignore
 
 from hud.server.requests import make_request
 from hud.settings import settings
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
+    from pathlib import Path
 
 logger = logging.getLogger("hud.utils.common")
 
@@ -138,14 +138,28 @@ def _gather_ignore_patterns(root_dir: Path, filename: str) -> list[str]:
     return gathered
 
 
-def _compile_pathspec(directory: Path, *, respect_gitignore: bool, respect_dockerignore: bool) -> PathSpec | None:
-    """Compile a PathSpec from all relevant ignore files under *directory*."""
+def _compile_pathspec(
+    directory: Path,
+    *,
+    respect_gitignore: bool,
+    respect_dockerignore: bool,
+    respect_hudignore: bool,
+) -> PathSpec | None:
+    """Compile a ``PathSpec`` from all relevant ignore files under *directory*.
+
+    In addition to the standard ``.gitignore`` and ``.dockerignore`` files we now
+    recognise a project-specific ``.hudignore`` file that shares the same pattern
+    syntax. Each file can be toggled independently through the corresponding
+    ``respect_*`` keyword argument.
+    """
     patterns: list[str] = []
 
     if respect_gitignore:
         patterns.extend(_gather_ignore_patterns(directory, ".gitignore"))
     if respect_dockerignore:
         patterns.extend(_gather_ignore_patterns(directory, ".dockerignore"))
+    if respect_hudignore:
+        patterns.extend(_gather_ignore_patterns(directory, ".hudignore"))
 
     if not patterns:
         return None
@@ -156,14 +170,16 @@ def _compile_pathspec(directory: Path, *, respect_gitignore: bool, respect_docke
 def _iter_files(
     directory: Path,
     *,
-    respect_gitignore: bool = True,
-    respect_dockerignore: bool = True,
+    respect_gitignore: bool,
+    respect_dockerignore: bool,
+    respect_hudignore: bool,
 ):
-    """Yield (file_path, relative_path) while respecting ignore files."""
+    """Yield ``(file_path, relative_path)`` while respecting ignore files."""
     spec = _compile_pathspec(
         directory,
         respect_gitignore=respect_gitignore,
         respect_dockerignore=respect_dockerignore,
+        respect_hudignore=respect_hudignore,
     )
 
     for file_path in directory.rglob("*"):
@@ -179,14 +195,15 @@ def _iter_files(
 def directory_to_tar_bytes(
     directory_path: Path,
     *,
-    respect_gitignore: bool = True,
-    respect_dockerignore: bool = True,
+    respect_gitignore: bool = False,
+    respect_dockerignore: bool = False,
+    respect_hudignore: bool = True,
 ) -> bytes:
     """
     Converts a directory to a tar archive and returns it as bytes.
 
-    The function respects ignore rules defined in `.gitignore` and
-    `.dockerignore` by default (configurable via kwargs).
+    By default the archive respects ignore rules defined in ``.gitignore``,
+    ``.dockerignore`` and ``.hudignore`` (each can be disabled via kwargs).
     """
     output = io.BytesIO()
 
@@ -195,6 +212,7 @@ def directory_to_tar_bytes(
             directory_path,
             respect_gitignore=respect_gitignore,
             respect_dockerignore=respect_dockerignore,
+            respect_hudignore=respect_hudignore,
         ):
             logger.debug("Adding %s to tar archive", rel_path)
             tar.add(file_path, arcname=str(rel_path))
@@ -206,16 +224,18 @@ def directory_to_tar_bytes(
 def directory_to_zip_bytes(
     context_dir: Path,
     *,
-    respect_gitignore: bool = True,
-    respect_dockerignore: bool = True,
+    respect_gitignore: bool = False,
+    respect_dockerignore: bool = False,
+    respect_hudignore: bool = True,
 ) -> bytes:
-    """Zip a directory and return the zip archive as bytes, respecting ignore rules."""
+    """Zip *context_dir* and return the zip archive as bytes, respecting ignore rules."""
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w", zipfile.ZIP_DEFLATED) as zipf:
         for file_path, rel_path in _iter_files(
             context_dir,
             respect_gitignore=respect_gitignore,
             respect_dockerignore=respect_dockerignore,
+            respect_hudignore=respect_hudignore,
         ):
             logger.debug("Adding %s to zip archive", rel_path)
             zipf.write(str(file_path), arcname=str(rel_path))
