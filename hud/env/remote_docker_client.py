@@ -20,7 +20,9 @@ if TYPE_CHECKING:
 logger = logging.getLogger("hud.env.remote_env_client")
 
 
-async def upload_bytes_to_presigned_url(presigned_url: str, data_bytes: bytes, timeout: float = 600) -> None:
+async def upload_bytes_to_presigned_url(
+    presigned_url: str, data_bytes: bytes, timeout: float = 600
+) -> None:
     try:
         async with httpx.AsyncClient() as client:
             response = await client.put(presigned_url, content=data_bytes, timeout=timeout)

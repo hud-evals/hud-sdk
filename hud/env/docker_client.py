@@ -12,7 +12,7 @@ import toml
 
 from hud.env.client import Client
 from hud.types import EnvironmentStatus
-from hud.utils.common import directory_to_tar_bytes, _compile_pathspec
+from hud.utils.common import _compile_pathspec, directory_to_tar_bytes
 
 if TYPE_CHECKING:
     from hud.utils import ExecuteResult
