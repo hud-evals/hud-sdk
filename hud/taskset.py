@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from pathlib import PosixPath
+from typing import TYPE_CHECKING, Any, get_args
 from venv import logger
 
 from pydantic import BaseModel
@@ -9,6 +10,7 @@ from hud.env.environment import create_remote_config
 from hud.server import make_request
 from hud.settings import settings
 from hud.task import Task
+from hud.types import CustomGym, ServerGym
 from hud.utils.config import REMOTE_EVALUATE, REMOTE_SETUP
 
 if TYPE_CHECKING:
@@ -101,13 +103,26 @@ class TaskSet(BaseModel):
             else:
                 evaluate_config = None
 
+            if isinstance(task.gym, CustomGym):
+                if isinstance(task.gym.location, PosixPath):
+                    raise ValueError("Local build contexts are not supported for remote tasksets, attach an image or existing gym id.")
+                gym_str = "docker"
+                image_uri = task.gym.image_or_build_context
+            elif isinstance(task.gym, str) and task.gym in get_args(ServerGym):
+                gym_str = task.gym
+                image_uri = None
+            else:
+                raise ValueError(f"Unknown gym type: {type(task.gym)}")
+
             processed_tasks.append(
                 {
                     "prompt": task.prompt,
-                    "gym": task.gym,
+                    "gym": gym_str,
                     "setup": setup_config,
                     "evaluate": evaluate_config,
                     "config": task.config,
+                    "image_uri": image_uri,
+                    "description": task.description,
                 }
             )
 
@@ -150,6 +165,7 @@ async def load_taskset(
     taskset_id: str,
     api_key: str | None = None,
     metadata: dict[str, Any] | None = None,
+    load_custom_as_local: bool = False,
 ) -> TaskSet:
     """
     Loads a TaskSet by its ID.
@@ -173,10 +189,18 @@ async def load_taskset(
 
     logger.info(f"Taskset {taskset_id} loaded successfully")
 
+    tasks = data["evalset"]
+    for task in tasks:
+        if task["gym"] == "docker":
+            task["gym"] = CustomGym(
+                location="local" if load_custom_as_local else "remote",
+                image_or_build_context=task["image_uri"],
+            )
+
     taskset = TaskSet.model_validate(
         {
             "id": taskset_id,
-            "tasks": data["evalset"],
+            "tasks": tasks,
         }
     )
 
