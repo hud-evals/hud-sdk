@@ -9,6 +9,7 @@ from hud.env.local_docker_client import LocalDockerClient
 from hud.env.remote_client import RemoteClient
 from hud.env.remote_docker_client import RemoteDockerClient
 from hud.exceptions import GymMakeException
+from hud.task import Task
 from hud.telemetry.context import get_current_task_run_id
 from hud.types import CustomGym, Gym
 from hud.utils.common import get_gym_id
@@ -39,9 +40,11 @@ async def make(
     task = None
     if isinstance(env_src, str | CustomGym):
         gym = env_src
-    else:
+    elif isinstance(env_src, Task):
         gym = env_src.gym
         task = env_src
+    else:
+        raise GymMakeException(f"Invalid gym source: {env_src}", {})
 
     effective_job_id = None
     if job is not None:

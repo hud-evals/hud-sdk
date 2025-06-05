@@ -104,7 +104,15 @@ def expand_config(config: FunctionConfigs) -> list[FunctionConfig]:
         return [FunctionConfig(function=function_name, args=args)]
 
     if isinstance(config, list):
-        return [FunctionConfig(function=item[0], args=item[1:]) for item in config]
+        result = []
+        for item in config:
+            if isinstance(item, tuple) and len(item) >= 1 and isinstance(item[0], str):
+                function_name = item[0]
+                args = list(item[1:]) if len(item) > 1 else []
+                result.append(FunctionConfig(function=function_name, args=args))
+            else:
+                raise ValueError(f"Invalid list item configuration: {item}")
+        return result
 
     # Unknown configuration type
     error_msg = f"Unknown configuration type: {type(config)}"

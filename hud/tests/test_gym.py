@@ -232,10 +232,12 @@ async def test_make_with_invalid_gym():
     """Test creating an environment with an invalid gym source."""
     reset_context()
     with pytest.raises(GymMakeException, match="Invalid gym source"):
-        # Create a mock object that is neither a Gym nor a Task
-        mock_invalid = MagicMock()
-        mock_invalid.__class__ = type("InvalidGym", (), {})
-        await make(mock_invalid)
+        # Create an object that is neither a Gym nor a Task
+        class InvalidGym:
+            pass
+        
+        invalid_gym = InvalidGym()
+        await make(invalid_gym)  # type: ignore[arg-type]
 
 
 @pytest.mark.asyncio

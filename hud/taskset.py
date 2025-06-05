@@ -105,7 +105,11 @@ class TaskSet(BaseModel):
 
             if isinstance(task.gym, CustomGym):
                 if isinstance(task.gym.location, PosixPath):
-                    raise ValueError("Local build contexts are not supported for remote tasksets, attach an image or existing gym id.")
+                    raise ValueError(
+                        "Local build contexts are not supported for "
+                        "remote tasksets, attach an image or existing "
+                        "gym id."
+                    )
                 gym_str = "docker"
                 image_uri = task.gym.image_or_build_context
             elif isinstance(task.gym, str) and task.gym in get_args(ServerGym):
@@ -156,7 +160,7 @@ class TaskSet(BaseModel):
             agent = agent()
 
         for task in self.tasks:
-            if task.gym is None:
+            if task.gym is None or isinstance(task.gym, CustomGym):
                 continue
             task.gym = agent.transfer_gyms.get(task.gym, task.gym)
 

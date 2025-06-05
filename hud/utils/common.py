@@ -91,6 +91,7 @@ class ExecuteResult(TypedDict):
 # Helper functions for handling ignore patterns
 # ---------------------------------------------------------------------------
 
+
 def _read_ignore_file(file_path: Path) -> list[str]:
     """Return patterns from *file_path* (ignoring blanks / comments)."""
     if not file_path.exists():
@@ -125,7 +126,7 @@ def _gather_ignore_patterns(root_dir: Path, filename: str) -> list[str]:
             pat_body = pat[1:] if negate else pat
 
             # Leading slash means relative to the directory the ignore file is
-            # located in – remove it so we can prepend *prefix* below.
+            # located in -- remove it so we can prepend *prefix* below.
             if pat_body.startswith("/"):
                 pat_body = pat_body.lstrip("/")
 
@@ -173,7 +174,7 @@ def _iter_files(
     respect_gitignore: bool,
     respect_dockerignore: bool,
     respect_hudignore: bool,
-):
+) -> Iterator[tuple[Path, Path]]:
     """Yield ``(file_path, relative_path)`` while respecting ignore files."""
     spec = _compile_pathspec(
         directory,
