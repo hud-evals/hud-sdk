@@ -168,6 +168,7 @@ typeCheckingMode = "basic"
 
 [tool.coverage.run]
 source = ["hud"]
+omit = ["*/tests/*", "*/examples/*"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -184,7 +185,7 @@ exclude_lines = [
 ]
 show_missing = true
 fail_under = 58
-omit = ["*/tests/*"]
+omit = ["*/tests/*", "*/examples/*"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
