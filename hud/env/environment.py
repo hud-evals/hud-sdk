@@ -174,7 +174,7 @@ class Environment(BaseModel):
             "end_timestamp": datetime.now(),
             "stdout": stdout,
             "stderr": stderr,
-            "actions": [] # [str(action) for action in actions],
+            "actions": [action.model_dump() for action in actions],
         }
 
         observation = Observation.model_validate(observation_data, strict=True)
