@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 import httpx
 
 from hud.settings import settings
+from hud.utils.common import Observation
 
 # Import BaseMCPCall and TrajectoryStep for type hinting and transformation
 from hud.telemetry.mcp_models import (  # MCPResponseCall for isinstance check
@@ -338,6 +339,46 @@ async def send_telemetry_to_server(task_run_id: str, data: dict[str, Any]) -> No
                 )
     except Exception as e:
         logger.exception("Error exporting telemetry for task run %s: %s", task_run_id, e)
+
+
+async def log_observation(env_id: str, observation: Observation) -> None:
+    """Log an observation to the telemetry service."""
+    telemetry_url = f"{settings.base_url}/v2/task_runs/{env_id}/telemetry-upload"
+
+    try:
+        async with httpx.AsyncClient() as client:
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {settings.api_key}",
+            }
+            request_data = observation.model_dump()
+            request_data["stdout"] = request_data["stdout"].decode("utf-8")
+            request_data["stderr"] = request_data["stderr"].decode("utf-8")
+            request_data["start_timestamp"] = request_data["start_timestamp"].isoformat()
+            request_data["end_timestamp"] = request_data["end_timestamp"].isoformat()
+
+            response = await client.post(
+                telemetry_url,
+                json=request_data,  # Send the structured attributes and mcp_calls
+                headers=headers,
+                timeout=30.0,
+            )
+
+            if response.status_code >= 200 and response.status_code < 300:
+                logger.debug(
+                    "Successfully exported telemetry for task run %s. Status: %s",
+                    env_id,
+                    response.status_code,
+                )
+            else:
+                logger.warning(
+                    "Failed to export telemetry for task run %s: HTTP %s - %s",
+                    env_id,
+                    response.status_code,
+                    response.text,
+                )
+    except Exception as e:
+        logger.exception("Error exporting telemetry for task run %s: %s", env_id, e)
 
 
 # --- Public Shutdown Function ---

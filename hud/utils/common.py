@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import io
 import logging
 import tarfile
@@ -65,6 +66,14 @@ class Observation(BaseModel):
 
     screenshot: str | None = None  # base64 string png
     text: str | None = None
+
+    actions: list[str] | None = None
+
+    stdout: bytes | None = None
+    stderr: bytes | None = None
+
+    start_timestamp: datetime.datetime | None = None
+    end_timestamp: datetime.datetime | None = None
 
     def __str__(self) -> str:
         return f"""Observation(screenshot={

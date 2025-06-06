@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 from typing import TYPE_CHECKING, Any
+from datetime import datetime
 
 from pydantic import BaseModel
 
@@ -19,6 +20,7 @@ from hud.utils.config import (
     expand_config,
 )
 from hud.utils.telemetry import stream
+from hud.telemetry.exporter import log_observation
 
 logger = logging.getLogger("hud.environment")
 
@@ -149,6 +151,9 @@ class Environment(BaseModel):
             actions = [actions]
         if actions is None or len(actions) == 0:
             actions = []
+
+        start_timestamp = datetime.now()
+
         args = [[action.model_dump() for action in actions]]
 
         # TODO: Move this into the server side
@@ -163,7 +168,16 @@ class Environment(BaseModel):
             if stderr:
                 logger.warning("Step produced stderr: %s", stderr.decode())
 
-        observation = Observation.model_validate(result["observation"], strict=True)
+        observation_data = {
+            **result["observation"],
+            "start_timestamp": start_timestamp,
+            "end_timestamp": datetime.now(),
+            "stdout": stdout,
+            "stderr": stderr,
+            "actions": [str(action) for action in actions],
+        }
+
+        observation = Observation.model_validate(observation_data, strict=True)
 
         return observation, 0, False, {}
 
@@ -238,7 +252,13 @@ class Environment(BaseModel):
         if verbose:
             logger.info("Evaluation result: %s", result)
         return result
-
+    
+    async def log_observation(self, observation: Observation) -> None:
+        """Log the observation to the environment."""
+        if isinstance(self.client, RemoteClient):
+            await log_observation(self.client.env_id, observation)
+        else:
+            raise ValueError("Local environments do not support logging observations at the moment")
 
 def create_remote_config(
     env: Environment | None = None,
