@@ -133,7 +133,9 @@ class Environment(BaseModel):
         return obs, info
 
     async def step(
-        self, actions: CLA | list[CLA] | None = None
+        self,
+        actions: CLA | list[CLA] | None = None,
+        verbose: bool = False,
     ) -> tuple[Observation, float, bool, dict[str, Any]]:
         """Execute a step in the environment.
 
@@ -155,10 +157,11 @@ class Environment(BaseModel):
         result, stdout, stderr = await self.client.invoke(
             FunctionConfig(function="step", args=args)
         )
-        if stdout:
-            logger.info("Step produced stdout: %s", stdout.decode())
-        if stderr:
-            logger.warning("Step produced stderr: %s", stderr.decode())
+        if verbose:
+            if stdout:
+                logger.info("Step produced stdout: %s", stdout.decode())
+            if stderr:
+                logger.warning("Step produced stderr: %s", stderr.decode())
 
         observation = Observation.model_validate(result["observation"], strict=True)
 

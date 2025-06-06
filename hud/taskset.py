@@ -196,6 +196,11 @@ async def load_taskset(
     tasks = data["evalset"]
     for task in tasks:
         if task["gym"] == "docker":
+            if "image_uri" not in task:
+                raise ValueError(
+                    "No `image_uri` key found. This taskset may be incompatible with your version of HUD SDK."
+                )
+
             task["gym"] = CustomGym(
                 location="local" if load_custom_as_local else "remote",
                 image_or_build_context=task["image_uri"],
