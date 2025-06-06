@@ -67,7 +67,7 @@ class Observation(BaseModel):
     screenshot: str | None = None  # base64 string png
     text: str | None = None
 
-    actions: list[str] | None = None
+    actions: list[dict[str, Any]] | None = None
 
     stdout: bytes | None = None
     stderr: bytes | None = None

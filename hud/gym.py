@@ -26,6 +26,8 @@ async def make(
     job: Job | None = None,
     job_id: str | None = None,
     metadata: dict[str, Any] | None = None,
+    verbose: bool = False,
+    remote_logging_for_local_docker: bool = False
 ) -> Environment:
     """
     Create an environment from an environment ID or a Task object.
@@ -35,7 +37,13 @@ async def make(
         job: Job object to associate with this environment
         job_id: ID of job to associate with this environment (deprecated, use job instead)
         metadata: Additional metadata for the environment
+        remote_logging_for_local_docker: Whether to use remote logging for the environment - Always True for remote, False by default for local.
     """
+    if verbose:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
+
     task = None
     if isinstance(env_src, str | CustomGym):
         gym = env_src
@@ -93,9 +101,16 @@ async def make(
                 logger.info("Creating local environment")
                 if gym.host_config:
                     logger.info("Using host config: %s", gym.host_config)
-                    client = await LocalDockerClient.create(uri, gym.host_config)
+                    client = await LocalDockerClient.create(
+                        image=uri,
+                        host_config=gym.host_config,
+                        remote_logging_for_local_docker=remote_logging_for_local_docker,
+                    )
                 else:
-                    client = await LocalDockerClient.create(uri)
+                    client = await LocalDockerClient.create(
+                        image=uri,
+                        remote_logging_for_local_docker=remote_logging_for_local_docker,
+                    )
 
             elif gym.location == "remote":
                 logger.info("Creating remote environment")

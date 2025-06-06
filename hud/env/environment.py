@@ -89,6 +89,8 @@ class Environment(BaseModel):
         self,
         config: FunctionConfigs | None = None,
         metadata: dict[str, Any] | None = None,
+        verbose: bool = False,
+        log_score: bool = False,
     ) -> Any:
         """
         Evaluate the environment.
@@ -99,6 +101,13 @@ class Environment(BaseModel):
         Returns:
             Any: Result of the evaluation
         """
+        if not verbose:
+            logger = logging.getLogger("hud")
+            logger.setLevel(logging.CRITICAL)
+        else:
+            logger = logging.getLogger("hud.environment")
+            logger.setLevel(logging.INFO)
+
         if isinstance(self.client, RemoteClient):
             results = await self._invoke_all(
                 create_remote_config(self, config, REMOTE_EVALUATE, metadata)
@@ -110,13 +119,20 @@ class Environment(BaseModel):
                 results = await self._invoke_all(self.task.evaluate)
             else:
                 raise ValueError("No config or task provided for local environment")
+        
+        if log_score:
+            for result in results:
+                await self.log_score(result)
+        
         if len(results) == 1:
             return results[0]
         else:
             return results
 
     async def reset(
-        self, configs: FunctionConfigs | None = None
+        self,
+        configs: FunctionConfigs | None = None,
+        verbose: bool = False,
     ) -> tuple[Observation, dict[str, Any]]:
         """
         Reset the environment.
@@ -128,7 +144,13 @@ class Environment(BaseModel):
             Observation: The first observation from the environment
             info: Dictionary of information about the environment
         """
-        # await self._setup(configs)
+        if not verbose:
+            logger = logging.getLogger("hud")
+            logger.setLevel(logging.CRITICAL)
+        else:
+            logger = logging.getLogger("hud.environment")
+            logger.setLevel(logging.INFO)
+
         obs, _, _, info = await self.step()
         if self.task and self.task.prompt:
             obs.text = self.task.prompt
@@ -138,6 +160,7 @@ class Environment(BaseModel):
         self,
         actions: CLA | list[CLA] | None = None,
         verbose: bool = False,
+        log_observation: bool = False,
     ) -> tuple[Observation, float, bool, dict[str, Any]]:
         """Execute a step in the environment.
 
@@ -147,6 +170,13 @@ class Environment(BaseModel):
         Returns:
             Any: Result of the step execution
         """
+        if not verbose:
+            logger = logging.getLogger("hud")
+            logger.setLevel(logging.CRITICAL)
+        else:
+            logger = logging.getLogger("hud.environment")
+            logger.setLevel(logging.INFO)
+        
         if not isinstance(actions, list) and actions is not None:
             actions = [actions]
         if actions is None or len(actions) == 0:
@@ -162,11 +192,8 @@ class Environment(BaseModel):
         result, stdout, stderr = await self.client.invoke(
             FunctionConfig(function="step", args=args)
         )
-        if verbose:
-            if stdout:
-                logger.info("Step produced stdout: %s", stdout.decode())
-            if stderr:
-                logger.warning("Step produced stderr: %s", stderr.decode())
+        logger.info("Step produced stdout: %s", stdout.decode())
+        logger.warning("Step produced stderr: %s", stderr.decode())
 
         observation_data = {
             **result["observation"],
@@ -177,7 +204,9 @@ class Environment(BaseModel):
             "actions": [action.model_dump() for action in actions],
         }
 
-        observation = Observation.model_validate(observation_data, strict=True)
+        observation = Observation.model_validate(observation_data)
+        if log_observation:
+            await self.log_observation(observation)
 
         return observation, 0, False, {}
 
@@ -248,7 +277,7 @@ class Environment(BaseModel):
                 logger.info("Step %d: Observation: %s", i, obs)
             if done or terminated:
                 break
-        result = await self.evaluate()
+        result = await self.evaluate(verbose=verbose)
         if verbose:
             logger.info("Evaluation result: %s", result)
         return result
