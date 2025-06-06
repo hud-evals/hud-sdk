@@ -376,6 +376,41 @@ async def log_observation(env_id: str, observation: Observation) -> None:
     except Exception as e:
         logger.exception("Error exporting telemetry for task run %s: %s", env_id, e)
 
+async def log_score(env_id: str, score: float) -> None:
+    """Log a score to the telemetry service."""
+    telemetry_url = f"{settings.base_url}/v2/environments/{env_id}/log_score"
+
+    try:
+        async with httpx.AsyncClient() as client:
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {settings.api_key}",
+            }
+            request_data = {
+                "score": score,
+            }
+            response = await client.post(
+                telemetry_url,
+                json=request_data,
+                headers=headers,
+                timeout=30.0,
+            )
+
+            if response.status_code >= 200 and response.status_code < 300:
+                logger.debug(
+                    "Successfully exported score for environment %s. Status: %s",
+                    env_id,
+                    response.status_code,
+                )
+            else:
+                logger.warning(
+                    "Failed to export score for environment %s: HTTP %s - %s",
+                    env_id,
+                    response.status_code,
+                    response.text,
+                )
+    except Exception as e:
+        logger.exception("Error exporting score for environment %s: %s", env_id, e)
 
 # --- Public Shutdown Function ---
 def flush(timeout: float = 10.0) -> None:

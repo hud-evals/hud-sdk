@@ -20,7 +20,7 @@ from hud.utils.config import (
     expand_config,
 )
 from hud.utils.telemetry import stream
-from hud.telemetry.exporter import log_observation
+from hud.telemetry.exporter import log_observation, log_score
 
 logger = logging.getLogger("hud.environment")
 
@@ -259,6 +259,13 @@ class Environment(BaseModel):
             await log_observation(self.client.env_id, observation)
         except Exception as e:
             logger.warning("Failed to log observation: %s", e)
+
+    async def log_score(self, score: float) -> None:
+        """Log the score to the environment."""
+        try:
+            await log_score(self.client.env_id, score)
+        except Exception as e:
+            logger.warning("Failed to log score: %s", e)
 
 def create_remote_config(
     env: Environment | None = None,
