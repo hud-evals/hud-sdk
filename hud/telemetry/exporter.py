@@ -351,11 +351,7 @@ async def log_observation(env_id: str, observation: Observation) -> None:
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {settings.api_key}",
             }
-            request_data = observation.model_dump()
-            request_data["stdout"] = request_data["stdout"].decode("utf-8")
-            request_data["stderr"] = request_data["stderr"].decode("utf-8")
-            request_data["start_timestamp"] = request_data["start_timestamp"].isoformat()
-            request_data["end_timestamp"] = request_data["end_timestamp"].isoformat()
+            request_data = observation.to_json()
 
             response = await client.post(
                 telemetry_url,

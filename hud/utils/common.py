@@ -80,6 +80,19 @@ class Observation(BaseModel):
             f"{self.screenshot[:100]}..." if self.screenshot else "None"
         }, text={f"{self.text[:100]}..." if self.text else "None"})"""
 
+    def to_json(self) -> dict[str, Any]:
+        """Convert the observation to a JSON-serializable dictionary."""
+        data = self.model_dump()
+        if data["stdout"] is not None:
+            data["stdout"] = data["stdout"].decode("utf-8")
+        if data["stderr"] is not None:
+            data["stderr"] = data["stderr"].decode("utf-8")
+        if data["start_timestamp"] is not None:
+            data["start_timestamp"] = data["start_timestamp"].isoformat()
+        if data["end_timestamp"] is not None:
+            data["end_timestamp"] = data["end_timestamp"].isoformat()
+        return data
+
 
 class ExecuteResult(TypedDict):
     """
