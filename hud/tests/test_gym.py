@@ -11,11 +11,11 @@ from pydantic import ConfigDict
 from hud.env.client import Client
 from hud.env.environment import Environment
 from hud.exceptions import GymMakeException
-from hud.gym import make
+from hud.gym import CustomGym, make
 from hud.job import Job
 from hud.task import Task
-from hud.telemetry.context import reset_context
-from hud.types import CustomGym, EnvironmentStatus
+from hud.telemetry import reset_context
+from hud.types import EnvironmentStatus
 from hud.utils.config import FunctionConfig
 
 
@@ -71,7 +71,11 @@ class MockClient(Client):
                 host_config={"NetworkMode": "host"},
             ),
             "client_class": "hud.gym.LocalDockerClient",
-            "expected_create_args": ("test-image:latest", {"NetworkMode": "host"}),
+            "expected_create_args": {
+                "image": "test-image:latest",
+                "host_config": {"NetworkMode": "host"},
+                "remote_logging_for_local_docker": False,
+            },
             "config": [FunctionConfig(function="test", args=[])],
             "check_build_data": False,
         },
@@ -82,7 +86,10 @@ class MockClient(Client):
                 image_or_build_context="test-image:latest",
             ),
             "client_class": "hud.gym.LocalDockerClient",
-            "expected_create_args": ("test-image:latest",),
+            "expected_create_args": {
+                "image": "test-image:latest",
+                "remote_logging_for_local_docker": False,
+            },
             "config": [FunctionConfig(function="test", args=[])],
             "check_build_data": False,
         },
@@ -140,9 +147,7 @@ async def test_make_docker_gym(mocker, test_case):
     elif isinstance(test_case.get("expected_build_args"), dict):
         mock_build_image.assert_called_once_with(**test_case["expected_build_args"])
 
-    if isinstance(test_case.get("expected_create_args"), tuple):
-        mock_create.assert_called_once_with(*test_case["expected_create_args"])
-    elif isinstance(test_case.get("expected_create_args"), dict):
+    if isinstance(test_case.get("expected_create_args"), dict):
         mock_create.assert_called_once_with(**test_case["expected_create_args"])
 
     if "expected_source_path" in test_case:
