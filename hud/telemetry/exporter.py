@@ -343,7 +343,7 @@ async def send_telemetry_to_server(task_run_id: str, data: dict[str, Any]) -> No
 
 async def log_observation(env_id: str, observation: Observation) -> None:
     """Log an observation to the telemetry service."""
-    telemetry_url = f"{settings.base_url}/v2/task_runs/{env_id}/telemetry-upload"
+    telemetry_url = f"{settings.base_url}/v2/environments/{env_id}/log_observation"
 
     try:
         async with httpx.AsyncClient() as client:

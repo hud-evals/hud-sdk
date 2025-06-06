@@ -174,7 +174,7 @@ class Environment(BaseModel):
             "end_timestamp": datetime.now(),
             "stdout": stdout,
             "stderr": stderr,
-            "actions": [str(action) for action in actions],
+            "actions": [] # [str(action) for action in actions],
         }
 
         observation = Observation.model_validate(observation_data, strict=True)
@@ -255,10 +255,10 @@ class Environment(BaseModel):
     
     async def log_observation(self, observation: Observation) -> None:
         """Log the observation to the environment."""
-        if isinstance(self.client, RemoteClient):
+        try:
             await log_observation(self.client.env_id, observation)
-        else:
-            raise ValueError("Local environments do not support logging observations at the moment")
+        except Exception as e:
+            logger.warning("Failed to log observation: %s", e)
 
 def create_remote_config(
     env: Environment | None = None,
