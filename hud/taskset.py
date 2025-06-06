@@ -198,7 +198,8 @@ async def load_taskset(
         if task["gym"] == "docker":
             if "image_uri" not in task:
                 raise ValueError(
-                    "No `image_uri` key found. This taskset may be incompatible with your version of HUD SDK."
+                    "No `image_uri` key found. This taskset may be incompatible "
+                    "with your version of HUD SDK."
                 )
 
             task["gym"] = CustomGym(

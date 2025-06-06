@@ -27,7 +27,7 @@ async def make(
     job_id: str | None = None,
     metadata: dict[str, Any] | None = None,
     verbose: bool = False,
-    remote_logging_for_local_docker: bool = False
+    remote_logging_for_local_docker: bool = False,
 ) -> Environment:
     """
     Create an environment from an environment ID or a Task object.
@@ -37,7 +37,7 @@ async def make(
         job: Job object to associate with this environment
         job_id: ID of job to associate with this environment (deprecated, use job instead)
         metadata: Additional metadata for the environment
-        remote_logging_for_local_docker: Whether to use remote logging for the environment - Always True for remote, False by default for local.
+        remote_logging_for_local_docker: Whether to use remote logging for a local env.
     """
     if verbose:
         logger.setLevel(logging.DEBUG)

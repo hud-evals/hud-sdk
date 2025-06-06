@@ -9,13 +9,9 @@ import time
 from datetime import datetime, timezone  # For ISO timestamp conversion
 from typing import TYPE_CHECKING, Any
 
-if TYPE_CHECKING:
-    from collections.abc import Coroutine
-
 import httpx
 
 from hud.settings import settings
-from hud.utils.common import Observation
 
 # Import BaseMCPCall and TrajectoryStep for type hinting and transformation
 from hud.telemetry.mcp_models import (  # MCPResponseCall for isinstance check
@@ -23,6 +19,11 @@ from hud.telemetry.mcp_models import (  # MCPResponseCall for isinstance check
     MCPResponseCall,
     TrajectoryStep,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Coroutine
+
+    from hud.utils.common import Observation
 
 logger = logging.getLogger("hud.telemetry")
 
@@ -376,6 +377,7 @@ async def log_observation(env_id: str, observation: Observation) -> None:
     except Exception as e:
         logger.exception("Error exporting telemetry for task run %s: %s", env_id, e)
 
+
 async def log_score(env_id: str, score: float) -> None:
     """Log a score to the telemetry service."""
     telemetry_url = f"{settings.base_url}/v2/environments/{env_id}/log_score"
@@ -411,6 +413,7 @@ async def log_score(env_id: str, score: float) -> None:
                 )
     except Exception as e:
         logger.exception("Error exporting score for environment %s: %s", env_id, e)
+
 
 # --- Public Shutdown Function ---
 def flush(timeout: float = 10.0) -> None:

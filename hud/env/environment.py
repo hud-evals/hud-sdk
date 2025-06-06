@@ -3,14 +3,15 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any
 from datetime import datetime
+from typing import TYPE_CHECKING, Any
 
 from pydantic import BaseModel
 
 from hud.env.client import Client
 from hud.env.remote_client import RemoteClient
 from hud.task import Task
+from hud.telemetry.exporter import log_observation, log_score
 from hud.utils.common import FunctionConfig, FunctionConfigs, Observation
 from hud.utils.config import (
     LOCAL_EVALUATORS,
@@ -20,7 +21,6 @@ from hud.utils.config import (
     expand_config,
 )
 from hud.utils.telemetry import stream
-from hud.telemetry.exporter import log_observation, log_score
 
 logger = logging.getLogger("hud.environment")
 
@@ -119,11 +119,11 @@ class Environment(BaseModel):
                 results = await self._invoke_all(self.task.evaluate)
             else:
                 raise ValueError("No config or task provided for local environment")
-        
+
         if log_score:
             for result in results:
                 await self.log_score(result)
-        
+
         if len(results) == 1:
             return results[0]
         else:
@@ -176,7 +176,7 @@ class Environment(BaseModel):
         else:
             logger = logging.getLogger("hud.environment")
             logger.setLevel(logging.INFO)
-        
+
         if not isinstance(actions, list) and actions is not None:
             actions = [actions]
         if actions is None or len(actions) == 0:
@@ -281,7 +281,7 @@ class Environment(BaseModel):
         if verbose:
             logger.info("Evaluation result: %s", result)
         return result
-    
+
     async def log_observation(self, observation: Observation) -> None:
         """Log the observation to the environment."""
         try:
@@ -295,6 +295,7 @@ class Environment(BaseModel):
             await log_score(self.client.env_id, score)
         except Exception as e:
             logger.warning("Failed to log score: %s", e)
+
 
 def create_remote_config(
     env: Environment | None = None,

@@ -13,10 +13,10 @@ import aiodocker
 from aiohttp import ClientTimeout
 
 from hud.env.docker_client import DockerClient, EnvironmentStatus
-from hud.utils import ExecuteResult
-from hud.utils.common import directory_to_tar_bytes, get_gym_id
 from hud.server import make_request
 from hud.settings import settings
+from hud.utils import ExecuteResult
+from hud.utils.common import directory_to_tar_bytes, get_gym_id
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -144,7 +144,7 @@ class LocalDockerClient(DockerClient):
         }
 
         container = await docker_client.containers.create(config=container_config)
-        
+
         await container.start()
 
         # --------------------------------------------------
@@ -156,13 +156,13 @@ class LocalDockerClient(DockerClient):
                 async for raw in container.log(stdout=True, stderr=True, follow=True):
                     if isinstance(raw, bytes):
                         raw = raw.decode(errors="replace")
-                    logger.info(f"container {container.id[:12]} | {raw.rstrip()}")
+                    logger.info("container %s | %s", container.id[:12], raw.rstrip())
             except asyncio.CancelledError:
                 # task cancelled during cleanup - silently exit
-                logger.info(f"Log streaming cancelled for container {container.id[:12]}")
+                logger.info("Log streaming cancelled for container %s", container.id[:12])
                 return
             except Exception as e:
-                logger.error(f"error while streaming logs from {container.id[:12]}: {str(e)}")
+                logger.error("error while streaming logs from %s: %s", container.id[:12], str(e))
 
         log_task: asyncio.Task | None = asyncio.create_task(_stream_logs())
 
@@ -172,45 +172,59 @@ class LocalDockerClient(DockerClient):
             # consider adding explicitly to API if there's demand
             window_usecs = health_check_config.get("Interval", int(30 * 1e9))
             window_secs = window_usecs // 1_000_000
-            
+
             deadline = time.monotonic() + window_secs
             while True:
                 state = (await container.show())["State"]
                 health_status = state.get("Health", {}).get("Status")
                 container_status = state.get("Status")
-                logger.info(f"Container {container.id[:12]} health status: {health_status}, container status: {container_status}")
-                
+                logger.info(
+                    "Container %s health status: %s, container status: %s",
+                    container.id[:12],
+                    health_status,
+                    container_status,
+                )
+
                 if health_status == "healthy":
-                    logger.info(f"Container {container.id[:12]} is healthy")
+                    logger.info("Container %s is healthy", container.id[:12])
                     break
                 if container_status in {"exited", "dead"}:
-                    logger.error(f"Container {container.id[:12]} crashed before becoming healthy")
+                    logger.error("Container %s crashed before becoming healthy", container.id[:12])
                     raise RuntimeError("Container crashed before becoming healthy")
                 now = time.monotonic()
                 if now > deadline:
-                    logger.error(f"Container {container.id[:12]} health check timed out after {window_secs}s")
+                    logger.error(
+                        "Container %s health check timed out after %ds",
+                        container.id[:12],
+                        window_secs,
+                    )
                     raise TimeoutError(f"{container.id} not healthy after {window_secs}s")
                 await asyncio.sleep(1)
         else:
-            logger.info(f"Container {container.id[:12]} has no healthcheck, assuming ready")
+            logger.info("Container %s has no healthcheck, assuming ready", container.id[:12])
 
         # Stop the log stream now that the container is ready
         if log_task is not None:
-            logger.info(f"Cancelling log streaming task for container {container.id[:12]}")
+            logger.info("Cancelling log streaming task for container %s", container.id[:12])
             log_task.cancel()
             with contextlib.suppress(Exception):
                 await log_task
             log_task = None
 
         # Return the controller instance
-        logger.info(f"Creating LocalDockerClient instance for container {container.id[:12]}")
+        logger.info(
+            "Creating LocalDockerClient instance for container %s",
+            container.id[:12],
+        )
         client = cls(docker_client, container.id, env_id)
         # store the task so close() can cancel if it is still running
         client._log_task = log_task  # type: ignore[attr-defined]
         logger.info("LocalDockerClient instance created successfully")
         return client
 
-    def __init__(self, docker_conn: aiodocker.Docker, container_id: str, env_id: str | None = None) -> None:
+    def __init__(
+        self, docker_conn: aiodocker.Docker, container_id: str, env_id: str | None = None
+    ) -> None:
         """
         Initialize the DockerClient.
 
@@ -399,7 +413,7 @@ class LocalDockerClient(DockerClient):
 
         # Close the remote environment record
         try:
-            if self.env_id is not None:     
+            if self.env_id is not None:
                 await make_request(
                     method="POST",
                     url=f"{settings.base_url}/v2/environments/{self.env_id}/close",
