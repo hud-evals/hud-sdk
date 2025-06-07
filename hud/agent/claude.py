@@ -126,6 +126,9 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         if not self.client:
             raise ValueError("Client is required")
 
+        if not observation.text and not observation.screenshot:
+            raise ValueError("Observation must contain either text or screenshot")
+
         # Prepare the user content for Claude
         user_content: list[BetaImageBlockParam | BetaTextBlockParam | BetaToolResultBlockParam] = []
 

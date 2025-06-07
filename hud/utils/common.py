@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime
 import io
 import logging
 import tarfile
@@ -66,10 +67,31 @@ class Observation(BaseModel):
     screenshot: str | None = None  # base64 string png
     text: str | None = None
 
+    actions: list[dict[str, Any]] | None = None
+
+    stdout: bytes | None = None
+    stderr: bytes | None = None
+
+    start_timestamp: datetime.datetime | None = None
+    end_timestamp: datetime.datetime | None = None
+
     def __str__(self) -> str:
         return f"""Observation(screenshot={
             f"{self.screenshot[:100]}..." if self.screenshot else "None"
         }, text={f"{self.text[:100]}..." if self.text else "None"})"""
+
+    def to_json(self) -> dict[str, Any]:
+        """Convert the observation to a JSON-serializable dictionary."""
+        data = self.model_dump()
+        if data["stdout"] is not None:
+            data["stdout"] = data["stdout"].decode("utf-8")
+        if data["stderr"] is not None:
+            data["stderr"] = data["stderr"].decode("utf-8")
+        if data["start_timestamp"] is not None:
+            data["start_timestamp"] = data["start_timestamp"].isoformat()
+        if data["end_timestamp"] is not None:
+            data["end_timestamp"] = data["end_timestamp"].isoformat()
+        return data
 
 
 class ExecuteResult(TypedDict):

@@ -9,13 +9,13 @@ from hud.env.local_docker_client import LocalDockerClient
 from hud.env.remote_client import RemoteClient
 from hud.env.remote_docker_client import RemoteDockerClient
 from hud.exceptions import GymMakeException
+from hud.task import Task
 from hud.telemetry.context import get_current_task_run_id
 from hud.types import CustomGym, Gym
 from hud.utils.common import get_gym_id
 
 if TYPE_CHECKING:
     from hud.job import Job
-    from hud.task import Task
 
 logger = logging.getLogger("hud.gym")
 
@@ -26,6 +26,8 @@ async def make(
     job: Job | None = None,
     job_id: str | None = None,
     metadata: dict[str, Any] | None = None,
+    verbose: bool = False,
+    remote_logging_for_local_docker: bool = False,
 ) -> Environment:
     """
     Create an environment from an environment ID or a Task object.
@@ -35,13 +37,21 @@ async def make(
         job: Job object to associate with this environment
         job_id: ID of job to associate with this environment (deprecated, use job instead)
         metadata: Additional metadata for the environment
+        remote_logging_for_local_docker: Whether to use remote logging for a local env.
     """
+    if verbose:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.INFO)
+
     task = None
     if isinstance(env_src, str | CustomGym):
         gym = env_src
-    else:
+    elif isinstance(env_src, Task):
         gym = env_src.gym
         task = env_src
+    else:
+        raise GymMakeException(f"Invalid gym source: {env_src}", {})
 
     effective_job_id = None
     if job is not None:
@@ -91,9 +101,16 @@ async def make(
                 logger.info("Creating local environment")
                 if gym.host_config:
                     logger.info("Using host config: %s", gym.host_config)
-                    client = await LocalDockerClient.create(uri, gym.host_config)
+                    client = await LocalDockerClient.create(
+                        image=uri,
+                        host_config=gym.host_config,
+                        remote_logging_for_local_docker=remote_logging_for_local_docker,
+                    )
                 else:
-                    client = await LocalDockerClient.create(uri)
+                    client = await LocalDockerClient.create(
+                        image=uri,
+                        remote_logging_for_local_docker=remote_logging_for_local_docker,
+                    )
 
             elif gym.location == "remote":
                 logger.info("Creating remote environment")

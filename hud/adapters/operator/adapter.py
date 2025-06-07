@@ -49,6 +49,8 @@ class OperatorAdapter(Adapter):
                 x, y = data.get("x", 0), data.get("y", 0)
                 button = data.get("button", "left")
                 button = self.BUTTON_MAP.get(button, button)
+                if button is None:
+                    button = "left"
                 return ClickAction(point=Point(x=x, y=y), button=button)
 
             elif action_type == "double_click":

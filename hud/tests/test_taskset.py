@@ -208,3 +208,25 @@ def test_taskset_with_mixed_gym_types(sample_tasks):
     assert len(taskset) == 4
     # Verify the custom gym task is properly included
     assert isinstance(taskset[3].gym, CustomGym)
+
+
+@pytest.mark.asyncio
+async def test_taskset_with_local_gym_spec():
+    """Test TaskSet with a local gym spec."""
+    from pathlib import Path
+
+    from hud.types import CustomGym
+
+    custom_task = Task(
+        prompt="Custom environment task",
+        gym=CustomGym(location="local", image_or_build_context=Path("/test/path")),
+    )
+
+    taskset = TaskSet(tasks=[custom_task])
+
+    with pytest.raises(
+        ValueError,
+        match="Local build contexts are not supported for remote tasksets, "
+        "attach an image or existing gym id.",
+    ):
+        await taskset.upload(name="Test", description="Test", api_key="test-api-key")
