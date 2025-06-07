@@ -46,6 +46,9 @@ class Environment(BaseModel):
     # final response
     final_response: str | None = None
 
+    # Whether to autolog scores and observations
+    autolog: bool = False
+
     async def _invoke_all(self, configs: FunctionConfigs) -> list[Any]:
         # Execute each config and collect results
         configs_all = [configs] if not isinstance(configs, list) else configs
@@ -90,7 +93,6 @@ class Environment(BaseModel):
         config: FunctionConfigs | None = None,
         metadata: dict[str, Any] | None = None,
         verbose: bool = False,
-        log_score: bool = False,
     ) -> Any:
         """
         Evaluate the environment.
@@ -120,7 +122,7 @@ class Environment(BaseModel):
             else:
                 raise ValueError("No config or task provided for local environment")
 
-        if log_score:
+        if self.autolog:
             for result in results:
                 await self.log_score(result)
 
@@ -160,7 +162,6 @@ class Environment(BaseModel):
         self,
         actions: CLA | list[CLA] | None = None,
         verbose: bool = False,
-        log_observation: bool = False,
     ) -> tuple[Observation, float, bool, dict[str, Any]]:
         """Execute a step in the environment.
 
@@ -205,7 +206,7 @@ class Environment(BaseModel):
         }
 
         observation = Observation.model_validate(observation_data)
-        if log_observation:
+        if self.autolog:
             await self.log_observation(observation)
 
         return observation, 0, False, {}

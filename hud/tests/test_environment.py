@@ -66,6 +66,7 @@ def environment(mock_client):
         live_url=None,  # Optional
         task=None,  # Optional
         final_response=None,  # Optional
+        autolog=True,  # Optional
     )
 
 
@@ -148,7 +149,7 @@ async def test_log_observation_during_step(environment):
 
     with patch("httpx.AsyncClient", return_value=AsyncContextManagerMock(mock_client)):
         # Call step with log_observation=True
-        await environment.step(log_observation=True)
+        await environment.step()
 
         # Verify the request was made
         mock_client.post.assert_called_once()
@@ -219,7 +220,7 @@ async def test_log_score_during_evaluate(environment):
 
     with patch("httpx.AsyncClient", return_value=AsyncContextManagerMock(mock_client)):
         # Call evaluate with log_score=True and a test config
-        await environment.evaluate(config=FunctionConfig(function="test", args=[]), log_score=True)
+        await environment.evaluate(config=FunctionConfig(function="test", args=[]))
 
         # Verify the request was made
         mock_client.post.assert_called_once()

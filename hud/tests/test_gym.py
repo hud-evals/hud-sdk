@@ -267,3 +267,158 @@ async def test_make_without_image_or_build_context():
     # Create a CustomGym instance without an image or build context
     with pytest.raises(GymMakeException, match="Invalid image or build context"):
         await make(MagicMock(spec=CustomGym, location="local", image_or_build_context=None))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "test_case",
+    [
+        # Test that local CustomGym defaults to autolog=False
+        {
+            "name": "local_gym_default_autolog",
+            "env_src": CustomGym(
+                location="local",
+                image_or_build_context="test-image:latest",
+            ),
+            "expected_autolog": False,
+            "expected_create_args": {
+                "image": "test-image:latest",
+                "remote_logging_for_local_docker": False,
+            },
+        },
+        # Test that remote CustomGym defaults to autolog=True
+        {
+            "name": "remote_gym_default_autolog",
+            "env_src": CustomGym(
+                location="remote",
+                image_or_build_context="test-image:latest",
+            ),
+            "expected_autolog": True,
+            "expected_create_args": {
+                "image_uri": "test-image:latest",
+                "job_id": None,
+                "task_id": None,
+                "metadata": {},
+            },
+        },
+        # Test that we can override local CustomGym to use autolog=True
+        {
+            "name": "local_gym_explicit_autolog",
+            "env_src": CustomGym(
+                location="local",
+                image_or_build_context="test-image:latest",
+            ),
+            "autolog": True,
+            "expected_autolog": True,
+            "expected_create_args": {
+                "image": "test-image:latest",
+                "remote_logging_for_local_docker": True,
+            },
+        },
+        # Test that we can override remote CustomGym to use autolog=False
+        {
+            "name": "remote_gym_explicit_autolog",
+            "env_src": CustomGym(
+                location="remote",
+                image_or_build_context="test-image:latest",
+            ),
+            "autolog": False,
+            "expected_autolog": False,
+            "expected_create_args": {
+                "image_uri": "test-image:latest",
+                "job_id": None,
+                "task_id": None,
+                "metadata": {},
+            },
+        },
+        # Test that the 'qa' ServerGym defaults to autolog=True
+        {
+            "name": "qa_gym_default_autolog",
+            "env_src": "qa",
+            "expected_autolog": True,
+            "expected_create_args": {
+                "gym_id": "qa",
+                "job_id": None,
+                "task_id": None,
+                "metadata": {},
+            },
+        },
+        # Test that we can override 'qa' ServerGym to use autolog=False
+        {
+            "name": "qa_gym_explicit_autolog_false",
+            "env_src": "qa",
+            "autolog": False,
+            "expected_autolog": False,
+            "expected_create_args": {
+                "gym_id": "qa",
+                "job_id": None,
+                "task_id": None,
+                "metadata": {},
+            },
+        },
+        # Test that the 'hud-browser' ServerGym defaults to autolog=True
+        {
+            "name": "hud_browser_default_autolog",
+            "env_src": "hud-browser",
+            "expected_autolog": True,
+            "expected_create_args": {
+                "gym_id": "hud-browser",
+                "job_id": None,
+                "task_id": None,
+                "metadata": {},
+            },
+        },
+        # Test that the 'OSWorld-Ubuntu' ServerGym defaults to autolog=True
+        {
+            "name": "osworld_ubuntu_default_autolog",
+            "env_src": "OSWorld-Ubuntu",
+            "expected_autolog": True,
+            "expected_create_args": {
+                "gym_id": "OSWorld-Ubuntu",
+                "job_id": None,
+                "task_id": None,
+                "metadata": {},
+            },
+        },
+    ],
+)
+async def test_make_autolog_behavior(mocker, test_case):
+    """Test the autolog behavior for different gym types and configurations."""
+    reset_context()
+    mock_client = MockClient()
+    mock_build_data = {"image": "test-image"}
+
+    # Mock RemoteClient.create for string-based gyms
+    mock_remote_create = mocker.patch("hud.gym.RemoteClient.create", new_callable=AsyncMock)
+    mock_remote_create.return_value = (mock_client, mock_build_data)
+
+    # Mock LocalDockerClient.create for local gyms
+    mock_local_create = mocker.patch("hud.gym.LocalDockerClient.create", new_callable=AsyncMock)
+    mock_local_create.return_value = mock_client
+
+    # Mock RemoteDockerClient.create for remote gyms
+    mock_remote_docker_create = mocker.patch("hud.gym.RemoteDockerClient.create", new_callable=AsyncMock)
+    mock_remote_docker_create.return_value = mock_client
+
+    # Mock get_gym_id for string-based gyms
+    mock_get_gym_id = mocker.patch("hud.gym.get_gym_id", new_callable=AsyncMock)
+    mock_get_gym_id.return_value = test_case["env_src"] if isinstance(test_case["env_src"], str) else None
+
+    # Mock the _setup method to avoid the config requirement
+    mocker.patch("hud.env.environment.Environment._setup", new_callable=AsyncMock)
+
+    # Create environment with optional autolog parameter
+    kwargs = {"autolog": test_case["autolog"]} if "autolog" in test_case else {}
+    env = await make(test_case["env_src"], **kwargs)
+
+    assert isinstance(env, Environment)
+    assert env.autolog == test_case["expected_autolog"]
+
+    # Verify the correct client creation was called with expected args
+    if isinstance(test_case["env_src"], str):
+        mock_remote_create.assert_called_once_with(**test_case["expected_create_args"])
+    elif isinstance(test_case["env_src"], CustomGym):
+        if test_case["env_src"].location == "local":
+            mock_local_create.assert_called_once_with(**test_case["expected_create_args"])
+        else:
+            mock_remote_docker_create.assert_called_once_with(**test_case["expected_create_args"])

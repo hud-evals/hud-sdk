@@ -27,7 +27,7 @@ async def make(
     job_id: str | None = None,
     metadata: dict[str, Any] | None = None,
     verbose: bool = False,
-    remote_logging_for_local_docker: bool = False,
+    autolog: bool | None = None,
 ) -> Environment:
     """
     Create an environment from an environment ID or a Task object.
@@ -37,12 +37,21 @@ async def make(
         job: Job object to associate with this environment
         job_id: ID of job to associate with this environment (deprecated, use job instead)
         metadata: Additional metadata for the environment
-        remote_logging_for_local_docker: Whether to use remote logging for a local env.
+        autolog: Whether to autolog scores and observations (default: True for remote and False for local)
     """
     if verbose:
         logger.setLevel(logging.DEBUG)
     else:
         logger.setLevel(logging.INFO)
+
+    if autolog is None:  # Default autolog values -- otherwise, use the value passed in
+        if isinstance(env_src, CustomGym):
+            if env_src.location == "local":
+                autolog = False  # False by default for local environments
+            else:
+                autolog = True  # True by default for remote environments
+        else:
+            autolog = True  # True by default for implicitly remote environments
 
     task = None
     if isinstance(env_src, str | CustomGym):
@@ -104,12 +113,12 @@ async def make(
                     client = await LocalDockerClient.create(
                         image=uri,
                         host_config=gym.host_config,
-                        remote_logging_for_local_docker=remote_logging_for_local_docker,
+                        remote_logging_for_local_docker=autolog,  # we use autolog here
                     )
                 else:
                     client = await LocalDockerClient.create(
                         image=uri,
-                        remote_logging_for_local_docker=remote_logging_for_local_docker,
+                        remote_logging_for_local_docker=autolog,  # we use autolog here
                     )
 
             elif gym.location == "remote":
@@ -143,7 +152,11 @@ async def make(
             raise ValueError(f"Invalid gym source: {gym}")
 
         environment = Environment(
-            client=client, metadata=metadata_copy, task=task, build_data=build_data
+            client=client,
+            metadata=metadata_copy,
+            task=task,
+            build_data=build_data,
+            autolog=autolog,
         )
 
         if task:
