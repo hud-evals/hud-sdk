@@ -104,11 +104,9 @@ class Environment(BaseModel):
             Any: Result of the evaluation
         """
         if not verbose:
-            logger = logging.getLogger("hud")
-            logger.setLevel(logging.CRITICAL)
+            logging.getLogger("hud.environment").setLevel(logging.CRITICAL)
         else:
-            logger = logging.getLogger("hud.environment")
-            logger.setLevel(logging.INFO)
+            logging.getLogger("hud.environment").setLevel(logging.INFO)
 
         if isinstance(self.client, RemoteClient):
             results = await self._invoke_all(
@@ -147,11 +145,9 @@ class Environment(BaseModel):
             info: Dictionary of information about the environment
         """
         if not verbose:
-            logger = logging.getLogger("hud")
-            logger.setLevel(logging.CRITICAL)
+            logging.getLogger("hud.environment").setLevel(logging.CRITICAL)
         else:
-            logger = logging.getLogger("hud.environment")
-            logger.setLevel(logging.INFO)
+            logging.getLogger("hud.environment").setLevel(logging.INFO)
 
         obs, _, _, info = await self.step()
         if self.task and self.task.prompt:
@@ -172,11 +168,9 @@ class Environment(BaseModel):
             Any: Result of the step execution
         """
         if not verbose:
-            logger = logging.getLogger("hud")
-            logger.setLevel(logging.CRITICAL)
+            logging.getLogger("hud.environment").setLevel(logging.CRITICAL)
         else:
-            logger = logging.getLogger("hud.environment")
-            logger.setLevel(logging.INFO)
+            logging.getLogger("hud.environment").setLevel(logging.INFO)
 
         if not isinstance(actions, list) and actions is not None:
             actions = [actions]

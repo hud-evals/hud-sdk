@@ -40,9 +40,9 @@ async def make(
         autolog: Whether to autolog scores and observations (default: True for remote and False for local)
     """
     if verbose:
-        logger.setLevel(logging.DEBUG)
+        logging.getLogger("hud").setLevel(logging.DEBUG)
     else:
-        logger.setLevel(logging.INFO)
+        logging.getLogger("hud").setLevel(logging.CRITICAL)
 
     if autolog is None:  # Default autolog values -- otherwise, use the value passed in
         if isinstance(env_src, CustomGym):

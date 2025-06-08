@@ -33,10 +33,15 @@ class LocalDockerClient(DockerClient):
     """
 
     @classmethod
-    async def build_image(cls, build_context: Path) -> tuple[str, dict[str, Any]]:
+    async def build_image(cls, build_context: Path, verbose: bool = False) -> tuple[str, dict[str, Any]]:
         """
         Build an image from a build context.
         """
+        if verbose:
+            logging.getLogger("hud").setLevel(logging.DEBUG)
+        else:
+            logging.getLogger("hud").setLevel(logging.CRITICAL)
+
         logger.info("Building image from %s", build_context)
         # Create a unique image tag
         image_tag = f"hud-env-{uuid.uuid4().hex[:8]}"
