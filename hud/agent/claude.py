@@ -132,22 +132,11 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         # Prepare the user content for Claude
         user_content: list[BetaImageBlockParam | BetaTextBlockParam | BetaToolResultBlockParam] = []
 
-        # Add text instruction if present
-        if observation.text:
-            # logger.info("Adding text to user content: %s", observation.text)
-            user_content.append(text_to_content_block(str(observation.text)))
-
         # Add screenshot if present
         if observation.screenshot:
-            # logger.info("Adding screenshot to user content")
             if not self.pending_computer_use_tool_id:
-                # logger.info("Adding screenshot to user content, no tool id")
                 user_content.append(base64_to_content_block(observation.screenshot))
             else:
-                # logger.info(
-                #    "Adding screenshot to user content, tool id: %s",
-                #    self.pending_computer_use_tool_id,
-                # )
                 user_content.append(
                     tool_use_content_block(
                         self.pending_computer_use_tool_id,
@@ -155,6 +144,10 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
                     )
                 )
                 self.pending_computer_use_tool_id = None
+
+        # Add text instruction if present
+        if observation.text:
+            user_content.append(text_to_content_block(str(observation.text)))
 
         # Add the user content to the messages
         self.messages.append(
