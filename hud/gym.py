@@ -11,7 +11,7 @@ from hud.env.remote_docker_client import RemoteDockerClient
 from hud.exceptions import GymMakeException
 from hud.task import Task
 from hud.telemetry.context import get_current_task_run_id
-from hud.types import CustomGym, Gym
+from hud.types import CustomGym, Gym, ServerGym
 from hud.utils.common import get_gym_id
 
 if TYPE_CHECKING:
@@ -37,7 +37,7 @@ async def make(
         job: Job object to associate with this environment
         job_id: ID of job to associate with this environment (deprecated, use job instead)
         metadata: Additional metadata for the environment
-        autolog: Whether to autolog scores and observations (default: True for remote and False for local)
+        autolog: Whether to autolog scores and observations (default: True for remote CustomGym and False for others)
     """
     if verbose:
         logging.getLogger("hud").setLevel(logging.DEBUG)
@@ -46,12 +46,14 @@ async def make(
 
     if autolog is None:  # Default autolog values -- otherwise, use the value passed in
         if isinstance(env_src, CustomGym):
-            if env_src.location == "local":
-                autolog = False  # False by default for local environments
+            if env_src.location == "remote":
+                autolog = True  # True by default for remote CustomGym
             else:
-                autolog = True  # True by default for remote environments
+                autolog = False  # False by default for local CustomGym
+        elif isinstance(env_src, ServerGym):
+            autolog = False  # False by default for ServerGym (remote)
         else:
-            autolog = True  # True by default for implicitly remote environments
+            raise ValueError(f"Invalid gym source: {env_src}")
 
     task = None
     if isinstance(env_src, str | CustomGym):
