@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from hud.env.client import Client
 from hud.env.remote_client import RemoteClient
 from hud.task import Task
-from hud.telemetry.exporter import log_observation, log_score
+from hud.telemetry.async_logger import AsyncLogger
 from hud.utils.common import FunctionConfig, FunctionConfigs, Observation
 from hud.utils.config import (
     LOCAL_EVALUATORS,
@@ -280,14 +280,14 @@ class Environment(BaseModel):
     async def log_observation(self, observation: Observation) -> None:
         """Log the observation to the environment."""
         try:
-            await log_observation(self.client.env_id, observation)
+            await AsyncLogger.get_instance().log_observation(self.client.env_id, observation)
         except Exception as e:
             logger.warning("Failed to log observation: %s", e)
 
     async def log_score(self, score: float) -> None:
         """Log the score to the environment."""
         try:
-            await log_score(self.client.env_id, score)
+            await AsyncLogger.get_instance().log_score(self.client.env_id, score)
         except Exception as e:
             logger.warning("Failed to log score: %s", e)
 
@@ -356,8 +356,7 @@ def create_remote_config(
            - Example Input:
              `env` (with `task=Task(id="t2", config={"expected": "val"}, ...)`)
              `config=None`
-             `function="evaluate"`
-           - Example Output:
+             `function="evaluate"`           - Example Output:
              `[FunctionConfig(function='evaluate', args=[{"expected": "val", "id": "t2"}])]`
 
         4) No explicit `config`, no specific Task attribute, no `task.config`, Task has `task.id`:
@@ -455,3 +454,4 @@ def create_remote_config(
     if env and env.final_response:
         args_list.append(env.final_response)
     return [FunctionConfig(function=function, args=args_list, metadata=metadata)]
+

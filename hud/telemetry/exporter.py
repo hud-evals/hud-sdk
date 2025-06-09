@@ -20,6 +20,8 @@ from hud.telemetry.mcp_models import (  # MCPResponseCall for isinstance check
     TrajectoryStep,
 )
 
+from hud.telemetry.async_logger import AsyncLogger
+
 if TYPE_CHECKING:
     from collections.abc import Coroutine
 
@@ -340,79 +342,6 @@ async def send_telemetry_to_server(task_run_id: str, data: dict[str, Any]) -> No
                 )
     except Exception as e:
         logger.exception("Error exporting telemetry for task run %s: %s", task_run_id, e)
-
-
-async def log_observation(env_id: str, observation: Observation) -> None:
-    """Log an observation to the telemetry service."""
-    telemetry_url = f"{settings.base_url}/v2/environments/{env_id}/log_observation"
-
-    try:
-        async with httpx.AsyncClient() as client:
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {settings.api_key}",
-            }
-            request_data = observation.to_json()
-
-            response = await client.post(
-                telemetry_url,
-                json=request_data,  # Send the structured attributes and mcp_calls
-                headers=headers,
-                timeout=30.0,
-            )
-
-            if response.status_code >= 200 and response.status_code < 300:
-                logger.debug(
-                    "Successfully exported telemetry for task run %s. Status: %s",
-                    env_id,
-                    response.status_code,
-                )
-            else:
-                logger.warning(
-                    "Failed to export telemetry for task run %s: HTTP %s - %s",
-                    env_id,
-                    response.status_code,
-                    response.text,
-                )
-    except Exception as e:
-        logger.exception("Error exporting telemetry for task run %s: %s", env_id, e)
-
-
-async def log_score(env_id: str, score: float) -> None:
-    """Log a score to the telemetry service."""
-    telemetry_url = f"{settings.base_url}/v2/environments/{env_id}/log_score"
-
-    try:
-        async with httpx.AsyncClient() as client:
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {settings.api_key}",
-            }
-            request_data = {
-                "score": score,
-            }
-            response = await client.post(
-                telemetry_url,
-                json=request_data,
-                headers=headers,
-                timeout=30.0,
-            )
-
-            if response.status_code >= 200 and response.status_code < 300:
-                logger.debug(
-                    "Successfully exported score for environment %s. Status: %s",
-                    env_id,
-                    response.status_code,
-                )
-            else:
-                logger.warning(
-                    "Failed to export score for environment %s: HTTP %s - %s",
-                    env_id,
-                    response.status_code,
-                    response.text,
-                )
-    except Exception as e:
-        logger.exception("Error exporting score for environment %s: %s", env_id, e)
 
 
 # --- Public Shutdown Function ---

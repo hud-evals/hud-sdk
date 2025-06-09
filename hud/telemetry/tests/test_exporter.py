@@ -6,10 +6,18 @@ from datetime import datetime
 from unittest.mock import AsyncMock, patch
 
 import pytest
+import json
+import logging
+from typing import Any, Dict
+
+import httpx
+from pytest_httpx import HTTPXMock
 
 from hud.settings import settings
-from hud.telemetry.exporter import log_observation, log_score
+from hud.telemetry.async_logger import AsyncLogger
 from hud.utils.common import Observation
+
+logger = logging.getLogger(__name__)
 
 
 @pytest.fixture(autouse=True)
@@ -42,105 +50,68 @@ class AsyncContextManagerMock:
         pass
 
 
+@pytest.fixture
+def observation() -> Dict[str, Any]:
+    return {
+        "type": "text",
+        "text": "test observation",
+        "timestamp": datetime.now().timestamp(),
+    }
+
+
 @pytest.mark.asyncio
-async def test_log_observation():
+async def test_log_observation(httpx_mock: HTTPXMock, observation: Dict[str, Any]):
     """Test that log_observation sends the correct data to the endpoint."""
-    env_id = "test-env-123"
-    observation = Observation(
-        text="test observation",
-        start_timestamp=datetime.now(),
-        end_timestamp=datetime.now(),
-        stdout=b"test stdout",
-        stderr=b"test stderr",
-        actions=[{"type": "test", "text": "test action"}],
-    )
+    env_id = "test-env"
+    httpx_mock.add_response(status_code=200)
 
-    mock_client = AsyncMock()
-    mock_client.post.return_value.status_code = 200
+    logger = AsyncLogger.get_instance()
+    await logger.log_observation(env_id, Observation(**observation))
 
-    with patch("httpx.AsyncClient", return_value=AsyncContextManagerMock(mock_client)):
-        await log_observation(env_id, observation)
-
-        # Verify the request was made with correct data
-        mock_client.post.assert_called_once()
-        call_args = mock_client.post.call_args
-        assert call_args is not None
-        args, kwargs = call_args
-
-        # Check URL
-        assert args[0] == f"{settings.base_url}/v2/environments/{env_id}/log_observation"
-
-        # Check headers
-        assert kwargs["headers"]["Content-Type"] == "application/json"
-        assert kwargs["headers"]["Authorization"] == f"Bearer {settings.api_key}"
-
-        # Check request data
-        request_data = kwargs["json"]
-        assert request_data == observation.to_json()
-
-        # Check timeout
-        assert kwargs["timeout"] == 30.0
+    request = httpx_mock.get_request()
+    assert request is not None
+    assert request.method == "POST"
+    assert request.url == f"{settings.base_url}/v2/environments/{env_id}/log_observation"
+    assert request.headers["Authorization"] == f"Bearer {settings.api_key}"
+    assert request.headers["Content-Type"] == "application/json"
+    assert json.loads(request.content) == observation
 
 
 @pytest.mark.asyncio
-async def test_log_observation_error_handling():
+async def test_log_observation_error_handling(httpx_mock: HTTPXMock, observation: Dict[str, Any]):
     """Test that log_observation handles errors gracefully."""
-    env_id = "test-env-123"
-    observation = Observation(
-        text="test observation",
-        start_timestamp=datetime.now(),
-        end_timestamp=datetime.now(),
-    )
+    env_id = "test-env"
+    httpx_mock.add_response(status_code=500, text="Internal Server Error")
 
-    mock_client = AsyncMock()
-    mock_client.post.side_effect = Exception("Test error")
-
-    with patch("httpx.AsyncClient", return_value=AsyncContextManagerMock(mock_client)):
-        # Should not raise an exception
-        await log_observation(env_id, observation)
+    logger = AsyncLogger.get_instance()
+    await logger.log_observation(env_id, Observation(**observation))
 
 
 @pytest.mark.asyncio
-async def test_log_score():
+async def test_log_score(httpx_mock: HTTPXMock):
     """Test that log_score sends the correct data to the endpoint."""
-    env_id = "test-env-123"
-    score = 0.95
+    env_id = "test-env"
+    score = 0.5
+    httpx_mock.add_response(status_code=200)
 
-    mock_client = AsyncMock()
-    mock_client.post.return_value.status_code = 200
+    logger = AsyncLogger.get_instance()
+    await logger.log_score(env_id, score)
 
-    with patch("httpx.AsyncClient", return_value=AsyncContextManagerMock(mock_client)):
-        await log_score(env_id, score)
-
-        # Verify the request was made with correct data
-        mock_client.post.assert_called_once()
-        call_args = mock_client.post.call_args
-        assert call_args is not None
-        args, kwargs = call_args
-
-        # Check URL
-        assert args[0] == f"{settings.base_url}/v2/environments/{env_id}/log_score"
-
-        # Check headers
-        assert kwargs["headers"]["Content-Type"] == "application/json"
-        assert kwargs["headers"]["Authorization"] == f"Bearer {settings.api_key}"
-
-        # Check request data
-        assert kwargs["json"] == {"score": score}
-
-        # Check timeout
-        assert kwargs["timeout"] == 30.0
+    request = httpx_mock.get_request()
+    assert request is not None
+    assert request.method == "POST"
+    assert request.url == f"{settings.base_url}/v2/environments/{env_id}/log_score"
+    assert request.headers["Authorization"] == f"Bearer {settings.api_key}"
+    assert request.headers["Content-Type"] == "application/json"
+    assert json.loads(request.content) == {"score": score}
 
 
 @pytest.mark.asyncio
-async def test_log_score_error_handling():
+async def test_log_score_error_handling(httpx_mock: HTTPXMock):
     """Test that log_score handles errors gracefully."""
-    env_id = "test-env-123"
-    score = 0.95
+    env_id = "test-env"
+    score = 0.5
+    httpx_mock.add_response(status_code=500, text="Internal Server Error")
 
-    mock_client = AsyncMock()
-    mock_client.post.side_effect = Exception("Test error")
-
-    with patch("httpx.AsyncClient", return_value=AsyncContextManagerMock(mock_client)):
-        # Should not raise an exception
-        await log_score(env_id, score)
+    logger = AsyncLogger.get_instance()
+    await logger.log_score(env_id, score)
