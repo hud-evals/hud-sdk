@@ -66,6 +66,7 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         model: str = "claude-3-7-sonnet-20250219",
         max_tokens: int = 4096,
         max_iterations: int = 10,
+        name: str | None = None,
     ):
         """
         Initialize the ClaudeAgent.
@@ -76,6 +77,7 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
             model: The Claude model to use
             max_tokens: Maximum tokens for Claude's response
             max_iterations: Maximum number of iterations for the agent
+            name: The name of the agent
         """
         # Initialize client if not provided
         if client is None:
@@ -91,7 +93,10 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
 
         adapter = adapter or ClaudeAdapter()
 
-        super().__init__(client=client, adapter=adapter)
+        if name is None:
+            name = model
+
+        super().__init__(client=client, adapter=adapter, name=name)
 
         self.model = model
         self.max_tokens = max_tokens
@@ -110,7 +115,9 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         self.messages: list[BetaMessageParam] = []
         self.pending_computer_use_tool_id = None
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[Any], bool]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[Any], bool]:
         """
         Fetch a response from Claude based on the observation.
 

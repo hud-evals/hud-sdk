@@ -56,7 +56,7 @@ class Task(BaseModel):
     gym: Gym | None = None
     config: dict[str, Any] | None = None
 
-    metadata: dict[MetadataKeys, Any] | None = None
+    metadata: dict[MetadataKeys, Any] = {}
 
     description: str | None = None
 

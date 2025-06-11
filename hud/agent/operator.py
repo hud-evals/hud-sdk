@@ -41,6 +41,7 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
         environment: Literal["windows", "mac", "linux", "browser"] = "linux",
         adapter: Adapter | None = None,
         max_iterations: int = 8,
+        name: str | None = None,
     ):
         """
         Initialize the OperatorAgent.
@@ -51,6 +52,7 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
             environment: The environment type (windows, mac, linux, browser)
             adapter: The adapter to use for preprocessing and postprocessing
             max_iterations: Maximum number of iterations for the agent
+            name: The name of the agent
         """
         # Initialize client if not provided
         if client is None:
@@ -66,7 +68,10 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
 
         adapter = adapter or OperatorAdapter()
 
-        super().__init__(client=client, adapter=adapter)
+        if name is None:
+            name = f"openai-{model}"
+
+        super().__init__(client=client, adapter=adapter, name=name)
 
         self.model = model
         self.environment = environment

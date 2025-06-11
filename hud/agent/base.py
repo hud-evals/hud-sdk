@@ -31,6 +31,7 @@ class Agent(Generic[ClientT, ActionT], ABC):
         self,
         client: ClientT | None = None,
         adapter: Adapter | None = None,
+        name: str | None = None,
     ):
         """
         Initialize the agent.
@@ -41,7 +42,8 @@ class Agent(Generic[ClientT, ActionT], ABC):
         """
         self.client = client
         self.adapter = adapter
-
+        self.name = name
+        
     def preprocess(self, observation: Observation) -> Observation:
         """
         Preprocess the observation before sending to the model.
@@ -62,7 +64,9 @@ class Agent(Generic[ClientT, ActionT], ABC):
         return processed_obs
 
     @abstractmethod
-    async def fetch_response(self, observation: Observation) -> tuple[list[ActionT], bool]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[ActionT], bool]:
         """
         Fetch a response from the model based on the observation.
 

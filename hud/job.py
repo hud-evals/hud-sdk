@@ -321,6 +321,10 @@ async def _execute_task(
         if agent_instance is None:
             raise RuntimeError("Agent could not be instantiated")
 
+        agent_name = agent_instance.name
+        logger.info("Using agent: %s", agent_name)
+        task.metadata["agent_name"] = agent_name
+
         # Environment creation with semaphore
         if env_creation_semaphore:
             async with env_creation_semaphore:
