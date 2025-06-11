@@ -90,7 +90,9 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
             system_prompt: An optional system prompt to guide the Langchain model.
                            If None, a default prompt encouraging single CLA output is used.
         """
-        super().__init__(client=langchain_model, adapter=adapter, name=name)  # Store model as 'client'
+        super().__init__(
+            client=langchain_model, adapter=adapter, name=name
+        )  # Store model as 'client'
         self.langchain_model = langchain_model  # Also store with specific name
 
         self.system_prompt_str = system_prompt or self._get_default_system_prompt()
