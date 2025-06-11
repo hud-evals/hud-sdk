@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal, cast
 
 from inspect_ai.util._sandbox import SandboxEnvironmentSpec
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from hud.types import CustomGym, Gym, MetadataKeys
 from hud.utils.common import FunctionConfig, FunctionConfigs
@@ -56,7 +56,7 @@ class Task(BaseModel):
     gym: Gym | None = None
     config: dict[str, Any] | None = None
 
-    metadata: dict[MetadataKeys, Any] = {}
+    metadata: dict[MetadataKeys, Any] = Field(default_factory=dict)
 
     description: str | None = None
 
