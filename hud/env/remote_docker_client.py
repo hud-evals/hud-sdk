@@ -20,10 +20,14 @@ if TYPE_CHECKING:
 logger = logging.getLogger("hud.env.remote_env_client")
 
 
-async def upload_bytes_to_presigned_url(presigned_url: str, data_bytes: bytes) -> None:
+async def upload_bytes_to_presigned_url(
+    presigned_url: str,
+    data_bytes: bytes,
+    timeout: float = 600,
+) -> None:
     try:
         async with httpx.AsyncClient() as client:
-            response = await client.put(presigned_url, content=data_bytes)
+            response = await client.put(presigned_url, content=data_bytes, timeout=timeout)
             response.raise_for_status()
     except httpx.HTTPStatusError as e:
         logger.exception("Failed to upload to presigned URL")
@@ -113,6 +117,7 @@ class RemoteDockerClient(DockerClient):
 
         logger.info("Creating remote environment")
 
+        # true_gym_id = await get_gym_id("local-docker")
         true_gym_id = await get_gym_id("docker")
 
         # augment metadata with dockerfile

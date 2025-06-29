@@ -1,0 +1,104 @@
+---
+title: 'Custom Environments'
+description: 'Define and run your own Docker-based environments locally or remotely'
+---
+
+# Custom Environments
+
+While the HUD SDK provides standard environments like `"hud-browser"` and `"OSWorld-Ubuntu"`, you can also define and run your own custom environments using Docker. This allows you to create specific testing scenarios with custom software stacks or configurations.
+
+Custom environments are defined using the `CustomGym` type from `hud.types`.
+
+## Defining a Custom Environment (`CustomGym`)
+
+```python
+from hud.types import CustomGym
+from pathlib import Path
+
+# Example 1: Local Docker environment using a source directory
+# Points to a directory containing controller code and a Dockerfile
+local_env_spec = CustomGym(
+    location="local",
+    image_or_build_context=Path("./my_custom_controller") # Path to your controller code
+)
+
+# Example 2: Local Docker environment (using prebuilt image)
+local_env_spec = CustomGym(
+    location="local",
+    image_or_build_context="local_image" # local docker images can be used when location is local
+)
+
+# Example 3: Remote Docker environment (using prebuilt image)
+remote_env_spec = CustomGym(
+    location="remote",
+    image_or_build_context="hudevals/novnc-ubuntu:latest" # docker hub image name
+)
+```
+**Key `CustomGym` Attributes:**
+
+*   **`location` (`"local"` | `"remote"`):**
+    *   `"local"`: Builds and runs the Docker container on your *local* machine. Requires Docker installed. Ideal for development. See [Local Environment Structure](#local-environment-structure) below.
+    *   `"remote"`: Executes the prebuilt image on the HUD platform. Good for sharing or running complex setups.
+*   **`image_or_build_context` (str | `Path`):**
+    *   If string, it is interpreted as an image name. Both local and remote locations support this. One caveat is that local images are not supported when `location="remote"`, since the HUD platform does not have access to your local Docker daemon.
+    *   If `Path`, it is interpreted as a directory containing a Dockerfile and other files needed to build the image. This is useful for local development. See [Local Environment Structure](#local-environment-structure) below.
+
+## <a name="local-environment-structure"></a>Local Environment Structure
+
+When creating a custom environment, the directory specified by `image_or_build_context` must contain:
+
+1.  **`Dockerfile`:** Defines the base image, system dependencies, Python dependencies (often via `pip install -e .`), and installs your controller package.
+2.  **`pyproject.toml`:** Defines your controller as an installable Python package. The package must be named `hud_controller`.
+3.  **`src/`** A directory containing your Python controller code. This code needs to implement the functions called by `setup`, `evaluate`, and `step` (e.g., interacting with applications inside the container, returning observations).
+
+**Example Structure (`./my_custom_controller/`):**
+
+```
+my_custom_controller/
+├── Dockerfile
+├── pyproject.toml
+└── src/
+    └── hud_controller/
+        ├── __init__.py
+        └── main.py        # Your controller logic (e.g., setup, step functions)
+```
+
+*   **Examples:** The top-level `environments/` directory in the SDK repository contains reference implementations (like `novnc_ubuntu`) following this structure.
+
+## Using a Custom Environment
+
+Use your `CustomGym` object with `hud.gym.make()`:
+
+```python
+from hud import gym
+from hud.types import CustomGym
+
+# Assuming local_env_spec = CustomGym(location="local", controller_source_dir="./my_custom_controller")
+env = await gym.make(local_env_spec)
+
+print("Custom local environment created.")
+
+# Interact as usual - Task setup/evaluate calls functions in your controller
+# task = Task(prompt="...", gym=local_env_spec, setup=("my_setup_func", arg1), ...)
+# env = await gym.make(task)
+# obs, _ = await env.reset()
+# result = await env.evaluate()
+
+await env.close()
+```
+### Hot Reloading
+
+The HUD SDK supports hot reloading of controller code. When using a build context, if the controller code in the folder is updated, the SDK will automatically reinstall the controller package
+without needing to rebuild the image.
+This is done by:
+1. Copying the controller code to a temporary directory.
+2. `pip install -e . --break-system-packages` to install the controller package.
+
+Note that docker images cannot be hot reloaded, and will only be rebuilt when a new environment is created.
+
+
+## Related Concepts
+
+*   [Environment](/concepts/environment): The runtime instance created from the `CustomGym` spec.
+*   [Task](/concepts/task): Can specify a `CustomGym` object in its `gym` attribute to request your custom environment.
+*   [Advanced Environment Control](/advanced/environment-control): Using `invoke` and `execute` for debugging or advanced control. 

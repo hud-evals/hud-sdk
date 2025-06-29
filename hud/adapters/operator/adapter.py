@@ -25,12 +25,10 @@ class OperatorAdapter(Adapter):
         "arrowup": "up",
         "arrowdown": "down",
         "arrowleft": "left",
-        "arrowright": "right"
+        "arrowright": "right",
     }
 
-    BUTTON_MAP: ClassVar[dict[str, CLAButton]] = {
-        "wheel": "middle"
-    }
+    BUTTON_MAP: ClassVar[dict[str, CLAButton]] = {"wheel": "middle"}
 
     def __init__(self) -> None:
         super().__init__()
@@ -51,6 +49,8 @@ class OperatorAdapter(Adapter):
                 x, y = data.get("x", 0), data.get("y", 0)
                 button = data.get("button", "left")
                 button = self.BUTTON_MAP.get(button, button)
+                if button is None:
+                    button = "left"
                 return ClickAction(point=Point(x=x, y=y), button=button)
 
             elif action_type == "double_click":
@@ -58,9 +58,9 @@ class OperatorAdapter(Adapter):
                 return ClickAction(point=Point(x=x, y=y), button="left", pattern=[100])
 
             elif action_type == "scroll":
-                x, y = data.get("x", 0), data.get("y", 0)
-                scroll_x = data.get("scroll_x", 0)
-                scroll_y = data.get("scroll_y", 0)
+                x, y = int(data.get("x", 0)), int(data.get("y", 0))
+                scroll_x = int(data.get("scroll_x", 0))
+                scroll_y = int(data.get("scroll_y", 0))
                 return ScrollAction(point=Point(x=x, y=y), scroll=Point(x=scroll_x, y=scroll_y))
 
             elif action_type == "type":

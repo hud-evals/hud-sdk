@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import enum
 from pathlib import Path
-from typing import Literal, TypeAlias
+from typing import Any, Literal, TypeAlias
 
 from pydantic import BaseModel
 
@@ -28,6 +28,9 @@ class CustomGym(BaseModel):
     # B. If string, then it is the uri of the docker image to use.
     #    The controller must already be installed in the image.
     image_or_build_context: str | Path
+    # host_config will be passed to the docker client when creating the environment.
+    # refer to official docker api documentation for available configs.
+    host_config: dict[str, Any] | None = None
 
 
 class EnvironmentStatus(str, enum.Enum):
@@ -48,7 +51,13 @@ class EnvironmentStatus(str, enum.Enum):
 
 
 # Available HUD gyms
-ServerGym: TypeAlias = Literal["qa", "hud-browser", "hud-ubuntu", "OSWorld-Ubuntu"]
+ServerGym: TypeAlias = Literal["qa", "hud-browser", "OSWorld-Ubuntu", "docker"]
 
 # Gyms can be either custom or server-side
 Gym: TypeAlias = CustomGym | ServerGym
+
+# Metadata keys for the environment.
+# partial: Whether the environment evaluator should give partial grades.
+# eval_model: The model to use for evaluation when running a VLM. Wraps langchain.
+ServerMetadataKeys: TypeAlias = Literal["partial", "eval_model"]
+MetadataKeys: TypeAlias = str | ServerMetadataKeys

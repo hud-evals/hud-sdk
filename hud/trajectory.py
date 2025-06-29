@@ -6,6 +6,8 @@ import datetime
 from IPython.display import HTML, Markdown, display
 from pydantic import BaseModel, Field
 
+from .adapters.common.types import LogType
+
 
 class TrajectoryStep(BaseModel):
     """Model representing a single task run's trajectory information."""
@@ -13,6 +15,7 @@ class TrajectoryStep(BaseModel):
     observation_url: str | None = None
     observation_text: str | None = None
     actions: list[dict]
+    logs: LogType | None = None
     start_timestamp: str | None = None
     end_timestamp: str | None = None
 

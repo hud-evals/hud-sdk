@@ -1,3 +1,4 @@
+import copy
 import logging
 from typing import Any, cast
 
@@ -8,13 +9,16 @@ from anthropic.types.beta import (
     BetaToolComputerUse20250124Param,
     BetaTextBlockParam,
     BetaImageBlockParam,
+    BetaCacheControlEphemeralParam,
 )
 
 from hud.adapters import Adapter
 from hud.agent.base import Agent
 from hud.adapters.claude import ClaudeAdapter
+from hud.types import Gym
 from hud.utils.common import Observation
 from hud.settings import settings
+from hud.adapters.common.types import LogType
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +56,8 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
     This agent interacts with HUD environments using Claude's Computer Use API
     through the ClaudeAdapter which converts actions to the format expected by HUD.
     """
+
+    transfer_gyms: dict[Gym, Gym] = {"qa": "hud-browser"}
 
     def __init__(
         self,
@@ -104,7 +110,9 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         self.messages: list[BetaMessageParam] = []
         self.pending_computer_use_tool_id = None
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[Any], bool]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[Any], bool, list[LogType] | None]:
         """
         Fetch a response from Claude based on the observation.
 
@@ -112,31 +120,23 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
             observation: The preprocessed observation
 
         Returns:
-            tuple[list[Any], bool]: A tuple containing the list of raw actions and a
-                                   boolean indicating if the agent believes the task is complete
+            tuple[list[Any], bool, list[str | dict[str, Any]] | None]: A tuple containing the list of raw actions,
+                                   boolean indicating if the agent believes the task is complete, and a list of strings or dictionaries of logs.
         """
         if not self.client:
             raise ValueError("Client is required")
 
+        if not observation.text and not observation.screenshot:
+            raise ValueError("Observation must contain either text or screenshot")
+
         # Prepare the user content for Claude
         user_content: list[BetaImageBlockParam | BetaTextBlockParam | BetaToolResultBlockParam] = []
 
-        # Add text instruction if present
-        if observation.text:
-            logger.info("Adding text to user content: %s", observation.text)
-            user_content.append(text_to_content_block(str(observation.text)))
-
         # Add screenshot if present
         if observation.screenshot:
-            logger.info("Adding screenshot to user content")
             if not self.pending_computer_use_tool_id:
-                logger.info("Adding screenshot to user content, no tool id")
                 user_content.append(base64_to_content_block(observation.screenshot))
             else:
-                logger.info(
-                    "Adding screenshot to user content, tool id: %s",
-                    self.pending_computer_use_tool_id,
-                )
                 user_content.append(
                     tool_use_content_block(
                         self.pending_computer_use_tool_id,
@@ -144,6 +144,10 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
                     )
                 )
                 self.pending_computer_use_tool_id = None
+
+        # Add text instruction if present
+        if observation.text:
+            user_content.append(text_to_content_block(str(observation.text)))
 
         # Add the user content to the messages
         self.messages.append(
@@ -157,10 +161,23 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         )
 
         # Call Claude API using async client
+
+        # first, make a copy and add prompt caching to the last message
+        messages_cached = copy.deepcopy(self.messages)
+        # Mark last user message with cache control for prompt caching
+        last_msg = messages_cached[-1]
+        if last_msg.get("role") == "user":
+            last_content = last_msg["content"]
+            if isinstance(last_content, list):
+                for block in last_content:
+                    if not block["type"] == "thinking" and not block["type"] == "redacted_thinking":
+                        cache_control: BetaCacheControlEphemeralParam = {"type": "ephemeral"}
+                        block["cache_control"] = cache_control
+
         response = await self.client.beta.messages.create(
             model=self.model,
             max_tokens=self.max_tokens,
-            messages=self.messages,
+            messages=messages_cached,
             tools=[COMPUTER_TOOL],
             betas=["computer-use-2025-01-24"],
             tool_choice={"type": "auto", "disable_parallel_tool_use": True},
@@ -183,9 +200,9 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         done = True  # Assume we're done unless we find a tool use
 
         for block in response_content:
-            logger.info("Processing block: %s", block)
+            # logger.info("Processing block: %s", block)
             if block.type == "tool_use":
-                logger.info("Processing tool use: %s", block)
+                # logger.info("Processing tool use: %s", block)
                 assert block.name == "computer"
 
                 # Store the raw action
@@ -197,20 +214,20 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
                 break
 
         # If no tool use action was found, check for a final text response
-        if not actions and done:
+        if len(actions) == 0 and done:
             final_text_response = ""
             for block in response_content:
                 if block.type == "text":
                     final_text_response += block.text
 
             if final_text_response.strip():
-                logger.info(
-                    f"No tool use found. Using final text as response: {final_text_response}"
-                )
+                # logger.info(
+                #    f"No tool use found. Using final text as response: {final_text_response}"
+                # )
                 actions = [{"action": "response", "text": final_text_response.strip()}]
-                # Keep done = True
-            else:
-                logger.info("No tool use and no final text block found.")
-                # Keep done = True, actions remains empty
+                done = True
+            # else:
+            # logger.info("No tool use and no final text block found.")
+            # Keep done = True, actions remains empty
 
-        return actions, done
+        return actions, done, [response.model_dump()]

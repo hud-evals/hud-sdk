@@ -1,18 +1,24 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from pathlib import PosixPath
+from typing import TYPE_CHECKING, Any, get_args
 from venv import logger
 
 from pydantic import BaseModel
 
+from hud.env.environment import create_remote_config
 from hud.server import make_request
 from hud.settings import settings
 from hud.task import Task
+from hud.types import CustomGym, ServerGym
+from hud.utils.config import REMOTE_EVALUATE, REMOTE_SETUP
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from inspect_ai.dataset import Dataset
+
+    from hud.agent import Agent
 
 
 class TaskSet(BaseModel):
@@ -79,6 +85,51 @@ class TaskSet(BaseModel):
         if api_key is None:
             api_key = settings.api_key
 
+        # Convert all tasks to expanded configs
+        processed_tasks = []
+        for task in self.tasks:
+            if task.setup is not None:
+                setup_config = (
+                    create_remote_config(None, task.setup, REMOTE_SETUP)[0].args[0].model_dump()
+                )
+            else:
+                setup_config = None
+            if task.evaluate is not None:
+                evaluate_config = (
+                    create_remote_config(None, task.evaluate, REMOTE_EVALUATE)[0]
+                    .args[0]
+                    .model_dump()
+                )
+            else:
+                evaluate_config = None
+
+            if isinstance(task.gym, CustomGym):
+                if isinstance(task.gym.image_or_build_context, PosixPath):
+                    raise ValueError(
+                        "Local build contexts are not supported for "
+                        "remote tasksets, attach an image or existing "
+                        "gym id."
+                    )
+                gym_str = "docker"
+                image_uri = task.gym.image_or_build_context
+            elif isinstance(task.gym, str) and task.gym in get_args(ServerGym):
+                gym_str = task.gym
+                image_uri = None
+            else:
+                raise ValueError(f"Unknown gym type: {type(task.gym)}")
+
+            processed_tasks.append(
+                {
+                    "prompt": task.prompt,
+                    "gym": gym_str,
+                    "setup": setup_config,
+                    "evaluate": evaluate_config,
+                    "config": task.config,
+                    "image_uri": image_uri,
+                    "description": task.description,
+                }
+            )
+
         await make_request(
             method="POST",
             url=f"{settings.base_url}/v2/tasksets",
@@ -86,22 +137,47 @@ class TaskSet(BaseModel):
             json={
                 "name": name,
                 "description": description,
-                "tasks": [task.model_dump() for task in self.tasks],
+                "tasks": processed_tasks,
             },
         )
         logger.info(
-            "[HUD] Taskset %s uploaded successfully, see it on app.hud.so/evalsets/%s", name, name
+            "Taskset %s uploaded successfully, see it on app.hud.so/evalsets/%s", name, name
         )
 
+    def _apply(self, dict: dict[str, Any]) -> None:
+        """
+        Applies a parameter to all tasks in the taskset.
+        """
+        for task in self.tasks:
+            for key, value in dict.items():
+                setattr(task, key, value)
 
-async def load_taskset(taskset_id: str, api_key: str | None = None) -> TaskSet:
+    def fit(self, agent: Agent | type[Agent]) -> None:
+        """
+        Automatically adapts the taskset to the agent's transfer_gyms.
+        """
+        if isinstance(agent, type):
+            agent = agent()
+
+        for task in self.tasks:
+            if task.gym is None or isinstance(task.gym, CustomGym):
+                continue
+            task.gym = agent.transfer_gyms.get(task.gym, task.gym)
+
+
+async def load_taskset(
+    taskset_id: str,
+    api_key: str | None = None,
+    metadata: dict[str, Any] | None = None,
+    load_custom_as_local: bool = False,
+) -> TaskSet:
     """
     Loads a TaskSet by its ID.
 
     Args:
         taskset_id: The ID of the taskset to load
         api_key: Optional API key to use for the request
-
+        metadata: Optional metadata to apply to the taskset
     Returns:
         TaskSet: The loaded taskset
     """
@@ -115,14 +191,32 @@ async def load_taskset(taskset_id: str, api_key: str | None = None) -> TaskSet:
         api_key=api_key,
     )
 
-    logger.info(f"[HUD] Taskset {taskset_id} loaded successfully")
+    logger.info(f"Taskset {taskset_id} loaded successfully")
 
-    return TaskSet.model_validate(
+    tasks = data["evalset"]
+    for task in tasks:
+        if task["gym"] == "docker":
+            if "image_uri" not in task:
+                raise ValueError(
+                    "No `image_uri` key found. This taskset may be incompatible "
+                    "with your version of HUD SDK."
+                )
+
+            task["gym"] = CustomGym(
+                location="local" if load_custom_as_local else "remote",
+                image_or_build_context=task["image_uri"],
+            )
+
+    taskset = TaskSet.model_validate(
         {
             "id": taskset_id,
-            "tasks": data["evalset"],
+            "tasks": tasks,
         }
     )
+
+    taskset._apply({"metadata": metadata})
+
+    return taskset
 
 
 def load_from_inspect(dataset: Dataset) -> TaskSet:

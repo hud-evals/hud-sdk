@@ -3,7 +3,7 @@ import logging
 import os
 from typing import Any, Literal, cast
 
-from openai import OpenAI
+from openai import AsyncOpenAI
 from openai.types.responses import (
     ToolParam,
     ResponseInputParam,
@@ -16,13 +16,15 @@ from openai.types.responses import (
 from hud.adapters import Adapter
 from hud.agent.base import Agent
 from hud.adapters.operator import OperatorAdapter
+from hud.types import Gym
 from hud.utils.common import Observation
 from hud.settings import settings
+from hud.adapters.common.types import LogType
 
 logger = logging.getLogger(__name__)
 
 
-class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
+class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
     """
     An agent implementation using OpenAI's Computer Use API.
 
@@ -30,11 +32,13 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
     through the OperatorAdapter which converts actions to the format expected by HUD.
     """
 
+    transfer_gyms: dict[Gym, Gym] = {"qa": "hud-browser"}
+
     def __init__(
         self,
-        client: OpenAI | None = None,
+        client: AsyncOpenAI | None = None,
         model: str = "computer-use-preview",
-        environment: Literal["windows", "mac", "linux", "browser"] = "windows",
+        environment: Literal["windows", "mac", "linux", "browser"] = "linux",
         adapter: Adapter | None = None,
         max_iterations: int = 8,
     ):
@@ -42,7 +46,7 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
         Initialize the OperatorAgent.
 
         Args:
-            client: The OpenAI client for API calls (optional, created automatically if not provided)
+            client: The AsyncOpenAI client for API calls (optional, created automatically if not provided)
             model: The model to use for computer use
             environment: The environment type (windows, mac, linux, browser)
             adapter: The adapter to use for preprocessing and postprocessing
@@ -57,8 +61,8 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
                     "OpenAI API key not found in settings or environment variables. Set OPENAI_API_KEY."
                 )
 
-            # Create synchronous client
-            client = OpenAI(api_key=api_key)
+            # Create asynchronous client
+            client = AsyncOpenAI(api_key=api_key)
 
         adapter = adapter or OperatorAdapter()
 
@@ -81,8 +85,11 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
         self.last_response_id = None
         self.pending_call_id = None
         self.initial_prompt = None
+        self.pending_safety_checks = []
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[dict[str, Any]], bool, list[LogType] | None]:
         """
         Fetch a response from the model based on the observation.
 
@@ -90,8 +97,8 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
             observation: The preprocessed observation
 
         Returns:
-            tuple[list[dict[str, Any]], bool]: A tuple containing the list of raw actions and a
-                                             boolean indicating if the agent believes the task is complete
+            tuple[list[dict[str, Any]], bool, list[LogType] | None]: A tuple containing the list of raw actions,
+                                             boolean indicating if the agent believes the task is complete, and a list of strings or dictionaries of logs.
         """
         if not self.client:
             raise ValueError("Client is required")
@@ -129,8 +136,8 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
             # Structure the input correctly for the API using cast
             input_param = cast(ResponseInputParam, [{"role": "user", "content": input_content}])
 
-            # Call OpenAI API for the initial prompt (synchronous call)
-            response = self.client.responses.create(
+            # Call OpenAI API for the initial prompt (asynchronous call)
+            response = await self.client.responses.create(
                 model=self.model, tools=[computer_tool], input=input_param, truncation="auto"
             )
 
@@ -138,7 +145,16 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
             # This is a response to a previous action
             if not observation.screenshot:
                 logger.warning("No screenshot provided for response to action")
-                return [], True
+                return (
+                    [],
+                    True,
+                    [
+                        {
+                            "type": "warning",
+                            "message": "No screenshot provided for response to action",
+                        }
+                    ],
+                )
 
             # Create a response to the previous action with the new screenshot
             input_param_followup = cast(
@@ -153,13 +169,15 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
                                 "type": "input_image",
                                 "image_url": f"data:image/png;base64,{observation.screenshot}",
                             },
+                            "acknowledged_safety_checks": self.pending_safety_checks,
                         },
                     )
                 ],
             )
+            self.pending_safety_checks = []
 
-            # Call OpenAI API for follow-up (synchronous call)
-            response = self.client.responses.create(
+            # Call OpenAI API for follow-up (asynchronous call)
+            response = await self.client.responses.create(
                 model=self.model,
                 previous_response_id=self.last_response_id,
                 tools=[computer_tool],
@@ -188,12 +206,13 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
             for computer_call in computer_calls:
                 self.pending_call_id = computer_call.call_id
                 action = computer_call.action
+                self.pending_safety_checks = computer_call.pending_safety_checks
                 actions.append(action.model_dump())  # Convert Pydantic model to dict
-                logger.info(f"Computer call action: {action}")
+                # logger.info(f"Computer call action: {action}")
         else:
             # No computer calls, check for a final text message
-            logger.info("No computer call found. Checking for final message.")
-            logger.info(response.output)
+            # logger.info("No computer call found. Checking for final message.")
+            # logger.info(response.output)
             for item in response.output:
                 if isinstance(item, ResponseOutputMessage) and item.type == "message":
                     # Extract text from content blocks within the message
@@ -202,15 +221,16 @@ class OperatorAgent(Agent[OpenAI, dict[str, Any]]):
                     )
                     if full_text:
                         final_text_response = full_text
-                        logger.info(f"Final text message: {final_text_response}")
+                        # logger.info(f"Final text message: {final_text_response}")
                         break  # Stop after finding the first text message
 
             # If we found final text, package it as a 'response' action
             if final_text_response:
+                # No ResponseAgent logic here anymore - just return the response
                 actions = [{"type": "response", "text": final_text_response}]
-                # Keep done = True
+                done = True
             else:
                 logger.info("No computer calls and no final text message found.")
-                # Keep done = True, actions remains empty
+            # Keep done = True, actions remains empty
 
-        return actions, done
+        return actions, done, [response.model_dump()]

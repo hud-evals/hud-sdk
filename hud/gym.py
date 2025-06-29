@@ -9,12 +9,13 @@ from hud.env.local_docker_client import LocalDockerClient
 from hud.env.remote_client import RemoteClient
 from hud.env.remote_docker_client import RemoteDockerClient
 from hud.exceptions import GymMakeException
-from hud.types import CustomGym, Gym
+from hud.task import Task
+from hud.telemetry.context import get_current_task_run_id
+from hud.types import CustomGym, Gym, ServerGym
 from hud.utils.common import get_gym_id
 
 if TYPE_CHECKING:
     from hud.job import Job
-    from hud.task import Task
 
 logger = logging.getLogger("hud.gym")
 
@@ -25,6 +26,8 @@ async def make(
     job: Job | None = None,
     job_id: str | None = None,
     metadata: dict[str, Any] | None = None,
+    verbose: bool = False,
+    autolog: bool | None = None,
 ) -> Environment:
     """
     Create an environment from an environment ID or a Task object.
@@ -34,46 +37,64 @@ async def make(
         job: Job object to associate with this environment
         job_id: ID of job to associate with this environment (deprecated, use job instead)
         metadata: Additional metadata for the environment
+        autolog: Whether to autolog scores and observations (default: True for remote CustomGym and False for others)
     """
+    if verbose:
+        logging.getLogger("hud").setLevel(logging.DEBUG)
+    else:
+        logging.getLogger("hud").setLevel(logging.CRITICAL)
 
-    # data that is generated as we create the environment
-    # we want to attach this to the exception if the environment creation fails
+    if autolog is None:  # Default autolog values -- otherwise, use the value passed in
+        if isinstance(env_src, CustomGym):
+            if env_src.location == "remote":
+                autolog = True  # True by default for remote CustomGym
+            else:
+                autolog = False  # False by default for local CustomGym
+        elif isinstance(env_src, ServerGym):
+            autolog = False  # False by default for ServerGym (remote)
+        else:
+            raise ValueError(f"Invalid gym source: {env_src}")
+
+    task = None
+    if isinstance(env_src, str | CustomGym):
+        gym = env_src
+    elif isinstance(env_src, Task):
+        gym = env_src.gym
+        task = env_src
+    else:
+        raise GymMakeException(f"Invalid gym source: {env_src}", {})
+
+    effective_job_id = None
+    if job is not None:
+        effective_job_id = job.id
+    elif job_id is not None:
+        effective_job_id = job_id
+    else:
+        try:
+            import hud.job
+
+            active_job = hud.job.get_active_job()
+            if active_job:
+                effective_job_id = active_job.id
+        except ImportError:
+            pass
+
     build_data = {}
-
     try:
-        if metadata is None:
-            metadata = {}
+        metadata_copy = {} if metadata is None else metadata.copy()
 
-        # Handle job parameter
-        effective_job_id = None
-        if job is not None:
-            effective_job_id = job.id
-        elif job_id is not None:
-            effective_job_id = job_id
-        else:
-            # Try to get an active job from the decorator context
-            try:
-                import hud.job
-
-                active_job = hud.job.get_active_job()
-                if active_job:
-                    effective_job_id = active_job.id
-            except ImportError:
-                pass  # Module not available, skip
-
-        gym = None
-        task = None
-        if isinstance(env_src, str | CustomGym):
-            gym = env_src
-        else:
-            gym = env_src.gym
-            task = env_src
+        current_task_run_id = get_current_task_run_id()
+        if current_task_run_id:
+            metadata_copy["task_run_id"] = current_task_run_id
+            logger.debug(
+                "Passing task_run_id %s from hud.telemetry context to environment metadata.",
+                current_task_run_id,
+            )
 
         if isinstance(gym, CustomGym):
             if isinstance(gym.image_or_build_context, str):
                 uri = gym.image_or_build_context
             elif isinstance(gym.image_or_build_context, Path):
-                # need to build the image
                 if gym.location == "local":
                     uri, build_data = await LocalDockerClient.build_image(
                         gym.image_or_build_context
@@ -89,42 +110,55 @@ async def make(
 
             if gym.location == "local":
                 logger.info("Creating local environment")
-                client = await LocalDockerClient.create(uri)
+                if gym.host_config:
+                    logger.info("Using host config: %s", gym.host_config)
+                    client = await LocalDockerClient.create(
+                        image=uri,
+                        host_config=gym.host_config,
+                        remote_logging_for_local_docker=autolog,  # we use autolog here
+                    )
+                else:
+                    client = await LocalDockerClient.create(
+                        image=uri,
+                        remote_logging_for_local_docker=autolog,  # we use autolog here
+                    )
+
             elif gym.location == "remote":
                 logger.info("Creating remote environment")
+
+                if gym.host_config:
+                    raise ValueError("host_config is not supported for remote environments")
+
                 client = await RemoteDockerClient.create(
                     image_uri=uri,
                     job_id=effective_job_id,
                     task_id=task.id if task else None,
-                    metadata=metadata,
+                    metadata=metadata_copy,
                 )
             else:
                 raise ValueError(f"Invalid environment location: {gym.location}")
 
-            # Set up the environment with a source path
             if isinstance(gym.image_or_build_context, Path):
-                logger.info("Setting source path")
+                logger.info("Setting source path %s", gym.image_or_build_context)
                 client.set_source_path(gym.image_or_build_context)
         elif isinstance(gym, str):
             logger.info("Creating private environment")
-            # Note: the gym_name_or_id is a unique identifier, but it is not a true
-            # gym_id for the purposes of building the environment
-            # we therefore fetch the gym_id from the HUD API here
             true_gym_id = await get_gym_id(gym)
-
-            # Create the environment
             client, build_data = await RemoteClient.create(
                 gym_id=true_gym_id,
                 job_id=effective_job_id,
                 task_id=task.id if task else None,
-                metadata=metadata,
+                metadata=metadata_copy,
             )
         else:
             raise ValueError(f"Invalid gym source: {gym}")
 
-        # Create the environment itself
         environment = Environment(
-            client=client, metadata=metadata, task=task, build_data=build_data
+            client=client,
+            metadata=metadata_copy,
+            task=task,
+            build_data=build_data,
+            autolog=autolog,
         )
 
         if task:

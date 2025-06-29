@@ -1,6 +1,6 @@
 [project]
 name = "hud-python"
-version = "0.2.4"
+version = "0.2.6"
 description = "SDK for the HUD evaluation platform."
 readme = "README.md"
 requires-python = ">=3.10, <3.14"
@@ -23,6 +23,10 @@ dependencies = [
     "openai",
     "langchain",
     "langchain-openai",
+    "mcp",
+    "wrapt>=1.14.0",
+    "dotenv>=0.9.9",
+    "pathspec>=0.12.1",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -62,13 +66,30 @@ dependencies = [
   "jupyter",
 ]
 
+[dependency-groups]
+dev = [
+    "ruff ==0.11.8",
+    "pytest >=8.1.1,<9",
+    "pytest-asyncio",
+    "pytest-mock",
+    "pyright==1.1.401",
+    "ipykernel",
+    "ipython <9",
+    "jupyter_client",
+    "jupyter_core",
+    "openai",
+    "anthropic",
+    "dotenv",
+    "pytest-cov",
+]
+
 [project.optional-dependencies]
 dev = [
     "ruff ==0.11.8",
     "pytest >=8.1.1,<9",
     "pytest-asyncio",
     "pytest-mock",
-    "pyright==1.1.364",
+    "pyright==1.1.401",
     "ipykernel",
     "ipython <9",
     "jupyter_client",
@@ -122,6 +143,7 @@ lint.ignore = [
 "**/openai_adapter*.py" = ["ALL"] # Disables all rules for example modules
 "**/examples/**/*.py" = ["ALL"]
 "**/agent/**/*.py" = ["ALL"]
+"**/environments/**/*.py" = ["ALL"]
 
 
 [tool.ruff.format]
@@ -147,6 +169,7 @@ typeCheckingMode = "basic"
 
 [tool.coverage.run]
 source = ["hud"]
+omit = ["*/tests/*", "*/examples/*"]
 
 [tool.coverage.report]
 exclude_lines = [
@@ -163,7 +186,7 @@ exclude_lines = [
 ]
 show_missing = true
 fail_under = 58
-omit = ["*/tests/*"]
+omit = ["*/tests/*", "*/examples/*"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"

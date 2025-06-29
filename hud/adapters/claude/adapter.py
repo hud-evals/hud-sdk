@@ -31,10 +31,10 @@ class ClaudeAdapter(Adapter):
         "left shift": "shift",
     }
 
-    def __init__(self) -> None:
+    def __init__(self, width: int = 1024, height: int = 768) -> None:
         super().__init__()
-        self.agent_width = 1024  # Claude's preferred width
-        self.agent_height = 768  # Claude's preferred height
+        self.agent_width = width  # Claude's preferred width
+        self.agent_height = height  # Claude's preferred height
 
     def _map_key(self, key: str) -> CLAKey:
         """Map a key to its standardized form."""
@@ -42,6 +42,10 @@ class ClaudeAdapter(Adapter):
 
     def convert(self, data: Any) -> CLA:
         try:
+            # Validate input data
+            if not isinstance(data, dict):
+                raise ValueError(f"Invalid action: {data}")
+
             action_type = data.get("action")
 
             if action_type == "key":
@@ -81,7 +85,10 @@ class ClaudeAdapter(Adapter):
                 assert len(coord) == 2
                 if (
                     len(self.memory) == 0
-                    or (self.memory[-1] is not MoveAction and self.memory[-1] is not ClickAction)
+                    or (
+                        not isinstance(self.memory[-1], MoveAction)
+                        and not isinstance(self.memory[-1], ClickAction)
+                    )
                     or self.memory[-1].point is None
                 ):
                     raise ValueError("Left click drag must be preceded by a move or click action")
@@ -100,7 +107,7 @@ class ClaudeAdapter(Adapter):
                 coord = data["coordinate"]
                 assert isinstance(coord, list)
                 assert len(coord) == 2
-                return ClickAction(point=Point(x=coord[0], y=coord[1]), button="wheel")
+                return ClickAction(point=Point(x=coord[0], y=coord[1]), button="middle")
 
             elif action_type == "double_click":
                 assert "coordinate" in data

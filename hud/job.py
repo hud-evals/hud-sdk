@@ -1,22 +1,24 @@
 from __future__ import annotations
 
 import asyncio
-import datetime
 import functools
 import inspect
 import logging
 import sys
 from collections.abc import Callable, Coroutine
+from datetime import datetime
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from pydantic import BaseModel, PrivateAttr, TypeAdapter
 
 import hud.server
-from hud import gym
+from hud import Response, gym
+from hud.agent import ResponseAgent
 from hud.settings import settings
 from hud.task import Task
 from hud.taskset import TaskSet
 from hud.trajectory import Trajectory
+from hud.utils.common import Observation
 from hud.utils.progress import StepProgressTracker
 
 if TYPE_CHECKING:
@@ -42,7 +44,7 @@ class Job(BaseModel):
     id: str
     name: str
     metadata: dict[str, Any] | None = None
-    created_at: datetime.datetime
+    created_at: datetime
     status: str
 
     # Internal cache for trajectories
@@ -162,13 +164,15 @@ async def create_job(
     # If not, we might need to make a subsequent GET request
     job_data = data  # Adjust if the API response structure is different
 
-    logger.info("[HUD] View job at https://app.hud.so/jobs/%s.", job_data["id"])
+    created_at = datetime.fromisoformat(job_data["created_at"].replace("Z", "+00:00"))
+
+    logger.info("View job at https://app.hud.so/jobs/%s.", job_data["id"])
 
     return Job(
         id=job_data["id"],
         name=job_data["name"],
         metadata=job_data.get("metadata", {}),  # Ensure metadata is dict
-        created_at=datetime.datetime.fromisoformat(job_data["created_at"]),  # Parse datetime
+        created_at=created_at,  # Parse datetime
         status=job_data["status"],
     )
 
@@ -259,6 +263,27 @@ def get_active_job() -> Job | None:
     return None
 
 
+async def _maybe_resample_action(
+    obs: Observation, action: Any, response_agent: ResponseAgent
+) -> tuple[Observation, bool]:
+    if isinstance(action, Response):
+        action = action.model_dump()
+    if isinstance(action, dict) and action.get("type") == "response":
+        response_text = action.get("text", "")
+        if response_agent and response_text:
+            try:
+                decision = await response_agent.determine_response(response_text)
+                if decision == "CONTINUE":
+                    logger.info("ResponseAgent indicated CONTINUE. Retrying...")
+                    obs.text = "Please continue."
+                    return obs, False
+                elif decision == "CONTINUE":
+                    logger.warning("Max continue retries reached. Stopping despite CONTINUE.")
+            except Exception as e:
+                logger.warning("Error using ResponseAgent: %s", e)
+    return obs, True
+
+
 async def _execute_task(
     agent_cls: type[Agent],
     adapter_cls: type[Adapter] | None,
@@ -270,6 +295,7 @@ async def _execute_task(
     max_steps_per_task: int,
     job: Job,
     tracker: StepProgressTracker | None = None,
+    auto_reply_question: bool = False,
     # Use semaphores instead of rate limiter
     env_creation_semaphore: asyncio.Semaphore | None = None,
     agent_predict_semaphore: asyncio.Semaphore | None = None,
@@ -283,10 +309,15 @@ async def _execute_task(
     status = "error"
     error_msg = "Initialization failed"
     try:
+        response_agent = ResponseAgent() if auto_reply_question else None
+
         adapter_instance = None
         if adapter_cls:
             adapter_instance = adapter_cls(**(adapter_kwargs or {}))
-        agent_instance = agent_cls(adapter=adapter_instance, **(agent_kwargs or {}))
+        agent_instance = agent_cls(
+            adapter=adapter_instance,
+            **(agent_kwargs or {}),
+        )
         if agent_instance is None:
             raise RuntimeError("Agent could not be instantiated")
 
@@ -303,21 +334,29 @@ async def _execute_task(
         obs, _ = obs_tuple
 
         step_error = None
+
         for step in range(max_steps_per_task):
             action, done = (None, False)
             try:
                 # Agent prediction with semaphore
-                if agent_predict_semaphore:
-                    async with agent_predict_semaphore:
+                try:
+                    if agent_predict_semaphore:
+                        async with agent_predict_semaphore:
+                            action, done = await agent_instance.predict(obs)
+                    else:
                         action, done = await agent_instance.predict(obs)
-                else:
-                    action, done = await agent_instance.predict(obs)
+                except Exception as e:
+                    # if agent prediction fails, pass back the error to the agent
+                    obs = Observation(text=str(e))
+                    continue
 
                 if tracker:
                     tracker.increment_step(task_id)
 
-                if action is None and not done:
-                    done = True
+                if done and response_agent and action and len(action) > 0:
+                    obs, finish = await _maybe_resample_action(obs, action[-1], response_agent)
+                    if not finish:
+                        continue
 
                 step_result = await env.step(action)
                 if step_result is None:
@@ -344,10 +383,10 @@ async def _execute_task(
                         "type": "step_error",
                         "step": step + 1,
                         "error": str(agent_step_err),
-                        "timestamp": datetime.datetime.now().isoformat(),
+                        "timestamp": datetime.now().isoformat(),
                     }
                 )
-                break
+                continue
         else:
             logger.warning("[Job: %s/%s, Task: %s] Max steps reached.", job.name, job.id, task_id)
 
@@ -361,6 +400,7 @@ async def _execute_task(
                 evaluation_result = await env.evaluate()
                 status = "completed"
                 error_msg = None
+                # logger.info("Evaluation result: %s", evaluation_result)
             except Exception as eval_err:
                 logger.exception(
                     "[Job: %s/%s, Task: %s] Evaluation Error: %s",
@@ -377,7 +417,7 @@ async def _execute_task(
                         "task_id": task_id,
                         "type": "evaluation_error",
                         "error": str(eval_err),
-                        "timestamp": datetime.datetime.now().isoformat(),
+                        "timestamp": datetime.now().isoformat(),
                     }
                 )
 
@@ -391,7 +431,7 @@ async def _execute_task(
                 "task_id": task_id,
                 "type": "setup_error",
                 "error": str(e),
-                "timestamp": datetime.datetime.now().isoformat(),
+                "timestamp": datetime.now().isoformat(),
             }
         )
 
@@ -411,7 +451,7 @@ async def _execute_task(
                         "task_id": task_id,
                         "type": "env_close_error",
                         "error": str(close_err),
-                        "timestamp": datetime.datetime.now().isoformat(),
+                        "timestamp": datetime.now().isoformat(),
                     }
                 )
 
@@ -453,6 +493,7 @@ async def run_job(
     agent_cls: type[Agent],
     task_or_taskset: Task | TaskSet,
     job_name: str,
+    auto_reply_question: bool = False,
     adapter_cls: type[Adapter] | None = None,
     agent_kwargs: dict[str, Any] | None = None,
     adapter_kwargs: dict[str, Any] | None = None,
@@ -460,9 +501,10 @@ async def run_job(
     run_parallel: bool = True,
     job_metadata: dict[str, Any] | None = None,
     show_progress: bool = True,
+    verbose: bool = False,
     # Concurrency control with semaphores
-    max_concurrent_env_creations: int | None = 30,  # Limits env.make calls
-    max_concurrent_agent_predictions: int | None = 30,  # Limits agent.predict calls
+    max_concurrent_env_creations: int | None = 30,  # Limits gym.make calls
+    max_concurrent_agent_predictions: int | None = None,  # No limit on LLM calls
     max_concurrent_tasks: int | None = 30,  # Limits overall task concurrency
 ) -> Job:
     """
@@ -495,12 +537,20 @@ async def run_job(
     Returns:
         The created Job object with errors stored in job.errors.
     """
+
     tasks_to_run: list[Task] = []
     created_job: Job | None = None
+
+    # Get hud logger
+    if not verbose:
+        logger = logging.getLogger("hud")
+        logger.setLevel(logging.CRITICAL)
+    logger = logging.getLogger("hud.job")
 
     evalset_id = None
     if isinstance(task_or_taskset, TaskSet):
         evalset_id = task_or_taskset.id
+        task_or_taskset.fit(agent_cls)
 
     gym_id = None
     if isinstance(task_or_taskset, Task):
@@ -519,7 +569,7 @@ async def run_job(
             evalset_id=evalset_id,
             gym_id=gym_id,
         )
-        logger.info("Created job with ID: %s", created_job.id)
+        # logger.info("Created job with ID: %s", created_job.id)
     except Exception as e:
         logger.exception("Failed to create job '%s': %s", job_name, e)
         raise
@@ -555,6 +605,8 @@ async def run_job(
         logger.info(
             "Limiting concurrent agent predictions to %d.", max_concurrent_agent_predictions
         )
+    else:
+        logger.info("No limit on concurrent agent predictions.")
 
     task_execution_sema = None
     effective_concurrency = num_tasks  # Default to running all if parallel
@@ -606,6 +658,7 @@ async def run_job(
                     tracker=tracker,
                     env_creation_semaphore=env_creation_sema,
                     agent_predict_semaphore=agent_predict_sema,
+                    auto_reply_question=auto_reply_question,
                 )
                 for task, task_id in zip(tasks_to_run, task_ids, strict=True)
             ]
@@ -641,6 +694,7 @@ async def run_job(
                     tracker=tracker,
                     env_creation_semaphore=env_creation_sema,
                     agent_predict_semaphore=agent_predict_sema,
+                    auto_reply_question=auto_reply_question,
                 )
 
     finally:

@@ -9,12 +9,14 @@ The HUD SDK provides tracing functionality to capture and analyze MCP (Model-Cli
 
 ## Overview
 
-Tracing in HUD SDK allows you to:
+Tracing in HUD allows you to:
 
-- Capture all MCP calls made during a specific code block
-- Upload these traces to the HUD platform for analysis
-- View detailed information about each call, including timing and payload data
-- Associate traces with specific task runs
+-   Capture all MCP calls made by an agent within a specific code block or decorated function.
+-   Automatically upload these traces to the HUD platform ([app.hud.so](https://app.hud.so)) for detailed analysis.
+-   View comprehensive information about each call, including request/response payloads, timing, status, and any errors.
+-   Associate traces with specific task runs, jobs, and custom attributes for better organization and filtering.
+
+This capability is essential whether your agent is interacting with HUD environments (like `hud-browser`) or using its own set of MCP-based tools independently.
 
 ## Using Tracing
 

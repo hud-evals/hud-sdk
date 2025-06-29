@@ -1,22 +1,64 @@
-# HUD
+<div align="left">
+  <img src="https://raw.githubusercontent.com/hud-evals/hud-sdk/main/docs/logo/hud_logo.svg" alt="HUD" width="150" style="margin-bottom: 20px;"/>
+</div>
 
-A Python SDK for creating, evaluating, and benchmarking agent interactions with web browsers and OS environments.
+<h3>
+Evaluate your Computer Use AI agents across web browsers, desktop environments, and custom scenarios.
+</h3>
 
-> **Early Release Notice**: This SDK is currently in early release status. The API is evolving and may change in future releases as we gather feedback and improve functionality.
+### 🚀 Are you a startup building agents?
+
+[📅 Hop on a call](https://cal.com/jay-ram-z6st6w/demo) or [📧 founders@hud.so](mailto:founders@hud.so)
+
+We're here to help with eval strategies, custom environments, or improving your agent architecture!
+
+
+> **Early Release Notice**: We'd love to hear your feedback in [Issues](https://github.com/hud-evals/hud-sdk/issues), as the SDK is still evolving!
 
 [![PyPI version](https://img.shields.io/pypi/v/hud-python)](https://pypi.org/project/hud-python/)
 
-[📚 Documentation](https://docs.hud.so) | [🏠 Homepage](https://hud.so)
+## ✨ What You Can Do
 
-## API Key Setup
+**[Evaluate Existing Benchmarks](https://docs.hud.so/examples/benchmarking-agents)**
+```python
+from hud import load_taskset, run_job, ClaudeAgent
 
-Before getting started, you'll need to obtain an API key:
+taskset = await load_taskset("WebVoyager")  # or GAIA, OSWorld-Ubuntu, Mind2Web
+job = await run_job(ClaudeAgent, taskset, "my-evaluation")
+```
 
-1. Visit [app.hud.so](https://app.hud.so) to create a free account and generate your API key
-2. Set it in your environment or .env file:
+**[Create Custom Tasks](https://docs.hud.so/task-creation)** 
+```python
+from hud.task import Task
 
-```bash
-export HUD_API_KEY=your_api_key_here
+task = Task(
+    prompt="Find and book the cheapest flight from NYC to Paris",
+    gym="hud-browser",
+    setup=("goto", "https://kayak.com"),
+    evaluate=("page_contains", "confirmation")
+)
+```
+
+**[Build Custom Environments](https://docs.hud.so/environment-creation)**
+```python
+from hud.types import CustomGym
+
+# Launch any website as an environment
+custom_gym = CustomGym(
+    image_or_build_context="nginx:alpine",
+    location="local"
+)
+
+# Or create complex Docker environments - see environments/ folder for examples
+```
+
+**[Trace Tool Calls Alongside HUD Environments (or Independently)](https://docs.hud.so/examples/mcp-agent-tracing)**
+```python
+import hud
+
+with hud.trace("my-agent-run"):
+    # Your agent code here - MCP calls automatically captured
+    result = await agent.run(task)
 ```
 
 ## Quick Start
@@ -25,6 +67,17 @@ export HUD_API_KEY=your_api_key_here
 
 ```bash
 pip install hud-python
+```
+
+### API Key Setup
+
+Before getting started, you'll need to obtain an API key:
+
+1. Visit [app.hud.so](https://app.hud.so) to create a free account and generate your API key
+2. Set it in your environment or .env file:
+
+```bash
+export HUD_API_KEY=your_api_key_here
 ```
 
 ### Simple Browser Example with Claude Computer Use
@@ -51,7 +104,7 @@ async def main():
     # Create environment using the gym module
     env = await gym.make(task)
     
-    # Initialize Operator agent (API key is loaded automatically)
+    # Initialize Claude agent (API key is loaded automatically)
     agent = ClaudeAgent()
     
     # Agent loop with predict and step functions
@@ -69,7 +122,6 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 ```
 
 Alternatively, run a full evaluation set via the ```run_job``` command:
@@ -77,31 +129,44 @@ Alternatively, run a full evaluation set via the ```run_job``` command:
 ```python
 from hud import load_taskset, run_job, ClaudeAgent
 
-# load
+# Load a benchmark
 taskset = load_taskset("GAIA")
 
-# evaluate
+# Evaluate
 job = await run_job(ClaudeAgent, taskset, "test-gaia-job")
 
-# get results OR view them in app.hud.so
+# Get results OR view them in app.hud.so
 print(await job.get_analytics())
 ```
+
+## Ready-to-Use TaskSets
+
+- **WebVoyager** - Web navigation and interaction
+- **Mind2Web** - Complex web application tasks  
+- **GAIA** - Question answering and reasoning
+- **OSWorld-Ubuntu** - Desktop interaction
+- **hud-samples** - Getting started examples
+
+## Community
+
+**Contributing Custom Environments**
+
+Add your environment to the `environments/` folder and submit a PR! Examples:
+- `environments/novnc_ubuntu/` - Ubuntu with VNC access 
+- `environments/pokemon_controller/` - Pokemon emulator environment (In Development)
+- `environments/qa_controller/` - Lightweight app sample
+
+See [Custom Environments Guide](https://docs.hud.so/environment-creation) for details.
 
 ## Documentation Sections
 
 Explore the core concepts and features of the SDK:
 
-*   **[Tasks and TaskSets](https://docs.hud.so/concepts/task)**: Define goals, context, setup, and evaluation criteria for agent scenarios. This includes both interactive and **question-answering (QA)** style tasks.
-*   **[Environments](https://docs.hud.so/concepts/environment)**: Understand the browser and OS runtimes where agents interact.
+*   **[Task Creation](https://docs.hud.so/task-creation)**: Build custom evaluation scenarios with setup and evaluation criteria.
+*   **[Environments](https://docs.hud.so/environments/browser)**: Understand browser environments and create custom Docker-based environments.
 *   **[Agents](https://docs.hud.so/concepts/agent)**: Learn about the agent architecture (Claude, Operator) and how they process observations and predict actions.
-*   **[Adapters](https://docs.hud.so/concepts/adapter)**: See how actions and observations are translated between agents and environments.
 *   **[Jobs](https://docs.hud.so/concepts/job)**: Group related runs for analysis and viewing on the HUD platform.
-*   **[Trajectories](https://docs.hud.so/concepts/trajectory)**: Understand the recorded data from each agent run.
-*   **Advanced Topics**:
-    *   **[CLA Action Details](https://docs.hud.so/advanced/cla-details)**: Explore the standardized action format.
-    *   **[Custom Environments](https://docs.hud.so/advanced/custom-environments)**: Build your own Docker-based local or remote environments.
-    *   **[Advanced Environment Control](https://docs.hud.so/advanced/environment-control)**: Use `invoke`, `execute`, and `_setup` for finer control.
-
+*   **[MCP Telemetry](https://docs.hud.so/telemetry/mcp)**: Automatic tracing of Model Context Protocol interactions.
 *   **[Full API Reference](https://docs.hud.so/api-reference/gym)**: Detailed specifications for all modules and classes.
 
 ## [Examples](examples/)

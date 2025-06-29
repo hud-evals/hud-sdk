@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Sequence, TypeVar, Generic
+from typing import Any, Sequence, TypeVar, Generic
 
 from hud.adapters import Adapter, CLA
+from hud.adapters.common.types import LogType
+from hud.types import Gym
 from hud.utils.common import Observation
-
 import logging
+
 logger = logging.getLogger(__name__)
 
 # Generic type for different client types (Anthropic, OpenAI, etc.)
@@ -24,7 +26,13 @@ class Agent(Generic[ClientT, ActionT], ABC):
     Subclasses only need to implement the fetch_response method.
     """
 
-    def __init__(self, client: ClientT | None = None, adapter: Adapter | None = None):
+    transfer_gyms: dict[Gym, Gym] = {}
+
+    def __init__(
+        self,
+        client: ClientT | None = None,
+        adapter: Adapter | None = None,
+    ):
         """
         Initialize the agent.
 
@@ -55,7 +63,9 @@ class Agent(Generic[ClientT, ActionT], ABC):
         return processed_obs
 
     @abstractmethod
-    async def fetch_response(self, observation: Observation) -> tuple[list[ActionT], bool]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[ActionT], bool, list[LogType] | None]:
         """
         Fetch a response from the model based on the observation.
 
@@ -63,28 +73,30 @@ class Agent(Generic[ClientT, ActionT], ABC):
             observation: The preprocessed observation
 
         Returns:
-            tuple[list[ActionT], bool]: A tuple containing the list of raw actions and a
+            tuple[list[ActionT], bool, list[str | dict[str, Any]] | None]: A tuple containing the list of raw actions,
                                        boolean indicating if the agent believes it has
-                                       completed the task
+                                       completed the task, and a list of strings or dictionaries of logs.
         """
         pass
 
-    def postprocess(self, actions: list[ActionT]) -> list[CLA]:
+    def postprocess(self, actions: list[ActionT], logs: list[LogType] | None) -> list[CLA]:
         """
         Convert model actions to HUD actions.
 
         Args:
             actions: The raw actions from the model
-
+            logs: The logs from the model
         Returns:
             Sequence[CLA]: The actions converted to HUD format
         """
         if not self.adapter:
             raise ValueError("Cannot postprocess actions without an adapter")
 
-        return self.adapter.adapt_list(actions)
+        return self.adapter.adapt_list(actions, logs)
 
-    async def predict(self, observation: Observation, verbose: bool = False) -> tuple[list[CLA] | list[ActionT], bool]:
+    async def predict(
+        self, observation: Observation, verbose: bool = False
+    ) -> tuple[list[CLA] | list[ActionT], bool]:
         """
         Predict the next action based on the observation.
 
@@ -98,18 +110,18 @@ class Agent(Generic[ClientT, ActionT], ABC):
                                                        indicating if the agent believes it has completed the task
         """
         if verbose:
-            logger.info("[HUD] Predicting action...")
+            logger.info("Predicting action...")
         # Stage 1: Preprocess the observation
         processed_obs = self.preprocess(observation)
-            
+
         # Stage 2: Fetch response from the model
-        actions, done = await self.fetch_response(processed_obs)
+        actions, done, logs = await self.fetch_response(processed_obs)
         if verbose:
-            logger.info("[HUD] Raw action: %s", actions)
+            logger.info("Raw action: %s", actions)
 
         # Stage 3: Postprocess the actions if we have an adapter
         if self.adapter and actions:
-            hud_actions = self.postprocess(actions)
+            hud_actions = self.postprocess(actions, logs)
             return hud_actions, done
 
         # If no adapter, return actions as is

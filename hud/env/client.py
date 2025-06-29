@@ -33,3 +33,7 @@ class Client(BaseModel, ABC):
         Close the environment and clean up any resources.
         This method should be called when the environment is no longer needed.
         """
+
+    @property
+    def env_id(self) -> str:
+        raise NotImplementedError("env_id is not implemented")

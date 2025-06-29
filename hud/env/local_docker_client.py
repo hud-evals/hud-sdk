@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import io
 import logging
 import textwrap
@@ -12,8 +13,10 @@ import aiodocker
 from aiohttp import ClientTimeout
 
 from hud.env.docker_client import DockerClient, EnvironmentStatus
+from hud.server import make_request
+from hud.settings import settings
 from hud.utils import ExecuteResult
-from hud.utils.common import directory_to_tar_bytes
+from hud.utils.common import directory_to_tar_bytes, get_gym_id
 
 if TYPE_CHECKING:
     from pathlib import Path
@@ -30,10 +33,16 @@ class LocalDockerClient(DockerClient):
     """
 
     @classmethod
-    async def build_image(cls, build_context: Path) -> tuple[str, dict[str, Any]]:
+    async def build_image(cls, build_context: Path, verbose: bool = False) -> tuple[str, dict[str, Any]]:
         """
         Build an image from a build context.
         """
+        if verbose:
+            logging.getLogger("hud").setLevel(logging.DEBUG)
+        else:
+            logging.getLogger("hud").setLevel(logging.CRITICAL)
+
+        logger.info("Building image from %s", build_context)
         # Create a unique image tag
         image_tag = f"hud-env-{uuid.uuid4().hex[:8]}"
 
@@ -67,12 +76,22 @@ class LocalDockerClient(DockerClient):
     async def create(
         cls,
         image: str,
+        host_config: dict[str, Any] | None = None,
+        remote_logging_for_local_docker: bool = False,
+        *,
+        job_id: str | None = None,
+        task_id: str | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> LocalDockerClient:
         """
         Creates a Docker environment client from a image.
 
         Args:
             image: The image to build the Docker image
+            host_config: Optional host configuration for the container
+            job_id: Optional job identifier
+            task_id: Optional task identifier
+            metadata: Optional metadata dictionary
 
         Returns:
             DockerClient: An instance of the Docker environment client
@@ -81,19 +100,76 @@ class LocalDockerClient(DockerClient):
         # Initialize Docker client
         docker_client = aiodocker.Docker()
 
+        # Default host config
+        if host_config is None:
+            host_config = {
+                "PublishAllPorts": True,
+            }
+
+        if remote_logging_for_local_docker:
+            # First create remote environment record
+            if metadata is None:
+                metadata = {}
+
+            # Gym ID for logging local docker is always "local-docker"
+            gym_id = await get_gym_id("local-docker")
+
+            if "environment_config" not in metadata:
+                metadata["environment_config"] = {}
+            metadata["environment_config"]["image_uri"] = image
+
+            # Create a new environment via the HUD API
+            response = await make_request(
+                method="POST",
+                url=f"{settings.base_url}/v2/create_environment",
+                json={
+                    # still named run_id for backwards compatibility
+                    "run_id": job_id,
+                    "metadata": metadata,
+                    "gym_id": gym_id,
+                    "task_id": task_id,
+                },
+                api_key=settings.api_key,
+            )
+
+            # Get the environment ID from the response
+            env_id = response.get("id")
+            if not env_id:
+                raise RuntimeError(f"Failed to create environment on remote: {response}")
+        else:
+            env_id = None
+
         # Create and start the container
         container_config = {
             "Image": image,
             "Tty": True,
             "OpenStdin": True,
             "Cmd": None,
-            "HostConfig": {
-                "PublishAllPorts": True,
-            },
+            "HostConfig": host_config,
         }
 
         container = await docker_client.containers.create(config=container_config)
+
         await container.start()
+
+        # --------------------------------------------------
+        # Stream container logs while we wait for readiness
+        # --------------------------------------------------
+        async def _stream_logs() -> None:
+            try:
+                # .log() with follow=True -> async iterator of bytes/str
+                async for raw in container.log(stdout=True, stderr=True, follow=True):
+                    if isinstance(raw, bytes):
+                        raw = raw.decode(errors="replace")
+                    logger.info("container %s | %s", container.id[:12], raw.rstrip())
+            except asyncio.CancelledError:
+                # task cancelled during cleanup - silently exit
+                logger.info("Log streaming cancelled for container %s", container.id[:12])
+                return
+            except Exception as e:
+                logger.error("error while streaming logs from %s: %s", container.id[:12], str(e))
+
+        log_task: asyncio.Task | None = asyncio.create_task(_stream_logs())
 
         inspection = await container.show()
         if health_check_config := inspection["Config"].get("Healthcheck"):
@@ -103,37 +179,76 @@ class LocalDockerClient(DockerClient):
             window_secs = window_usecs // 1_000_000
 
             deadline = time.monotonic() + window_secs
-            logger.debug("Waiting for container %s to become healthy", container.id)
             while True:
                 state = (await container.show())["State"]
-                if state.get("Health", {}).get("Status") == "healthy":
+                health_status = state.get("Health", {}).get("Status")
+                container_status = state.get("Status")
+                logger.info(
+                    "Container %s health status: %s, container status: %s",
+                    container.id[:12],
+                    health_status,
+                    container_status,
+                )
+
+                if health_status == "healthy":
+                    logger.info("Container %s is healthy", container.id[:12])
                     break
-                if state.get("Status") in {"exited", "dead"}:
+                if container_status in {"exited", "dead"}:
+                    logger.error("Container %s crashed before becoming healthy", container.id[:12])
                     raise RuntimeError("Container crashed before becoming healthy")
                 now = time.monotonic()
                 if now > deadline:
+                    logger.error(
+                        "Container %s health check timed out after %ds",
+                        container.id[:12],
+                        window_secs,
+                    )
                     raise TimeoutError(f"{container.id} not healthy after {window_secs}s")
                 await asyncio.sleep(1)
-            logger.debug("Container %s is healthy", container.id)
+        else:
+            logger.info("Container %s has no healthcheck, assuming ready", container.id[:12])
+
+        # Stop the log stream now that the container is ready
+        if log_task is not None:
+            logger.info("Cancelling log streaming task for container %s", container.id[:12])
+            log_task.cancel()
+            with contextlib.suppress(Exception):
+                await log_task
+            log_task = None
 
         # Return the controller instance
-        return cls(docker_client, container.id)
+        logger.info(
+            "Creating LocalDockerClient instance for container %s",
+            container.id[:12],
+        )
+        client = cls(docker_client, container.id, env_id)
+        # store the task so close() can cancel if it is still running
+        client._log_task = log_task  # type: ignore[attr-defined]
+        logger.info("LocalDockerClient instance created successfully")
+        return client
 
-    def __init__(self, docker_conn: aiodocker.Docker, container_id: str) -> None:
+    def __init__(
+        self, docker_conn: aiodocker.Docker, container_id: str, env_id: str | None = None
+    ) -> None:
         """
         Initialize the DockerClient.
 
         Args:
             docker_conn: Docker client connection
             container_id: ID of the Docker container to control
+            env_id: ID of the remote environment record
         """
         super().__init__()
 
         # Store container ID instead of container object
         self._container_id = container_id
+        self._env_id = env_id
 
         # Docker client will be initialized when needed
         self._docker = docker_conn
+
+        # Background task for streaming logs (may be None)
+        self._log_task: asyncio.Task | None = None
 
     @property
     def container_id(self) -> str:
@@ -144,6 +259,11 @@ class LocalDockerClient(DockerClient):
     def container_id(self, value: str) -> None:
         """Set the container ID."""
         self._container_id = value
+
+    @property
+    def env_id(self) -> str | None:
+        """Get the environment ID."""
+        return self._env_id
 
     async def _get_container(self) -> DockerContainer:
         """Get the container object from aiodocker."""
@@ -278,6 +398,7 @@ class LocalDockerClient(DockerClient):
     async def close(self) -> None:
         """
         Close the Docker environment by stopping and removing the container.
+        Also closes the remote environment record.
         """
         try:
             container = await self._get_container()
@@ -288,3 +409,21 @@ class LocalDockerClient(DockerClient):
             logger.warning("Error during Docker container cleanup: %s", e)
         finally:
             await self._docker.close()
+
+        # Cancel background log forwarding first (if still active)
+        if self._log_task is not None:
+            self._log_task.cancel()
+            with contextlib.suppress(Exception):
+                await self._log_task
+
+        # Close the remote environment record
+        try:
+            if self.env_id is not None:
+                await make_request(
+                    method="POST",
+                    url=f"{settings.base_url}/v2/environments/{self.env_id}/close",
+                    api_key=settings.api_key,
+                )
+        except Exception as e:
+            # Log the error but don't raise it since this is cleanup
+            logger.warning("Error during remote environment record cleanup: %s", e)

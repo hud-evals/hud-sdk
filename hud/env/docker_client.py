@@ -12,7 +12,7 @@ import toml
 
 from hud.env.client import Client
 from hud.types import EnvironmentStatus
-from hud.utils.common import directory_to_tar_bytes
+from hud.utils.common import _compile_pathspec, directory_to_tar_bytes
 
 if TYPE_CHECKING:
     from hud.utils import ExecuteResult
@@ -151,15 +151,32 @@ class DockerClient(Client):
         if not self._source_path:
             return {}
 
-        file_mtimes = {}
+        # Build ignore spec (currently we only care about .hudignore but reuse
+        # the common helper for consistency).
+        spec = _compile_pathspec(
+            self._source_path,
+            respect_gitignore=False,
+            respect_dockerignore=False,
+            respect_hudignore=True,
+        )
+
+        file_mtimes: dict[str, float] = {}
+
         for root, _, files in os.walk(self._source_path):
             for file in files:
                 file_path = Path(root) / file
+                rel_path = file_path.relative_to(self._source_path).as_posix()
+
+                # Skip ignored files
+                if spec and spec.match_file(rel_path):
+                    continue
+
                 try:
                     file_mtimes[str(file_path)] = file_path.stat().st_mtime
                 except (FileNotFoundError, PermissionError):
                     # Skip files that can't be accessed
                     continue
+
         return file_mtimes
 
     async def needs_update(self) -> bool:
@@ -180,6 +197,11 @@ class DockerClient(Client):
         # If we don't have previous modification times, we need an update
         if not self._last_file_mtimes:
             return True
+
+        # Check for removed files
+        for file_path in self._last_file_mtimes:
+            if file_path not in current_mtimes:
+                return True
 
         # Check for new or modified files
         for file_path, mtime in current_mtimes.items():

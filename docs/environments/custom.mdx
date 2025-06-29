@@ -1,0 +1,81 @@
+---
+title: 'Custom'
+description: 'Leverage Docker to create specialized evaluation environments for any scenario.'
+---
+
+# Overview: Custom Environments
+
+HUD empowers you to go beyond pre-defined environments like `hud-browser` by creating and using **Custom Environments**. These are Docker-based setups, giving you unparalleled control over the software stack, applications, and specific state needed for your agent evaluation scenarios.
+
+Whether you're testing on your own web applications, complex desktop software, or unique backends, custom environments provide the flexibility and reproducibility required for robust agent evaluation.
+
+## Why Use Custom Environments?
+
+-   **Test Proprietary Systems**: Evaluate agents interacting with your internal web apps, desktop software (via VNC setups), or custom command-line tools within a controlled, containerized environment.
+-   **Specialized Setups**: Create environments with specific operating system versions, pre-installed dependencies, databases, particular file structures, or unique network configurations that standard environments don't offer.
+-   **Full Reproducibility**: Package your entire environment with Docker to ensure consistent testing conditions across different machines and over time.
+-   **Complex Workflows**: Model tasks that involve multiple applications, system-level interactions, or require specific background services to be running.
+-   **Community & Collaboration**: Share your specialized environments with the HUD community, or leverage environments contributed by others to expand your testing capabilities.
+
+## Two Main Approaches to Custom Environments:
+
+1.  **Containerized Web Applications (Accessed via `hud-browser`)**:
+    *   **What it is**: You package your web application (e.g., a Flask/Django app, a static site, a Node.js service) into a Docker container.
+    *   **How it works**: Define a `CustomGym` that points to this Docker image/build context. In your `Task`, you still specify `gym="hud-browser"`. HUD then runs your web app container and makes its exposed ports accessible to the `hud-browser` instance (typically via `http://localhost:PORT_FROM_YOUR_APP`). The agent interacts through the browser as usual.
+    *   **Use Cases**: Testing your own web apps, staging environments, specific website versions.
+    *   [See the Web App Testing Example &rarr;](/examples/web-app-testing)
+
+2.  **Controller-Based Custom Environments (Full Control)**:
+    *   **What it is**: You create a Docker image that includes a special Python package named `hud_controller`. This package contains your custom Python functions for `Task.setup` and `Task.evaluate` that run *inside* the Docker container.
+    *   **How it works**: Define a `CustomGym` pointing to this Docker image/build context. In your `Task`, you set `gym=your_custom_gym_object`. The `setup` and `evaluate` functions in your task configuration will directly call the corresponding Python functions in your `hud_controller`.
+    *   **Use Cases**: OS-level tasks, file system manipulation, testing desktop GUI applications (often with VNC and tools like `pyautogui` inside the controller), interacting with games, or any scenario requiring direct execution of Python logic within the controlled environment.
+    *   [See the Custom OS Environment Example &rarr;](/examples/custom-os-env)
+
+## Defining a `CustomGym`
+
+Regardless of the approach, custom environments are specified using the `CustomGym` object:
+
+```python
+from hud.types import CustomGym
+from pathlib import Path
+
+# For a local Dockerfile build context (can be used for both approaches)
+my_local_build_gym = CustomGym(
+    location="local", 
+    image_or_build_context=Path("./path/to/your/docker_env_folder")
+)
+
+# For a pre-built image from a registry (can be used for both approaches)
+my_registry_image_gym = CustomGym(
+    location="remote", # Or "local" if the image is available on your local Docker daemon
+    image_or_build_context="your_username/your_custom_image:latest"
+)
+```
+
+### Key `CustomGym` Parameters:
+
+*   **`location` (`"local"` | `"remote"`):** Where the Docker container runs.
+    *   `"local"`: Builds (if `image_or_build_context` is a Path) and runs on your machine. Requires Docker.
+    *   `"remote"`: Runs on the HUD platform. If `image_or_build_context` is a Path, HUD will build it remotely. If it's an image name, HUD pulls it from a registry.
+*   **`image_or_build_context` (str | `Path`):**
+    *   `str`: A Docker image name (e.g., `"nginx:latest"`).
+    *   `Path`: A local directory containing a `Dockerfile` (and for controller-based environments, a `hud_controller` package).
+
+## Next Steps: Building and Contributing
+
+Ready to create your own custom environment or contribute to the HUD ecosystem?
+
+<CardGroup cols={2}>
+  <Card title="Environment Creation Guide" icon="code-branch" href="/environment-creation">
+    A step-by-step walkthrough of building, testing, and structuring custom Docker environments, including those with Python controllers.
+  </Card>
+  <Card title="Open Source Environments" icon="users" href="https://github.com/hud-evals/hud-sdk/tree/main/environments">
+    Explore examples like `novnc_ubuntu`, `custom_website` templates, and other community contributions in our GitHub repository.
+  </Card>
+</CardGroup>
+
+## Related Documentation
+
+-   **[Task Creation](/task-creation)**: Learn how to define tasks that utilize your custom environments.
+-   **[Browser Environment](/environments/browser)**: For standard web interaction needs, or as the interface to your containerized web app.
+-   **[Environment Creation & Contribution Guide](/environment-creation)**: The complete guide to building and sharing environments. 

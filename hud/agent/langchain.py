@@ -10,6 +10,7 @@ from pydantic import Field, BaseModel
 # HUD imports
 from hud.adapters import Adapter
 from hud.agent.base import Agent
+from hud.types import Gym
 from hud.utils.common import Observation
 from hud.adapters.common.types import (
     ClickAction,
@@ -23,6 +24,7 @@ from hud.adapters.common.types import (
     WaitAction,
     ResponseAction,
     CustomAction,
+    LogType,
     # Exclude ScreenshotFetch, PositionFetch as they are internal
 )
 
@@ -66,6 +68,8 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
     Langchain's structured output capabilities to produce a single CLA action per step.
     """
 
+    transfer_gyms: dict[Gym, Gym] = {"qa": "hud-browser"}
+
     def __init__(
         self,
         langchain_model: LangchainModelOrRunnable,
@@ -104,7 +108,7 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
 
     async def fetch_response(
         self, observation: Observation
-    ) -> tuple[list[dict | SingleCLAction], bool]:
+    ) -> tuple[list[dict | SingleCLAction], bool, list[LogType] | None]:
         """
         Fetches a response from the configured Langchain model, expecting a single
         structured CLA action.
@@ -116,6 +120,7 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
             A tuple containing:
             - A list with a single dictionary representing the raw CLA action (before adapter postprocessing).
             - A boolean indicating if the agent chose ResponseAction (task completion).
+            - A list of strings or dictionaries of logs.
         """
         # 1. Format observation into Langchain message(s)
         human_content: List[Union[str, dict]] = []
@@ -134,7 +139,16 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
         if not human_content:
             logger.warning("LangchainAgent received an observation with no text or screenshot.")
             # Decide how to handle empty observation - perhaps return no action?
-            return [], False  # Or raise an error?
+            return (
+                [],
+                False,
+                [
+                    {
+                        "type": "warning",
+                        "message": "LangchainAgent received an observation with no text or screenshot.",
+                    }
+                ],
+            )
 
         current_human_message = HumanMessage(content=human_content)
 
@@ -158,7 +172,11 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
         except Exception as e:
             logger.error(f"Langchain model invocation failed: {e}", exc_info=True)
             # Decide how to handle LLM errors - maybe retry or return empty action?
-            return [], False
+            return (
+                [],
+                False,
+                [{"type": "error", "message": f"Langchain model invocation failed: {e}"}],
+            )
 
         # 5. Process the structured response
         is_done = False
@@ -170,11 +188,11 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
             ai_message_content_for_history = actual_action.model_dump()
             if isinstance(actual_action, ResponseAction):
                 is_done = True
-                logger.info(
-                    f"LangchainAgent determined task is done with response: {actual_action.text[:100]}..."
-                )
-            else:
-                logger.info(f"LangchainAgent produced action: {type(actual_action).__name__}")
+                # logger.info(
+                #     f"LangchainAgent determined task is done with response: {actual_action.text[:100]}..."
+                # )
+            # else:
+            #     logger.info(f"LangchainAgent produced action: {type(actual_action).__name__}")
 
         else:
             logger.warning(
@@ -189,7 +207,16 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
             else:
                 ai_message_content_for_history = repr(ai_response_structured)
             # Return no action as we didn't get the expected structure
-            return [], False
+            return (
+                [],
+                False,
+                [
+                    {
+                        "type": "error",
+                        "message": f"Langchain model did not return the expected StepAction structure. {ai_message_content_for_history}",
+                    }
+                ],
+            )
 
         # 6. Update history
         self.history.append(current_human_message)
@@ -200,7 +227,16 @@ class LangchainAgent(Agent[LangchainModelOrRunnable, Any], Generic[LangchainMode
 
         if actual_action:
             # Return the single action dictionary within a list
-            return [actual_action], is_done
+            return [actual_action], is_done, [ai_message_content_for_history]
         else:
             # Should ideally not happen if structure validation worked, but as a fallback
-            return [], is_done
+            return (
+                [],
+                is_done,
+                [
+                    {
+                        "type": "error",
+                        "message": f"Langchain model did not return the expected StepAction structure. {ai_message_content_for_history}",
+                    }
+                ],
+            )

@@ -15,7 +15,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="allow")
 
     base_url: str = Field(
-        default="https://orcstaging.hud.so/hud-gym/api",
+        default="https://orchestration.hud.so/hud-gym/api",
         description="Base URL for the HUD API",
         validation_alias="base_url",
     )
@@ -36,6 +36,18 @@ class Settings(BaseSettings):
         default=None,
         description="API key for OpenAI models",
         validation_alias="OPENAI_API_KEY",
+    )
+
+    telemetry_enabled: bool = Field(
+        default=True,
+        description="Enable telemetry for the HUD SDK",
+        validation_alias="TELEMETRY_ENABLED",
+    )
+
+    fancy_logging: bool = Field(
+        default=False,
+        description="Enable fancy logging for the HUD SDK",
+        validation_alias="FANCY_LOGGING",
     )
 
 

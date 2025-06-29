@@ -6,7 +6,7 @@ import numpy as np
 from PIL import Image
 from pydantic import TypeAdapter, ValidationError
 
-from .types import CLA
+from .types import CLA, LogType
 
 if TYPE_CHECKING:
     from typing_extensions import TypeIs
@@ -146,12 +146,14 @@ class Adapter:
 
         return processed_action
 
-    def adapt(self, action: Any) -> CLA:
+    def adapt(self, action: Any, log: LogType = None) -> CLA:
         # any preprocessing steps
         action = self.preprocess(action)
 
         # convert to CLA
         action = self.convert(action)
+        if log is not None:
+            action.logs = log
         self.memory.append(action)
 
         # convert to json and apply coordinate rescaling
@@ -161,8 +163,9 @@ class Adapter:
         # convert back to CLA
         return TypeAdapter(CLA).validate_python(rescaled_action)
 
-    def adapt_list(self, actions: list[Any]) -> list[CLA]:
+    def adapt_list(self, actions: list[Any], logs: list[LogType] | None = None) -> list[CLA]:
         if not isinstance(actions, list):
             raise ValueError("Please provide a list of actions")
-
-        return [self.adapt(action) for action in actions]
+        if logs is None or len(logs) != len(actions):
+            return [self.adapt(action) for action in actions]
+        return [self.adapt(action, log) for action, log in zip(actions, logs, strict=False)]
