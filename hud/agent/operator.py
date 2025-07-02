@@ -92,6 +92,19 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
         self.initial_prompt = None
         self.pending_safety_checks = []
 
+        self.base_system_prompt = """
+        You are an autonomous computer-using agent. Follow these guidelines:
+
+        1. Be decisive and complete tasks without asking for confirmation unless absolutely necessary.
+        2. If you need user confirmation for safety-critical actions, use the formal safety check mechanism.
+        3. Do NOT ask questions like "Should I proceed?" or "Would you like me to continue?" - just proceed with the task.
+        4. When you find what you're looking for (e.g., a file to upload), proceed with the action directly.
+        5. Only stop when the task is fully complete or if you encounter an error that prevents completion.
+        6. Trust that the user wants you to complete the entire task they've requested.
+
+        Remember: You wave been given permission to complete the requested task autonomously.
+        """
+
         self.task_run_id = None
 
     async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool]:
@@ -145,6 +158,7 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
                 model=self.model,
                 tools=[computer_tool],
                 input=input_param,
+                instructions=self.base_system_prompt,
                 truncation="auto",
                 reasoning={"summary": "auto"},
             )
@@ -225,9 +239,14 @@ class OperatorAgent(Agent[AsyncOpenAI, dict[str, Any]]):
 
             # If we found final text, package it as a 'response' action
             if final_text_response:
-                # No ResponseAgent logic here anymore - just return the response
-                actions = [{"type": "response", "text": final_text_response}]
-                done = True
+                if (
+                    "the task is infeasible" in final_text_response.lower()
+                ):  # Custom action for OSWorld
+                    done = True
+                    actions = [{"type": "custom", "action": "FAIL"}]
+                else:
+                    actions = [{"type": "response", "text": final_text_response}]
+                    done = True
             else:
                 logger.info("No computer calls and no final text message found.")
             # Keep done = True, actions remains empty
