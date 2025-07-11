@@ -94,7 +94,7 @@ async def run_grpo_training(
         buffer_min=buffer_min,
         batch_size=batch_size,
         max_concurrent=max_concurrent,
-        show_dashboard=True,
+        show_dashboard=False,
     )
     
     # Calculate expected updates
