@@ -37,7 +37,7 @@ async def run_grpo_training(
     """Run GRPO training with AcceleratedVLMAgent."""
     
     # Load tasks
-    tasks_path = Path("examples/rl/data/math_tasks/train_tasks.json")
+    tasks_path = Path("examples/rl/data/math_tasks/train_tasks_large.json")
     if not tasks_path.exists():
         logger.error(f"Tasks file not found: {tasks_path}")
         return
