@@ -94,6 +94,21 @@ class TrainingMetricsTracker:
         self.episode_times = []
         self.timestamps = []
         
+        # Detailed inference timing tracking
+        self.inference_components = {
+            'prompt_format_ms': [],
+            'tokenize_ms': [],
+            'transfer_to_device_ms': [],
+            'model_generate_ms': [],
+            'decode_ms': [],
+            'parse_actions_ms': [],
+            'total_ms': [],
+            'network_ms': [],
+            'inference_only_ms': [],
+            'total_with_network_ms': []
+        }
+        self.device_info = None
+        
     def record_update(self, stats: Dict[str, float]):
         """Record update statistics."""
         self.update_count += 1
@@ -290,11 +305,48 @@ async def run_training_test(
         timeout=120.0,
     )
     
+    # Check agent status
+    try:
+        import httpx
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(f"{agent_url}/status")
+            if resp.status_code == 200:
+                status = resp.json()
+                print(f"\n🤖 Agent Status:")
+                print(f"   Model: {status.get('model', 'unknown')}")
+                print(f"   Device: {status.get('device', 'unknown')}")
+                if 'gpu' in status:
+                    gpu = status['gpu']
+                    print(f"   GPU: {gpu['device_name']}")
+                    print(f"   Memory: {gpu['memory_allocated_gb']:.1f}/{gpu['memory_total_gb']:.1f} GB")
+    except Exception as e:
+        logger.warning(f"Could not check agent status: {e}")
+    
     # Initialize monitors
     system_monitor = SystemMonitor()
     metrics_tracker = TrainingMetricsTracker()
     
-    # Hook into agent to track metrics
+    # Hook into agent to track metrics and timing
+    original_sample = agent.sample
+    async def monitored_sample(observation, verbose=False):
+        sample = await original_sample(observation, verbose)
+        
+        # Extract timing info if available
+        if sample.metadata and 'timing' in sample.metadata:
+            timing = sample.metadata['timing']
+            for key in metrics_tracker.inference_components:
+                if key in timing:
+                    metrics_tracker.inference_components[key].append(timing[key])
+        
+        # Store device info
+        if sample.metadata and 'device' in sample.metadata and metrics_tracker.device_info is None:
+            metrics_tracker.device_info = sample.metadata['device']
+        
+        return sample
+    
+    agent.sample = monitored_sample
+    
+    # Hook into agent to track update metrics
     original_update = agent.update
     async def monitored_update(batch):
         update_start = time.time()
@@ -313,6 +365,9 @@ async def run_training_test(
     
     agent.update = monitored_update
     
+    # Ensure max_concurrent is not None for type checker
+    assert max_concurrent is not None, "max_concurrent should be set by estimation"
+    
     # Create trainer
     trainer = GRPOTrainer(
         agent=agent,
@@ -320,7 +375,7 @@ async def run_training_test(
         K=k_samples,
         buffer_min=buffer_min,
         batch_size=batch_size,
-        max_concurrent=max_concurrent if max_concurrent is not None else 16,
+        max_concurrent=max_concurrent,
         show_dashboard=True,
     )
     
@@ -331,8 +386,7 @@ async def run_training_test(
     print(f"\n📋 Training Configuration:")
     print(f"   Tasks: {len(tasks)}")
     print(f"   K samples per task: {k_samples}")
-    print(f"   Buffer size: {buffer_min} trajectories")
-    print(f"   Groups before update: ~{buffer_min // k_samples}")
+    print(f"   Buffer size: {buffer_min}")
     print(f"   Batch size: {batch_size}")
     print(f"   Max concurrent: {max_concurrent}")
     print(f"   Epochs: {num_epochs}")
@@ -378,6 +432,47 @@ async def run_training_test(
     print(f"   Episodes/second: {metrics_summary.get('episodes', 0) / training_time:.2f}")
     print(f"   Mean episode time: {metrics_summary.get('mean_episode_time', 0):.2f}s")
     
+    # Print inference timing breakdown if available
+    if any(metrics_tracker.inference_components['total_ms']):
+        print(f"\n⏱️  Inference Timing Breakdown (averages):")
+        
+        # Model inference components
+        print(f"   Model Inference:")
+        for component in ['prompt_format_ms', 'tokenize_ms', 'transfer_to_device_ms', 
+                         'model_generate_ms', 'decode_ms', 'parse_actions_ms']:
+            if component in metrics_tracker.inference_components:
+                times = metrics_tracker.inference_components[component]
+                if times:
+                    avg_time = np.mean(times)
+                    print(f"     {component.replace('_', ' ').replace(' ms', '').title()}: {avg_time:.1f}ms")
+        
+        if metrics_tracker.inference_components['total_ms']:
+            print(f"     ──────────────────────────")
+            print(f"     Total Model Time: {np.mean(metrics_tracker.inference_components['total_ms']):.1f}ms")
+        
+        # Network timing
+        if metrics_tracker.inference_components['network_ms']:
+            print(f"\n   Network:")
+            print(f"     HTTP Round Trip: {np.mean(metrics_tracker.inference_components['network_ms']):.1f}ms")
+            
+            if metrics_tracker.inference_components['total_with_network_ms']:
+                print(f"     ──────────────────────────")
+                total_with_net = np.mean(metrics_tracker.inference_components['total_with_network_ms'])
+                model_only = np.mean(metrics_tracker.inference_components.get('inference_only_ms', 
+                                                                              metrics_tracker.inference_components['total_ms']))
+                network_pct = (np.mean(metrics_tracker.inference_components['network_ms']) / total_with_net) * 100
+                print(f"     Total with Network: {total_with_net:.1f}ms")
+                print(f"     Network Overhead: {network_pct:.1f}%")
+    
+    # Print device info if available
+    if metrics_tracker.device_info:
+        print(f"\n🖥️  Compute Device:")
+        device = metrics_tracker.device_info
+        print(f"   Type: {device.get('device_type', 'unknown')}")
+        if device.get('device_type') == 'cuda':
+            print(f"   GPU: {device.get('cuda_device_name', 'unknown')}")
+            print(f"   Memory Used: {device.get('cuda_memory_allocated_gb', 0):.1f} GB")
+    
     print(f"\n🖥️  System Resource Usage:")
     print(f"   CPU: {system_summary['cpu']['mean']:.1f}% avg, {system_summary['cpu']['max']:.1f}% max")
     print(f"   Memory: {system_summary['memory']['mean_gb']:.1f}GB avg, {system_summary['memory']['max_gb']:.1f}GB max")
@@ -418,9 +513,9 @@ async def main():
     # Test with recommended settings
     results = await run_training_test(
         num_epochs=0.25,  # Start with quarter epoch for testing
-        k_samples=8,      # 8 samples per task
-        buffer_min=512,   # 512 total trajectories before update (64 groups of 8)
-        batch_size=64,    # Larger batch size for efficiency
+        k_samples=4,
+        buffer_min=64,  # Larger buffer as suggested
+        batch_size=16,
         max_concurrent=None  # Auto-detect
     )
     
@@ -462,14 +557,14 @@ async def main():
     if efficiency > 1.0:
         print(f"\n✅ Good efficiency! For a larger test, consider:")
         print(f"   - Epochs: 1.0-2.0")
-        print(f"   - Buffer size: 1024-2048 (total trajectories)")
-        print(f"   - Batch size: 64-128")
-        print(f"   - K samples: 8-16")
+        print(f"   - Buffer size: 128-256 (reduces update frequency but larger batches)")
+        print(f"   - Batch size: 32-64")
+        print(f"   - K samples: 4-8")
     else:
         print(f"\n⚠️  Lower efficiency detected. For larger test:")
         print(f"   - Consider reducing max_concurrent to {max(8, results['config']['max_concurrent']//2)}")
-        print(f"   - Keep buffer_min at 256-512")
-        print(f"   - Use smaller batch_size: 32-64")
+        print(f"   - Keep buffer_min at 32-64")
+        print(f"   - Use smaller batch_size: 8-16")
     
     print("\n" + "="*80)
 

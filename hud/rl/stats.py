@@ -377,6 +377,10 @@ class RLStatsTracker:
         infer_per_step = t['agent_inference_time'] / steps_per_episode
         step_per_step = t['env_step_time'] / steps_per_episode
         
+        # Network and model times are already per-step averages (not totals)
+        network_per_step = t.get('network_time', 0)
+        model_per_step = t.get('model_inference_time', 0)
+        
         dashboard = f"""
 ┌─ GRPO Training [{time_str}] ───────────────────────────────────────────────────────────────────────────────┐
 │ Progress: [{progress_bar}] {progress_pct:5.1f}% │ Epoch: {prog['epoch_progress']:.2f}/{prog['target_epochs']:.1f} │ Tasks: {prog['unique_tasks_seen']}/{prog['total_tasks']} │
@@ -385,7 +389,7 @@ class RLStatsTracker:
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Episode Total: {t['episode_time']*1000:5.0f}ms │ Setup: {t['env_setup_time']*1000:4.0f}ms │ Eval: {t['evaluation_time']*1000:4.0f}ms │ Avg Steps: {steps_per_episode:.1f} │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Per Step: Total: {infer_per_step*1000:4.0f}ms │ Network: {t.get('network_time', 0)*1000:4.0f}ms │ Model: {t.get('model_inference_time', 0)*1000:4.0f}ms │ Env: {step_per_step*1000:4.0f}ms │
+│ Per Step: Total: {infer_per_step*1000:4.0f}ms │ Network: {network_per_step*1000:4.0f}ms │ Model: {model_per_step*1000:4.0f}ms │ Env: {step_per_step*1000:4.0f}ms │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Group[K={self.K}]: {g['avg_group_completion']*1000:5.0f}ms │ RewVar: {g['avg_reward_variance']:5.3f} │ AdvStd: {g['advantage_std']:5.3f} │ Buffer: {g['buffer_fill_rate']*100:3.0f}% │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤

@@ -241,6 +241,17 @@ class VLMAgent(Agent[None, Dict[str, Any]]):
         - Task completion status
         """
         import time
+        import asyncio
+        from concurrent.futures import ThreadPoolExecutor
+        
+        # Run the blocking inference in a thread pool to not block the event loop
+        loop = asyncio.get_event_loop()
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            return await loop.run_in_executor(executor, self._sample_sync, observation, verbose)
+    
+    def _sample_sync(self, observation: Observation, verbose: bool = False) -> ActionSample:
+        """Synchronous version of sample for running in thread pool."""
+        import time
         timing_info = {}
         total_start = time.time()
         

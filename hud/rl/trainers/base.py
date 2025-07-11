@@ -60,6 +60,14 @@ async def default_run_episode(
             inference_time = time.time() - inference_start
             total_inference_time += inference_time
             
+            # Extract detailed timing from metadata if available
+            if stats_tracker and action_sample.metadata and 'timing' in action_sample.metadata:
+                timing = action_sample.metadata['timing']
+                if 'network_ms' in timing:
+                    stats_tracker.network_times.add(timing['network_ms'] / 1000.0)  # Convert to seconds
+                if 'model_generate_ms' in timing:
+                    stats_tracker.model_inference_times.add(timing['model_generate_ms'] / 1000.0)
+            
             # Extract actions for environment
             actions = action_sample.actions or []
             
