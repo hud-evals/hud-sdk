@@ -11,6 +11,4 @@ authors = [
     {name = "hud team", email = "founders@hud.so"}
 ]
 requires-python = ">=3.10"
-dependencies = [
-    "nltk>=3.7",
-]
+dependencies = []
