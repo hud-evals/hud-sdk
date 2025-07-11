@@ -27,11 +27,11 @@ logger = logging.getLogger(__name__)
 
 
 async def run_grpo_training(
-    num_epochs: float = 0.25,
+    num_epochs: float = 0.5,
     k_samples: int = 4,
-    buffer_min: int = 64,
+    buffer_min: int = 32,
     batch_size: int = 16,
-    max_concurrent: int = 8,  # Lower since we're doing more work per GPU
+    max_concurrent: int = 8,
     model_name: Optional[str] = None,
 ):
     """Run GRPO training with AcceleratedVLMAgent."""
@@ -45,26 +45,27 @@ async def run_grpo_training(
     with open(tasks_path) as f:
         task_configs = json.load(f)
     
-    tasks = [Task.from_dict(config) for config in task_configs[:100]]  # Use subset for testing
+    # Use all tasks
+    tasks = [Task.from_dict(config) for config in task_configs]
     logger.info(f"📚 Loaded {len(tasks)} training tasks")
     
     # Create AcceleratedVLMAgent
-    model_name = model_name or "Qwen/Qwen2.5-7B-Instruct"
+    model_name = model_name or "Qwen/Qwen2.5-0.5B-Instruct"  # Use smaller model for faster testing
     
     agent = AcceleratedVLMAgent(
         # Accelerate config
-        gradient_accumulation_steps=2,  # Accumulate gradients for larger effective batch
+        gradient_accumulation_steps=1,
         mixed_precision="fp16",  # Use FP16 for faster training
         inference_threads=2,  # Multiple threads for async inference
         # Model config
         model_name=model_name,
         device_map="auto",
-        load_in_8bit=True,  # 8-bit quantization
+        load_in_8bit=False,  # Disable 8-bit for smaller model
         use_lora=True,
         lora_rank=16,
         lora_alpha=32,
         learning_rate=1e-5,
-        max_new_tokens=512,
+        max_new_tokens=256,
         temperature=0.7,
         system_prompt=(
             "You are a helpful math tutor. Solve the given math problem step by step. "
@@ -72,10 +73,7 @@ async def run_grpo_training(
         )
     )
     
-    logger.info(f"🤖 Created AcceleratedVLMAgent")
-    logger.info(f"   Model: {model_name}")
-    logger.info(f"   Mixed Precision: FP16")
-    logger.info(f"   Gradient Accumulation: 2 steps")
+    logger.info(f"🤖 Created AcceleratedVLMAgent with {model_name}")
     
     # Create GRPO trainer
     trainer = GRPOTrainer(
@@ -93,6 +91,7 @@ async def run_grpo_training(
     total_updates = int(num_epochs * updates_per_epoch)
     
     logger.info(f"\n📋 Training Configuration:")
+    logger.info(f"   Model: {model_name}")
     logger.info(f"   Tasks: {len(tasks)}")
     logger.info(f"   K samples per task: {k_samples}")
     logger.info(f"   Buffer size: {buffer_min}")
@@ -102,9 +101,6 @@ async def run_grpo_training(
     logger.info(f"   Expected updates: {total_updates}")
     
     logger.info(f"\n🚀 Starting GRPO training with Accelerate...")
-    logger.info(f"   Inference: Optimized with FP16 and thread pool")
-    logger.info(f"   Updates: Distributed across available GPUs")
-    logger.info("")
     
     # Run training
     final_stats = await trainer.train(num_epochs=num_epochs)
@@ -131,12 +127,12 @@ async def main():
     import argparse
     
     parser = argparse.ArgumentParser(description="Test GRPO training with Accelerate")
-    parser.add_argument("--epochs", type=float, default=0.25, help="Number of epochs")
+    parser.add_argument("--epochs", type=float, default=0.5, help="Number of epochs")
     parser.add_argument("--k-samples", type=int, default=4, help="K samples per task")
-    parser.add_argument("--buffer-min", type=int, default=64, help="Minimum buffer size")
+    parser.add_argument("--buffer-min", type=int, default=32, help="Minimum buffer size")
     parser.add_argument("--batch-size", type=int, default=16, help="Batch size")
     parser.add_argument("--max-concurrent", type=int, default=8, help="Max concurrent environments")
-    parser.add_argument("--model", type=str, help="Model name")
+    parser.add_argument("--model", type=str, help="Model name (default: Qwen/Qwen2.5-0.5B-Instruct)")
     
     args = parser.parse_args()
     
