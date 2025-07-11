@@ -23,34 +23,6 @@ logging.getLogger('hud.rl').setLevel(logging.DEBUG)
 logging.getLogger('hud.agent').setLevel(logging.DEBUG)
 
 
-async def test_agent_sample():
-    """Test if agent can sample successfully."""
-    logger.info("Testing agent sample functionality...")
-    
-    agent = AcceleratedVLMAgent(
-        model_name="Qwen/Qwen2.5-0.5B-Instruct",  # Use smaller model for testing
-        device_map="auto",
-        load_in_8bit=False,  # Disable 8-bit for testing
-        use_lora=False,  # Disable LoRA for testing
-        max_new_tokens=50,
-        temperature=0.7,
-        system_prompt="You are a helpful assistant."
-    )
-    
-    # Create a simple observation
-    from hud.utils.common import Observation
-    obs = Observation(text="What is 2+2?")
-    
-    try:
-        logger.info("Calling agent.sample()...")
-        sample = await agent.sample(obs)
-        logger.info(f"Sample successful! Generated text: {sample.text[:100]}...")
-        return True
-    except Exception as e:
-        logger.error(f"Sample failed: {e}", exc_info=True)
-        return False
-
-
 async def run_grpo_training_debug(
     num_epochs: float = 0.1,
     k_samples: int = 2,
@@ -59,11 +31,6 @@ async def run_grpo_training_debug(
     max_concurrent: int = 1,
 ):
     """Run GRPO training with debug logging."""
-    
-    # First test if agent works
-    if not await test_agent_sample():
-        logger.error("Agent sample test failed! Aborting.")
-        return
     
     # Load tasks
     tasks_path = Path("examples/rl/data/math_tasks/train_tasks.json")
@@ -83,6 +50,7 @@ async def run_grpo_training_debug(
         logger.debug(f"Task {i}: {task.id} - {task.prompt[:50]}...")
     
     # Create AcceleratedVLMAgent with smaller model
+    logger.info("Creating AcceleratedVLMAgent...")
     agent = AcceleratedVLMAgent(
         gradient_accumulation_steps=1,
         mixed_precision="no",  # Disable for debugging
@@ -101,6 +69,17 @@ async def run_grpo_training_debug(
     )
     
     logger.info(f"🤖 Created AcceleratedVLMAgent")
+    
+    # Test the agent with a simple sample before training
+    logger.info("Testing agent with a simple sample...")
+    from hud.utils.common import Observation
+    test_obs = Observation(text="What is 2+2?")
+    try:
+        sample = await agent.sample(test_obs)
+        logger.info(f"Test successful! Generated: {sample.text[:100]}...")
+    except Exception as e:
+        logger.error(f"Agent test failed: {e}", exc_info=True)
+        return
     
     # Create GRPO trainer with debug logging disabled
     trainer = GRPOTrainer(
