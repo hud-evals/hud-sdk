@@ -145,6 +145,7 @@ class RLStatsTracker:
         self.env_step_times = TimingStats()
         self.evaluation_times = TimingStats()
         self.update_times = TimingStats()
+        self.steps_per_episode = TimingStats()  # Track steps per episode
         
         # GRPO-specific stats
         self.grpo_stats = GRPOStats()
@@ -206,6 +207,7 @@ class RLStatsTracker:
         inference_time: Optional[float] = None,
         step_time: Optional[float] = None,
         eval_time: Optional[float] = None,
+        num_steps: Optional[int] = None,
     ) -> None:
         """Record episode timing."""
         self.episode_times.add(total_time)
@@ -217,6 +219,8 @@ class RLStatsTracker:
             self.env_step_times.add(step_time)
         if eval_time:
             self.evaluation_times.add(eval_time)
+        if num_steps is not None:
+            self.steps_per_episode.add(float(num_steps))
             
         self.episodes_completed += 1
         
@@ -296,6 +300,7 @@ class RLStatsTracker:
                 "env_step_time": self.env_step_times.mean,
                 "evaluation_time": self.evaluation_times.mean,
                 "update_time": self.update_times.mean,
+                "steps_per_episode": self.steps_per_episode.mean,
             },
             "grpo": {
                 "avg_group_completion": self.grpo_stats.group_completion_times.mean,
@@ -356,13 +361,25 @@ class RLStatsTracker:
             filled = int(pct * width)
             return "█" * filled + "─" * (width - filled)
         
+        # Calculate per-step averages (episodes typically have multiple steps)
+        # Use actual tracked steps per episode if available
+        steps_per_episode = t.get('steps_per_episode', 1)
+        if steps_per_episode <= 0:
+            steps_per_episode = 1
+        
+        # Calculate per-step times
+        infer_per_step = t['agent_inference_time'] / steps_per_episode
+        step_per_step = t['env_step_time'] / steps_per_episode
+        
         dashboard = f"""
 ┌─ GRPO Training [{time_str}] ───────────────────────────────────────────────────────────────────────────────┐
 │ Progress: [{progress_bar}] {progress_pct:5.1f}% │ Epoch: {prog['epoch_progress']:.2f}/{prog['target_epochs']:.1f} │ Tasks: {prog['unique_tasks_seen']}/{prog['total_tasks']} │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Workers: {p['active_workers']}/{self.max_concurrent} ({p['avg_utilization']*100:3.0f}%) │ Episodes: {perf['episodes_completed']:4d} ({perf['episodes_per_second']:4.1f}/s) │ Updates: {perf['updates_completed']:3d} ({perf['updates_per_minute']:4.1f}/m) │ Efficiency: {p['parallel_efficiency']*100:3.0f}% │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Episode: {t['episode_time']*1000:5.0f}ms │ Setup: {t['env_setup_time']*1000:4.0f}ms │ Infer: {t['agent_inference_time']*1000:4.0f}ms │ Step: {t['env_step_time']*1000:4.0f}ms │ Eval: {t['evaluation_time']*1000:4.0f}ms │
+│ Episode Total: {t['episode_time']*1000:5.0f}ms │ Setup: {t['env_setup_time']*1000:4.0f}ms │ Eval: {t['evaluation_time']*1000:4.0f}ms │ Avg Steps: {steps_per_episode:.1f} │
+├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+│ Per Step: Inference: {infer_per_step*1000:4.0f}ms │ Env Step: {step_per_step*1000:4.0f}ms │ Total Infer: {t['agent_inference_time']*1000:5.0f}ms │ Total Steps: {t['env_step_time']*1000:5.0f}ms │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Group[K={self.K}]: {g['avg_group_completion']*1000:5.0f}ms │ RewVar: {g['avg_reward_variance']:5.3f} │ AdvStd: {g['advantage_std']:5.3f} │ Buffer: {g['buffer_fill_rate']*100:3.0f}% │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
@@ -374,4 +391,4 @@ class RLStatsTracker:
 │ 50-75%: {make_bar(buckets[3], total_tasks)} ({buckets[3]:3d}) │ 75-99%: {make_bar(buckets[4], total_tasks)} ({buckets[4]:3d}) │ 100%: {make_bar(buckets[5], total_tasks)} ({buckets[5]:3d})                             │
 └──────────────────────────────────────────────────────────────────────────────────────────────────────────┘"""
         
-        return dashboard
+        return dashboard.strip()

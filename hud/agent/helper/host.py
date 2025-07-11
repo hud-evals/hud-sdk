@@ -161,13 +161,43 @@ async def sample(request: SampleRequest):
                 "actions": action_dicts,
                 "raw_actions": action_sample.raw_actions,
                 "done": action_sample.done,
-                "metadata": action_sample.metadata
+                "metadata": action_sample.metadata  # This now includes timing and device info
             }
         }
         
     except Exception as e:
         logger.exception("Error in /sample")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/status")
+async def status():
+    """Get agent status including GPU usage."""
+    if agent is None:
+        return {"status": "not_initialized"}
+    
+    try:
+        import torch
+        
+        status_info = {
+            "status": "ready",
+            "model": agent.model_name,
+            "device": str(agent._device) if agent._device else "not_loaded",
+        }
+        
+        if agent._device and agent._device.type == "cuda":
+            status_info["gpu"] = {
+                "device_name": torch.cuda.get_device_name(agent._device),
+                "memory_allocated_gb": torch.cuda.memory_allocated(agent._device) / 1e9,
+                "memory_reserved_gb": torch.cuda.memory_reserved(agent._device) / 1e9,
+                "memory_total_gb": torch.cuda.get_device_properties(agent._device).total_memory / 1e9,
+            }
+        
+        return status_info
+        
+    except Exception as e:
+        logger.exception("Error getting status")
+        return {"status": "error", "error": str(e)}
 
 
 @app.post("/update")

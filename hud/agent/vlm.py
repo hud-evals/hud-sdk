@@ -127,6 +127,9 @@ class VLMAgent(Agent[None, Dict[str, Any]]):
         # Device setup
         if torch.cuda.is_available():
             self._device = torch.device("cuda")
+            gpu_name = torch.cuda.get_device_name(0)
+            gpu_memory_gb = torch.cuda.get_device_properties(0).total_memory / 1e9
+            logger.info(f"CUDA available: {gpu_name} with {gpu_memory_gb:.1f}GB memory")
         else:
             self._device = torch.device("cpu")
             logger.warning("CUDA not available, using CPU (will be slow)")
@@ -237,6 +240,10 @@ class VLMAgent(Agent[None, Dict[str, Any]]):
         - Parsed actions
         - Task completion status
         """
+        import time
+        timing_info = {}
+        total_start = time.time()
+        
         self._setup_model()
         
         import torch
@@ -245,9 +252,12 @@ class VLMAgent(Agent[None, Dict[str, Any]]):
             raise RuntimeError("Model not initialized")
         
         # Format the input
+        format_start = time.time()
         prompt = self._format_prompt(observation)
+        timing_info['prompt_format_ms'] = (time.time() - format_start) * 1000
         
         # Tokenize based on whether we have a processor or tokenizer
+        tokenize_start = time.time()
         if hasattr(self._tokenizer, 'tokenizer'):
             # This is a processor (for vision models)
             inputs = self._tokenizer(
@@ -264,11 +274,15 @@ class VLMAgent(Agent[None, Dict[str, Any]]):
                 truncation=True,
                 max_length=2048,
             )
+        timing_info['tokenize_ms'] = (time.time() - tokenize_start) * 1000
         
         # Move to device
+        transfer_start = time.time()
         inputs = {k: v.to(self._device) for k, v in inputs.items()}
+        timing_info['transfer_to_device_ms'] = (time.time() - transfer_start) * 1000
         
         # Generate with log probs
+        generate_start = time.time()
         with torch.no_grad():
             # Generate tokens
             outputs = self._model.generate(
@@ -280,32 +294,37 @@ class VLMAgent(Agent[None, Dict[str, Any]]):
                 output_scores=True,
                 pad_token_id=self._tokenizer.pad_token_id,
             )
+        timing_info['model_generate_ms'] = (time.time() - generate_start) * 1000
             
-            # Extract generated tokens (excluding prompt)
-            generated_ids = outputs.sequences[0][inputs['input_ids'].shape[1]:]
-            generated_text = self._tokenizer.decode(generated_ids, skip_special_tokens=True)
+        # Extract and decode generated tokens
+        decode_start = time.time()
+        # Extract generated tokens (excluding prompt)
+        generated_ids = outputs.sequences[0][inputs['input_ids'].shape[1]:]
+        generated_text = self._tokenizer.decode(generated_ids, skip_special_tokens=True)
+        
+        # Compute log probabilities
+        if outputs.scores:
+            # Convert scores to log probs
+            log_probs = []
+            tokens = []
             
-            # Compute log probabilities
-            if outputs.scores:
-                # Convert scores to log probs
-                log_probs = []
-                tokens = []
+            for i, score in enumerate(outputs.scores):
+                # Get the token that was actually generated
+                token_id = generated_ids[i].item()
+                # Get log prob for that token
+                log_prob = torch.log_softmax(score[0], dim=-1)[token_id].item()
+                log_probs.append(log_prob)
+                tokens.append(self._tokenizer.decode([token_id]))
                 
-                for i, score in enumerate(outputs.scores):
-                    # Get the token that was actually generated
-                    token_id = generated_ids[i].item()
-                    # Get log prob for that token
-                    log_prob = torch.log_softmax(score[0], dim=-1)[token_id].item()
-                    log_probs.append(log_prob)
-                    tokens.append(self._tokenizer.decode([token_id]))
-                    
-                total_log_prob = sum(log_probs)
-            else:
-                log_probs = None
-                tokens = None
-                total_log_prob = None
+            total_log_prob = sum(log_probs)
+        else:
+            log_probs = None
+            tokens = None
+            total_log_prob = None
+        timing_info['decode_ms'] = (time.time() - decode_start) * 1000
         
         # Parse actions from generated text
+        parse_start = time.time()
         done = True #self._check_done(generated_text)
         
         # Process with adapter if available
@@ -315,6 +334,20 @@ class VLMAgent(Agent[None, Dict[str, Any]]):
                 processed_actions = self.adapter.adapt_list([generated_text])
             except Exception as e:
                 logger.warning(f"Failed to adapt actions: {e}")
+        timing_info['parse_actions_ms'] = (time.time() - parse_start) * 1000
+        
+        # Total time
+        timing_info['total_ms'] = (time.time() - total_start) * 1000
+        
+        # Add device info to metadata
+        device_info = {
+            "device": str(self._device),
+            "device_type": self._device.type,
+        }
+        if self._device.type == "cuda":
+            device_info["cuda_device_name"] = torch.cuda.get_device_name(self._device)
+            device_info["cuda_memory_allocated_gb"] = torch.cuda.memory_allocated(self._device) / 1e9
+            device_info["cuda_memory_reserved_gb"] = torch.cuda.memory_reserved(self._device) / 1e9
         
         # Create action sample
         return ActionSample(
@@ -329,6 +362,9 @@ class VLMAgent(Agent[None, Dict[str, Any]]):
                 "model": self.model_name,
                 "temperature": self.temperature,
                 "prompt_length": inputs['input_ids'].shape[1],
+                "generated_length": len(generated_ids),
+                "timing": timing_info,
+                "device": device_info,
             }
         )
     

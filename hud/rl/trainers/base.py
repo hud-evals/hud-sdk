@@ -96,12 +96,14 @@ async def default_run_episode(
         # Record episode statistics
         if stats_tracker:
             total_time = time.time() - episode_start
+            num_steps = len(transitions)  # Track number of steps taken
             stats_tracker.record_episode(
                 total_time=total_time,
                 setup_time=setup_time,
                 inference_time=total_inference_time,
                 step_time=total_step_time,
-                eval_time=eval_time
+                eval_time=eval_time,
+                num_steps=num_steps  # Pass number of steps
             )
             
         return Trajectory(
