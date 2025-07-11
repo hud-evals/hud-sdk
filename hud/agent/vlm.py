@@ -340,11 +340,11 @@ class VLMAgent(Agent[None, Dict[str, Any]]):
         timing_info['total_ms'] = (time.time() - total_start) * 1000
         
         # Add device info to metadata
-        device_info = {
+        device_info: Dict[str, Any] = {
             "device": str(self._device),
-            "device_type": self._device.type,
+            "device_type": self._device.type if self._device else "unknown",
         }
-        if self._device.type == "cuda":
+        if self._device and self._device.type == "cuda":
             device_info["cuda_device_name"] = torch.cuda.get_device_name(self._device)
             device_info["cuda_memory_allocated_gb"] = torch.cuda.memory_allocated(self._device) / 1e9
             device_info["cuda_memory_reserved_gb"] = torch.cuda.memory_reserved(self._device) / 1e9

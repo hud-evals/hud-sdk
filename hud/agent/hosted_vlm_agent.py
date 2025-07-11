@@ -80,6 +80,8 @@ class HostedVLMAgent(Agent[httpx.AsyncClient, str]):
         - Parsed actions
         - Task completion status
         """
+        import time
+        
         client = await self._get_client()
         
         # Prepare request payload
@@ -91,6 +93,8 @@ class HostedVLMAgent(Agent[httpx.AsyncClient, str]):
             "verbose": verbose
         }
         
+        # Time the entire network request
+        network_start = time.time()
         try:
             resp = await client.post(
                 f"{self._base_url}/sample",
@@ -98,6 +102,7 @@ class HostedVLMAgent(Agent[httpx.AsyncClient, str]):
             )
             resp.raise_for_status()
             data = resp.json()
+            network_time_ms = (time.time() - network_start) * 1000
         except Exception as e:
             logger.error(f"Failed to call /sample endpoint: {e}")
             raise RuntimeError(f"Sample request failed: {e}")
@@ -115,6 +120,17 @@ class HostedVLMAgent(Agent[httpx.AsyncClient, str]):
         else:
             cla_actions = [TypeAdapter(CLA).validate_python(action_dict) for action_dict in actions_data]
         
+        # Merge network timing into metadata
+        metadata = action_sample_data.get("metadata", {})
+        if "timing" in metadata:
+            metadata["timing"]["network_ms"] = network_time_ms
+            # Calculate non-network inference time
+            if "total_ms" in metadata["timing"]:
+                metadata["timing"]["inference_only_ms"] = metadata["timing"]["total_ms"]
+                metadata["timing"]["total_with_network_ms"] = metadata["timing"]["total_ms"] + network_time_ms
+        else:
+            metadata["network_timing"] = {"network_ms": network_time_ms}
+        
         return ActionSample(
             text=action_sample_data.get("text", ""),
             log_probs=action_sample_data.get("log_probs"),
@@ -123,7 +139,7 @@ class HostedVLMAgent(Agent[httpx.AsyncClient, str]):
             actions=cla_actions,
             raw_actions=action_sample_data.get("raw_actions", []),
             done=action_sample_data.get("done", False),
-            metadata=action_sample_data.get("metadata", {})
+            metadata=metadata
         )
     
     async def update(self, batch: Batch) -> Dict[str, float]:

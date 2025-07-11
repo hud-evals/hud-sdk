@@ -146,6 +146,8 @@ class RLStatsTracker:
         self.evaluation_times = TimingStats()
         self.update_times = TimingStats()
         self.steps_per_episode = TimingStats()  # Track steps per episode
+        self.network_times = TimingStats()  # Track network round-trip time
+        self.model_inference_times = TimingStats()  # Track actual model inference time
         
         # GRPO-specific stats
         self.grpo_stats = GRPOStats()
@@ -301,6 +303,8 @@ class RLStatsTracker:
                 "evaluation_time": self.evaluation_times.mean,
                 "update_time": self.update_times.mean,
                 "steps_per_episode": self.steps_per_episode.mean,
+                "network_time": self.network_times.mean,
+                "model_inference_time": self.model_inference_times.mean,
             },
             "grpo": {
                 "avg_group_completion": self.grpo_stats.group_completion_times.mean,
@@ -368,6 +372,8 @@ class RLStatsTracker:
             steps_per_episode = 1
         
         # Calculate per-step times
+        # Note: agent_inference_time and env_step_time are already totals for the episode
+        # They were accumulated in default_run_episode, so they represent the sum across all steps
         infer_per_step = t['agent_inference_time'] / steps_per_episode
         step_per_step = t['env_step_time'] / steps_per_episode
         
@@ -379,7 +385,7 @@ class RLStatsTracker:
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Episode Total: {t['episode_time']*1000:5.0f}ms │ Setup: {t['env_setup_time']*1000:4.0f}ms │ Eval: {t['evaluation_time']*1000:4.0f}ms │ Avg Steps: {steps_per_episode:.1f} │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
-│ Per Step: Inference: {infer_per_step*1000:4.0f}ms │ Env Step: {step_per_step*1000:4.0f}ms │ Total Infer: {t['agent_inference_time']*1000:5.0f}ms │ Total Steps: {t['env_step_time']*1000:5.0f}ms │
+│ Per Step: Total: {infer_per_step*1000:4.0f}ms │ Network: {t.get('network_time', 0)*1000:4.0f}ms │ Model: {t.get('model_inference_time', 0)*1000:4.0f}ms │ Env: {step_per_step*1000:4.0f}ms │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Group[K={self.K}]: {g['avg_group_completion']*1000:5.0f}ms │ RewVar: {g['avg_reward_variance']:5.3f} │ AdvStd: {g['advantage_std']:5.3f} │ Buffer: {g['buffer_fill_rate']*100:3.0f}% │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────┤
