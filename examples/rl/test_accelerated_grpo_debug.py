@@ -80,7 +80,7 @@ async def run_grpo_training_debug(
     
     # Log task details
     for i, task in enumerate(tasks):
-        logger.debug(f"Task {i}: {task.id} - {task.instructions[:50]}...")
+        logger.debug(f"Task {i}: {task.id} - {task.prompt[:50]}...")
     
     # Create AcceleratedVLMAgent with smaller model
     agent = AcceleratedVLMAgent(
