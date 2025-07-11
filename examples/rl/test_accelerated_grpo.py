@@ -75,6 +75,17 @@ async def run_grpo_training(
     
     logger.info(f"🤖 Created AcceleratedVLMAgent with {model_name}")
     
+    # Initialize the model by doing a test sample
+    logger.info("Initializing model with test sample...")
+    from hud.utils.common import Observation
+    test_obs = Observation(text="What is 2+2?")
+    try:
+        test_sample = await agent.sample(test_obs)
+        logger.info(f"Model initialized successfully. Test output: {test_sample.text[:50]}...")
+    except Exception as e:
+        logger.error(f"Failed to initialize model: {e}")
+        return
+    
     # Create GRPO trainer
     trainer = GRPOTrainer(
         agent=agent,
