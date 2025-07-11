@@ -76,6 +76,22 @@ class Task(BaseModel):
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> Task:
+        # Handle CustomGym conversion if needed
+        gym_data = data.get("gym")
+        if (
+            isinstance(gym_data, dict)
+            and gym_data.get("type") == "public"
+            and gym_data.get("location") in ("local", "remote")
+            and gym_data.get("image_or_build_context") is not None
+        ):
+            data = data.copy()  # Don't modify the original
+            data["gym"] = CustomGym(
+                type=cast("Literal['public']", gym_data["type"]),
+                location=cast("Literal['local', 'remote']", gym_data["location"]),
+                image_or_build_context=Path(gym_data["image_or_build_context"]),
+                host_config=gym_data.get("host_config"),
+            )
+        
         return cls(**data)
 
     @classmethod

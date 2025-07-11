@@ -38,6 +38,12 @@ class Settings(BaseSettings):
         validation_alias="OPENAI_API_KEY",
     )
 
+    hf_token: str | None = Field(
+        default=None,
+        description="Token for Hugging Face Hub authentication",
+        validation_alias="HF_TOKEN",
+    )
+
     telemetry_enabled: bool = Field(
         default=True,
         description="Enable telemetry for the HUD SDK",

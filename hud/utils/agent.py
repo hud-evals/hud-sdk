@@ -5,16 +5,12 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from hud.task import Task
 
-AGENT_PROMPT = (
-    "You are an AI agent whose goal is to accomplish the ultimate task following the instructions."
-)
-
 
 def format_agent_prompt(environment_prompt: str | None, task: Task | None) -> str:
     """
     Format the agent prompt with the environment prompt and the task prompt.
     """
-    prompt = AGENT_PROMPT
+    prompt = ""
 
     # User-provided system prompt takes precedence over environment prompt
     if task and task.system_prompt:
