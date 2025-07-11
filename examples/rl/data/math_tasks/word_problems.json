@@ -1,0 +1,1552 @@
+[
+  {
+    "id": "word_problem_0",
+    "prompt": "A baker has 42 cookies and wants to put them equally into 7 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 42 cookies and wants to put them equally into 7 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 6,
+      "task_index": 0
+    }
+  },
+  {
+    "id": "word_problem_1",
+    "prompt": "There are 15 rows of chairs with 12 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 15 rows of chairs with 12 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "180"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "answer": 180,
+      "task_index": 1
+    }
+  },
+  {
+    "id": "word_problem_2",
+    "prompt": "Tom has 76 marbles. He gives 41 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 76 marbles. He gives 41 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "35"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 35,
+      "task_index": 2
+    }
+  },
+  {
+    "id": "word_problem_3",
+    "prompt": "Tom has 21 marbles. He gives 16 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 21 marbles. He gives 16 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "5"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 5,
+      "task_index": 3
+    }
+  },
+  {
+    "id": "word_problem_4",
+    "prompt": "A baker has 24 cookies and wants to put them equally into 3 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 24 cookies and wants to put them equally into 3 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "8"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 8,
+      "task_index": 4
+    }
+  },
+  {
+    "id": "word_problem_5",
+    "prompt": "There are 3 rows of chairs with 2 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 3 rows of chairs with 2 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "answer": 6,
+      "task_index": 5
+    }
+  },
+  {
+    "id": "word_problem_6",
+    "prompt": "Tom has 50 marbles. He gives 17 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 50 marbles. He gives 17 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "33"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 33,
+      "task_index": 6
+    }
+  },
+  {
+    "id": "word_problem_7",
+    "prompt": "Sarah has 49 apples. She buys 28 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 49 apples. She buys 28 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "77"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "answer": 77,
+      "task_index": 7
+    }
+  },
+  {
+    "id": "word_problem_8",
+    "prompt": "A baker has 40 cookies and wants to put them equally into 8 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 40 cookies and wants to put them equally into 8 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "5"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 5,
+      "task_index": 8
+    }
+  },
+  {
+    "id": "word_problem_9",
+    "prompt": "Sarah has 20 apples. She buys 30 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 20 apples. She buys 30 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "50"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "answer": 50,
+      "task_index": 9
+    }
+  },
+  {
+    "id": "word_problem_10",
+    "prompt": "Tom has 55 marbles. He gives 32 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 55 marbles. He gives 32 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "23"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 23,
+      "task_index": 10
+    }
+  },
+  {
+    "id": "word_problem_11",
+    "prompt": "A baker has 36 cookies and wants to put them equally into 2 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 36 cookies and wants to put them equally into 2 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "18"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 18,
+      "task_index": 11
+    }
+  },
+  {
+    "id": "word_problem_12",
+    "prompt": "Tom has 86 marbles. He gives 63 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 86 marbles. He gives 63 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "23"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 23,
+      "task_index": 12
+    }
+  },
+  {
+    "id": "word_problem_13",
+    "prompt": "There are 10 rows of chairs with 5 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 10 rows of chairs with 5 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "50"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "answer": 50,
+      "task_index": 13
+    }
+  },
+  {
+    "id": "word_problem_14",
+    "prompt": "There are 4 rows of chairs with 7 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 4 rows of chairs with 7 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "28"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "answer": 28,
+      "task_index": 14
+    }
+  },
+  {
+    "id": "word_problem_15",
+    "prompt": "There are 8 rows of chairs with 10 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 8 rows of chairs with 10 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "80"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "answer": 80,
+      "task_index": 15
+    }
+  },
+  {
+    "id": "word_problem_16",
+    "prompt": "There are 13 rows of chairs with 12 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 13 rows of chairs with 12 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "156"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "answer": 156,
+      "task_index": 16
+    }
+  },
+  {
+    "id": "word_problem_17",
+    "prompt": "A baker has 26 cookies and wants to put them equally into 2 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 26 cookies and wants to put them equally into 2 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "13"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 13,
+      "task_index": 17
+    }
+  },
+  {
+    "id": "word_problem_18",
+    "prompt": "Tom has 67 marbles. He gives 53 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 67 marbles. He gives 53 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 14,
+      "task_index": 18
+    }
+  },
+  {
+    "id": "word_problem_19",
+    "prompt": "A baker has 15 cookies and wants to put them equally into 3 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 15 cookies and wants to put them equally into 3 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "5"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 5,
+      "task_index": 19
+    }
+  },
+  {
+    "id": "word_problem_20",
+    "prompt": "There are 8 rows of chairs with 15 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 8 rows of chairs with 15 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "120"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "answer": 120,
+      "task_index": 20
+    }
+  },
+  {
+    "id": "word_problem_21",
+    "prompt": "A baker has 80 cookies and wants to put them equally into 5 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 80 cookies and wants to put them equally into 5 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "16"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 16,
+      "task_index": 21
+    }
+  },
+  {
+    "id": "word_problem_22",
+    "prompt": "Tom has 72 marbles. He gives 37 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 72 marbles. He gives 37 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "35"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 35,
+      "task_index": 22
+    }
+  },
+  {
+    "id": "word_problem_23",
+    "prompt": "Tom has 52 marbles. He gives 13 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 52 marbles. He gives 13 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "39"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 39,
+      "task_index": 23
+    }
+  },
+  {
+    "id": "word_problem_24",
+    "prompt": "Sarah has 6 apples. She buys 46 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 6 apples. She buys 46 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "52"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "answer": 52,
+      "task_index": 24
+    }
+  },
+  {
+    "id": "word_problem_25",
+    "prompt": "Sarah has 31 apples. She buys 21 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 31 apples. She buys 21 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "52"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "answer": 52,
+      "task_index": 25
+    }
+  },
+  {
+    "id": "word_problem_26",
+    "prompt": "Tom has 50 marbles. He gives 22 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 50 marbles. He gives 22 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "28"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 28,
+      "task_index": 26
+    }
+  },
+  {
+    "id": "word_problem_27",
+    "prompt": "A baker has 119 cookies and wants to put them equally into 7 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 119 cookies and wants to put them equally into 7 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "17"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 17,
+      "task_index": 27
+    }
+  },
+  {
+    "id": "word_problem_28",
+    "prompt": "A baker has 24 cookies and wants to put them equally into 8 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 24 cookies and wants to put them equally into 8 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "3"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 3,
+      "task_index": 28
+    }
+  },
+  {
+    "id": "word_problem_29",
+    "prompt": "Tom has 66 marbles. He gives 25 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 66 marbles. He gives 25 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "41"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 41,
+      "task_index": 29
+    }
+  },
+  {
+    "id": "word_problem_30",
+    "prompt": "Sarah has 34 apples. She buys 13 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 34 apples. She buys 13 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "47"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "answer": 47,
+      "task_index": 30
+    }
+  },
+  {
+    "id": "word_problem_31",
+    "prompt": "A baker has 28 cookies and wants to put them equally into 2 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 28 cookies and wants to put them equally into 2 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 14,
+      "task_index": 31
+    }
+  },
+  {
+    "id": "word_problem_32",
+    "prompt": "Tom has 68 marbles. He gives 53 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 68 marbles. He gives 53 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "15"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 15,
+      "task_index": 32
+    }
+  },
+  {
+    "id": "word_problem_33",
+    "prompt": "A baker has 34 cookies and wants to put them equally into 2 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 34 cookies and wants to put them equally into 2 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "17"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 17,
+      "task_index": 33
+    }
+  },
+  {
+    "id": "word_problem_34",
+    "prompt": "Tom has 66 marbles. He gives 13 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 66 marbles. He gives 13 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "53"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 53,
+      "task_index": 34
+    }
+  },
+  {
+    "id": "word_problem_35",
+    "prompt": "Sarah has 13 apples. She buys 15 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 13 apples. She buys 15 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "28"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "answer": 28,
+      "task_index": 35
+    }
+  },
+  {
+    "id": "word_problem_36",
+    "prompt": "There are 6 rows of chairs with 6 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 6 rows of chairs with 6 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "36"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "answer": 36,
+      "task_index": 36
+    }
+  },
+  {
+    "id": "word_problem_37",
+    "prompt": "A baker has 42 cookies and wants to put them equally into 3 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 42 cookies and wants to put them equally into 3 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 14,
+      "task_index": 37
+    }
+  },
+  {
+    "id": "word_problem_38",
+    "prompt": "Tom has 76 marbles. He gives 51 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 76 marbles. He gives 51 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "25"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 25,
+      "task_index": 38
+    }
+  },
+  {
+    "id": "word_problem_39",
+    "prompt": "Sarah has 32 apples. She buys 6 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 32 apples. She buys 6 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "38"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "answer": 38,
+      "task_index": 39
+    }
+  },
+  {
+    "id": "word_problem_40",
+    "prompt": "A baker has 39 cookies and wants to put them equally into 3 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 39 cookies and wants to put them equally into 3 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "13"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 13,
+      "task_index": 40
+    }
+  },
+  {
+    "id": "word_problem_41",
+    "prompt": "Sarah has 17 apples. She buys 5 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 17 apples. She buys 5 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "22"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "answer": 22,
+      "task_index": 41
+    }
+  },
+  {
+    "id": "word_problem_42",
+    "prompt": "A baker has 40 cookies and wants to put them equally into 4 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 40 cookies and wants to put them equally into 4 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 10,
+      "task_index": 42
+    }
+  },
+  {
+    "id": "word_problem_43",
+    "prompt": "There are 8 rows of chairs with 10 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 8 rows of chairs with 10 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "80"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "answer": 80,
+      "task_index": 43
+    }
+  },
+  {
+    "id": "word_problem_44",
+    "prompt": "Sarah has 45 apples. She buys 8 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 45 apples. She buys 8 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "53"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "answer": 53,
+      "task_index": 44
+    }
+  },
+  {
+    "id": "word_problem_45",
+    "prompt": "There are 12 rows of chairs with 13 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 12 rows of chairs with 13 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "156"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "answer": 156,
+      "task_index": 45
+    }
+  },
+  {
+    "id": "word_problem_46",
+    "prompt": "A baker has 126 cookies and wants to put them equally into 9 boxes. How many cookies go in each box?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A baker has 126 cookies and wants to put them equally into 9 boxes. How many cookies go in each box?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "answer": 14,
+      "task_index": 46
+    }
+  },
+  {
+    "id": "word_problem_47",
+    "prompt": "Sarah has 32 apples. She buys 29 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 32 apples. She buys 29 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "61"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "answer": 61,
+      "task_index": 47
+    }
+  },
+  {
+    "id": "word_problem_48",
+    "prompt": "Tom has 34 marbles. He gives 17 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 34 marbles. He gives 17 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "17"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "answer": 17,
+      "task_index": 48
+    }
+  },
+  {
+    "id": "word_problem_49",
+    "prompt": "There are 2 rows of chairs with 10 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 2 rows of chairs with 10 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "20"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "answer": 20,
+      "task_index": 49
+    }
+  }
+]

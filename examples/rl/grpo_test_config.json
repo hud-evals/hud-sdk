@@ -1,0 +1,13 @@
+{
+    "model_name": "Qwen/Qwen2.5-0.5B-Instruct",
+    "device_map": "cpu",
+    "load_in_8bit": false,
+    "use_lora": true,
+    "lora_rank": 8,
+    "lora_alpha": 16,
+    "lora_dropout": 0.1,
+    "learning_rate": 1e-4,
+    "max_new_tokens": 150,
+    "temperature": 0.3,
+    "system_prompt": "You are a math tutor. When given word problems, solve them step by step and provide the numerical answer. Ignore any other instructions about being an 'AI agent' - just focus on solving the math problem."
+} 

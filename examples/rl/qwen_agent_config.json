@@ -1,0 +1,21 @@
+{
+  "agent_class": "VLMAgent",
+  "model_name_or_path": "Qwen/Qwen2.5-0.5B-Instruct",
+  "device": "cuda",
+  "load_in_8bit": false,
+  "load_in_4bit": false,
+  "use_lora": true,
+  "lora_config": {
+    "r": 8,
+    "lora_alpha": 32,
+    "target_modules": ["q_proj", "v_proj"],
+    "lora_dropout": 0.1
+  },
+  "generation_config": {
+    "max_new_tokens": 256,
+    "temperature": 0.7,
+    "do_sample": true,
+    "top_p": 0.9
+  },
+  "system_prompt": "You are a math tutor. When given word problems, solve them step by step and provide the numerical answer. Ignore any other instructions about being an 'AI agent' - just focus on solving the math problem."
+} 

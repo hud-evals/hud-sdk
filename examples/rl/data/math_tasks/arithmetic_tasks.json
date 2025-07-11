@@ -1,0 +1,3102 @@
+[
+  {
+    "id": "math_task_0",
+    "prompt": "What is 4 + 4?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 4 + 4?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "8"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 8,
+      "task_index": 0
+    }
+  },
+  {
+    "id": "math_task_1",
+    "prompt": "What is 30 + 24?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 30 + 24?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "54"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 54,
+      "task_index": 1
+    }
+  },
+  {
+    "id": "math_task_2",
+    "prompt": "What is 42 - 41?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 42 - 41?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "1"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 1,
+      "task_index": 2
+    }
+  },
+  {
+    "id": "math_task_3",
+    "prompt": "What is 2 \u00d7 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 2 \u00d7 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 10,
+      "task_index": 3
+    }
+  },
+  {
+    "id": "math_task_4",
+    "prompt": "What is 18 \u00f7 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 18 \u00f7 2?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "9"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 9,
+      "task_index": 4
+    }
+  },
+  {
+    "id": "math_task_5",
+    "prompt": "What is 2 + 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 2 + 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 11,
+      "task_index": 5
+    }
+  },
+  {
+    "id": "math_task_6",
+    "prompt": "What is 36 + 40?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 36 + 40?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "76"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 76,
+      "task_index": 6
+    }
+  },
+  {
+    "id": "math_task_7",
+    "prompt": "What is 44 - 22?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 44 - 22?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "22"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 22,
+      "task_index": 7
+    }
+  },
+  {
+    "id": "math_task_8",
+    "prompt": "What is 12 \u00d7 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 12 \u00d7 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "60"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 60,
+      "task_index": 8
+    }
+  },
+  {
+    "id": "math_task_9",
+    "prompt": "What is 24 \u00f7 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 24 \u00f7 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "8"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 8,
+      "task_index": 9
+    }
+  },
+  {
+    "id": "math_task_10",
+    "prompt": "What is 6 + 4?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 6 + 4?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 10,
+      "task_index": 10
+    }
+  },
+  {
+    "id": "math_task_11",
+    "prompt": "What is 43 + 37?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 43 + 37?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "80"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 80,
+      "task_index": 11
+    }
+  },
+  {
+    "id": "math_task_12",
+    "prompt": "What is 48 - 1?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 48 - 1?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "47"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 47,
+      "task_index": 12
+    }
+  },
+  {
+    "id": "math_task_13",
+    "prompt": "What is 3 \u00d7 4?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 3 \u00d7 4?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 12,
+      "task_index": 13
+    }
+  },
+  {
+    "id": "math_task_14",
+    "prompt": "What is 99 \u00f7 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 99 \u00f7 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 11,
+      "task_index": 14
+    }
+  },
+  {
+    "id": "math_task_15",
+    "prompt": "What is 1 + 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 1 + 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "4"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 4,
+      "task_index": 15
+    }
+  },
+  {
+    "id": "math_task_16",
+    "prompt": "What is 48 + 28?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 48 + 28?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "76"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 76,
+      "task_index": 16
+    }
+  },
+  {
+    "id": "math_task_17",
+    "prompt": "What is 57 - 31?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 57 - 31?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "26"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 26,
+      "task_index": 17
+    }
+  },
+  {
+    "id": "math_task_18",
+    "prompt": "What is 6 \u00d7 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 6 \u00d7 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "36"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 36,
+      "task_index": 18
+    }
+  },
+  {
+    "id": "math_task_19",
+    "prompt": "What is 55 \u00f7 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 55 \u00f7 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 11,
+      "task_index": 19
+    }
+  },
+  {
+    "id": "math_task_20",
+    "prompt": "What is 2 + 1?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 2 + 1?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "3"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 3,
+      "task_index": 20
+    }
+  },
+  {
+    "id": "math_task_21",
+    "prompt": "What is 16 + 31?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 16 + 31?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "47"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 47,
+      "task_index": 21
+    }
+  },
+  {
+    "id": "math_task_22",
+    "prompt": "What is 65 - 26?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 65 - 26?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "39"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 39,
+      "task_index": 22
+    }
+  },
+  {
+    "id": "math_task_23",
+    "prompt": "What is 2 \u00d7 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 2 \u00d7 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 12,
+      "task_index": 23
+    }
+  },
+  {
+    "id": "math_task_24",
+    "prompt": "What is 84 \u00f7 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 84 \u00f7 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 14,
+      "task_index": 24
+    }
+  },
+  {
+    "id": "math_task_25",
+    "prompt": "What is 9 + 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 9 + 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "18"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 18,
+      "task_index": 25
+    }
+  },
+  {
+    "id": "math_task_26",
+    "prompt": "What is 38 + 50?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 38 + 50?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "88"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 88,
+      "task_index": 26
+    }
+  },
+  {
+    "id": "math_task_27",
+    "prompt": "What is 55 - 1?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 55 - 1?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "54"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 54,
+      "task_index": 27
+    }
+  },
+  {
+    "id": "math_task_28",
+    "prompt": "What is 5 \u00d7 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 5 \u00d7 2?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 10,
+      "task_index": 28
+    }
+  },
+  {
+    "id": "math_task_29",
+    "prompt": "What is 108 \u00f7 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 108 \u00f7 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 12,
+      "task_index": 29
+    }
+  },
+  {
+    "id": "math_task_30",
+    "prompt": "What is 3 + 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 3 + 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 12,
+      "task_index": 30
+    }
+  },
+  {
+    "id": "math_task_31",
+    "prompt": "What is 14 + 33?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 14 + 33?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "47"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 47,
+      "task_index": 31
+    }
+  },
+  {
+    "id": "math_task_32",
+    "prompt": "What is 72 - 20?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 72 - 20?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "52"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 52,
+      "task_index": 32
+    }
+  },
+  {
+    "id": "math_task_33",
+    "prompt": "What is 11 \u00d7 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 11 \u00d7 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "33"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 33,
+      "task_index": 33
+    }
+  },
+  {
+    "id": "math_task_34",
+    "prompt": "What is 18 \u00f7 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 18 \u00f7 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 6,
+      "task_index": 34
+    }
+  },
+  {
+    "id": "math_task_35",
+    "prompt": "What is 5 + 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 5 + 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 11,
+      "task_index": 35
+    }
+  },
+  {
+    "id": "math_task_36",
+    "prompt": "What is 23 + 14?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 23 + 14?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "37"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 37,
+      "task_index": 36
+    }
+  },
+  {
+    "id": "math_task_37",
+    "prompt": "What is 99 - 82?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 99 - 82?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "17"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 17,
+      "task_index": 37
+    }
+  },
+  {
+    "id": "math_task_38",
+    "prompt": "What is 9 \u00d7 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 9 \u00d7 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "27"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 27,
+      "task_index": 38
+    }
+  },
+  {
+    "id": "math_task_39",
+    "prompt": "What is 45 \u00f7 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 45 \u00f7 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "5"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 5,
+      "task_index": 39
+    }
+  },
+  {
+    "id": "math_task_40",
+    "prompt": "What is 9 + 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 9 + 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 12,
+      "task_index": 40
+    }
+  },
+  {
+    "id": "math_task_41",
+    "prompt": "What is 26 + 27?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 26 + 27?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "53"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 53,
+      "task_index": 41
+    }
+  },
+  {
+    "id": "math_task_42",
+    "prompt": "What is 70 - 52?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 70 - 52?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "18"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 18,
+      "task_index": 42
+    }
+  },
+  {
+    "id": "math_task_43",
+    "prompt": "What is 4 \u00d7 12?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 4 \u00d7 12?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "48"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 48,
+      "task_index": 43
+    }
+  },
+  {
+    "id": "math_task_44",
+    "prompt": "What is 88 \u00f7 8?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 88 \u00f7 8?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 11,
+      "task_index": 44
+    }
+  },
+  {
+    "id": "math_task_45",
+    "prompt": "What is 3 + 1?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 3 + 1?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "4"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 4,
+      "task_index": 45
+    }
+  },
+  {
+    "id": "math_task_46",
+    "prompt": "What is 18 + 14?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 18 + 14?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "32"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 32,
+      "task_index": 46
+    }
+  },
+  {
+    "id": "math_task_47",
+    "prompt": "What is 31 - 29?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 31 - 29?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "2"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 2,
+      "task_index": 47
+    }
+  },
+  {
+    "id": "math_task_48",
+    "prompt": "What is 2 \u00d7 8?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 2 \u00d7 8?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "16"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 16,
+      "task_index": 48
+    }
+  },
+  {
+    "id": "math_task_49",
+    "prompt": "What is 20 \u00f7 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 20 \u00f7 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "4"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 4,
+      "task_index": 49
+    }
+  },
+  {
+    "id": "math_task_50",
+    "prompt": "What is 7 + 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 7 + 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "13"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 13,
+      "task_index": 50
+    }
+  },
+  {
+    "id": "math_task_51",
+    "prompt": "What is 25 + 30?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 25 + 30?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "55"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 55,
+      "task_index": 51
+    }
+  },
+  {
+    "id": "math_task_52",
+    "prompt": "What is 71 - 55?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 71 - 55?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "16"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 16,
+      "task_index": 52
+    }
+  },
+  {
+    "id": "math_task_53",
+    "prompt": "What is 7 \u00d7 12?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 7 \u00d7 12?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "84"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 84,
+      "task_index": 53
+    }
+  },
+  {
+    "id": "math_task_54",
+    "prompt": "What is 63 \u00f7 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 63 \u00f7 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "7"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 7,
+      "task_index": 54
+    }
+  },
+  {
+    "id": "math_task_55",
+    "prompt": "What is 4 + 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 4 + 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 10,
+      "task_index": 55
+    }
+  },
+  {
+    "id": "math_task_56",
+    "prompt": "What is 18 + 22?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 18 + 22?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "40"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 40,
+      "task_index": 56
+    }
+  },
+  {
+    "id": "math_task_57",
+    "prompt": "What is 78 - 1?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 78 - 1?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "77"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 77,
+      "task_index": 57
+    }
+  },
+  {
+    "id": "math_task_58",
+    "prompt": "What is 5 \u00d7 4?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 5 \u00d7 4?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "20"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 20,
+      "task_index": 58
+    }
+  },
+  {
+    "id": "math_task_59",
+    "prompt": "What is 20 \u00f7 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 20 \u00f7 2?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 10,
+      "task_index": 59
+    }
+  },
+  {
+    "id": "math_task_60",
+    "prompt": "What is 9 + 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 9 + 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 14,
+      "task_index": 60
+    }
+  },
+  {
+    "id": "math_task_61",
+    "prompt": "What is 42 + 34?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 42 + 34?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "76"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 76,
+      "task_index": 61
+    }
+  },
+  {
+    "id": "math_task_62",
+    "prompt": "What is 31 - 13?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 31 - 13?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "18"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 18,
+      "task_index": 62
+    }
+  },
+  {
+    "id": "math_task_63",
+    "prompt": "What is 7 \u00d7 8?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 7 \u00d7 8?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "56"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 56,
+      "task_index": 63
+    }
+  },
+  {
+    "id": "math_task_64",
+    "prompt": "What is 70 \u00f7 7?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 70 \u00f7 7?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 10,
+      "task_index": 64
+    }
+  },
+  {
+    "id": "math_task_65",
+    "prompt": "What is 4 + 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 4 + 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "13"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 13,
+      "task_index": 65
+    }
+  },
+  {
+    "id": "math_task_66",
+    "prompt": "What is 44 + 46?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 44 + 46?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "90"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 90,
+      "task_index": 66
+    }
+  },
+  {
+    "id": "math_task_67",
+    "prompt": "What is 93 - 86?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 93 - 86?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "7"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 7,
+      "task_index": 67
+    }
+  },
+  {
+    "id": "math_task_68",
+    "prompt": "What is 8 \u00d7 10?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 8 \u00d7 10?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "80"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 80,
+      "task_index": 68
+    }
+  },
+  {
+    "id": "math_task_69",
+    "prompt": "What is 36 \u00f7 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 36 \u00f7 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "4"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 4,
+      "task_index": 69
+    }
+  },
+  {
+    "id": "math_task_70",
+    "prompt": "What is 8 + 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 8 + 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 14,
+      "task_index": 70
+    }
+  },
+  {
+    "id": "math_task_71",
+    "prompt": "What is 18 + 45?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 18 + 45?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "63"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 63,
+      "task_index": 71
+    }
+  },
+  {
+    "id": "math_task_72",
+    "prompt": "What is 61 - 51?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 61 - 51?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 10,
+      "task_index": 72
+    }
+  },
+  {
+    "id": "math_task_73",
+    "prompt": "What is 7 \u00d7 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 7 \u00d7 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "42"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 42,
+      "task_index": 73
+    }
+  },
+  {
+    "id": "math_task_74",
+    "prompt": "What is 24 \u00f7 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 24 \u00f7 2?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 12,
+      "task_index": 74
+    }
+  },
+  {
+    "id": "math_task_75",
+    "prompt": "What is 6 + 8?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 6 + 8?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 14,
+      "task_index": 75
+    }
+  },
+  {
+    "id": "math_task_76",
+    "prompt": "What is 45 + 46?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 45 + 46?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "91"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 91,
+      "task_index": 76
+    }
+  },
+  {
+    "id": "math_task_77",
+    "prompt": "What is 67 - 46?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 67 - 46?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "21"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 21,
+      "task_index": 77
+    }
+  },
+  {
+    "id": "math_task_78",
+    "prompt": "What is 11 \u00d7 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 11 \u00d7 2?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "22"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 22,
+      "task_index": 78
+    }
+  },
+  {
+    "id": "math_task_79",
+    "prompt": "What is 10 \u00f7 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 10 \u00f7 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "2"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 2,
+      "task_index": 79
+    }
+  },
+  {
+    "id": "math_task_80",
+    "prompt": "What is 5 + 4?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 5 + 4?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "9"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 9,
+      "task_index": 80
+    }
+  },
+  {
+    "id": "math_task_81",
+    "prompt": "What is 16 + 22?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 16 + 22?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "38"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 38,
+      "task_index": 81
+    }
+  },
+  {
+    "id": "math_task_82",
+    "prompt": "What is 40 - 14?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 40 - 14?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "26"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 26,
+      "task_index": 82
+    }
+  },
+  {
+    "id": "math_task_83",
+    "prompt": "What is 5 \u00d7 8?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 5 \u00d7 8?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "40"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 40,
+      "task_index": 83
+    }
+  },
+  {
+    "id": "math_task_84",
+    "prompt": "What is 36 \u00f7 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 36 \u00f7 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 12,
+      "task_index": 84
+    }
+  },
+  {
+    "id": "math_task_85",
+    "prompt": "What is 4 + 7?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 4 + 7?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 11,
+      "task_index": 85
+    }
+  },
+  {
+    "id": "math_task_86",
+    "prompt": "What is 19 + 42?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 19 + 42?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "61"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 61,
+      "task_index": 86
+    }
+  },
+  {
+    "id": "math_task_87",
+    "prompt": "What is 43 - 4?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 43 - 4?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "39"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 39,
+      "task_index": 87
+    }
+  },
+  {
+    "id": "math_task_88",
+    "prompt": "What is 12 \u00d7 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 12 \u00d7 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "108"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 108,
+      "task_index": 88
+    }
+  },
+  {
+    "id": "math_task_89",
+    "prompt": "What is 60 \u00f7 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 60 \u00f7 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 10,
+      "task_index": 89
+    }
+  },
+  {
+    "id": "math_task_90",
+    "prompt": "What is 8 + 4?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 8 + 4?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 12,
+      "task_index": 90
+    }
+  },
+  {
+    "id": "math_task_91",
+    "prompt": "What is 28 + 45?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 28 + 45?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "73"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 73,
+      "task_index": 91
+    }
+  },
+  {
+    "id": "math_task_92",
+    "prompt": "What is 31 - 8?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 31 - 8?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "23"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 23,
+      "task_index": 92
+    }
+  },
+  {
+    "id": "math_task_93",
+    "prompt": "What is 12 \u00d7 12?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 12 \u00d7 12?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "144"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 144,
+      "task_index": 93
+    }
+  },
+  {
+    "id": "math_task_94",
+    "prompt": "What is 16 \u00f7 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 16 \u00f7 2?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "8"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 8,
+      "task_index": 94
+    }
+  },
+  {
+    "id": "math_task_95",
+    "prompt": "What is 8 + 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 8 + 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "13"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 0,
+      "answer": 13,
+      "task_index": 95
+    }
+  },
+  {
+    "id": "math_task_96",
+    "prompt": "What is 13 + 45?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 13 + 45?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "58"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 1,
+      "answer": 58,
+      "task_index": 96
+    }
+  },
+  {
+    "id": "math_task_97",
+    "prompt": "What is 97 - 94?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 97 - 94?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "3"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction",
+      "difficulty": 2,
+      "answer": 3,
+      "task_index": 97
+    }
+  },
+  {
+    "id": "math_task_98",
+    "prompt": "What is 10 \u00d7 8?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 10 \u00d7 8?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "80"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 3,
+      "answer": 80,
+      "task_index": 98
+    }
+  },
+  {
+    "id": "math_task_99",
+    "prompt": "What is 60 \u00f7 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/ubuntu/hud/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 60 \u00f7 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division",
+      "difficulty": 4,
+      "answer": 10,
+      "task_index": 99
+    }
+  }
+]
