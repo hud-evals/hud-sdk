@@ -405,9 +405,12 @@ class AcceleratedVLMAgent(VLMAgent):
             if p.grad is not None:
                 # Gather gradients across all processes for accurate stats
                 grad_tensor = p.grad.detach().abs().mean()
-                grad_tensor = self.accelerator.gather(grad_tensor).mean()
+                # gather returns a list of tensors from all processes
+                gathered_grads = self.accelerator.gather(grad_tensor)
                 if self.accelerator.is_main_process:
-                    grad_vals.append(grad_tensor.item())
+                    # Average across all processes
+                    avg_grad = gathered_grads.mean().item()
+                    grad_vals.append(avg_grad)
         
         avg_grad_abs = float(sum(grad_vals) / len(grad_vals)) if grad_vals else 0.0
         
@@ -446,6 +449,11 @@ class AcceleratedVLMAgent(VLMAgent):
     
     def save_checkpoint(self, path: str):
         """Save model checkpoint with Accelerate."""
+        # Ensure model is initialized before saving
+        if not hasattr(self, '_model') or self._model is None:
+            logger.warning("Model not initialized, cannot save checkpoint")
+            return
+            
         self.accelerator.wait_for_everyone()
         
         if self.accelerator.is_main_process:

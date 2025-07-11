@@ -120,11 +120,10 @@ async def run_grpo_training(
         else:
             print(f"   {key}: {value}")
     
-    # Save checkpoint
-    if agent.accelerator.is_main_process:
-        checkpoint_path = "checkpoints/grpo_accelerated"
-        agent.save_checkpoint(checkpoint_path)
-        print(f"\n💾 Saved checkpoint to: {checkpoint_path}")
+    # Save checkpoint - only on main process
+    checkpoint_path = "checkpoints/grpo_accelerated"
+    agent.save_checkpoint(checkpoint_path)
+    print(f"\n💾 Checkpoint save attempted: {checkpoint_path}")
 
 
 async def main():
