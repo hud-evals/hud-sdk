@@ -1,0 +1,6459 @@
+[
+  {
+    "id": "math_task_441",
+    "prompt": "What is 44 - 15?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 44 - 15?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "29"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 29,
+      "task_index": 441
+    }
+  },
+  {
+    "id": "algebra_task_197",
+    "prompt": "Solve for x: 7x = 70",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 7x = 70"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 10,
+      "task_index": 197
+    }
+  },
+  {
+    "id": "algebra_task_44",
+    "prompt": "Solve for x: x + 14 = 35",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: x + 14 = 35"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "21"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 0,
+      "answer": 21,
+      "task_index": 44
+    }
+  },
+  {
+    "id": "math_task_489",
+    "prompt": "What is 28 - 20?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 28 - 20?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "8"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 8,
+      "task_index": 489
+    }
+  },
+  {
+    "id": "word_problem_32",
+    "prompt": "A bakery makes 18 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 18 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "234"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 234,
+      "task_index": 32
+    }
+  },
+  {
+    "id": "word_problem_143",
+    "prompt": "Sarah has 10 apples. She buys 16 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 10 apples. She buys 16 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "26"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 0,
+      "answer": 26,
+      "task_index": 143
+    }
+  },
+  {
+    "id": "math_task_351",
+    "prompt": "What is 23 + 22?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 23 + 22?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "45"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "add",
+      "answer": 45,
+      "task_index": 351
+    }
+  },
+  {
+    "id": "word_problem_212",
+    "prompt": "A farmer has 70 eggs and packs them into cartons of 10 eggs each. How many cartons does he need?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A farmer has 70 eggs and packs them into cartons of 10 eggs each. How many cartons does he need?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "7"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 2,
+      "answer": 7,
+      "task_index": 212
+    }
+  },
+  {
+    "id": "algebra_task_171",
+    "prompt": "Solve for x: 7x + 14 = 56",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 7x + 14 = 56"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 6,
+      "task_index": 171
+    }
+  },
+  {
+    "id": "math_task_349",
+    "prompt": "What is 1 - 0?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 1 - 0?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "1"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "sub",
+      "answer": 1,
+      "task_index": 349
+    }
+  },
+  {
+    "id": "math_task_63",
+    "prompt": "What is 35 \u00d7 10?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 35 \u00d7 10?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "350"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "mul",
+      "answer": 350,
+      "task_index": 63
+    }
+  },
+  {
+    "id": "word_problem_257",
+    "prompt": "There are 6 rows of chairs with 16 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 6 rows of chairs with 16 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "96"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 2,
+      "answer": 96,
+      "task_index": 257
+    }
+  },
+  {
+    "id": "word_problem_41",
+    "prompt": "A library had 445 books. They donated 67 books to charity. How many books remain?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A library had 445 books. They donated 67 books to charity. How many books remain?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "378"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 1,
+      "answer": 378,
+      "task_index": 41
+    }
+  },
+  {
+    "id": "math_task_276",
+    "prompt": "What is 3 + 8?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 3 + 8?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 11,
+      "task_index": 276
+    }
+  },
+  {
+    "id": "word_problem_265",
+    "prompt": "A farmer has 243 eggs and packs them into cartons of 9 eggs each. How many cartons does he need?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A farmer has 243 eggs and packs them into cartons of 9 eggs each. How many cartons does he need?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "27"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 2,
+      "answer": 27,
+      "task_index": 265
+    }
+  },
+  {
+    "id": "word_problem_30",
+    "prompt": "Sarah has 11 apples. She buys 16 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 11 apples. She buys 16 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "27"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 0,
+      "answer": 27,
+      "task_index": 30
+    }
+  },
+  {
+    "id": "math_task_86",
+    "prompt": "What is 16 - 13?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 16 - 13?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "3"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 3,
+      "task_index": 86
+    }
+  },
+  {
+    "id": "word_problem_282",
+    "prompt": "A school has 528 students divided equally into 24 classrooms. How many students are in each classroom?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A school has 528 students divided equally into 24 classrooms. How many students are in each classroom?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "22"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 3,
+      "answer": 22,
+      "task_index": 282
+    }
+  },
+  {
+    "id": "word_problem_125",
+    "prompt": "A farmer has 208 eggs and packs them into cartons of 8 eggs each. How many cartons does he need?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A farmer has 208 eggs and packs them into cartons of 8 eggs each. How many cartons does he need?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "26"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 2,
+      "answer": 26,
+      "task_index": 125
+    }
+  },
+  {
+    "id": "algebra_task_157",
+    "prompt": "Solve for x: 4x + 4 = 64",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 4x + 4 = 64"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "15"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 15,
+      "task_index": 157
+    }
+  },
+  {
+    "id": "word_problem_12",
+    "prompt": "A library had 391 books. They donated 71 books to charity. How many books remain?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A library had 391 books. They donated 71 books to charity. How many books remain?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "320"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 1,
+      "answer": 320,
+      "task_index": 12
+    }
+  },
+  {
+    "id": "math_task_373",
+    "prompt": "What is 176 \u00f7 11?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 176 \u00f7 11?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "16"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "div",
+      "answer": 16,
+      "task_index": 373
+    }
+  },
+  {
+    "id": "math_task_66",
+    "prompt": "What is 6 + 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 6 + 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "9"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 9,
+      "task_index": 66
+    }
+  },
+  {
+    "id": "math_task_33",
+    "prompt": "What is 18 \u00d7 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 18 \u00d7 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "90"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "mul",
+      "answer": 90,
+      "task_index": 33
+    }
+  },
+  {
+    "id": "math_task_370",
+    "prompt": "What is 48 + 14?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 48 + 14?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "62"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "add",
+      "answer": 62,
+      "task_index": 370
+    }
+  },
+  {
+    "id": "math_task_7",
+    "prompt": "What is 49 - 42?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 49 - 42?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "7"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 7,
+      "task_index": 7
+    }
+  },
+  {
+    "id": "word_problem_33",
+    "prompt": "Sarah has 18 apples. She buys 15 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 18 apples. She buys 15 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "33"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 0,
+      "answer": 33,
+      "task_index": 33
+    }
+  },
+  {
+    "id": "math_task_311",
+    "prompt": "What is 50 - 37?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 50 - 37?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "13"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 13,
+      "task_index": 311
+    }
+  },
+  {
+    "id": "algebra_task_127",
+    "prompt": "Solve for x: 4x = 24",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 4x = 24"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 6,
+      "task_index": 127
+    }
+  },
+  {
+    "id": "algebra_task_55",
+    "prompt": "Solve for x: 8x = 56",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 8x = 56"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "7"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 7,
+      "task_index": 55
+    }
+  },
+  {
+    "id": "math_task_251",
+    "prompt": "What is 104 \u00f7 13?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 104 \u00f7 13?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "8"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "div",
+      "answer": 8,
+      "task_index": 251
+    }
+  },
+  {
+    "id": "word_problem_62",
+    "prompt": "A bakery makes 17 cookies per batch and runs 15 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 17 cookies per batch and runs 15 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "255"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 255,
+      "task_index": 62
+    }
+  },
+  {
+    "id": "word_problem_245",
+    "prompt": "Sarah has 18 apples. She buys 7 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 18 apples. She buys 7 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "25"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 0,
+      "answer": 25,
+      "task_index": 245
+    }
+  },
+  {
+    "id": "math_task_228",
+    "prompt": "What is 94 \u00d7 21?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 94 \u00d7 21?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "1974"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "mul",
+      "answer": 1974,
+      "task_index": 228
+    }
+  },
+  {
+    "id": "math_task_336",
+    "prompt": "What is 21 - 15?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 21 - 15?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 6,
+      "task_index": 336
+    }
+  },
+  {
+    "id": "word_problem_225",
+    "prompt": "Tom has 25 marbles. He gives 14 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 25 marbles. He gives 14 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 0,
+      "answer": 11,
+      "task_index": 225
+    }
+  },
+  {
+    "id": "math_task_190",
+    "prompt": "What is 22 - 20?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 22 - 20?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "2"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "sub",
+      "answer": 2,
+      "task_index": 190
+    }
+  },
+  {
+    "id": "word_problem_4",
+    "prompt": "Tom has 21 marbles. He gives 8 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 21 marbles. He gives 8 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "13"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 0,
+      "answer": 13,
+      "task_index": 4
+    }
+  },
+  {
+    "id": "word_problem_59",
+    "prompt": "A bakery makes 48 cookies per batch and runs 8 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 48 cookies per batch and runs 8 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "384"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 384,
+      "task_index": 59
+    }
+  },
+  {
+    "id": "word_problem_148",
+    "prompt": "A library had 497 books. They donated 79 books to charity. How many books remain?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A library had 497 books. They donated 79 books to charity. How many books remain?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "418"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 1,
+      "answer": 418,
+      "task_index": 148
+    }
+  },
+  {
+    "id": "word_problem_262",
+    "prompt": "There are 18 rows of chairs with 20 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 18 rows of chairs with 20 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "360"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 2,
+      "answer": 360,
+      "task_index": 262
+    }
+  },
+  {
+    "id": "word_problem_10",
+    "prompt": "A school has 150 students divided equally into 10 classrooms. How many students are in each classroom?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A school has 150 students divided equally into 10 classrooms. How many students are in each classroom?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "15"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 3,
+      "answer": 15,
+      "task_index": 10
+    }
+  },
+  {
+    "id": "algebra_task_164",
+    "prompt": "Solve for x: 3x = 27",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 3x = 27"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "9"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 9,
+      "task_index": 164
+    }
+  },
+  {
+    "id": "math_task_470",
+    "prompt": "What is 72 \u00f7 4?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 72 \u00f7 4?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "18"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "div",
+      "answer": 18,
+      "task_index": 470
+    }
+  },
+  {
+    "id": "math_task_62",
+    "prompt": "What is 20 \u00d7 16?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 20 \u00d7 16?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "320"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "mul",
+      "answer": 320,
+      "task_index": 62
+    }
+  },
+  {
+    "id": "word_problem_21",
+    "prompt": "A bakery makes 25 cookies per batch and runs 5 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 25 cookies per batch and runs 5 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "125"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 125,
+      "task_index": 21
+    }
+  },
+  {
+    "id": "algebra_task_13",
+    "prompt": "Solve for x: 3x + 6 = 21",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 3x + 6 = 21"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "5"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 5,
+      "task_index": 13
+    }
+  },
+  {
+    "id": "word_problem_48",
+    "prompt": "A bakery makes 42 cookies per batch and runs 12 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 42 cookies per batch and runs 12 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "504"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 504,
+      "task_index": 48
+    }
+  },
+  {
+    "id": "word_problem_145",
+    "prompt": "A bakery makes 30 cookies per batch and runs 9 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 30 cookies per batch and runs 9 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "270"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 270,
+      "task_index": 145
+    }
+  },
+  {
+    "id": "algebra_task_90",
+    "prompt": "Solve for x: 3x + 16 = 34",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 3x + 16 = 34"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 6,
+      "task_index": 90
+    }
+  },
+  {
+    "id": "math_task_22",
+    "prompt": "What is 19 - 13?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 19 - 13?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 6,
+      "task_index": 22
+    }
+  },
+  {
+    "id": "word_problem_197",
+    "prompt": "A school has 575 students divided equally into 25 classrooms. How many students are in each classroom?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A school has 575 students divided equally into 25 classrooms. How many students are in each classroom?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "23"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 3,
+      "answer": 23,
+      "task_index": 197
+    }
+  },
+  {
+    "id": "word_problem_292",
+    "prompt": "A library had 281 books. They donated 83 books to charity. How many books remain?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A library had 281 books. They donated 83 books to charity. How many books remain?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "198"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 1,
+      "answer": 198,
+      "task_index": 292
+    }
+  },
+  {
+    "id": "word_problem_297",
+    "prompt": "A library had 171 books. They donated 80 books to charity. How many books remain?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A library had 171 books. They donated 80 books to charity. How many books remain?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "91"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 1,
+      "answer": 91,
+      "task_index": 297
+    }
+  },
+  {
+    "id": "word_problem_126",
+    "prompt": "A library had 462 books. They donated 23 books to charity. How many books remain?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A library had 462 books. They donated 23 books to charity. How many books remain?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "439"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 1,
+      "answer": 439,
+      "task_index": 126
+    }
+  },
+  {
+    "id": "algebra_task_41",
+    "prompt": "Solve for x: x + 1 = 27",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: x + 1 = 27"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "26"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 0,
+      "answer": 26,
+      "task_index": 41
+    }
+  },
+  {
+    "id": "math_task_92",
+    "prompt": "What is 135 \u00f7 15?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 135 \u00f7 15?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "9"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "div",
+      "answer": 9,
+      "task_index": 92
+    }
+  },
+  {
+    "id": "math_task_380",
+    "prompt": "What is 36 \u00d7 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 36 \u00d7 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "108"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "mul",
+      "answer": 108,
+      "task_index": 380
+    }
+  },
+  {
+    "id": "math_task_318",
+    "prompt": "What is 60 \u00d7 17?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 60 \u00d7 17?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "1020"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "mul",
+      "answer": 1020,
+      "task_index": 318
+    }
+  },
+  {
+    "id": "math_task_333",
+    "prompt": "What is 361 \u00f7 19?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 361 \u00f7 19?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "19"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "div",
+      "answer": 19,
+      "task_index": 333
+    }
+  },
+  {
+    "id": "word_problem_88",
+    "prompt": "Sarah has 12 apples. She buys 12 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 12 apples. She buys 12 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "24"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 0,
+      "answer": 24,
+      "task_index": 88
+    }
+  },
+  {
+    "id": "math_task_312",
+    "prompt": "What is 75 \u00f7 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 75 \u00f7 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "15"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "div",
+      "answer": 15,
+      "task_index": 312
+    }
+  },
+  {
+    "id": "word_problem_3",
+    "prompt": "A school has 300 students divided equally into 15 classrooms. How many students are in each classroom?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A school has 300 students divided equally into 15 classrooms. How many students are in each classroom?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "20"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 3,
+      "answer": 20,
+      "task_index": 3
+    }
+  },
+  {
+    "id": "math_task_34",
+    "prompt": "What is 72 \u00d7 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 72 \u00d7 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "648"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "mul",
+      "answer": 648,
+      "task_index": 34
+    }
+  },
+  {
+    "id": "algebra_task_97",
+    "prompt": "Solve for x: 8x = 160",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 8x = 160"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "20"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 20,
+      "task_index": 97
+    }
+  },
+  {
+    "id": "math_task_401",
+    "prompt": "What is 9 + 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 9 + 2?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 11,
+      "task_index": 401
+    }
+  },
+  {
+    "id": "math_task_421",
+    "prompt": "What is 87 - 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 87 - 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "82"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "sub",
+      "answer": 82,
+      "task_index": 421
+    }
+  },
+  {
+    "id": "math_task_282",
+    "prompt": "What is 37 \u00d7 10?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 37 \u00d7 10?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "370"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "mul",
+      "answer": 370,
+      "task_index": 282
+    }
+  },
+  {
+    "id": "math_task_339",
+    "prompt": "What is 61 - 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 61 - 2?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "59"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "sub",
+      "answer": 59,
+      "task_index": 339
+    }
+  },
+  {
+    "id": "math_task_45",
+    "prompt": "What is 93 \u00d7 16?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 93 \u00d7 16?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "1488"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "mul",
+      "answer": 1488,
+      "task_index": 45
+    }
+  },
+  {
+    "id": "math_task_472",
+    "prompt": "What is 208 \u00f7 13?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 208 \u00f7 13?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "16"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "div",
+      "answer": 16,
+      "task_index": 472
+    }
+  },
+  {
+    "id": "algebra_task_5",
+    "prompt": "Solve for x: x + 12 = 47",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: x + 12 = 47"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "35"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 0,
+      "answer": 35,
+      "task_index": 5
+    }
+  },
+  {
+    "id": "math_task_293",
+    "prompt": "What is 21 - 19?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 21 - 19?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "2"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "sub",
+      "answer": 2,
+      "task_index": 293
+    }
+  },
+  {
+    "id": "math_task_183",
+    "prompt": "What is 42 + 37?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 42 + 37?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "79"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "add",
+      "answer": 79,
+      "task_index": 183
+    }
+  },
+  {
+    "id": "math_task_194",
+    "prompt": "What is 2 + 7?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 2 + 7?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "9"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 9,
+      "task_index": 194
+    }
+  },
+  {
+    "id": "math_task_167",
+    "prompt": "What is 21 \u00d7 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 21 \u00d7 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "189"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "mul",
+      "answer": 189,
+      "task_index": 167
+    }
+  },
+  {
+    "id": "word_problem_162",
+    "prompt": "A farmer has 42 eggs and packs them into cartons of 7 eggs each. How many cartons does he need?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A farmer has 42 eggs and packs them into cartons of 7 eggs each. How many cartons does he need?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 2,
+      "answer": 6,
+      "task_index": 162
+    }
+  },
+  {
+    "id": "word_problem_19",
+    "prompt": "A school has 644 students divided equally into 28 classrooms. How many students are in each classroom?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A school has 644 students divided equally into 28 classrooms. How many students are in each classroom?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "23"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 3,
+      "answer": 23,
+      "task_index": 19
+    }
+  },
+  {
+    "id": "math_task_388",
+    "prompt": "What is 20 \u00f7 10?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 20 \u00f7 10?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "2"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "div",
+      "answer": 2,
+      "task_index": 388
+    }
+  },
+  {
+    "id": "word_problem_284",
+    "prompt": "Sarah has 6 apples. She buys 11 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 6 apples. She buys 11 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "17"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 0,
+      "answer": 17,
+      "task_index": 284
+    }
+  },
+  {
+    "id": "math_task_352",
+    "prompt": "What is 20 - 16?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 20 - 16?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "4"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 4,
+      "task_index": 352
+    }
+  },
+  {
+    "id": "math_task_412",
+    "prompt": "What is 47 \u00d7 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 47 \u00d7 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "141"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "mul",
+      "answer": 141,
+      "task_index": 412
+    }
+  },
+  {
+    "id": "algebra_task_198",
+    "prompt": "Solve for x: 8x = 80",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 8x = 80"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 10,
+      "task_index": 198
+    }
+  },
+  {
+    "id": "algebra_task_35",
+    "prompt": "Solve for x: x + 9 = 38",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: x + 9 = 38"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "29"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 0,
+      "answer": 29,
+      "task_index": 35
+    }
+  },
+  {
+    "id": "math_task_65",
+    "prompt": "What is 41 - 7?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 41 - 7?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "34"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "sub",
+      "answer": 34,
+      "task_index": 65
+    }
+  },
+  {
+    "id": "word_problem_28",
+    "prompt": "Tom has 37 marbles. He gives 17 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 37 marbles. He gives 17 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "20"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 0,
+      "answer": 20,
+      "task_index": 28
+    }
+  },
+  {
+    "id": "math_task_303",
+    "prompt": "What is 44 \u00d7 11?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 44 \u00d7 11?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "484"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "mul",
+      "answer": 484,
+      "task_index": 303
+    }
+  },
+  {
+    "id": "math_task_381",
+    "prompt": "What is 28 \u00d7 7?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 28 \u00d7 7?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "196"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "mul",
+      "answer": 196,
+      "task_index": 381
+    }
+  },
+  {
+    "id": "math_task_162",
+    "prompt": "What is 3 - 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 3 - 2?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "1"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "sub",
+      "answer": 1,
+      "task_index": 162
+    }
+  },
+  {
+    "id": "math_task_73",
+    "prompt": "What is 43 + 16?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 43 + 16?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "59"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "add",
+      "answer": 59,
+      "task_index": 73
+    }
+  },
+  {
+    "id": "math_task_139",
+    "prompt": "What is 22 - 14?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 22 - 14?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "8"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 8,
+      "task_index": 139
+    }
+  },
+  {
+    "id": "word_problem_133",
+    "prompt": "A library had 357 books. They donated 85 books to charity. How many books remain?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A library had 357 books. They donated 85 books to charity. How many books remain?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "272"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 1,
+      "answer": 272,
+      "task_index": 133
+    }
+  },
+  {
+    "id": "math_task_248",
+    "prompt": "What is 36 - 12?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 36 - 12?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "24"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "sub",
+      "answer": 24,
+      "task_index": 248
+    }
+  },
+  {
+    "id": "word_problem_283",
+    "prompt": "A school has 384 students divided equally into 24 classrooms. How many students are in each classroom?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A school has 384 students divided equally into 24 classrooms. How many students are in each classroom?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "16"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 3,
+      "answer": 16,
+      "task_index": 283
+    }
+  },
+  {
+    "id": "math_task_296",
+    "prompt": "What is 14 \u00d7 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 14 \u00d7 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "70"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "mul",
+      "answer": 70,
+      "task_index": 296
+    }
+  },
+  {
+    "id": "math_task_105",
+    "prompt": "What is 78 \u00d7 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 78 \u00d7 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "234"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "mul",
+      "answer": 234,
+      "task_index": 105
+    }
+  },
+  {
+    "id": "math_task_281",
+    "prompt": "What is 26 - 20?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 26 - 20?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 6,
+      "task_index": 281
+    }
+  },
+  {
+    "id": "math_task_240",
+    "prompt": "What is 4 + 1?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 4 + 1?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "5"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 5,
+      "task_index": 240
+    }
+  },
+  {
+    "id": "math_task_151",
+    "prompt": "What is 55 \u00f7 5?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 55 \u00f7 5?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "div",
+      "answer": 11,
+      "task_index": 151
+    }
+  },
+  {
+    "id": "algebra_task_54",
+    "prompt": "Solve for x: 3x + 19 = 55",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 3x + 19 = 55"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 12,
+      "task_index": 54
+    }
+  },
+  {
+    "id": "word_problem_43",
+    "prompt": "Tom has 38 marbles. He gives 12 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 38 marbles. He gives 12 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "26"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 0,
+      "answer": 26,
+      "task_index": 43
+    }
+  },
+  {
+    "id": "algebra_task_0",
+    "prompt": "Solve for x: 9x + 15 = 69",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 9x + 15 = 69"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 6,
+      "task_index": 0
+    }
+  },
+  {
+    "id": "algebra_task_28",
+    "prompt": "Solve for x: 9x + 16 = 61",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 9x + 16 = 61"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "5"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 5,
+      "task_index": 28
+    }
+  },
+  {
+    "id": "word_problem_182",
+    "prompt": "There are 15 rows of chairs with 15 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 15 rows of chairs with 15 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "225"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 2,
+      "answer": 225,
+      "task_index": 182
+    }
+  },
+  {
+    "id": "word_problem_279",
+    "prompt": "Sarah has 8 apples. She buys 19 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 8 apples. She buys 19 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "27"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 0,
+      "answer": 27,
+      "task_index": 279
+    }
+  },
+  {
+    "id": "math_task_329",
+    "prompt": "What is 86 \u00d7 25?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 86 \u00d7 25?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "2150"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "mul",
+      "answer": 2150,
+      "task_index": 329
+    }
+  },
+  {
+    "id": "math_task_19",
+    "prompt": "What is 50 + 25?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 50 + 25?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "75"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "add",
+      "answer": 75,
+      "task_index": 19
+    }
+  },
+  {
+    "id": "algebra_task_123",
+    "prompt": "Solve for x: 10x = 70",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 10x = 70"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "7"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 7,
+      "task_index": 123
+    }
+  },
+  {
+    "id": "math_task_243",
+    "prompt": "What is 48 \u00d7 7?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 48 \u00d7 7?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "336"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "mul",
+      "answer": 336,
+      "task_index": 243
+    }
+  },
+  {
+    "id": "word_problem_53",
+    "prompt": "A farmer has 108 eggs and packs them into cartons of 12 eggs each. How many cartons does he need?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A farmer has 108 eggs and packs them into cartons of 12 eggs each. How many cartons does he need?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "9"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 2,
+      "answer": 9,
+      "task_index": 53
+    }
+  },
+  {
+    "id": "math_task_173",
+    "prompt": "What is 40 \u00d7 15?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 40 \u00d7 15?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "600"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "mul",
+      "answer": 600,
+      "task_index": 173
+    }
+  },
+  {
+    "id": "word_problem_247",
+    "prompt": "A school has 546 students divided equally into 21 classrooms. How many students are in each classroom?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A school has 546 students divided equally into 21 classrooms. How many students are in each classroom?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "26"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 3,
+      "answer": 26,
+      "task_index": 247
+    }
+  },
+  {
+    "id": "algebra_task_154",
+    "prompt": "Solve for x: 5x = 5",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 5x = 5"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "1"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 1,
+      "task_index": 154
+    }
+  },
+  {
+    "id": "math_task_81",
+    "prompt": "What is 5 + 1?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 5 + 1?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 6,
+      "task_index": 81
+    }
+  },
+  {
+    "id": "math_task_417",
+    "prompt": "What is 182 \u00f7 13?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 182 \u00f7 13?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "div",
+      "answer": 14,
+      "task_index": 417
+    }
+  },
+  {
+    "id": "algebra_task_124",
+    "prompt": "Solve for x: 8x + 3 = 27",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 8x + 3 = 27"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "3"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 3,
+      "task_index": 124
+    }
+  },
+  {
+    "id": "math_task_348",
+    "prompt": "What is 82 \u00d7 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 82 \u00d7 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "738"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "mul",
+      "answer": 738,
+      "task_index": 348
+    }
+  },
+  {
+    "id": "word_problem_178",
+    "prompt": "A library had 304 books. They donated 43 books to charity. How many books remain?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A library had 304 books. They donated 43 books to charity. How many books remain?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "261"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 1,
+      "answer": 261,
+      "task_index": 178
+    }
+  },
+  {
+    "id": "algebra_task_174",
+    "prompt": "Solve for x: 5x + 1 = 61",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 5x + 1 = 61"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 12,
+      "task_index": 174
+    }
+  },
+  {
+    "id": "math_task_129",
+    "prompt": "What is 2 + 4?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 2 + 4?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 6,
+      "task_index": 129
+    }
+  },
+  {
+    "id": "word_problem_192",
+    "prompt": "A bakery makes 13 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 13 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "169"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 169,
+      "task_index": 192
+    }
+  },
+  {
+    "id": "algebra_task_106",
+    "prompt": "Solve for x: 7x = 7",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 7x = 7"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "1"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 1,
+      "task_index": 106
+    }
+  },
+  {
+    "id": "word_problem_261",
+    "prompt": "There are 9 rows of chairs with 6 chairs in each row. How many chairs are there in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "There are 9 rows of chairs with 6 chairs in each row. How many chairs are there in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "54"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 2,
+      "answer": 54,
+      "task_index": 261
+    }
+  },
+  {
+    "id": "math_task_1",
+    "prompt": "What is 361 \u00f7 19?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 361 \u00f7 19?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "19"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "div",
+      "answer": 19,
+      "task_index": 1
+    }
+  },
+  {
+    "id": "algebra_task_147",
+    "prompt": "Solve for x: 7x + 8 = 71",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 7x + 8 = 71"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "9"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 9,
+      "task_index": 147
+    }
+  },
+  {
+    "id": "word_problem_118",
+    "prompt": "A farmer has 66 eggs and packs them into cartons of 6 eggs each. How many cartons does he need?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A farmer has 66 eggs and packs them into cartons of 6 eggs each. How many cartons does he need?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 2,
+      "answer": 11,
+      "task_index": 118
+    }
+  },
+  {
+    "id": "math_task_172",
+    "prompt": "What is 35 + 45?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 35 + 45?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "80"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "add",
+      "answer": 80,
+      "task_index": 172
+    }
+  },
+  {
+    "id": "word_problem_74",
+    "prompt": "Tom has 24 marbles. He gives 12 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 24 marbles. He gives 12 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 0,
+      "answer": 12,
+      "task_index": 74
+    }
+  },
+  {
+    "id": "word_problem_155",
+    "prompt": "A bakery makes 46 cookies per batch and runs 6 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 46 cookies per batch and runs 6 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "276"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 276,
+      "task_index": 155
+    }
+  },
+  {
+    "id": "math_task_473",
+    "prompt": "What is 34 - 30?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 34 - 30?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "4"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 4,
+      "task_index": 473
+    }
+  },
+  {
+    "id": "math_task_72",
+    "prompt": "What is 27 \u00f7 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 27 \u00f7 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "3"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "div",
+      "answer": 3,
+      "task_index": 72
+    }
+  },
+  {
+    "id": "math_task_406",
+    "prompt": "What is 5 - 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 5 - 2?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "3"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "sub",
+      "answer": 3,
+      "task_index": 406
+    }
+  },
+  {
+    "id": "algebra_task_18",
+    "prompt": "Solve for x: 6x = 114",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 6x = 114"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "19"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 19,
+      "task_index": 18
+    }
+  },
+  {
+    "id": "math_task_100",
+    "prompt": "What is 40 \u00d7 13?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 40 \u00d7 13?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "520"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "mul",
+      "answer": 520,
+      "task_index": 100
+    }
+  },
+  {
+    "id": "word_problem_224",
+    "prompt": "A bakery makes 15 cookies per batch and runs 10 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 15 cookies per batch and runs 10 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "150"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 150,
+      "task_index": 224
+    }
+  },
+  {
+    "id": "word_problem_108",
+    "prompt": "A bakery makes 37 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 37 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "481"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 481,
+      "task_index": 108
+    }
+  },
+  {
+    "id": "math_task_292",
+    "prompt": "What is 3 + 4?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 3 + 4?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "7"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 7,
+      "task_index": 292
+    }
+  },
+  {
+    "id": "math_task_424",
+    "prompt": "What is 36 - 14?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 36 - 14?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "22"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 22,
+      "task_index": 424
+    }
+  },
+  {
+    "id": "math_task_145",
+    "prompt": "What is 280 \u00f7 20?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 280 \u00f7 20?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "div",
+      "answer": 14,
+      "task_index": 145
+    }
+  },
+  {
+    "id": "math_task_418",
+    "prompt": "What is 19 + 41?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 19 + 41?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "60"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "add",
+      "answer": 60,
+      "task_index": 418
+    }
+  },
+  {
+    "id": "word_problem_60",
+    "prompt": "Sarah has 18 apples. She buys 18 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 18 apples. She buys 18 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "36"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 0,
+      "answer": 36,
+      "task_index": 60
+    }
+  },
+  {
+    "id": "math_task_362",
+    "prompt": "What is 37 - 24?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 37 - 24?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "13"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 13,
+      "task_index": 362
+    }
+  },
+  {
+    "id": "word_problem_161",
+    "prompt": "A farmer has 49 eggs and packs them into cartons of 7 eggs each. How many cartons does he need?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A farmer has 49 eggs and packs them into cartons of 7 eggs each. How many cartons does he need?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "7"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 2,
+      "answer": 7,
+      "task_index": 161
+    }
+  },
+  {
+    "id": "math_task_433",
+    "prompt": "What is 52 \u00d7 10?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 52 \u00d7 10?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "520"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "mul",
+      "answer": 520,
+      "task_index": 433
+    }
+  },
+  {
+    "id": "algebra_task_114",
+    "prompt": "Solve for x: 7x + 2 = 44",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 7x + 2 = 44"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "6"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 6,
+      "task_index": 114
+    }
+  },
+  {
+    "id": "math_task_297",
+    "prompt": "What is 7 + 8?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 7 + 8?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "15"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 15,
+      "task_index": 297
+    }
+  },
+  {
+    "id": "math_task_191",
+    "prompt": "What is 31 \u00d7 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 31 \u00d7 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "186"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "mul",
+      "answer": 186,
+      "task_index": 191
+    }
+  },
+  {
+    "id": "algebra_task_145",
+    "prompt": "Solve for x: x + 16 = 40",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: x + 16 = 40"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "24"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 0,
+      "answer": 24,
+      "task_index": 145
+    }
+  },
+  {
+    "id": "algebra_task_50",
+    "prompt": "Solve for x: 2x = 26",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 2x = 26"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "13"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 13,
+      "task_index": 50
+    }
+  },
+  {
+    "id": "math_task_497",
+    "prompt": "What is 42 + 15?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 42 + 15?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "57"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "add",
+      "answer": 57,
+      "task_index": 497
+    }
+  },
+  {
+    "id": "math_task_114",
+    "prompt": "What is 43 - 21?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 43 - 21?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "22"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 22,
+      "task_index": 114
+    }
+  },
+  {
+    "id": "word_problem_14",
+    "prompt": "A school has 456 students divided equally into 19 classrooms. How many students are in each classroom?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A school has 456 students divided equally into 19 classrooms. How many students are in each classroom?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "24"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 3,
+      "answer": 24,
+      "task_index": 14
+    }
+  },
+  {
+    "id": "math_task_363",
+    "prompt": "What is 4 - 1?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 4 - 1?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "3"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "sub",
+      "answer": 3,
+      "task_index": 363
+    }
+  },
+  {
+    "id": "math_task_382",
+    "prompt": "What is 84 \u00f7 12?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 84 \u00f7 12?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "7"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "div",
+      "answer": 7,
+      "task_index": 382
+    }
+  },
+  {
+    "id": "math_task_242",
+    "prompt": "What is 42 \u00d7 19?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 42 \u00d7 19?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "798"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "mul",
+      "answer": 798,
+      "task_index": 242
+    }
+  },
+  {
+    "id": "math_task_455",
+    "prompt": "What is 72 \u00f7 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 72 \u00f7 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "8"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "div",
+      "answer": 8,
+      "task_index": 455
+    }
+  },
+  {
+    "id": "algebra_task_6",
+    "prompt": "Solve for x: x + 16 = 44",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: x + 16 = 44"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "28"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 0,
+      "answer": 28,
+      "task_index": 6
+    }
+  },
+  {
+    "id": "math_task_279",
+    "prompt": "What is 26 + 25?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 26 + 25?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "51"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "add",
+      "answer": 51,
+      "task_index": 279
+    }
+  },
+  {
+    "id": "word_problem_31",
+    "prompt": "A store sold 128 items on Monday and 128 items on Tuesday. How many items were sold in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A store sold 128 items on Monday and 128 items on Tuesday. How many items were sold in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "256"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 1,
+      "answer": 256,
+      "task_index": 31
+    }
+  },
+  {
+    "id": "math_task_37",
+    "prompt": "What is 19 - 17?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 19 - 17?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "2"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 2,
+      "task_index": 37
+    }
+  },
+  {
+    "id": "word_problem_235",
+    "prompt": "A school has 308 students divided equally into 11 classrooms. How many students are in each classroom?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A school has 308 students divided equally into 11 classrooms. How many students are in each classroom?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "28"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 3,
+      "answer": 28,
+      "task_index": 235
+    }
+  },
+  {
+    "id": "math_task_56",
+    "prompt": "What is 92 \u00d7 24?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 92 \u00d7 24?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "2208"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "mul",
+      "answer": 2208,
+      "task_index": 56
+    }
+  },
+  {
+    "id": "math_task_124",
+    "prompt": "What is 9 + 7?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 9 + 7?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "16"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 16,
+      "task_index": 124
+    }
+  },
+  {
+    "id": "algebra_task_19",
+    "prompt": "Solve for x: 4x = 80",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 4x = 80"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "20"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 20,
+      "task_index": 19
+    }
+  },
+  {
+    "id": "word_problem_252",
+    "prompt": "Sarah has 16 apples. She buys 20 more apples. How many apples does she have now?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Sarah has 16 apples. She buys 20 more apples. How many apples does she have now?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "36"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 0,
+      "answer": 36,
+      "task_index": 252
+    }
+  },
+  {
+    "id": "math_task_252",
+    "prompt": "What is 26 - 17?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 26 - 17?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "9"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 9,
+      "task_index": 252
+    }
+  },
+  {
+    "id": "math_task_461",
+    "prompt": "What is 30 + 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 30 + 2?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "32"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "add",
+      "answer": 32,
+      "task_index": 461
+    }
+  },
+  {
+    "id": "math_task_355",
+    "prompt": "What is 21 \u00d7 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 21 \u00d7 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "126"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "mul",
+      "answer": 126,
+      "task_index": 355
+    }
+  },
+  {
+    "id": "word_problem_259",
+    "prompt": "A store sold 111 items on Monday and 174 items on Tuesday. How many items were sold in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A store sold 111 items on Monday and 174 items on Tuesday. How many items were sold in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "285"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 1,
+      "answer": 285,
+      "task_index": 259
+    }
+  },
+  {
+    "id": "algebra_task_98",
+    "prompt": "Solve for x: 8x = 80",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 8x = 80"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 10,
+      "task_index": 98
+    }
+  },
+  {
+    "id": "math_task_9",
+    "prompt": "What is 121 \u00f7 11?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 121 \u00f7 11?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "11"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "div",
+      "answer": 11,
+      "task_index": 9
+    }
+  },
+  {
+    "id": "algebra_task_61",
+    "prompt": "Solve for x: 8x = 112",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 8x = 112"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 14,
+      "task_index": 61
+    }
+  },
+  {
+    "id": "algebra_task_149",
+    "prompt": "Solve for x: 6x + 5 = 83",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 6x + 5 = 83"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "13"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 13,
+      "task_index": 149
+    }
+  },
+  {
+    "id": "math_task_189",
+    "prompt": "What is 38 \u00d7 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 38 \u00d7 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "114"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "mul",
+      "answer": 114,
+      "task_index": 189
+    }
+  },
+  {
+    "id": "word_problem_222",
+    "prompt": "A farmer has 160 eggs and packs them into cartons of 10 eggs each. How many cartons does he need?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A farmer has 160 eggs and packs them into cartons of 10 eggs each. How many cartons does he need?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "16"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 2,
+      "answer": 16,
+      "task_index": 222
+    }
+  },
+  {
+    "id": "algebra_task_14",
+    "prompt": "Solve for x: 10x + 5 = 55",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 10x + 5 = 55"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "5"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 2,
+      "answer": 5,
+      "task_index": 14
+    }
+  },
+  {
+    "id": "word_problem_165",
+    "prompt": "A bakery makes 43 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 43 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "559"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 559,
+      "task_index": 165
+    }
+  },
+  {
+    "id": "word_problem_15",
+    "prompt": "A school has 266 students divided equally into 19 classrooms. How many students are in each classroom?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A school has 266 students divided equally into 19 classrooms. How many students are in each classroom?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "14"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "division",
+      "difficulty": 3,
+      "answer": 14,
+      "task_index": 15
+    }
+  },
+  {
+    "id": "algebra_task_158",
+    "prompt": "Solve for x: x + 6 = 30",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: x + 6 = 30"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "24"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 0,
+      "answer": 24,
+      "task_index": 158
+    }
+  },
+  {
+    "id": "algebra_task_153",
+    "prompt": "Solve for x: 3x = 57",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 3x = 57"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "19"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 19,
+      "task_index": 153
+    }
+  },
+  {
+    "id": "math_task_20",
+    "prompt": "What is 304 \u00f7 16?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 304 \u00f7 16?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "19"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_very_hard",
+      "difficulty": 4,
+      "difficulty_name": "very_hard",
+      "operation": "div",
+      "answer": 19,
+      "task_index": 20
+    }
+  },
+  {
+    "id": "word_problem_295",
+    "prompt": "A bakery makes 42 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 42 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "546"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 546,
+      "task_index": 295
+    }
+  },
+  {
+    "id": "math_task_443",
+    "prompt": "What is 7 - 6?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 7 - 6?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "1"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "sub",
+      "answer": 1,
+      "task_index": 443
+    }
+  },
+  {
+    "id": "math_task_216",
+    "prompt": "What is 8 + 9?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 8 + 9?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "17"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 17,
+      "task_index": 216
+    }
+  },
+  {
+    "id": "word_problem_17",
+    "prompt": "A bakery makes 47 cookies per batch and runs 6 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 47 cookies per batch and runs 6 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "282"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 282,
+      "task_index": 17
+    }
+  },
+  {
+    "id": "algebra_task_109",
+    "prompt": "Solve for x: x + 1 = 18",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: x + 1 = 18"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "17"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 0,
+      "answer": 17,
+      "task_index": 109
+    }
+  },
+  {
+    "id": "word_problem_168",
+    "prompt": "A library had 302 books. They donated 72 books to charity. How many books remain?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A library had 302 books. They donated 72 books to charity. How many books remain?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "230"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 1,
+      "answer": 230,
+      "task_index": 168
+    }
+  },
+  {
+    "id": "math_task_317",
+    "prompt": "What is 16 - 11?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 16 - 11?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "5"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_easy",
+      "difficulty": 1,
+      "difficulty_name": "easy",
+      "operation": "sub",
+      "answer": 5,
+      "task_index": 317
+    }
+  },
+  {
+    "id": "algebra_task_162",
+    "prompt": "Solve for x: x + 4 = 33",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: x + 4 = 33"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "29"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 0,
+      "answer": 29,
+      "task_index": 162
+    }
+  },
+  {
+    "id": "algebra_task_29",
+    "prompt": "Solve for x: x + 19 = 40",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: x + 19 = 40"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "21"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 0,
+      "answer": 21,
+      "task_index": 29
+    }
+  },
+  {
+    "id": "word_problem_95",
+    "prompt": "A bakery makes 43 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A bakery makes 43 cookies per batch and runs 13 batches per day. How many cookies do they make in a day?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "559"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "multiplication",
+      "difficulty": 3,
+      "answer": 559,
+      "task_index": 95
+    }
+  },
+  {
+    "id": "algebra_task_131",
+    "prompt": "Solve for x: 4x = 8",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: 4x = 8"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "2"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 1,
+      "answer": 2,
+      "task_index": 131
+    }
+  },
+  {
+    "id": "word_problem_268",
+    "prompt": "A store sold 153 items on Monday and 136 items on Tuesday. How many items were sold in total?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "A store sold 153 items on Monday and 136 items on Tuesday. How many items were sold in total?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "289"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "addition",
+      "difficulty": 1,
+      "answer": 289,
+      "task_index": 268
+    }
+  },
+  {
+    "id": "math_task_236",
+    "prompt": "What is 72 \u00d7 8?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 72 \u00d7 8?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "576"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_medium",
+      "difficulty": 2,
+      "difficulty_name": "medium",
+      "operation": "mul",
+      "answer": 576,
+      "task_index": 236
+    }
+  },
+  {
+    "id": "math_task_359",
+    "prompt": "What is 9 + 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 9 + 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "12"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "add",
+      "answer": 12,
+      "task_index": 359
+    }
+  },
+  {
+    "id": "math_task_410",
+    "prompt": "What is 120 \u00f7 12?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 120 \u00f7 12?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "division_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "div",
+      "answer": 10,
+      "task_index": 410
+    }
+  },
+  {
+    "id": "math_task_147",
+    "prompt": "What is 30 \u00d7 8?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 30 \u00d7 8?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "240"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication_hard",
+      "difficulty": 3,
+      "difficulty_name": "hard",
+      "operation": "mul",
+      "answer": 240,
+      "task_index": 147
+    }
+  },
+  {
+    "id": "word_problem_298",
+    "prompt": "Tom has 28 marbles. He gives 18 marbles to his friend. How many marbles does he have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Tom has 28 marbles. He gives 18 marbles to his friend. How many marbles does he have left?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "10"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 0,
+      "answer": 10,
+      "task_index": 298
+    }
+  },
+  {
+    "id": "math_task_493",
+    "prompt": "What is 8 - 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "What is 8 - 3?"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "5"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "subtraction_very_easy",
+      "difficulty": 0,
+      "difficulty_name": "very_easy",
+      "operation": "sub",
+      "answer": 5,
+      "task_index": 493
+    }
+  },
+  {
+    "id": "algebra_task_146",
+    "prompt": "Solve for x: x + 18 = 22",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "/home/user/hud-sdk/environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": [
+          "Solve for x: x + 18 = 22"
+        ]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": [
+          "4"
+        ]
+      }
+    ],
+    "metadata": {
+      "task_type": "algebra",
+      "difficulty": 0,
+      "answer": 4,
+      "task_index": 146
+    }
+  }
+]
