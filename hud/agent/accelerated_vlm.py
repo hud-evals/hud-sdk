@@ -420,8 +420,8 @@ class AcceleratedVLMAgent(VLMAgent):
         # Optimizer step
         self._optimizer.step()
         
-        # Compute statistics
-        stats = {
+        # Compute statistics with debugging
+        raw_stats = {
             "loss": loss.item(),
             "pg_loss": pg_loss.item(),
             "kl": kl_divergence,
@@ -436,14 +436,74 @@ class AcceleratedVLMAgent(VLMAgent):
             "algorithm": algorithm,
         }
         
-        # Add DAPO-specific stats
-        if algorithm == "DAPO":
-            stats["avg_weight"] = weights.mean().item()
-            stats["weight_std"] = weights.std().item()
+        # Debug: Log types and values of all stats
+        logger.info("=== DEBUG: Stats types and values ===")
+        stats = {}
+        for k, v in raw_stats.items():
+            logger.info(f"  {k}: {v} (type: {type(v)}, value: {v})")
+            
+            # Convert to float if it's a tensor or other numeric type
+            if isinstance(v, torch.Tensor):
+                if v.numel() == 1:
+                    stats[k] = float(v.item())
+                    logger.info(f"    Converted tensor to float: {stats[k]}")
+                else:
+                    logger.error(f"    ERROR: Tensor {k} has {v.numel()} elements, expected 1")
+                    stats[k] = 0.0
+            elif isinstance(v, (int, float)):
+                stats[k] = float(v)
+            elif isinstance(v, str):
+                stats[k] = v  # Keep strings as-is
+            elif hasattr(v, 'item'):
+                stats[k] = float(v.item())
+                logger.info(f"    Converted {type(v)} to float using .item(): {stats[k]}")
+            else:
+                logger.error(f"    ERROR: Unknown type for {k}: {type(v)}")
+                stats[k] = 0.0
+                
+        logger.info("=== END DEBUG ===")
         
-        # Add accelerate-specific stats
-        stats["num_processes"] = self.accelerator.num_processes
-        stats["mixed_precision"] = str(self.accelerator.mixed_precision)
+        # Verify all values are numeric (except strings)
+        for k, v in stats.items():
+            if k != "algorithm" and not isinstance(v, (int, float)):
+                logger.error(f"ERROR: Non-numeric value in stats: {k} = {v} (type: {type(v)})")
+                stats[k] = 0.0
+        
+        # Add DAPO-specific stats with debugging
+        if algorithm == "DAPO":
+            dapo_stats = {
+                "avg_weight": weights.mean().item(),
+                "weight_std": weights.std().item(),
+            }
+            logger.info("=== DEBUG: DAPO Stats ===")
+            for k, v in dapo_stats.items():
+                logger.info(f"  {k}: {v} (type: {type(v)})")
+                stats[k] = float(v) if isinstance(v, (int, float, torch.Tensor)) else 0.0
+        
+        # Add accelerate-specific stats with debugging
+        accel_stats = {
+            "num_processes": self.accelerator.num_processes,
+            "mixed_precision": str(self.accelerator.mixed_precision),
+        }
+        logger.info("=== DEBUG: Accelerate Stats ===")
+        for k, v in accel_stats.items():
+            logger.info(f"  {k}: {v} (type: {type(v)})")
+            if isinstance(v, str):
+                stats[k] = v
+            elif isinstance(v, (int, float)):
+                stats[k] = float(v)
+            else:
+                logger.error(f"  ERROR: Unknown accelerate stat type: {k} = {v} (type: {type(v)})")
+                stats[k] = 0.0
+                
+        # Final validation of all stats
+        logger.info("=== DEBUG: Final Stats Validation ===")
+        for k, v in stats.items():
+            logger.info(f"  {k}: {v} (type: {type(v)})")
+            if k not in ["algorithm", "mixed_precision"] and not isinstance(v, (int, float)):
+                logger.error(f"  FINAL ERROR: Non-numeric value in final stats: {k} = {v} (type: {type(v)})")
+                stats[k] = 0.0
+        logger.info("=== END FINAL DEBUG ===")
         
         return stats
     

@@ -481,9 +481,24 @@ class TrainerBase(ABC):
                     # Record update statistics
                     self.stats_tracker.record_update(update_time, stats)
                     
-                    # Log stats
+                    # Log stats with debugging
+                    logger.info("=== DEBUG: Base Trainer Stats Accumulation ===")
                     for k, v in stats.items():
-                        self._stats[k] += v
+                        logger.info(f"  Accumulating {k}: {v} (type: {type(v)})")
+                        try:
+                            if k in self._stats:
+                                logger.info(f"    Current _stats[{k}]: {self._stats[k]} (type: {type(self._stats[k])})")
+                                self._stats[k] += v
+                                logger.info(f"    New _stats[{k}]: {self._stats[k]} (type: {type(self._stats[k])})")
+                            else:
+                                logger.info(f"    Initializing _stats[{k}] = {v}")
+                                self._stats[k] = v
+                        except Exception as e:
+                            logger.error(f"  ERROR accumulating {k}: {e}")
+                            logger.error(f"    _stats[{k}]: {self._stats.get(k, 'KEY_NOT_FOUND')} (type: {type(self._stats.get(k, None))})")
+                            logger.error(f"    stats[{k}]: {v} (type: {type(v)})")
+                            raise
+                    logger.info("=== END DEBUG ===")
                     
                     if not self.show_dashboard:
                         logger.info(
