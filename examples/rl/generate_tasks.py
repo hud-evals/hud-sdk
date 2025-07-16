@@ -61,7 +61,7 @@ def generate_arithmetic_tasks(n: int = 100) -> List[Dict[str, Any]]:
             "gym": {
                 "type": "public",
                 "location": "local",
-                "image_or_build_context": str(Path("/home/ubuntu/hud/hud-sdk/environments/qa_controller"))
+                "image_or_build_context": "environments/qa_controller"
             },
             "setup": [{
                 "function": "set_question",
@@ -136,7 +136,7 @@ def generate_word_problem_tasks(n: int = 50) -> List[Dict[str, Any]]:
             "gym": {
                 "type": "public",
                 "location": "local", 
-                "image_or_build_context": str(Path("/home/ubuntu/hud/hud-sdk/environments/qa_controller"))
+                "image_or_build_context": "environments/qa_controller"
             },
             "setup": [{
                 "function": "set_question",
@@ -162,7 +162,7 @@ def generate_word_problem_tasks(n: int = 50) -> List[Dict[str, Any]]:
 def main():
     """Generate tasks and save to JSON files."""
     # Create output directory
-    output_dir = Path("/home/ubuntu/hud/hud-sdk/examples/rl/data/math_tasks")
+    output_dir = Path("examples/rl/data/math_tasks")
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # Generate arithmetic tasks

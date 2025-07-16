@@ -99,7 +99,7 @@ def generate_arithmetic_tasks(n: int = 500) -> List[Dict[str, Any]]:
             "gym": {
                 "type": "public",
                 "location": "local",
-                "image_or_build_context": str(Path("/home/ubuntu/hud/hud-sdk/environments/qa_controller"))
+                "image_or_build_context": "environments/qa_controller"
             },
             "setup": [{
                 "function": "set_question",
@@ -218,7 +218,7 @@ def generate_word_problem_tasks(n: int = 300) -> List[Dict[str, Any]]:
             "gym": {
                 "type": "public",
                 "location": "local", 
-                "image_or_build_context": str(Path("/home/ubuntu/hud/hud-sdk/environments/qa_controller"))
+                "image_or_build_context": "environments/qa_controller"
             },
             "setup": [{
                 "function": "set_question",
@@ -277,7 +277,7 @@ def generate_algebra_tasks(n: int = 200) -> List[Dict[str, Any]]:
             "gym": {
                 "type": "public",
                 "location": "local",
-                "image_or_build_context": str(Path("/home/ubuntu/hud/hud-sdk/environments/qa_controller"))
+                "image_or_build_context": "environments/qa_controller"
             },
             "setup": [{
                 "function": "set_question",
@@ -303,7 +303,7 @@ def generate_algebra_tasks(n: int = 200) -> List[Dict[str, Any]]:
 def main():
     """Generate large diverse dataset and save to JSON files."""
     # Create output directory
-    output_dir = Path("/home/ubuntu/hud/hud-sdk/examples/rl/data/math_tasks")
+    output_dir = Path("examples/rl/data/math_tasks")
     output_dir.mkdir(parents=True, exist_ok=True)
     
     print("Generating diverse math tasks...")
