@@ -1,0 +1,137 @@
+[
+  {
+    "id": "add_1",
+    "prompt": "What is 2 + 2?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": ["What is 2 + 2?"]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": ["4"]
+      }
+    ],
+    "metadata": {
+      "task_type": "addition",
+      "difficulty": 0,
+      "answer": 4,
+      "description": "Basic addition test"
+    }
+  },
+  {
+    "id": "multiply_1",
+    "prompt": "What is 3 × 3?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": ["What is 3 × 3?"]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": ["9"]
+      }
+    ],
+    "metadata": {
+      "task_type": "multiplication",
+      "difficulty": 1,
+      "answer": 9,
+      "description": "Basic multiplication test"
+    }
+  },
+  {
+    "id": "word_problem_1",
+    "prompt": "I have 5 apples. I eat 2 apples. How many apples do I have left?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": ["I have 5 apples. I eat 2 apples. How many apples do I have left?"]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": ["3"]
+      }
+    ],
+    "metadata": {
+      "task_type": "word_problem",
+      "operation": "subtraction",
+      "difficulty": 1,
+      "answer": 3,
+      "description": "Word problem requiring subtraction"
+    }
+  },
+  {
+    "id": "counting_task_1",
+    "prompt": "Count from 1 to 5.",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": ["Count from 1 to 5."]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": ["1", "2", "3", "4", "5"]
+      }
+    ],
+    "metadata": {
+      "task_type": "counting",
+      "difficulty": 0,
+      "description": "Basic counting task"
+    }
+  },
+  {
+    "id": "reasoning_task_1",
+    "prompt": "If it takes 1 hour to walk 3 miles, how long does it take to walk 6 miles?",
+    "gym": {
+      "type": "public",
+      "location": "local",
+      "image_or_build_context": "environments/qa_controller"
+    },
+    "setup": [
+      {
+        "function": "set_question",
+        "args": ["If it takes 1 hour to walk 3 miles, how long does it take to walk 6 miles?"]
+      }
+    ],
+    "evaluate": [
+      {
+        "function": "evaluate.contains_keywords",
+        "args": ["2"]
+      }
+    ],
+    "metadata": {
+      "task_type": "reasoning",
+      "difficulty": 2,
+      "answer": 2,
+      "description": "Basic reasoning about proportions"
+    }
+  }
+]
