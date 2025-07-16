@@ -51,6 +51,7 @@ class LocalDockerClient(DockerClient):
             fileobj=io.BytesIO(tar_bytes),
             encoding="gzip",
             tag=image_tag,
+            path_dockerfile="Dockerfile",  # Specify the Dockerfile path within the tar
             rm=True,
             pull=True,
             forcerm=True,
