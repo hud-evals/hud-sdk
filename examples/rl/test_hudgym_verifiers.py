@@ -69,14 +69,18 @@ async def test_hudgym_evaluate(base_url: Optional[str] = None):
         print("Please set OPENAI_API_KEY environment variable or provide --base-url for a vLLM server.")
         return
 
-    client = OpenAI(
-        api_key=api_key,
-        base_url=base_url
-    )
-
     # For vLLM, api_key is can be a dummy value.
     if base_url and not api_key:
         api_key = "EMPTY"
+    
+    effective_base_url = base_url or "https://api.openai.com/v1"
+
+    client = OpenAI(
+        api_key=api_key,
+        base_url=effective_base_url
+    )
+
+    if base_url:
         models = client.models.list()
         model = models.data[0].id
         print(f"Using model: {model} from vLLM server at {base_url}")
@@ -84,7 +88,9 @@ async def test_hudgym_evaluate(base_url: Optional[str] = None):
         model = "gpt-4.1-mini"  # Default model for OpenAI API
         print(f"Using model: {model} with OpenAI API")
     
-    with open('/Users/jaideepchawla/dev/hud/hud-sdk/examples/rl/data/math_tasks/train_tasks_small.json', 'r') as f:
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    tasks_file = os.path.join(script_dir, "data", "math_tasks", "train_tasks_large_2.json")
+    with open(tasks_file, 'r') as f:
         tasks_data = json.load(f)
     
     print(f"Testing {len(tasks_data)} tasks concurrently...")

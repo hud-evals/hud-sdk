@@ -47,7 +47,13 @@ class HUDGym(vf.Environment):
             "- scroll up/down (scroll in direction)\n"
             "- message \"text\" (send a message or response)\n"
             "- done \"response\" (task complete with final response)\n\n"
-            "Always use the required format with thinking and action tags."
+            "Here is an example of how to use the tools:\n\n"
+            "--- Example --- \n"
+            "Observation: Question: What is 2+2?\nPlease provide your answer using a response action.\n\n"
+            "<think>The user is asking a simple math question. The sum of 2 and 2 is 4..</think>\n"
+            "<action>done \"4\"</action>\n"
+            "--- End Example ---\n\n"
+            "Always use the required format with thinking and action tags to answer the question."
         )
         
         # Create dataset with system prompt for all tasks
@@ -140,10 +146,8 @@ class HUDGym(vf.Environment):
             all_responses = []
             
             for step in range(self.max_steps):
-                logger.info(f"Rollout step {step + 1}/{self.max_steps}")
                 # Add observation to conversation
                 if obs and obs.text:
-                    logger.debug(f"Observation: {obs.text[:200]}")
                     conversation.append({"role": "user", "content": obs.text})
                 
                 # Get model response
@@ -160,7 +164,6 @@ class HUDGym(vf.Environment):
                     break
                     
                 assistant_content = response or ""
-                logger.info(f"Model response: {assistant_content}")
                 conversation.append({"role": "assistant", "content": assistant_content})
                 all_responses.append(assistant_content)
                 
@@ -169,7 +172,6 @@ class HUDGym(vf.Environment):
                     # For now, treat the entire response as a single action
                     raw_actions = [assistant_content]  # Raw model output
                     actions = self.adapter.adapt_list(raw_actions)  # Convert to HUD actions
-                    logger.info(f"Adapted actions: {actions}")
                 except Exception as e:
                     logger.error(f"Action adaptation failed: {e}")
                     break # exit if no valid actions
@@ -187,7 +189,6 @@ class HUDGym(vf.Environment):
             try:
                 eval_result = await hud_env.evaluate()
                 reward = float(eval_result.get("reward", 0.0))
-                logger.info(f"Evaluation result: {eval_result}")
             except Exception as e:
                 logger.error(f"Evaluation failed: {e}")
                 reward = 0.0
