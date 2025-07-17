@@ -97,8 +97,8 @@
     ],
     "evaluate": [
       {
-        "function": "evaluate.contains_keywords",
-        "args": ["1", "2", "3", "4", "5"]
+        "function": "evaluate.fuzzy_match",
+        "args": ["1, 2, 3, 4, 5"]
       }
     ],
     "metadata": {

@@ -30,6 +30,7 @@ dependencies = [
     "pandas>=2.3.0",
     "fastapi>=0.116.0",
     "verifiers>=0.0.0",
+    "datasets>=4.0.0",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

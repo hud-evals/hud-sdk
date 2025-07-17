@@ -1,23 +1,19 @@
-#!/usr/bin/env python3
 """
-Test HUDGym environment with verifiers.env.evaluate on gpt-4.1-mini.
+Test HUDGym environment with verifiers.env.evaluate.
 """
 
 import os
+import json
+from typing import Optional
 import asyncio
-from openai import AsyncOpenAI, OpenAI
-
-# Add examples/rl to path for verifiers_demo
-import sys
-sys.path.insert(0, '/Users/jaideepchawla/dev/hud/hud-sdk/examples/rl')
+from openai import OpenAI
 
 from verifiers_demo import HUDGym
 from hud.task import Task
 from hud.adapters.common.adapter import Adapter
 
-
-class SimpleAdapter(Adapter):
-    """Simple adapter that extracts actions from model output."""
+class BasicAdapter(Adapter):
+    """Adapter that extracts actions from model output."""
     
     def preprocess(self, model_output: str) -> str:
         """Extract action from model output."""
@@ -28,7 +24,7 @@ class SimpleAdapter(Adapter):
             action = model_output[start:end].strip()
             return action
         
-        # Look for simple commands
+        # Look for basic commands
         lines = model_output.strip().split('\n')
         for line in lines:
             line = line.strip()
@@ -40,11 +36,11 @@ class SimpleAdapter(Adapter):
     
     def convert(self, action_str: str):
         """Convert action string to CLA format."""
-        # Parse simple action commands
+        # Parse basic action commands
         action_str = action_str.strip().lower()
         
         if action_str.startswith('click'):
-            # Basic click action
+            # Click action
             return {"type": "click", "point": {"x": 100, "y": 100}}
         elif action_str.startswith('type'):
             # Extract text to type
@@ -61,47 +57,55 @@ class SimpleAdapter(Adapter):
             else:
                 return {"type": "response", "text": "Task completed"}
         else:
-            # Default action - return response
-            return {"type": "response", "text": action_str}
+            # if no recognized action, we need to end the task
+            return {}  # will throw an error
 
-
-async def test_hudgym_evaluate():
-    """Test HUDGym environment evaluation with gpt-4.1-mini."""
+async def test_hudgym_evaluate(base_url: Optional[str] = None):
+    """Test HUDGym environment evaluation."""
     
     # Set up OpenAI client
     api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        print("Please set OPENAI_API_KEY environment variable")
+    if not api_key and not base_url:
+        print("Please set OPENAI_API_KEY environment variable or provide --base-url for a vLLM server.")
         return
+
+    client = OpenAI(
+        api_key=api_key,
+        base_url=base_url
+    )
+
+    # For vLLM, api_key is can be a dummy value.
+    if base_url and not api_key:
+        api_key = "EMPTY"
+        models = client.models.list()
+        model = models.data[0].id
+        print(f"Using model: {model} from vLLM server at {base_url}")
+    else:
+        model = "gpt-4.1-mini"  # Default model for OpenAI API
+        print(f"Using model: {model} with OpenAI API")
     
-    # Create sync client for verifiers
-    client = OpenAI(api_key=api_key)
-    
-    # Load all tasks from JSON  
-    import json
     with open('/Users/jaideepchawla/dev/hud/hud-sdk/examples/rl/data/math_tasks/train_tasks_small.json', 'r') as f:
         tasks_data = json.load(f)
     
     print(f"Testing {len(tasks_data)} tasks concurrently...")
     
-    # Use the first task to create the environment
-    task_data = tasks_data[0]
-    task = Task.from_dict(task_data)
-    
+    # Create all tasks
+    tasks = [Task.from_dict(task_data) for task_data in tasks_data]
+
     # Create adapter
-    adapter = SimpleAdapter()
-    
-    # Create HUDGym environment
+    adapter = BasicAdapter()
+
+    # Create HUDGym environment with all tasks
     env = HUDGym(
-        task=task,
+        tasks=tasks,
         adapter=adapter,
         client=client,
-        model="gpt-4.1-mini",
+        model=model,
         max_steps=5
     )
     
     try:
-        print("Testing HUDGym environment evaluation with gpt-4.1-mini...")
+        print(f"Testing HUDGym environment evaluation with {model}...")
         
         # Run evaluation
         sampling_args = {
@@ -110,11 +114,9 @@ async def test_hudgym_evaluate():
         }
         
         results = env.evaluate(
-            client=client,
-            model="gpt-4.1-mini",
             sampling_args=sampling_args,
-            num_examples=1,
-            rollouts_per_example=len(tasks_data)
+            num_examples=len(tasks_data),
+            rollouts_per_example=1
         )
         
         print("\n--- HUDGym Evaluation Results ---")
@@ -147,4 +149,9 @@ async def test_hudgym_evaluate():
 
 
 if __name__ == "__main__":
-    asyncio.run(test_hudgym_evaluate())
+    import argparse
+    parser = argparse.ArgumentParser(description="Evaluate HUDGym using OpenAI API or a OpenAI compatible server.")
+    parser.add_argument("--base-url", type=str, default=None, help="Base URL for the OpenAI API compatible vLLM server.")
+    args = parser.parse_args()
+
+    asyncio.run(test_hudgym_evaluate(base_url=args.base_url))

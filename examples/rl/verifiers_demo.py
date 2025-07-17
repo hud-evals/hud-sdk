@@ -1,8 +1,5 @@
-"""
-HUDGym - Multi-turn verifiers environment with proper gym.make and env.step.
-"""
-
 import asyncio
+import logging
 from typing import Dict, Tuple, List
 from openai import AsyncOpenAI, OpenAI
 from datasets import Dataset
@@ -10,6 +7,7 @@ from datasets import Dataset
 import verifiers as vf
 from typing import Dict, Any, List, Union
 
+# Define type aliases
 Messages = Union[str, List[Dict[str, str]]]
 State = Dict[str, Any]
 SamplingArgs = Dict[str, Any]
@@ -19,13 +17,17 @@ from hud.task import Task
 import hud.gym as gym
 from hud.adapters import Adapter
 
+# Setup logger
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 class HUDGym(vf.Environment):
-    """HUD gym environment using multi-turn episodes with env.step and adaptation."""
+    """HUD gym environment."""
     
     def __init__(
         self,
-        task: Task,
+        tasks: List[Task],
         adapter: Adapter,
         client: OpenAI | None = None,
         model: str | None = None,
@@ -48,14 +50,23 @@ class HUDGym(vf.Environment):
             "Always use the required format with thinking and action tags."
         )
         
-        # Create dataset with system prompt
-        dataset = Dataset.from_dict({
-            "prompt": [[
+        # Create dataset with system prompt for all tasks
+        prompts = []
+        answers = []
+        task_ids = []
+        
+        for t in tasks:
+            prompts.append([
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": task.prompt}
-            ]],
-            "answer": [""],
-            "task": [task.id or "default"],
+                {"role": "user", "content": t.prompt}
+            ])
+            answers.append("")
+            task_ids.append(t.id or "default")
+        
+        dataset = Dataset.from_dict({
+            "prompt": prompts,
+            "answer": answers,
+            "task": task_ids,
         })
         
         rubric = vf.Rubric()
@@ -76,7 +87,8 @@ class HUDGym(vf.Environment):
             message_type="chat",
             **kwargs,
         )
-        self.task = task
+        self.tasks = tasks
+        self.task_map = {t.id or f"task_{i}": t for i, t in enumerate(tasks)}
         self.adapter = adapter
         self.max_steps = max_steps
     
@@ -112,8 +124,13 @@ class HUDGym(vf.Environment):
     ) -> Tuple[Messages, State]:
         """Multi-turn rollout using gym.make and env.step."""
         
+        logger.info(f"Starting rollout for task: {task}")
+        
+        # Get the specific task for this rollout
+        current_task = self.task_map.get(task, self.tasks[0])
+        
         # Create HUD environment
-        hud_env = await gym.make(self.task)
+        hud_env = await gym.make(current_task)
         
         try:
             # Reset environment
@@ -123,8 +140,10 @@ class HUDGym(vf.Environment):
             all_responses = []
             
             for step in range(self.max_steps):
+                logger.info(f"Rollout step {step + 1}/{self.max_steps}")
                 # Add observation to conversation
                 if obs and obs.text:
+                    logger.debug(f"Observation: {obs.text[:200]}")
                     conversation.append({"role": "user", "content": obs.text})
                 
                 # Get model response
@@ -137,20 +156,23 @@ class HUDGym(vf.Environment):
                 )
                 
                 if response is None:
+                    logger.warning("Model returned no response. Ending rollout.")
                     break
                     
                 assistant_content = response or ""
+                logger.info(f"Model response: {assistant_content}")
                 conversation.append({"role": "assistant", "content": assistant_content})
                 all_responses.append(assistant_content)
                 
                 try:
-                    # Extract actions from assistant response - this should be model-specific
+                    # Extract actions from assistant response
                     # For now, treat the entire response as a single action
                     raw_actions = [assistant_content]  # Raw model output
                     actions = self.adapter.adapt_list(raw_actions)  # Convert to HUD actions
+                    logger.info(f"Adapted actions: {actions}")
                 except Exception as e:
-                    print(f"Action adaptation failed: {e}")
-                    actions = []
+                    logger.error(f"Action adaptation failed: {e}")
+                    break # exit if no valid actions
                 
                 # Step environment
                 next_obs, _, env_done, _ = await hud_env.step(actions)
@@ -158,14 +180,16 @@ class HUDGym(vf.Environment):
                 
                 # Check if done
                 if env_done or "done" in assistant_content.lower():
+                    logger.info("Done condition met. Ending rollout.")
                     break
             
             # Evaluate and get reward
             try:
                 eval_result = await hud_env.evaluate()
                 reward = float(eval_result.get("reward", 0.0))
+                logger.info(f"Evaluation result: {eval_result}")
             except Exception as e:
-                print(f"Evaluation failed: {e}")
+                logger.error(f"Evaluation failed: {e}")
                 reward = 0.0
             
             # Return final completion and state
@@ -180,6 +204,7 @@ class HUDGym(vf.Environment):
                 "final_observation": obs.dict() if obs and hasattr(obs, 'dict') else obs,
             }
             
+            logger.info(f"Rollout for task {task} finished with reward: {reward}")
             return completion, state
             
         finally:
