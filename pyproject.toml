@@ -29,6 +29,7 @@ dependencies = [
     "pathspec>=0.12.1",
     "pandas>=2.3.0",
     "fastapi>=0.116.0",
+    "verifiers>=0.0.0",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
