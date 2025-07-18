@@ -3,6 +3,9 @@ import logging
 from typing import Dict, Tuple, List
 from openai import AsyncOpenAI, OpenAI
 from datasets import Dataset
+import time
+from dataclasses import dataclass, field
+from collections import defaultdict
 
 import verifiers as vf
 from typing import Dict, Any, List, Union
@@ -16,14 +19,110 @@ Info = Dict[str, Any]
 from hud.task import Task
 import hud.gym as gym
 from hud.adapters import Adapter
+from hud.adapters.common.adapter import Adapter as BaseAdapter
+
+
+@dataclass
+class Stats:
+    """Statistics tracking for HUDGym."""
+    total_rollouts: int = 0
+    successful_rollouts: int = 0
+    failed_rollouts: int = 0
+    total_reward: float = 0.0
+    total_time: float = 0.0
+    error_counts: defaultdict = field(default_factory=lambda: defaultdict(int))
+    
+    def record_rollout(self, reward: float, duration: float, successful: bool, error_type: str = None):
+        """Record a completed rollout."""
+        self.total_rollouts += 1
+        self.total_reward += reward
+        self.total_time += duration
+        
+        if successful:
+            self.successful_rollouts += 1
+        else:
+            self.failed_rollouts += 1
+            if error_type:
+                self.error_counts[error_type] += 1
+    
+    @property
+    def success_rate(self) -> float:
+        """Calculate success rate."""
+        return self.successful_rollouts / self.total_rollouts if self.total_rollouts > 0 else 0.0
+    
+    @property
+    def avg_reward(self) -> float:
+        """Calculate average reward."""
+        return self.total_reward / self.total_rollouts if self.total_rollouts > 0 else 0.0
+    
+    @property
+    def avg_time(self) -> float:
+        """Calculate average rollout time."""
+        return self.total_time / self.total_rollouts if self.total_rollouts > 0 else 0.0
+    
+    def summary(self) -> str:
+        """Get stats summary."""
+        return (f"Rollouts: {self.total_rollouts} | "
+                f"Success: {self.success_rate:.1%} | "
+                f"Avg Reward: {self.avg_reward:.3f} | "
+                f"Avg Time: {self.avg_time:.2f}s")
 
 # Setup logger
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
+class BasicAdapter(BaseAdapter):
+    """Adapter that extracts actions from model output."""
+    
+    def preprocess(self, model_output: str) -> str:
+        """Extract action from model output."""
+        # Look for action tags
+        if "<action>" in model_output and "</action>" in model_output:
+            start = model_output.find("<action>") + 8
+            end = model_output.find("</action>")
+            action = model_output[start:end].strip()
+            return action
+        
+        # Look for basic commands
+        lines = model_output.strip().split('\n')
+        for line in lines:
+            line = line.strip()
+            if any(cmd in line.lower() for cmd in ['click', 'type', 'scroll', 'message', 'done']):
+                return line
+        
+        # Default: return the whole output
+        return model_output.strip()
+    
+    def convert(self, action_str: str):
+        """Convert action string to CLA format."""
+        # Parse basic action commands
+        action_str = action_str.strip().lower()
+        
+        if action_str.startswith('click'):
+            # Click action
+            return {"type": "click", "point": {"x": 100, "y": 100}}
+        elif action_str.startswith('type'):
+            # Extract text to type
+            if '"' in action_str:
+                text = action_str.split('"')[1]
+                return {"type": "type", "text": text}
+            else:
+                return {"type": "type", "text": ""}
+        elif action_str.startswith('done'):
+            # Extract response text if provided       
+            if '"' in action_str:
+                text = action_str.split('"')[1]
+                return {"type": "response", "text": text}
+            else:
+                return {"type": "response", "text": "Task completed"}
+        else:
+            # if no recognized action, we need to end the task
+            return {}  # will throw an error
+
+
 class HUDGym(vf.Environment):
-    """HUD gym environment."""
+    """HUD gym environment with statistics tracking."""
     
     def __init__(
         self,
@@ -32,9 +131,11 @@ class HUDGym(vf.Environment):
         client: OpenAI | None = None,
         model: str | None = None,
         max_steps: int = 10,
+        enable_stats: bool = True,
         **kwargs,
     ):
         """Initialize with a single HUD task and adapter."""
+        self.stats = Stats() if enable_stats else None
         # Create system prompt with thinking and action tags
         system_prompt = (
             "You are an AI assistant that helps users complete computer tasks. "
@@ -131,12 +232,15 @@ class HUDGym(vf.Environment):
         """Multi-turn rollout using gym.make and env.step."""
         
         logger.info(f"Starting rollout for task: {task}")
+        rollout_start_time = time.time()
         
         # Get the specific task for this rollout
         current_task = self.task_map.get(task, self.tasks[0])
         
         # Create HUD environment
+        env_creation_start = time.time()
         hud_env = await gym.make(current_task)
+        env_creation_time = time.time() - env_creation_start
         
         try:
             # Reset environment
@@ -144,13 +248,17 @@ class HUDGym(vf.Environment):
             
             conversation = prompt.copy() if isinstance(prompt, list) else []
             all_responses = []
+            num_steps = 0
+            action_successful = True  # Track if all actions were successful
             
             for step in range(self.max_steps):
+                num_steps += 1
                 # Add observation to conversation
                 if obs and obs.text:
                     conversation.append({"role": "user", "content": obs.text})
                 
                 # Get model response
+                model_response_start = time.time()
                 response = self.get_model_response(
                     prompt=conversation,
                     client=sync_client,
@@ -158,6 +266,7 @@ class HUDGym(vf.Environment):
                     sampling_args=sampling_args,
                     message_type="chat",
                 )
+                model_response_time = time.time() - model_response_start
                 
                 if response is None:
                     logger.warning("Model returned no response. Ending rollout.")
@@ -169,15 +278,22 @@ class HUDGym(vf.Environment):
                 
                 try:
                     # Extract actions from assistant response
+                    action_adaptation_start = time.time()
                     # For now, treat the entire response as a single action
                     raw_actions = [assistant_content]  # Raw model output
                     actions = self.adapter.adapt_list(raw_actions)  # Convert to HUD actions
+                    action_adaptation_time = time.time() - action_adaptation_start
                 except Exception as e:
                     logger.error(f"Action adaptation failed: {e}")
+                    action_successful = False
+                    action_adaptation_time = time.time() - action_adaptation_start
                     break # exit if no valid actions
                 
                 # Step environment
+                env_step_start = time.time()
                 next_obs, _, env_done, _ = await hud_env.step(actions)
+                env_step_time = time.time() - env_step_start
+                
                 obs = next_obs
                 
                 # Check if done
@@ -186,12 +302,26 @@ class HUDGym(vf.Environment):
                     break
             
             # Evaluate and get reward
+            successful_rollout = True
+            error_type = None
             try:
                 eval_result = await hud_env.evaluate()
                 reward = float(eval_result.get("reward", 0.0))
             except Exception as e:
                 logger.error(f"Evaluation failed: {e}")
                 reward = 0.0
+                successful_rollout = False
+                error_type = type(e).__name__
+            
+            # Record rollout statistics
+            if self.stats:
+                rollout_total_time = time.time() - rollout_start_time
+                self.stats.record_rollout(
+                    reward=reward,
+                    duration=rollout_total_time,
+                    successful=action_successful and successful_rollout,
+                    error_type=error_type
+                )
             
             # Return final completion and state
             completion = conversation[-1:] if conversation else [{"role": "assistant", "content": ""}]
@@ -210,6 +340,12 @@ class HUDGym(vf.Environment):
             
         finally:
             await hud_env.close()
+    
+    def get_stats_summary(self) -> str:
+        """Get formatted statistics summary."""
+        if self.stats:
+            return self.stats.summary()
+        return "Statistics tracking is disabled."
     
     @classmethod
     def from_task_json(cls, task_json: Dict, adapter: Adapter, **kwargs) -> "HUDGym":

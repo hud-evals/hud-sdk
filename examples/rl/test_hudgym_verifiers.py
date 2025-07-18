@@ -1,5 +1,5 @@
 """
-Test HUDGym environment with verifiers.env.evaluate.
+Test HUDGym environment with verifiers.env.evaluate and statistics tracking.
 """
 
 import os
@@ -8,57 +8,9 @@ from typing import Optional
 import asyncio
 from openai import OpenAI
 
-from verifiers_demo import HUDGym
+from verifiers_demo import HUDGym, BasicAdapter
 from hud.task import Task
-from hud.adapters.common.adapter import Adapter
-
-class BasicAdapter(Adapter):
-    """Adapter that extracts actions from model output."""
-    
-    def preprocess(self, model_output: str) -> str:
-        """Extract action from model output."""
-        # Look for action tags
-        if "<action>" in model_output and "</action>" in model_output:
-            start = model_output.find("<action>") + 8
-            end = model_output.find("</action>")
-            action = model_output[start:end].strip()
-            return action
-        
-        # Look for basic commands
-        lines = model_output.strip().split('\n')
-        for line in lines:
-            line = line.strip()
-            if any(cmd in line.lower() for cmd in ['click', 'type', 'scroll', 'message', 'done']):
-                return line
-        
-        # Default: return the whole output
-        return model_output.strip()
-    
-    def convert(self, action_str: str):
-        """Convert action string to CLA format."""
-        # Parse basic action commands
-        action_str = action_str.strip().lower()
-        
-        if action_str.startswith('click'):
-            # Click action
-            return {"type": "click", "point": {"x": 100, "y": 100}}
-        elif action_str.startswith('type'):
-            # Extract text to type
-            if '"' in action_str:
-                text = action_str.split('"')[1]
-                return {"type": "type", "text": text}
-            else:
-                return {"type": "type", "text": ""}
-        elif action_str.startswith('done'):
-            # Extract response text if provided
-            if '"' in action_str:
-                text = action_str.split('"')[1]
-                return {"type": "response", "text": text}
-            else:
-                return {"type": "response", "text": "Task completed"}
-        else:
-            # if no recognized action, we need to end the task
-            return {}  # will throw an error
+import hud.gym as gym
 
 async def test_hudgym_evaluate(base_url: Optional[str] = None):
     """Test HUDGym environment evaluation."""
@@ -89,7 +41,7 @@ async def test_hudgym_evaluate(base_url: Optional[str] = None):
         print(f"Using model: {model} with OpenAI API")
     
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    tasks_file = os.path.join(script_dir, "data", "math_tasks", "train_tasks_large_2.json")
+    tasks_file = os.path.join(script_dir, "data", "math_tasks", "test_tasks_large_2.json")
     with open(tasks_file, 'r') as f:
         tasks_data = json.load(f)
     
@@ -101,15 +53,16 @@ async def test_hudgym_evaluate(base_url: Optional[str] = None):
     # Create adapter
     adapter = BasicAdapter()
 
-    # Create HUDGym environment with all tasks
+    # Create HUDGym environment with all tasks and stats enabled
     env = HUDGym(
-        tasks=tasks,
+        tasks=tasks[:22],
         adapter=adapter,
         client=client,
         model=model,
-        max_steps=5
+        max_steps=5,
+        enable_stats=True  # Enable statistics tracking
     )
-    
+
     try:
         print(f"Testing HUDGym environment evaluation with {model}...")
         
@@ -122,7 +75,8 @@ async def test_hudgym_evaluate(base_url: Optional[str] = None):
         results = env.evaluate(
             sampling_args=sampling_args,
             num_examples=len(tasks_data),
-            rollouts_per_example=1
+            rollouts_per_example=1,
+            max_concurrent_rollouts=10,
         )
         
         print("\n--- HUDGym Evaluation Results ---")
@@ -132,11 +86,11 @@ async def test_hudgym_evaluate(base_url: Optional[str] = None):
             print(f"\nExample:")
             prompt = results['prompt'][0]
             if isinstance(prompt, list) and len(prompt) > 1:
-                print(f"Task prompt: {prompt[1]['content'][:100]}...")
+                print(f"Task prompt: {prompt[1]['content']}...")
             
             completion = results['completion'][0]
             if isinstance(completion, list) and completion:
-                print(f"Model response: {completion[-1].get('content', '')[:200]}...")
+                print(f"Model response: {completion[-1].get('content', '')}...")
             
             print(f"Reward: {results['reward'][0]}")
         
@@ -145,7 +99,21 @@ async def test_hudgym_evaluate(base_url: Optional[str] = None):
             if 'reward' in key.lower() and isinstance(value, list) and value:
                 avg_reward = sum(value) / len(value)
                 print(f"{key}: {avg_reward:.3f}")
-        
+
+        # # Optional: make dataset
+        # test_dataset = env.make_dataset(results)
+        # test_dataset = test_dataset.sort("reward").select(range(10))
+        # print("\n---Bottom 5 Test Dataset Samples ---")
+        # for i, sample in enumerate(test_dataset):
+        #     print(f"Sample {i+1}:")
+        #     print(f"  Task: {sample['task']}")
+        #     print(f"  Prompt: {sample['prompt'][:100]}...")
+        #     print(f"  Completion: {sample['completion'][:200]}...")
+        #     print(f"  Reward: {sample['reward']:.3f}")
+
+        # Display statistics summary
+        print(env.get_stats_summary())
+
         print("\nHUDGym evaluation test completed successfully!")
         
     except Exception as e:
