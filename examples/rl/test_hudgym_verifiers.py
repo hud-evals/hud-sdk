@@ -55,11 +55,9 @@ async def test_hudgym_evaluate(base_url: Optional[str] = None):
 
     # Create HUDGym environment with all tasks and stats enabled
     env = HUDGym(
-        tasks=tasks[:22],
+        tasks=tasks[:1],
         adapter=adapter,
-        client=client,
-        model=model,
-        max_steps=5,
+        max_turns=5,
         enable_stats=True  # Enable statistics tracking
     )
 
@@ -73,6 +71,8 @@ async def test_hudgym_evaluate(base_url: Optional[str] = None):
         }
         
         results = env.evaluate(
+            client=client,
+            model=model,
             sampling_args=sampling_args,
             num_examples=len(tasks_data),
             rollouts_per_example=1,
