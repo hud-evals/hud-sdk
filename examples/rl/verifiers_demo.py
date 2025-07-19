@@ -188,11 +188,13 @@ class HUDGym(vf.Environment):
         # Create dataset with questions, tasks and info dict
         questions = []
         task_ids = []
+        answers = []
         info = []
 
         for t in self.tasks_map.values():
             questions.append(t.prompt)
             task_ids.append(t.id)
+            answers.append(t.metadata.get("answer", ""))
             info.append({
             "metadata": t.metadata,
             })
@@ -200,6 +202,7 @@ class HUDGym(vf.Environment):
         dataset = Dataset.from_dict({
             "question": questions,
             "task": task_ids,
+            "answer": answers,
             "info": info,
         })
         logger.info(f"Created dataset with {len(dataset)} entries.")
@@ -403,7 +406,7 @@ if __name__ == "__main__":
     client = OpenAI(api_key=api_key) 
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    tasks_file = os.path.join(script_dir, "data", "math_tasks", "test_tasks_large_2.json")
+    tasks_file = os.path.join(script_dir, "data", "gsm8k_tasks", "gsm8k_test.json")
     with open(tasks_file, 'r') as f:
         tasks_data = json.load(f)
     
@@ -421,7 +424,7 @@ if __name__ == "__main__":
     results = hudgym.evaluate(
         client=client,
         model="gpt-4.1-nano",
-        max_concurrent=32,
+        max_concurrent=128,
     )
 
     # Format and print results
@@ -458,5 +461,5 @@ if __name__ == "__main__":
     
     print("\n")
 
-
-
+    # Make dataset from results
+    hudgym.make_dataset(results, push_to_hub=True, hub_name="jdchawla29/hud-gym-gsm8k-test-gpt-4.1-nano")
