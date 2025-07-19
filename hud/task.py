@@ -85,10 +85,19 @@ class Task(BaseModel):
             and gym_data.get("image_or_build_context") is not None
         ):
             data = data.copy()  # Don't modify the original
+            # Preserve strings as image names, only convert paths to Path objects
+            image_or_build_context = gym_data["image_or_build_context"]
+            if isinstance(image_or_build_context, str) and not image_or_build_context.startswith('/'):
+                # Keep as string for Docker image names
+                parsed_image_or_build_context = image_or_build_context
+            else:
+                # Convert to Path for filesystem paths
+                parsed_image_or_build_context = Path(image_or_build_context)
+            
             data["gym"] = CustomGym(
                 type=cast("Literal['public']", gym_data["type"]),
                 location=cast("Literal['local', 'remote']", gym_data["location"]),
-                image_or_build_context=Path(gym_data["image_or_build_context"]),
+                image_or_build_context=parsed_image_or_build_context,
                 host_config=gym_data.get("host_config"),
             )
         
@@ -109,10 +118,19 @@ class Task(BaseModel):
             and gym_data.get("location") in ("local", "remote")
             and gym_data.get("image_or_build_context") is not None
         ):
+            # Preserve strings as image names, only convert paths to Path objects
+            image_or_build_context = gym_data["image_or_build_context"]
+            if isinstance(image_or_build_context, str) and not image_or_build_context.startswith('/'):
+                # Keep as string for Docker image names
+                parsed_image_or_build_context = image_or_build_context
+            else:
+                # Convert to Path for filesystem paths
+                parsed_image_or_build_context = Path(image_or_build_context)
+            
             parsed_gym = CustomGym(
                 type=cast("Literal['public']", gym_data["type"]),
                 location=cast("Literal['local', 'remote']", gym_data["location"]),
-                image_or_build_context=Path(gym_data["image_or_build_context"]),
+                image_or_build_context=parsed_image_or_build_context,
             )
 
         return cls(

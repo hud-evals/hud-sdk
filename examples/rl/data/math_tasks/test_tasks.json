@@ -5,7 +5,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -36,7 +36,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -67,7 +67,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -98,7 +98,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -129,7 +129,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -160,7 +160,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -191,7 +191,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -222,7 +222,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -253,7 +253,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -284,7 +284,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -315,7 +315,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -346,7 +346,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -377,7 +377,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -408,7 +408,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -439,7 +439,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -470,7 +470,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -501,7 +501,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -532,7 +532,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -563,7 +563,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -594,7 +594,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -625,7 +625,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -656,7 +656,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -687,7 +687,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -718,7 +718,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -749,7 +749,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -780,7 +780,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -811,7 +811,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -842,7 +842,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -873,7 +873,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
@@ -904,7 +904,7 @@
     "gym": {
       "type": "public",
       "location": "local",
-      "image_or_build_context": "environments/qa_controller"
+      "image_or_build_context": "qacontroller:latest"
     },
     "setup": [
       {
