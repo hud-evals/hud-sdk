@@ -406,7 +406,7 @@ if __name__ == "__main__":
     client = OpenAI(api_key=api_key) 
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    tasks_file = os.path.join(script_dir, "data", "gsm8k_tasks", "gsm8k_test.json")
+    tasks_file = os.path.join(script_dir, "gsm8k_tasks", "gsm8k_test.json")
     with open(tasks_file, 'r') as f:
         tasks_data = json.load(f)
     
