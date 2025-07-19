@@ -175,38 +175,60 @@ class HUDGym(vf.Environment):
         self,
         tasks: List[Task],
         adapter: Adapter,
+        eval_tasks: Optional[List[Task]] = None,
         max_turns: int = 10,
         enable_stats: bool = True,
         **kwargs,
     ):
-        logger.info(f"Initializing HUDGym with {len(tasks)} tasks, max_turns={max_turns}, enable_stats={enable_stats}")
+        eval_info = f", eval_tasks={len(eval_tasks)}" if eval_tasks else ""
+        logger.info(f"Initializing HUDGym with {len(tasks)} tasks{eval_info}, max_turns={max_turns}, enable_stats={enable_stats}")
         self.max_turns = max_turns
-        self.tasks_map = {t.id: t for t in tasks}
         self.adapter = adapter
         self.stats = Stats() if enable_stats else None
+        
+        # Create tasks map including both train and eval tasks
+        self.tasks_map = {t.id: t for t in tasks}
+        if eval_tasks:
+            for t in eval_tasks:
+                if t.id in self.tasks_map:
+                    logger.warning(f"Task ID {t.id} exists in both train and eval tasks. Using eval version.")
+                self.tasks_map[t.id] = t
 
-        # Create dataset with questions, tasks and info dict
-        questions = []
-        task_ids = []
-        answers = []
-        info = []
+        # Helper function to create dataset from tasks
+        def create_dataset_from_tasks(task_list: List[Task]) -> Dataset:
+            questions = []
+            task_ids = []
+            answers = []
+            info = []
 
-        for t in self.tasks_map.values():
-            questions.append(t.prompt)
-            task_ids.append(t.id)
-            answers.append(t.metadata.get("answer", ""))
-            info.append({
-            "metadata": t.metadata,
+            for t in task_list:
+                questions.append(t.prompt)
+                task_ids.append(t.id)
+                answers.append(t.metadata.get("answer", ""))
+                info.append({
+                    "metadata": t.metadata,
+                })
+            
+            return Dataset.from_dict({
+                "question": questions,
+                "task": task_ids,
+                "answer": answers,
+                "info": info,
             })
         
-        dataset = Dataset.from_dict({
-            "question": questions,
-            "task": task_ids,
-            "answer": answers,
-            "info": info,
-        })
-        logger.info(f"Created dataset with {len(dataset)} entries.")
-        logger.info(f"Dataset sample: {dataset[0]}")
+        # Create train dataset
+        dataset = create_dataset_from_tasks(tasks)
+        logger.info(f"Created train dataset with {len(dataset)} entries.")
+        if len(dataset) > 0:
+            logger.info(f"Train dataset sample: {dataset[0]}")
+        
+        # Create eval dataset if eval_tasks provided
+        eval_dataset = None
+        if eval_tasks:
+            eval_dataset = create_dataset_from_tasks(eval_tasks)
+            logger.info(f"Created eval dataset with {len(eval_dataset)} entries.")
+            if len(eval_dataset) > 0:
+                logger.info(f"Eval dataset sample: {eval_dataset[0]}")
         
         rubric = vf.Rubric()
         
@@ -224,6 +246,7 @@ class HUDGym(vf.Environment):
 
         super().__init__(
             dataset=dataset,
+            eval_dataset=eval_dataset,
             system_prompt=SYSTEM_PROMPT,
             rubric=rubric,
             **kwargs
@@ -406,18 +429,22 @@ if __name__ == "__main__":
     client = OpenAI(api_key=api_key) 
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    tasks_file = os.path.join(script_dir, "gsm8k_tasks", "gsm8k_test.json")
-    with open(tasks_file, 'r') as f:
-        tasks_data = json.load(f)
-    
-    print(f"Testing {len(tasks_data)} tasks...")
-    
+    train_tasks_file = os.path.join(script_dir, "gsm8k_tasks", "gsm8k_train.json")
+    eval_tasks_file = os.path.join(script_dir, "gsm8k_tasks", "gsm8k_test.json")
+    with open(train_tasks_file, 'r') as f:
+        train_tasks_data = json.load(f)
+
+    with open(eval_tasks_file, 'r') as f:
+        eval_tasks_data = json.load(f)
+
     # Create all tasks
-    tasks = [Task.from_dict(task_data) for task_data in tasks_data]
+    tasks = [Task.from_dict(task_data) for task_data in train_tasks_data]
+    eval_tasks = [Task.from_dict(task_data) for task_data in eval_tasks_data]
 
     # Create HUDGym instance
     hudgym = HUDGym(
         tasks=tasks,
+        eval_tasks=eval_tasks,
         adapter=BasicAdapter(),
     )
     
