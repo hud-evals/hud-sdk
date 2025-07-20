@@ -9,7 +9,7 @@ authors = [
 ]
 license = { file = "LICENSE" }
 dependencies = [
-    "httpx>=0.23.0,<1",
+    "httpx",
     "pydantic>=2,<3",
     "pydantic-settings>=2,<3",
     "textdistance>=4.5.0,<5",
@@ -28,11 +28,7 @@ dependencies = [
     "dotenv>=0.9.9",
     "pathspec>=0.12.1",
     "pandas>=2.3.0",
-    "fastapi>=0.116.0",
-    "datasets>=4.0.0",
-    "verifiers",
-    "huggingface-hub>=0.33.4",
-    "ipywidgets>=8.1.7",
+    "fastapi",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -196,6 +192,3 @@ omit = ["*/tests/*", "*/examples/*"]
 
 [tool.pytest.ini_options]
 asyncio_default_fixture_loop_scope = "function"
-
-[tool.uv.sources]
-verifiers = { path = "verifiers" }
