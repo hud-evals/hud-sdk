@@ -11,12 +11,11 @@ This directory contains example notebooks demonstrating different aspects of the
    export HUD_API_KEY=your_api_key_here
    ```
 
-3. **Starting with Examples**:
-   - [browser_use.ipynb](browser_use.ipynb) - Begin here for browser-based agent interaction with a live view
-   - [tasks.ipynb](tasks.ipynb) - Learn how to create and customize tasks for different environments
-   - [osworld.ipynb](osworld.ipynb) - Explore OS-based environments with Claude agent integration
-   - [local.ipynb](local.ipynb) - Develop and test with local custom environments
-   - [pokemon.ipynb](pokemon.ipynb) - Learn how to use emulator environments with a Pokemon game example
+3. **Example Folders**:
+   - **[agents_tools/](agents_tools/)** - Examples of agent implementations with various tools, including MCP (Model Context Protocol) integration, browser automation, and secure handling of sensitive data
+   - **[environments/](environments/)** - Environment setup examples showcasing local and remote environment configurations, including emulator-based environments like Pokemon_tools
+   - **[evaluations/](evaluations/)** - Evaluation and benchmarking examples including task creation, OS-level agent evaluation, and practical applications like SheetBench and Wordle
+   - **[rl/](rl/)** - Reinforcement learning examples (currently in development)
 
 ## Key Concepts
 

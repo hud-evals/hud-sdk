@@ -23,6 +23,7 @@ dependencies = [
     "openai",
     "langchain",
     "langchain-openai",
+    "langchain-anthropic",
     "mcp",
     "wrapt>=1.14.0",
     "dotenv>=0.9.9",

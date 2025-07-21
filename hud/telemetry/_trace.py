@@ -4,6 +4,7 @@ import asyncio
 import logging
 import time
 import uuid
+from collections.abc import Callable  # noqa: TC003
 from contextlib import contextmanager
 from functools import wraps
 from typing import (
@@ -11,6 +12,7 @@ from typing import (
     Any,
     ParamSpec,
     TypeVar,
+    cast,
     overload,
 )
 
@@ -25,22 +27,34 @@ from hud.telemetry.exporter import submit_to_worker_loop
 from hud.telemetry.instrumentation.registry import registry
 
 if TYPE_CHECKING:
-    from collections.abc import (
-        Callable,
-        Coroutine,
-        Generator,
-    )
+    from collections.abc import Generator
 
     from hud.telemetry.mcp_models import BaseMCPCall
 
 logger = logging.getLogger("hud.telemetry")
 T = TypeVar("T")
 
+# Track whether telemetry has been initialized
+_telemetry_initialized = False
+
 
 def init_telemetry() -> None:
     """Initialize telemetry instrumentors and ensure worker is started if telemetry is active."""
+    global _telemetry_initialized
+    if _telemetry_initialized:
+        return
+
     registry.install_all()
     logger.info("Telemetry initialized.")
+    _telemetry_initialized = True
+
+
+def _ensure_telemetry_initialized() -> None:
+    """Ensure telemetry is initialized - called lazily by trace functions."""
+    from hud.settings import settings
+
+    if settings.telemetry_enabled and not _telemetry_initialized:
+        init_telemetry()
 
 
 @contextmanager
@@ -60,6 +74,9 @@ def trace(
     Returns:
         The generated task run ID (UUID string) used for this trace
     """
+    # Lazy initialization - only initialize telemetry when trace() is actually called
+    _ensure_telemetry_initialized()
+
     task_run_id = str(uuid.uuid4())
 
     local_attributes = attributes.copy() if attributes is not None else {}
@@ -130,44 +147,60 @@ P = ParamSpec("P")
 R = TypeVar("R")
 
 
+@overload
+def register_trace(func: Callable[P, R]) -> Callable[P, R]: ...
+
+
+@overload
 def register_trace(
-    name: str | None = None, attributes: dict[str, Any] | None = None
-) -> Callable[[Callable[..., Any]], Callable[..., Any]]:
+    *,
+    name: str | None = None,
+    attributes: dict[str, Any] | None = None,
+) -> Callable[[Callable[P, R]], Callable[P, R]]: ...
+
+
+def register_trace(
+    func: Callable[P, R] | None = None,
+    *,
+    name: str | None = None,
+    attributes: dict[str, Any] | None = None,
+) -> Callable[P, R] | Callable[[Callable[P, R]], Callable[P, R]]:
     """
-    Decorator to wrap a synchronous or asynchronous function call
-    within a hud._telemetry.trace context.
+    Decorator to wrap a synchronous or asynchronous function call within a .trace context.
+    Works with both regular functions and coroutines.
 
     Args:
-        name: Optional name for the trace.
+        func: The function to wrap
+        name: Optional name for the trace. If not provided, the function name is used.
         attributes: Optional dictionary of attributes for the trace.
+
+    Returns:
+        The wrapped function
     """
 
-    @overload
-    def decorator(
-        func: Callable[P, Coroutine[Any, Any, R]],
-    ) -> Callable[P, Coroutine[Any, Any, R]]: ...
+    def decorator(f: Callable[P, R]) -> Callable[P, R]:
+        trace_name = name if name is not None else f.__name__
 
-    @overload
-    def decorator(func: Callable[P, R]) -> Callable[P, R]: ...
+        if asyncio.iscoroutinefunction(f):
 
-    def decorator(func: Callable[P, Any]) -> Callable[P, Any]:
-        if asyncio.iscoroutinefunction(func):
+            @wraps(f)
+            async def async_wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+                _ensure_telemetry_initialized()
+                with trace(name=trace_name, attributes=attributes):
+                    return await f(*args, **kwargs)
 
-            @wraps(func)
-            async def async_wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
-                effective_name = name if name else func.__name__
-                with trace(name=effective_name, attributes=attributes):
-                    return await func(*args, **kwargs)
-
-            return async_wrapper
+            return cast("Callable[P, R]", async_wrapper)
         else:
 
-            @wraps(func)
-            def sync_wrapper(*args: P.args, **kwargs: P.kwargs) -> Any:
-                effective_name = name if name else func.__name__
-                with trace(name=effective_name, attributes=attributes):
-                    return func(*args, **kwargs)
+            @wraps(f)
+            def sync_wrapper(*args: P.args, **kwargs: P.kwargs) -> R:
+                _ensure_telemetry_initialized()
+                with trace(name=trace_name, attributes=attributes):
+                    return f(*args, **kwargs)
 
-            return sync_wrapper
+            return cast("Callable[P, R]", sync_wrapper)
 
-    return decorator
+    if func is None:
+        return decorator
+    else:
+        return decorator(func)

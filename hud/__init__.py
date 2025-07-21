@@ -10,11 +10,15 @@ from .job import create_job, load_job, run_job
 from .job import job as register_job
 from .task import Task
 from .taskset import load_taskset
-from .telemetry import flush, init_telemetry, trace
+from .telemetry import flush, trace
 from .version import __version__
 
-if settings.settings.telemetry_enabled:
-    init_telemetry()
+
+def init_telemetry() -> None:
+    from .telemetry import init_telemetry as _init_telemetry
+
+    _init_telemetry()
+
 
 if settings.settings.fancy_logging:
     import logging
@@ -38,6 +42,7 @@ __all__ = [
     "env",
     "flush",
     "gym",
+    "init_telemetry",
     "load_job",
     "load_taskset",
     "register_job",

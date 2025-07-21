@@ -376,13 +376,16 @@ def create_remote_config(
 
     # Case 1: Explicit config provided
     if config:
-        expanded_configs = expand_config(config)
-        if env and env.final_response and expanded_configs[0].args[0] in LOCAL_EVALUATORS:
-            # Ensure args is a list before appending
-            if not isinstance(expanded_configs[0].args, list):
-                expanded_configs[0].args = [expanded_configs[0].args]
-            expanded_configs[0].args.append(env.final_response)  # for remote responses
-        return [FunctionConfig(function=function, args=expanded_configs, metadata=metadata)]
+        if not isinstance(config, dict):
+            expanded_configs = expand_config(config)
+            if env and env.final_response and expanded_configs[0].args[0] in LOCAL_EVALUATORS:
+                # Ensure args is a list before appending
+                if not isinstance(expanded_configs[0].args, list):
+                    expanded_configs[0].args = [expanded_configs[0].args]
+                expanded_configs[0].args.append(env.final_response)  # for remote responses
+            return [FunctionConfig(function=function, args=expanded_configs, metadata=metadata)]
+        else:
+            return [FunctionConfig(function=function, args=[config], metadata=metadata)]
 
     # Otherwise, use the environment's task
     task = env.task if env else None
