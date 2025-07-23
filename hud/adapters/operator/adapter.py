@@ -7,6 +7,7 @@ from hud.adapters.common.types import (
     CLAButton,
     CLAKey,
     ClickAction,
+    CustomAction,
     DragAction,
     MoveAction,
     Point,
@@ -27,6 +28,7 @@ class OperatorAdapter(Adapter):
         "arrowleft": "left",
         "arrowright": "right",
         "cmd": "ctrl",
+        "super": "win",
     }
 
     BUTTON_MAP: ClassVar[dict[str, CLAButton]] = {"wheel": "middle"}
@@ -92,6 +94,8 @@ class OperatorAdapter(Adapter):
 
             elif action_type == "response":
                 converted_action = ResponseAction(text=data.get("text", ""))
+            elif action_type == "custom":
+                converted_action = CustomAction(action=data.get("action", ""))
             else:
                 raise ValueError(f"Unsupported action type: {action_type}")
 

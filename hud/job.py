@@ -274,11 +274,11 @@ async def _maybe_resample_action(
             try:
                 decision = await response_agent.determine_response(response_text)
                 if decision == "CONTINUE":
-                    logger.info("ResponseAgent indicated CONTINUE. Retrying...")
-                    obs.text = "Please continue."
+                    logger.info("ResponseAgent indicated CONTINUE. for message: %s", response_text)
+                    obs.text = "Yes, please continue."
                     return obs, False
-                elif decision == "CONTINUE":
-                    logger.warning("Max continue retries reached. Stopping despite CONTINUE.")
+                else:
+                    logger.warning("ResponseAgent indicated STOP for message: %s", response_text)
             except Exception as e:
                 logger.warning("Error using ResponseAgent: %s", e)
     return obs, True

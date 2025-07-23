@@ -309,7 +309,8 @@ class DockerClient(Client):
         if len(stdout_parts) > 1:
             result = json.loads(stdout_parts[1])
         else:
-            raise InvokeError(stdout, stderr)
+            logger.warning("Potential error: %s", stderr)
+            result = None
 
         return result, stdout, stderr
 

@@ -217,9 +217,10 @@ class PositionFetch(CLAAction):
 class CustomAction(CLAAction):
     type: Literal["custom"] = "custom"
     action: str
+    args: dict[str, Any] | None = None
 
     def __str__(self) -> str:
-        action_str = f"⚙️ Custom: {self.action}"
+        action_str = f"⚙️ Custom: {self.action} {self.args}"
         action_str += _format_logs_for_display(self.logs, self.reasoning)
         return action_str
 

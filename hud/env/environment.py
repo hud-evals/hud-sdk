@@ -194,7 +194,9 @@ class Environment(BaseModel):
 
         observation = Observation.model_validate(result["observation"], strict=True)
 
-        return observation, 0, False, {}
+        info = result.get("info", {})
+
+        return observation, 0, False, info
 
     def _maybe_store_response(self, actions: list[CLA]) -> bool:
         """Store the final response into the environment.
