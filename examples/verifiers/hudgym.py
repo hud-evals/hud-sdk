@@ -451,6 +451,7 @@ if __name__ == "__main__":
     results = hudgym.evaluate(
         client=client,
         model="gpt-4.1-nano",
+        max_concurrent=128,
     )
 
     # Format and print results
