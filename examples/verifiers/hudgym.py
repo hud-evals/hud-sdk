@@ -1,258 +1,166 @@
-import logging
-from typing import Any, Callable, Dict, List, Literal, Optional, TypedDict, Union, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from openai import AsyncOpenAI
 from datasets import Dataset
 import time
-from dataclasses import dataclass, field
-from collections import defaultdict
+import yaml
+from pathlib import Path
+import asyncio
 
 import verifiers as vf
-from typing import Dict, Any, List, Union
+import os
 
 from openai.types.chat.chat_completion import ChatCompletion
-from openai.types.completion import Completion
 
-# verifier type aliases
-MessageType = Literal["chat", "completion"]
-ModelResponse = Union[Completion, ChatCompletion, None]
-ChatMessageField = Literal["role", "content"]
-ChatMessage = Dict[ChatMessageField, str]
-Message = Union[str, ChatMessage]
-Messages = Union[str, List[ChatMessage]]
-Info = Dict[str, Any]
-State = Dict[str, Any]
-SamplingArgs = Dict[str, Any]
-RewardFunc = Callable[..., float]
+from verifiers import (
+    MessageType, ModelResponse, ChatMessage, Message, Messages,
+    Info, State, SamplingArgs, RewardFunc
+)
 
 
 from hud.task import Task
 import hud.gym as gym
-from hud.adapters.common.adapter import Adapter
-from hud.adapters.common.types import ResponseAction
+from hud.adapters.common import Adapter
+from hud.adapters.common.types import (
+    ResponseAction, ClickAction, TypeAction, PressAction, 
+    ScrollAction, WaitAction, ScreenshotFetch, Point, CLA
+)
 
 from copy import deepcopy
+import json
 
-SYSTEM_PROMPT = system_prompt = (
-            "You are an AI assistant that helps users complete computer tasks. "
-            "You can see screenshots and perform actions to interact with interfaces.\n\n"
-            "In each turn, think step-by-step inside <think>...</think> tags, "
-            "then perform actions inside <action>...</action> tags.\n\n"
-            "Available actions:\n"
-            "- click x,y (click at coordinates)\n"
-            "- type \"text\" (type the given text)\n"
-            "- scroll up/down (scroll in direction)\n"
-            "- message \"text\" (send a message or response)\n"
-            "- done \"response\" (task complete with final response)\n\n"
-            "Here is an example of how to use the tools:\n\n"
-            "--- Example --- \n"
-            "Observation: Question: What is 2+2?\nPlease provide your answer using a response action.\n\n"
-            "<think>The user is asking a simple math question. The sum of 2 and 2 is 4..</think>\n"
-            "<action>done \"4\"</action>\n"
-            "--- End Example ---\n\n"
-            "Always use the required format with thinking and action tags to answer the question."
-        )
-
-@dataclass
-class Stats:
-    """Statistics tracking for HUDGym."""
-    total_rollouts: int = 0
-    successful_rollouts: int = 0
-    failed_rollouts: int = 0
-    total_reward: float = 0.0
-    total_time: float = 0.0
-    env_creation_time: float = 0.0
-    env_cleanup_time: float = 0.0
-    error_counts: defaultdict = field(default_factory=lambda: defaultdict(int))
+def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """Load configuration from YAML file."""
+    if config_path is None:
+        config_path = str(Path(__file__).parent / "hudgym_config.yaml")
     
-    def record_rollout(self, reward: float, duration: float, successful: bool, error_type: Optional[str] = None, 
-                      env_creation_time: float = 0.0, env_cleanup_time: float = 0.0):
-        """Record a completed rollout."""
-        self.total_rollouts += 1
-        self.total_reward += reward
-        self.total_time += duration
-        self.env_creation_time += env_creation_time
-        self.env_cleanup_time += env_cleanup_time
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
+
+class HUDGymAdapter(Adapter):
+    """Custom adapter for HUDGym that converts tool JSON to CLA actions."""
+    
+    def convert(self, action: Any) -> CLA:
+        """Convert tool dictionary to CLA action."""
+        if isinstance(action, str):
+            action = json.loads(action.strip())
         
-        if successful:
-            self.successful_rollouts += 1
+        assert isinstance(action, dict), f"Expected dict, got {type(action).__name__}"
+        assert 'name' in action, "Action must have a 'name' field"
+        
+        tool_name = action['name'].lower()
+        args = action.get('arguments', {})
+        
+        if tool_name == 'click':
+            assert 'x' in args and 'y' in args
+            return ClickAction(point=Point(x=args['x'], y=args['y']))
+        elif tool_name == 'type':
+            assert 'text' in args
+            return TypeAction(text=args['text'], enter_after=False)
+        elif tool_name == 'key':
+            assert 'key' in args
+            return PressAction(keys=[args['key'].lower()])
+        elif tool_name == 'scroll':
+            assert 'direction' in args and 'amount' in args
+            direction = args['direction']
+            amount = args['amount']
+            scroll_y = -amount if direction == 'up' else amount
+            return ScrollAction(scroll=Point(x=0, y=scroll_y))
+        elif tool_name == 'wait':
+            assert 'seconds' in args
+            return WaitAction(time=int(args['seconds'] * 1000))
+        elif tool_name == 'done':
+            return ResponseAction(text="Task completed")
+        elif tool_name == 'screenshot':
+            return ScreenshotFetch()
         else:
-            self.failed_rollouts += 1
-            if error_type:
-                self.error_counts[error_type] += 1
-    
-    @property
-    def success_rate(self) -> float:
-        """Calculate success rate."""
-        return self.successful_rollouts / self.total_rollouts if self.total_rollouts > 0 else 0.0
-    
-    @property
-    def avg_reward(self) -> float:
-        """Calculate average reward."""
-        return self.total_reward / self.total_rollouts if self.total_rollouts > 0 else 0.0
-    
-    @property
-    def avg_time(self) -> float:
-        """Calculate average rollout time."""
-        return self.total_time / self.total_rollouts if self.total_rollouts > 0 else 0.0
-    
-    @property
-    def avg_env_creation_time(self) -> float:
-        """Calculate average environment creation time."""
-        return self.env_creation_time / self.total_rollouts if self.total_rollouts > 0 else 0.0
-    
-    @property
-    def avg_env_cleanup_time(self) -> float:
-        """Calculate average environment cleanup time."""
-        return self.env_cleanup_time / self.total_rollouts if self.total_rollouts > 0 else 0.0
-    
-    def summary(self) -> str:
-        """Get stats summary."""
-        return (f"Rollouts: {self.total_rollouts} | "
-                f"Success: {self.success_rate:.1%} | "
-                f"Avg Reward: {self.avg_reward:.3f} | "
-                f"Avg Time: {self.avg_time:.2f}s | "
-                f"Env Creation: {self.avg_env_creation_time:.3f}s | "
-                f"Env Cleanup: {self.avg_env_cleanup_time:.3f}s")
-
-# Setup logger
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-
-class BasicAdapter(Adapter):
-    """Adapter that extracts actions from model output."""
-    
-    def preprocess(self, model_output: str) -> str:
-        """Extract action from model output."""
-        # Look for action tags
-        if "<action>" in model_output and "</action>" in model_output:
-            start = model_output.find("<action>") + 8
-            end = model_output.find("</action>")
-            action = model_output[start:end].strip()
-            return action
-        
-        # Look for basic commands
-        lines = model_output.strip().split('\n')
-        for line in lines:
-            line = line.strip()
-            if any(cmd in line.lower() for cmd in ['click', 'type', 'scroll', 'message', 'done']):
-                return line
-        
-        # Default: return the whole output
-        return model_output.strip()
-    
-    def convert(self, action_str: str):
-        """Convert action string to CLA format."""
-        # Parse basic action commands
-        action_str = action_str.strip().lower()
-        
-        if action_str.startswith('click'):
-            # Click action
-            return {"type": "click", "point": {"x": 100, "y": 100}}
-        elif action_str.startswith('type'):
-            # Extract text to type
-            if '"' in action_str:
-                text = action_str.split('"')[1]
-                return {"type": "type", "text": text}
-            else:
-                return {"type": "type", "text": ""}
-        elif action_str.startswith('done'):
-            # Extract response text if provided       
-            if '"' in action_str:
-                text = action_str.split('"')[1]
-                return {"type": "response", "text": text}
-            else:
-                return {"type": "response", "text": "Task completed"}
-        else:
-            # Default action
-            return {"type": "message", "text": action_str}
-
+            assert False, f"Unknown tool name: {tool_name}"
 
 class HUDGym(vf.Environment):
-    """HUD gym environment with statistics tracking."""
+    """HUD gym environment for verifiers integration."""
     
     def __init__(
         self,
         tasks: List[Task],
-        adapter: Adapter,
+        adapter: Optional[Adapter] = None,
         eval_tasks: Optional[List[Task]] = None,
-        max_turns: int = 10,
-        enable_stats: bool = True,
+        config_path: Optional[str] = None,
         **kwargs,
     ):
-        eval_info = f", eval_tasks={len(eval_tasks)}" if eval_tasks else ""
-        logger.info(f"Initializing HUDGym with {len(tasks)} tasks{eval_info}, max_turns={max_turns}, enable_stats={enable_stats}")
-        self.max_turns = max_turns
-        self.adapter = adapter
-        self.stats = Stats() if enable_stats else None
+        # Load configuration
+        self.config = load_config(config_path)
         
-        # Create tasks map including both train and eval tasks
-        self.tasks_map = {t.id: t for t in tasks}
+        # Get defaults from config
+        self.max_turns = kwargs.pop('max_turns', self.config['defaults']['max_turns'])
+        self.adapter = adapter or HUDGymAdapter()
+        
+        # Store tasks for later use
+        self.tasks = {t.id: t for t in tasks}
         if eval_tasks:
-            for t in eval_tasks:
-                if t.id in self.tasks_map:
-                    logger.warning(f"Task ID {t.id} exists in both train and eval tasks. Using eval version.")
-                self.tasks_map[t.id] = t
-
-        # Helper function to create dataset from tasks
-        def create_dataset_from_tasks(task_list: List[Task]) -> Dataset:
-            questions = []
-            task_ids = []
-            answers = []
-            info = []
-
-            for t in task_list:
-                questions.append(t.prompt)
-                task_ids.append(t.id)
-                answers.append(t.metadata.get("answer", ""))
-                info.append({
-                    "metadata": t.metadata,
-                })
+            self.eval_tasks = {t.id: t for t in eval_tasks}
+            # Merge for lookup during rollout
+            self.all_tasks = {**self.tasks, **self.eval_tasks}
+        else:
+            self.all_tasks = self.tasks
             
-            return Dataset.from_dict({
-                "question": questions,
-                "task": task_ids,
-                "answer": answers,
-                "info": info,
-            })
+        # Create datasets
+        dataset = Dataset.from_dict({
+            "question": [t.prompt for t in tasks],
+            "task": [t.id for t in tasks],
+            "answer": [t.metadata.get("answer", "") for t in tasks],
+            "info": [{"metadata": t.metadata} for t in tasks],
+        })
         
-        # Create train dataset
-        dataset = create_dataset_from_tasks(tasks)
-        logger.info(f"Created train dataset with {len(dataset)} entries.")
-        if len(dataset) > 0:
-            logger.info(f"Train dataset sample: {dataset[0]}")
-        
-        # Create eval dataset if eval_tasks provided
         eval_dataset = None
         if eval_tasks:
-            eval_dataset = create_dataset_from_tasks(eval_tasks)
-            logger.info(f"Created eval dataset with {len(eval_dataset)} entries.")
-            if len(eval_dataset) > 0:
-                logger.info(f"Eval dataset sample: {eval_dataset[0]}")
+            eval_dataset = Dataset.from_dict({
+                "question": [t.prompt for t in eval_tasks],
+                "task": [t.id for t in eval_tasks],
+                "answer": [t.metadata.get("answer", "") for t in eval_tasks],
+                "info": [{"metadata": t.metadata} for t in eval_tasks],
+            })
         
-        rubric = vf.Rubric()
-        
+        # Create rubric that gets reward from state (set during rollout)
         def hud_reward_func(completion, **kwargs) -> float:
-            """Get reward from HUD environment evaluation."""
-            # The reward will be set in the state during rollout
-            state = kwargs.get('state', {})
-            reward = state.get('reward', 0.0)
-            logger.info(f"hud_reward_func returning reward: {reward}")
-            return reward
+            state = kwargs.get('state')
+            assert state, "State not provided to reward function"
+            assert 'reward' in state, "Reward not found in state"
+            return state['reward']
         
-        rubric.add_reward_func(hud_reward_func)
-        logger.info("Added hud_reward_func to rubric.")
-
+        # XML parser for tool extraction
+        self.tool_parser = vf.XMLParser(["think", "tool"])
+        
+        combined_rubric = vf.Rubric(
+            funcs=[hud_reward_func, self.tool_parser.get_format_reward_func()],
+            weights=[0.9, 0.1]
+        )
 
         super().__init__(
             dataset=dataset,
             eval_dataset=eval_dataset,
-            system_prompt=SYSTEM_PROMPT,
-            rubric=rubric,
+            system_prompt=self.config['system_prompt'],
+            rubric=combined_rubric,
             **kwargs
         )
-        logger.info("HUDGym initialization complete.")
+        
+        # Track active cleanup tasks
+        self.active_cleanups = set()
+    
+    async def _cleanup_env(self, env):
+        """Background cleanup of HUD environment."""
+        try:
+            await env.close()
+            self.logger.debug("Background environment cleanup completed")
+        except Exception as e:
+            self.logger.error(f"Error during background cleanup: {e}")
+    
+    async def wait_for_cleanups(self):
+        """Wait for all active cleanup tasks to complete."""
+        if self.active_cleanups:
+            self.logger.info(f"Waiting for {len(self.active_cleanups)} cleanup tasks...")
+            await asyncio.gather(*self.active_cleanups, return_exceptions=True)
+            self.logger.info("All cleanup tasks completed")
 
+    
     async def rollout(self,
                     client: AsyncOpenAI,
                     model: str,
@@ -265,7 +173,7 @@ class HUDGym(vf.Environment):
         """
         Generate a multi-turn rollout with the environment (messages, state).
         """
-        logger.info(f"Starting rollout for task: {task} with model: {model}")
+        self.logger.debug(f"Starting rollout for task: {task} with model: {model}")
 
         is_completed = False
         state = {
@@ -275,34 +183,53 @@ class HUDGym(vf.Environment):
             'task': task,
             'info': info,
             'responses': [],
+            'timing': {
+                'env_creation_time': 0.0,
+                'model_response_times': [],
+                'env_step_times': [],
+                'total_rollout_time': 0.0,
+                'num_turns': 0
+            },
+            'error': None,  # Track any errors that occur
+            'error_step': None  # Track where the error occurred
         }
-        logger.info(f"Initial state created: {state}")
+        rollout_start_time = time.time()
 
         assert isinstance(prompt, list)
         completion: List[ChatMessage] = []
         conversation = deepcopy(prompt)
         turn = 1
 
-        logger.info(f"Initializing HUD environment for task: {task}")
-        current_task = self.tasks_map.get(task)
-        logger.info(f"Current task: {current_task}")
+        current_task = self.all_tasks.get(task)
+        assert current_task, f"Task '{task}' not found in task list"
         
-        # Track timing for stats
-        rollout_start_time = time.time()
         env_creation_start = time.time()
         
         hud_env = None
         try:
             hud_env = await gym.make(current_task) # type: ignore
-            obs, _ = await hud_env.reset() # for now obs is the same as prompt, no screenshots
+            obs, _ = await hud_env.reset()
             env_creation_time = time.time() - env_creation_start
-            logger.info(f"HUD environment created in {env_creation_time:.3f}s. Initial observation: {obs}")
+            state['timing']['env_creation_time'] = env_creation_time
+            self.logger.debug(f"HUD environment created in {env_creation_time:.3f}s")
+            
+            assert obs, "Environment reset did not return a valid observation"
+            
+            
+            initial_message: ChatMessage = {
+                "role": "user",
+                "content": obs.text  # type: ignore
+            }
+            conversation.append(initial_message)
+            completion.append(initial_message)
+            self.logger.debug("Added initial observation")
             
             while not is_completed and turn < self.max_turns:
-                logger.info(f"Rollout turn {turn}")
+                self.logger.debug(f"Rollout turn {turn}")
 
                 # Get model response
-                logger.info("Calling get_model_response...")
+                self.logger.debug("Calling get_model_response...")
+                model_start = time.time()
                 response = await self.get_model_response(
                     prompt=conversation,
                     client=client,
@@ -311,116 +238,148 @@ class HUDGym(vf.Environment):
                     message_type='chat'
                 )
                 state['responses'].append(response)
-                logger.info("Received model response.")
+                model_duration = time.time() - model_start
+                state['timing']['model_response_times'].append(model_duration)
+                self.logger.debug(f"Model response received in {model_duration:.3f}s")
 
                 assert isinstance(response, ChatCompletion)
-                response_text: str = response.choices[0].message.content or ""
+                response_text = response.choices[0].message.content
+                if not response_text:
+                    raise ValueError("Model returned empty response")
                 response_message: ChatMessage = {
                     "role": "assistant",
                     "content": response_text
                 }
                 conversation.append(response_message)
                 completion.append(response_message)
-                logger.info(f"Appended assistant message to conversation: {response_message}")
+                self.logger.debug("Appended assistant message to conversation")
+                
+                # Extract tool from XML tags and convert to action
+                parsed = self.tool_parser.parse(response_text)
+                if not (hasattr(parsed, 'tool') and parsed.tool):
+                    raise ValueError("No tool found in model response")
+                action = self.adapter.convert(parsed.tool)
+                actions = [action]
+                
+                # First action must be a screenshot fetch
+                if turn == 1:
+                    if not isinstance(action, ScreenshotFetch):
+                        raise ValueError(f"First action must be a screenshot fetch, got {type(action).__name__}")
 
-                # Process the assistant's action with the environment
-                try:
-                    # Extract and adapt actions
-                    raw_actions = [response_text]
-                    actions = self.adapter.adapt_list(raw_actions)
-                    logger.info(f"Adapted actions: {actions}")
+                # Check if task is complete
+                if isinstance(actions[0], ResponseAction):
+                    # Evaluate and get reward
+                    eval_result = await hud_env.evaluate()
+                    self.logger.info(f"Evaluation result: {eval_result}")
+                    assert 'grade' in eval_result, "Evaluation result missing 'grade' field"
+                    reward = float(eval_result['grade'])
 
-                    # Step the environment
-                    next_obs, _, _, _ = await hud_env.step(actions)
-                    logger.info(f"Environment step complete.")
-
-                    turn += 1
+                    state['reward'] = reward
+                    self.logger.info(f"Task {task} completed with reward: {reward}")
                     
-                    # Check if task is complete
-                    if isinstance(actions[0], ResponseAction):
-                        # Evaluate and get reward
-                        try:
-                            eval_result = await hud_env.evaluate()
-                            reward = float(eval_result.get("reward", 0.0))
-                        except Exception as e:
-                            logger.error(f"Evaluation failed: {e}")
-                            reward = 0.0
-                        
-                        state['reward'] = reward
-                        logger.info(f"Task {task} completed with reward: {reward}")
-                        
-                        # Task completed - stats will be recorded in finally block
-                        
-                        # Add final environment message
-                        final_message: ChatMessage = {
-                            "role": "user",
-                            "content": f"Task completed. Final reward: {reward}"
-                        }
-                        conversation.append(final_message)
-                        completion.append(final_message)
-                        
-                        is_completed = True
-                    else:
-                        # Continue with next observation
-                        obs_content = next_obs.text if next_obs and hasattr(next_obs, 'text') else str(next_obs)
-                        env_message: ChatMessage = {
-                            "role": "user", 
-                            "content": obs_content or "Continuing..."
-                        }
-                        conversation.append(env_message)
-                        completion.append(env_message)
-                        logger.info(f"Appended environment observation: {env_message}")
-                        
-                except Exception as e:
-                    logger.error(f"Action processing failed: {e}")
-                    
-                    # Error will be recorded in finally block
-                    
-                    # Add error message
-                    error_message: ChatMessage = {
+                    # Add final environment message
+                    final_message: ChatMessage = {
                         "role": "user",
-                        "content": f"Error: {str(e)}"
+                        "content": f"Task completed. Env reward: {reward}"
                     }
-                    conversation.append(error_message)
-                    completion.append(error_message)
+                    conversation.append(final_message)
+                    completion.append(final_message)
                     
-                    state['reward'] = 0.0
                     is_completed = True
-
-            logger.info(f"Rollout finished. Returning completion with {len(completion)} messages and final state.")
+                    break
+                
+                # Step the environment
+                step_start = time.time()
+                next_obs, _, _, _ = await hud_env.step(actions)
+                step_duration = time.time() - step_start
+                state['timing']['env_step_times'].append(step_duration)
+                self.logger.debug(f"Environment step complete in {step_duration:.3f}s.")
+                
+                turn += 1
+                
+                # Continue with next observation
+                if next_obs.screenshot:
+                    env_message: ChatMessage = {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": next_obs.text if next_obs.text else "Continuing..."},
+                            {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{next_obs.screenshot}"}}
+                        ]
+                    }
+                else:
+                    self.logger.warning("No screenshot in observation, using text only")
+                    env_message: ChatMessage = {"role": "user", "content": next_obs.text if next_obs.text else "Continuing..."}
+                
+                conversation.append(env_message)
+                completion.append(env_message)
+                self.logger.debug(f"Appended observation (has screenshot: {bool(next_obs.screenshot)})")
+            
+            if not is_completed and turn >= self.max_turns:
+                state['reward'] = 0.0
+                self.logger.warning(f"Task {task} reached max_turns ({self.max_turns}) without completion")
+            
+            state['timing']['num_turns'] = turn
+            state['timing']['total_rollout_time'] = time.time() - rollout_start_time
+            self.logger.debug(f"Rollout finished. Returning completion with {len(completion)} messages and final state.")
             return completion, state
+        
+        except Exception as e:
+            self.logger.error(f"Error during rollout: {e}")
+            state['error'] = str(e)
+            state['error_step'] = f"turn_{turn}"
             
         finally:
-            # Clean up environment and record stats
-            env_cleanup_start = time.time()
-            env_cleanup_time = 0.0
-            
             if hud_env:
-                await hud_env.close()
-                env_cleanup_time = time.time() - env_cleanup_start
-                logger.info(f"Environment cleanup completed in {env_cleanup_time:.3f}s")
-            
-            # Record rollout stats (including cleanup time in total duration)
-            if self.stats:
-                rollout_time = time.time() - rollout_start_time
-                reward = state.get('reward', 0.0)
-                successful = reward > 0 and is_completed
-                error_type = None if successful else "UnknownError"
-                
-                self.stats.record_rollout(
-                    reward=reward,
-                    duration=rollout_time,
-                    successful=successful,
-                    error_type=error_type,
-                    env_creation_time=env_creation_time if 'env_creation_time' in locals() else 0.0,
-                    env_cleanup_time=env_cleanup_time
+                # Create async cleanup task
+                cleanup_task = asyncio.create_task(self._cleanup_env(hud_env))
+                self.active_cleanups.add(cleanup_task)
+                cleanup_task.add_done_callback(
+                    lambda t: self.active_cleanups.discard(t)
                 )
-                logger.info(f"Recorded rollout stats: duration={rollout_time:.3f}s, env_creation={env_creation_time if 'env_creation_time' in locals() else 0.0:.3f}s, env_cleanup={env_cleanup_time:.3f}s")
+                self.logger.debug("Environment cleanup started asynchronously")
+            
+            if 'reward' not in state:
+                state["reward"] = 0.0
+            state['timing']['total_rollout_time'] = time.time() - rollout_start_time
+            return completion, state
+    
+    def compute_timing_stats(self, results: Dict[str, Any]) -> Dict[str, Any]:
+        """Compute aggregate timing statistics from evaluation results."""
+        all_timings = [state['timing'] for state in results['state'] if 'timing' in state]
+        
+        if not all_timings:
+            return {}
+        
+        stats = {
+            'avg_env_creation_time': sum(t['env_creation_time'] for t in all_timings) / len(all_timings),
+            'avg_total_rollout_time': sum(t['total_rollout_time'] for t in all_timings) / len(all_timings),
+            'avg_num_turns': sum(t['num_turns'] for t in all_timings) / len(all_timings),
+        }
+        
+        # Model response times
+        all_model_times = []
+        for t in all_timings:
+            all_model_times.extend(t['model_response_times'])
+        if all_model_times:
+            stats['avg_model_response_time'] = sum(all_model_times) / len(all_model_times)
+            stats['total_model_calls'] = len(all_model_times)
+        
+        # Environment step times
+        all_step_times = []
+        for t in all_timings:
+            all_step_times.extend(t['env_step_times'])
+        if all_step_times:
+            stats['avg_env_step_time'] = sum(all_step_times) / len(all_step_times)
+            stats['total_env_steps'] = len(all_step_times)
+        
+        return stats
+    
 
 if __name__ == "__main__":
     from openai import OpenAI
     import os
-    import json
+    import logging
+    logging.getLogger("verifiers").setLevel(logging.INFO)
 
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
@@ -428,30 +387,59 @@ if __name__ == "__main__":
 
     client = OpenAI(api_key=api_key) 
 
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    train_tasks_file = os.path.join(script_dir, "gsm8k_tasks", "gsm8k_train.json")
-    eval_tasks_file = os.path.join(script_dir, "gsm8k_tasks", "gsm8k_test.json")
-    with open(train_tasks_file, 'r') as f:
-        train_tasks_data = json.load(f)
-
-    with open(eval_tasks_file, 'r') as f:
-        eval_tasks_data = json.load(f)
-
-    # Create all tasks
-    tasks = [Task.from_dict(task_data) for task_data in train_tasks_data]
-    eval_tasks = [Task.from_dict(task_data) for task_data in eval_tasks_data]
+    # Load Gmail tasks from taskset.json
+    taskset_path = "/Users/jaideepchawla/dev/hud/hud-gmail-environment/taskset.json"
+    num_tasks = -1
+    
+    print(f"Loading tasks from {taskset_path}")
+    with open(taskset_path, 'r') as f:
+        taskset_data = json.load(f)
+    
+    # Convert the first num_tasks to Task objects
+    tasks = []
+    for task_dict in taskset_data['tasks'][:num_tasks]:
+        # Convert gym config from remote to local
+        gym_config = task_dict["gym"].copy()
+        gym_config["location"] = "local"
+        gym_config["image_or_build_context"] = "gmail"  # Use local gmail build context
+        
+        # Create a task dict in the format HUD expects
+        task_data = {
+            "id": task_dict["metadata"]["id"],
+            "prompt": task_dict["prompt"],
+            "gym": gym_config,  # Use modified gym config
+            "setup": task_dict["setup"],
+            "evaluate": task_dict["evaluate"],
+            "metadata": task_dict["metadata"],
+            "description": task_dict["description"]
+        }
+        
+        # Add optional fields if present
+        if task_dict.get("system_prompt"):
+            task_data["system_prompt"] = task_dict["system_prompt"]
+        if task_dict.get("config"):
+            task_data["config"] = task_dict["config"]
+        if task_dict.get("sensitive_data"):
+            task_data["sensitive_data"] = task_dict["sensitive_data"]
+            
+        tasks.append(Task.from_dict(task_data))
+    
+    print(f"Loaded {len(tasks)} tasks:")
+    for i, task in enumerate(tasks):
+        print(f"  {i+1}. {task.id}: {task.prompt[:60]}...")
 
     # Create HUDGym instance
     hudgym = HUDGym(
-        tasks=tasks,
-        eval_tasks=eval_tasks,
-        adapter=BasicAdapter(),
+        tasks=tasks[:20],
+        eval_tasks=tasks[:20],
+        max_turns=30,
     )
     
     results = hudgym.evaluate(
         client=client,
-        model="gpt-4.1-nano",
-        max_concurrent=128,
+        model="gpt-4.1-mini",
+        max_concurrent=8,
+        num_examples=num_tasks
     )
 
     # Format and print results
@@ -459,34 +447,62 @@ if __name__ == "__main__":
     print("EVALUATION RESULTS")
     print("="*60)
     
-    print("Example output:")
-    # Extract key information
-    question = results['question'][0]
-    task_id = results['task'][0]
-    reward = results['reward'][0]
+    # Summary statistics
+    num_tasks = len(results['task'])
+    avg_reward = sum(results['reward']) / num_tasks if num_tasks > 0 else 0.0
+    print(f"\nTasks evaluated: {num_tasks}")
+    print(f"Average reward: {avg_reward:.3f}")
     
-    print(f"\nTask: {task_id}")
-    print(f"Question: {question}")
-    print(f"Final Reward: {reward}")
-    
-    # Show the conversation
-    print("\nConversation:")
+    # Display timing statistics
+    print("\nTiming Statistics:")
     print("-"*40)
-    completion = results['completion'][0]
-    for i, msg in enumerate(completion):
-        role = msg['role'].upper()
-        content = msg['content']
-        print(f"\n[{role}]:")
-        print(content)
+    timing_stats = hudgym.compute_timing_stats(results)
     
-    # Show statistics if available
-    if hudgym.stats:
-        print("\n" + "="*60)
-        print("STATISTICS")
-        print("="*60)
-        print(hudgym.stats.summary())
+    if timing_stats:
+        print(f"Average environment creation time: {timing_stats['avg_env_creation_time']:.3f}s")
+        print(f"Average total rollout time: {timing_stats['avg_total_rollout_time']:.3f}s")
+        print(f"Average number of turns: {timing_stats['avg_num_turns']:.1f}")
+        
+        if 'avg_model_response_time' in timing_stats:
+            print(f"\nModel Statistics:")
+            print(f"  Average response time: {timing_stats['avg_model_response_time']:.3f}s")
+            print(f"  Total model calls: {timing_stats['total_model_calls']}")
+        
+        if 'avg_env_step_time' in timing_stats:
+            print(f"\nEnvironment Step Statistics:")
+            print(f"  Average step time: {timing_stats['avg_env_step_time']:.3f}s")
+            print(f"  Total environment steps: {timing_stats['total_env_steps']}")
     
     print("\n")
 
     # Make dataset from results
-    hudgym.make_dataset(results, push_to_hub=True, hub_name="jdchawla29/hud-gym-gsm8k-test-gpt-4.1-nano")
+    try:
+        dataset = hudgym.make_dataset(
+            results, 
+            push_to_hub=False,
+            state_columns=["timing", "error", "error_step"],
+            extra_columns=["hud_reward_func", "format_reward_func"]
+        )
+        print(f"\nDataset created successfully with {len(dataset)} examples!")
+        print(f"Columns: {dataset.column_names}")
+        
+        # Show first example's timing data
+        if len(dataset) > 0 and "timing" in dataset.column_names:
+            first_timing = dataset[0]["timing"]
+            print(f"\nFirst example timing data:")
+            print(f"  Total rollout time: {first_timing['total_rollout_time']:.3f}s")
+            print(f"  Number of turns: {first_timing['num_turns']}")
+            if first_timing['model_response_times']:
+                avg_model_time = sum(first_timing['model_response_times']) / len(first_timing['model_response_times'])
+                print(f"  Avg model response time: {avg_model_time:.3f}s")
+
+        # Save dataset to disk
+        # dataset_path = Path("hudgym_results_dataset")
+        # dataset_path.mkdir(exist_ok=True)
+        # dataset.save_to_disk(dataset_path)
+        # print(f"\nDataset saved to {dataset_path}")
+        
+    except Exception as e:
+        print(f"\nError creating dataset: {e}")
+        import traceback
+        traceback.print_exc()
