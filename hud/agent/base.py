@@ -124,27 +124,3 @@ class Agent(Generic[ClientT, ActionT], ABC):
 
         # If no adapter, return actions as is
         return actions, done
-
-    @abstractmethod
-    async def sample(
-        self, observation: Observation, verbose: bool = False
-    ) -> "ActionSample":
-        """
-        Sample an action with full information for RL training.
-        
-        This method MUST be implemented by agents that want to support RL training.
-        It should return an ActionSample containing:
-        - The generated text 
-        - Log probabilities
-        - Both raw and processed actions
-        - Task completion status
-        
-        Args:
-            observation: The observation from the environment
-            verbose: Whether to log debug information
-            
-        Returns:
-            ActionSample: Complete sample with text, actions, and probabilities
-        """
-        from hud.rl.types import ActionSample  # Import here to avoid circular import
-        pass
