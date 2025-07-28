@@ -18,7 +18,6 @@ from hud.adapters.claude import ClaudeAdapter
 from hud.types import Gym
 from hud.utils.common import Observation
 from hud.settings import settings
-from hud.adapters.common.types import LogType
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +66,8 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         max_tokens: int = 4096,
         max_iterations: int = 10,
         name: str | None = None,
+        enable_thinking: bool = True,
+        thinking_budget: int = 1024,
     ):
         """
         Initialize the ClaudeAgent.
@@ -78,6 +79,8 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
             max_tokens: Maximum tokens for Claude's response
             max_iterations: Maximum number of iterations for the agent
             name: The name of the agent
+            enable_thinking: Whether to enable thinking mode (default True)
+            thinking_budget: Number of tokens allocated for thinking (default 1024)
         """
         # Initialize client if not provided
         if client is None:
@@ -101,6 +104,8 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
         self.model = model
         self.max_tokens = max_tokens
         self.max_iterations = max_iterations
+        self.enable_thinking = enable_thinking
+        self.thinking_budget = thinking_budget
 
         # Default dimensions - will be updated if adapter is provided
         self.width_px = 1024
@@ -188,14 +193,24 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
                             block["cache_control"] = cache_control
 
             try:
-                response = await self.client.beta.messages.create(
-                    model=self.model,
-                    max_tokens=self.max_tokens,
-                    messages=messages_cached,
-                    tools=[COMPUTER_TOOL],
-                    betas=["computer-use-2025-01-24"],
-                    tool_choice={"type": "auto", "disable_parallel_tool_use": True},
-                )
+                # Prepare API call parameters
+                api_params = {
+                    "model": self.model,
+                    "max_tokens": self.max_tokens,
+                    "messages": messages_cached,
+                    "tools": [COMPUTER_TOOL],
+                    "betas": ["computer-use-2025-01-24"],
+                    "tool_choice": {"type": "auto", "disable_parallel_tool_use": True},
+                }
+                
+                # Add thinking if enabled
+                if self.enable_thinking:
+                    api_params["thinking"] = {
+                        "type": "enabled",
+                        "budget_tokens": self.thinking_budget
+                    }
+                
+                response = await self.client.beta.messages.create(**api_params)
             except BadRequestError as e:
                 if e.message.startswith("prompt is too long"):
                     logger.warning(
@@ -205,6 +220,7 @@ class ClaudeAgent(Agent[AsyncAnthropic, Any]):
                     continue
                 else:
                     raise e
+
 
             # break out of the while loop if we get a response
             break
