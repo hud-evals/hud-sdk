@@ -36,12 +36,12 @@ async def main():
         agent = OpenAIMCPAgent(
             mcp_client=client,
             model="gpt-4o",  # Latest OpenAI model
-            temperature=0.3,
+            # temperature=0.3,  # Not supported by this agent
             allowed_tools=["openai_computer"],  # OpenAI-specific computer tool
             initial_screenshot=True,
             # OpenAI supports these additional parameters
-            reasoning_mode="auto",  # Enable reasoning summaries
-            max_completion_tokens=4000,
+            # reasoning_mode="auto",  # Enable reasoning summaries - not supported
+            # max_completion_tokens=4000,  # Not supported by this agent
         )
 
         try:
