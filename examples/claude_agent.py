@@ -16,12 +16,12 @@ import asyncio
 import hud
 from hud.mcp import ClaudeMCPAgent
 from hud.mcp.client import MCPClient
-from datasets import load_dataset
+# from datasets import load_dataset  # Disabled - dataset not accessible
 
 
 async def main():
     # Load the dataset
-    dataset = load_dataset("hud-evals/sheetbench-taskconfigs")
+    # dataset = load_dataset("hud-evals/sheetbench-taskconfigs")  # Disabled - dataset not accessible
 
     with hud.trace("Claude Agent Demo"):
         mcp_config = {

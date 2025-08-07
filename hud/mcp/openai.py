@@ -42,6 +42,10 @@ class OpenAIMCPAgent(BaseMCPAgent):
         environment: Literal["windows", "mac", "linux", "browser"] = "linux",
         display_width: int = 1024,
         display_height: int = 768,
+        # Model parameters for responses.create()
+        temperature: float | None = None,
+        max_completion_tokens: int | None = None,
+        reasoning_mode: str = "auto",
         **kwargs: Any,
     ) -> None:
         """
@@ -53,6 +57,9 @@ class OpenAIMCPAgent(BaseMCPAgent):
             environment: Environment type for computer use
             display_width: Display width for computer use
             display_height: Display height for computer use
+            temperature: Sampling temperature (0.0 to 2.0)
+            max_completion_tokens: Maximum tokens in completion
+            reasoning_mode: Reasoning mode for o1 models ("auto", "manual", etc.)
             **kwargs: Additional arguments passed to BaseMCPAgent
         """
         super().__init__(**kwargs)
@@ -69,6 +76,14 @@ class OpenAIMCPAgent(BaseMCPAgent):
         self.environment = environment
         self.display_width = display_width
         self.display_height = display_height
+
+        # Model parameters for API calls
+        self.model_params = {}
+        if temperature is not None:
+            self.model_params["temperature"] = temperature
+        if max_completion_tokens is not None:
+            self.model_params["max_completion_tokens"] = max_completion_tokens
+        self.model_params["reasoning"] = {"summary": reasoning_mode}
 
         # State tracking for OpenAI's stateful API
         self.last_response_id: str | None = None
@@ -177,7 +192,7 @@ class OpenAIMCPAgent(BaseMCPAgent):
                 input=input_param,
                 instructions=full_instructions,
                 truncation="auto",
-                reasoning={"summary": "auto"},
+                **self.model_params,
             )
         else:
             # Follow-up step - check if this is user input or tool result
@@ -228,6 +243,7 @@ class OpenAIMCPAgent(BaseMCPAgent):
                 tools=[computer_tool],
                 input=input_param_followup,
                 truncation="auto",
+                **self.model_params,
             )
 
         # Store response ID for next call
