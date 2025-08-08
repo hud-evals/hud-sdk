@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -292,13 +293,11 @@ class TestMCPClient:
         client = MCPClient(mcp_config=config)
 
         # Prefer using public API; simulate via internal _tools if available
-        try:
+        with contextlib.suppress(Exception):
             client._tools = [  # type: ignore[attr-defined]
                 types.Tool(name="tool1", description="Tool 1", inputSchema={"type": "object"}),
                 types.Tool(name="tool2", description="Tool 2", inputSchema={"type": "object"}),
             ]
-        except Exception:
-            pass
 
         tools = client.get_available_tools()
         names = {t.name for t in tools}

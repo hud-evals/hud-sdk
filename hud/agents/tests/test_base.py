@@ -2,13 +2,6 @@
 
 from __future__ import annotations
 
-import pytest
-from mcp import types
-
-from hud.agent import MCPAgent
-from hud.tools.executors.base import BaseExecutor
-from hud.types import MCPToolCall
-
 import typing
 from unittest.mock import MagicMock
 
@@ -19,9 +12,14 @@ except ImportError:
     # Fallback for older Python versions
     from unittest.mock import MagicMock as AsyncMock
 
+import pytest
+from mcp import types
 
-if typing.TYPE_CHECKING:
-    from hud.datasets import TaskConfig as Task
+from hud.agent import MCPAgent
+from hud.tools.executors.base import BaseExecutor
+from hud.types import MCPToolCall
+
+# Remove unused TYPE_CHECKING import
 
 
 class MockMCPAgent(MCPAgent):
@@ -127,7 +125,9 @@ class TestBaseMCPAgent:
             ) -> list[dict[str, typing.Any]]:
                 return []
 
-            async def get_model_response(self, messages: list[dict[str, typing.Any]]) -> dict[str, typing.Any]:
+            async def get_model_response(
+                self, messages: list[dict[str, typing.Any]]
+            ) -> dict[str, typing.Any]:
                 return {"content": "test"}
 
         with pytest.raises(ValueError, match="MCPClient is required"):

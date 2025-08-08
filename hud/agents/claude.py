@@ -164,7 +164,7 @@ class ClaudeMCPAgent(MCPAgent):
                     logger.warning("Prompt too long, truncating message history")
                     # Keep first message and last 20 messages
                     if len(current_messages) > 21:
-                        current_messages = [current_messages[0]] + current_messages[-20:]
+                        current_messages = [current_messages[0], *current_messages[-20:]]
                     else:
                         raise
                 else:

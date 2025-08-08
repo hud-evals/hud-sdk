@@ -246,7 +246,13 @@ class TestClaudeMCPAgent:
         agent._available_tools = [
             types.Tool(name="calculator", description="Calculator", inputSchema={"type": "object"})
         ]
-        agent._tool_map = {"calculator": types.Tool(name="calculator", description="Calculator", inputSchema={"type": "object"})}
+        agent._tool_map = {
+            "calculator": types.Tool(
+                name="calculator",
+                description="Calculator",
+                inputSchema={"type": "object"}
+            )
+        }
 
         # Mock initial response with tool use
         initial_response = MagicMock()

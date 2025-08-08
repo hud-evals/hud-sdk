@@ -7,6 +7,7 @@ without modifying agent code.
 
 from __future__ import annotations
 
+import contextlib
 import threading
 from contextvars import ContextVar
 from typing import TYPE_CHECKING
@@ -135,7 +136,5 @@ def install_collector() -> None:
 
         exporter = CollectingSpanExporter()
         processor = SimpleSpanProcessor(exporter)
-        try:
+        with contextlib.suppress(Exception):
             provider.add_span_processor(processor)  # type: ignore[attr-defined]
-        except Exception:
-            pass

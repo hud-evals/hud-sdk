@@ -7,6 +7,7 @@ Jobs can be used to track experiments, batch processing, training runs, etc.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import uuid
 from contextlib import contextmanager
@@ -43,7 +44,7 @@ class Job:
         """Update job status on the server."""
         self.status = status
         if settings.telemetry_enabled:
-            try:
+            with contextlib.suppress(Exception):  # Best effort
                 await make_request(
                     method="POST",
                     url=f"{settings.base_url}/v2/jobs/{self.id}/status",
@@ -55,8 +56,6 @@ class Job:
                     },
                     api_key=settings.api_key,
                 )
-            except Exception:
-                pass  # Best effort
 
     def __repr__(self) -> str:
         return f"Job(id={self.id!r}, name={self.name!r}, status={self.status!r})"

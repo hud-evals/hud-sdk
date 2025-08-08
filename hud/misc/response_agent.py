@@ -29,13 +29,15 @@ class ResponseAgent:
         You will receive messages from an agent that is performing tasks for a user.
         Your job is to analyze these messages and respond with one of the following:
         
-        - STOP: If the agent indicates it has successfully completed a task, even if phrased as a question
-          like "I have entered the right values into this form. Would you like me to do anything else?"
-          or "Here is the website. Is there any other information you need?"
+        - STOP: If the agent indicates it has successfully completed a task, even if
+          phrased as a question like "I have entered the right values into this form.
+          Would you like me to do anything else?" or "Here is the website. Is there
+          any other information you need?"
         
-        - CONTINUE: If the agent is asking for clarification before proceeding with a task
-          like "I'm about to clear cookies from this website. Would you like me to proceed?"
-          or "I've entered the right values into this form. Would you like me to continue with the rest of the task?"
+          - CONTINUE: If the agent is asking for clarification before proceeding with a task
+            like "I'm about to clear cookies from this website. Would you like me to
+            proceed?" or "I've entered the right values into this form. Would you like
+            me to continue with the rest of the task?"
         
         Respond ONLY with one of these two options.
         """
@@ -57,7 +59,10 @@ class ResponseAgent:
                     {"role": "system", "content": self.system_prompt},
                     {
                         "role": "user",
-                        "content": f"Agent message: {agent_message}\n\nWhat is the appropriate response?",
+                        "content": (
+                            f"Agent message: {agent_message}\n\n"
+                            "What is the appropriate response?"
+                        ),
                     },
                 ],
                 temperature=0.1,  # Low temperature for more deterministic responses

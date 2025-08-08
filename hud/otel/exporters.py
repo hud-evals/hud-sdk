@@ -156,9 +156,11 @@ def extract_span_attributes(
     }
 
     # Add any extra attributes
-    for key, value in attrs.items():
-        if key not in exclude_keys:
-            result_attrs[key] = value
+    result_attrs.update({
+        key: value
+        for key, value in attrs.items()
+        if key not in exclude_keys
+    })
 
     return HudSpanAttributes(**result_attrs)
 
@@ -192,10 +194,8 @@ def _span_to_dict(span: ReadableSpan) -> dict[str, Any]:
     typed_attrs = extract_span_attributes(attrs, method_name, str(span.name))
 
     # Record span kind as extra attribute (TraceStep allows extras)
-    try:
+    with contextlib.suppress(Exception):
         typed_attrs.span_kind = span.kind.name  # type: ignore[attr-defined]
-    except Exception:
-        pass
 
     # Build typed span
     # Guard context/parent/timestamps
@@ -228,15 +228,14 @@ def _span_to_dict(span: ReadableSpan) -> dict[str, Any]:
 
     # Add error information if present
     if span.events:
-        exceptions = []
-        for event in span.events:
-            if event.name == "exception":
-                exceptions.append(
-                    {
-                        "timestamp": _ts_ns_to_iso(event.timestamp),
-                        "attributes": dict(event.attributes or {}),
-                    }
-                )
+        exceptions = [
+            {
+                "timestamp": _ts_ns_to_iso(event.timestamp),
+                "attributes": dict(event.attributes or {}),
+            }
+            for event in span.events
+            if event.name == "exception"
+        ]
         if exceptions:
             typed_span.exceptions = exceptions
 
