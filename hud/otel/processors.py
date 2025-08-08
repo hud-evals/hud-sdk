@@ -18,11 +18,11 @@ class HudEnrichmentProcessor(SpanProcessor):
     """
 
     def __init__(self) -> None:
-        # No state – everything comes from context vars
+        # No state - everything comes from context vars
         super().__init__()
 
     # --- callback hooks -------------------------------------------------
-    def on_start(self, span: Span, parent_context) -> None:  # type: ignore[override]
+    def on_start(self, span: Span, parent_context: Any) -> None:  # type: ignore[override]
         try:
             # Get task_run_id
             run_id: str | None = get_current_task_run_id()
@@ -38,7 +38,7 @@ class HudEnrichmentProcessor(SpanProcessor):
             logger.debug("HudEnrichmentProcessor.on_start error: %s", exc, exc_info=False)
 
     def on_end(self, span: ReadableSpan) -> None:
-        # Nothing to do – enrichment is on_start only
+        # Nothing to do - enrichment is on_start only
         pass
 
     # Required to fully implement abstract base, but we don't batch spans

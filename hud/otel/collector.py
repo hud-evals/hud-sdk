@@ -7,6 +7,7 @@ without modifying agent code.
 
 from __future__ import annotations
 
+import contextlib
 import threading
 from contextvars import ContextVar
 from typing import TYPE_CHECKING
@@ -64,7 +65,7 @@ class TraceCollector:
                 # Log but don't fail the whole trace
                 import logging
 
-                logging.getLogger(__name__).debug(f"Failed to convert span: {e}")
+                logging.getLogger(__name__).debug("Failed to convert span: %s", e)
 
         return trace
 
@@ -135,7 +136,5 @@ def install_collector() -> None:
 
         exporter = CollectingSpanExporter()
         processor = SimpleSpanProcessor(exporter)
-        try:
+        with contextlib.suppress(Exception):
             provider.add_span_processor(processor)  # type: ignore[attr-defined]
-        except Exception:
-            pass

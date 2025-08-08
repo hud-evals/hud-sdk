@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 class MCPUseHUDClient(BaseHUDClient):
     """MCP-use based implementation of HUD MCP client."""
 
-    def __init__(self, mcp_config: dict[str, dict[str, Any]], **kwargs) -> None:
+    def __init__(self, mcp_config: dict[str, dict[str, Any]], **kwargs: Any) -> None:
         """
         Initialize MCP-use client.
 
@@ -217,12 +217,17 @@ class MCPUseHUDClient(BaseHUDClient):
         self._initialized = False
         logger.info("MCP-use client closed")
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> MCPUseHUDClient:
         """Async context manager entry."""
         await self.initialize()
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb):
+    async def __aexit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_val: BaseException | None,
+        exc_tb: object
+    ) -> None:
         """Async context manager exit."""
         await self.close()
 

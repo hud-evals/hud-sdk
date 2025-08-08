@@ -7,6 +7,7 @@ Jobs can be used to track experiments, batch processing, training runs, etc.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import logging
 import uuid
 from contextlib import contextmanager
@@ -43,7 +44,7 @@ class Job:
         """Update job status on the server."""
         self.status = status
         if settings.telemetry_enabled:
-            try:
+            with contextlib.suppress(Exception):  # Best effort
                 await make_request(
                     method="POST",
                     url=f"{settings.base_url}/v2/jobs/{self.id}/status",
@@ -55,8 +56,6 @@ class Job:
                     },
                     api_key=settings.api_key,
                 )
-            except Exception:
-                pass  # Best effort
 
     def __repr__(self) -> str:
         return f"Job(id={self.id!r}, name={self.name!r}, status={self.status!r})"
@@ -141,7 +140,7 @@ def create_job(name: str, metadata: dict[str, Any] | None = None) -> Job:
     return Job(job_id, name, metadata)
 
 
-def job_decorator(name: str | None = None, **metadata):
+def job_decorator(name: str | None = None, **metadata: Any) -> Any:
     """Decorator for functions that should be tracked as jobs.
 
     Args:
@@ -160,7 +159,7 @@ def job_decorator(name: str | None = None, **metadata):
         job_name = name or func.__name__
 
         @wraps(func)
-        async def async_wrapper(*args, **kwargs):
+        async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
             with job(job_name, metadata) as job_obj:
                 # Store job ID in function for access
                 func._current_job_id = job_obj.id
@@ -170,7 +169,7 @@ def job_decorator(name: str | None = None, **metadata):
                     delattr(func, "_current_job_id")
 
         @wraps(func)
-        def sync_wrapper(*args, **kwargs):
+        def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
             with job(job_name, metadata) as job_obj:
                 # Store job ID in function for access
                 func._current_job_id = job_obj.id

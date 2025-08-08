@@ -54,7 +54,7 @@ def fire_and_forget(coro: Coroutine[Any, Any, Any], description: str = "task") -
                 except Exception as e:
                     # Suppress warnings about interpreter shutdown
                     if "interpreter shutdown" not in str(e):
-                        logger.debug(f"Error in threaded {description}: {e}")
+                        logger.debug("Error in threaded %s: %s", description, e)
 
             thread = threading.Thread(target=run_in_thread, daemon=True)
             thread.start()
@@ -62,4 +62,4 @@ def fire_and_forget(coro: Coroutine[Any, Any, Any], description: str = "task") -
             # If that fails too, just log and continue
             # Special case: suppress "cannot schedule new futures after interpreter shutdown"
             if "interpreter shutdown" not in str(e):
-                logger.debug(f"Could not {description} - no event loop available: {e}")
+                logger.debug("Could not %s - no event loop available: %s", description, e)

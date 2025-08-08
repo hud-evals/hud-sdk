@@ -35,7 +35,6 @@ async def test_bash_tool_echo():
 
 @pytest.mark.asyncio
 async def test_bash_tool_restart_and_no_command():
-    from hud.tools.base import ToolResult
     from hud.tools.types import ToolError
 
     tool = BashTool()
@@ -139,9 +138,6 @@ def test_register_instance_tool_signature():
         async def __call__(self, *, x: int, y: str) -> str:
             return f"{x}-{y}"
 
-    from mcp.server.fastmcp import FastMCP
-
-    mcp = FastMCP("test")
     # register_instance_tool was removed from the codebase
     pytest.skip("register_instance_tool was removed from the codebase")
     return  # Skip the rest of the test

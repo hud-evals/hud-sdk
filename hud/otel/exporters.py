@@ -117,7 +117,7 @@ def extract_span_attributes(
                         input_data
                     )  # TraceStep expects mcp_request
             except Exception as e:
-                logger.debug(f"Failed to parse request as MCP type: {e}")
+                logger.debug("Failed to parse request as MCP type: %s", e)
 
         if output_str:
             try:
@@ -138,7 +138,7 @@ def extract_span_attributes(
                         except Exception:
                             pass
             except Exception as e:
-                logger.debug(f"Failed to parse result as MCP type: {e}")
+                logger.debug("Failed to parse result as MCP type: %s", e)
 
     # Don't include the verbose attributes or ones we've already processed
     exclude_keys = {
@@ -156,9 +156,11 @@ def extract_span_attributes(
     }
 
     # Add any extra attributes
-    for key, value in attrs.items():
-        if key not in exclude_keys:
-            result_attrs[key] = value
+    result_attrs.update({
+        key: value
+        for key, value in attrs.items()
+        if key not in exclude_keys
+    })
 
     return HudSpanAttributes(**result_attrs)
 
@@ -192,10 +194,8 @@ def _span_to_dict(span: ReadableSpan) -> dict[str, Any]:
     typed_attrs = extract_span_attributes(attrs, method_name, str(span.name))
 
     # Record span kind as extra attribute (TraceStep allows extras)
-    try:
+    with contextlib.suppress(Exception):
         typed_attrs.span_kind = span.kind.name  # type: ignore[attr-defined]
-    except Exception:
-        pass
 
     # Build typed span
     # Guard context/parent/timestamps
@@ -228,15 +228,14 @@ def _span_to_dict(span: ReadableSpan) -> dict[str, Any]:
 
     # Add error information if present
     if span.events:
-        exceptions = []
-        for event in span.events:
-            if event.name == "exception":
-                exceptions.append(
-                    {
-                        "timestamp": _ts_ns_to_iso(event.timestamp),
-                        "attributes": dict(event.attributes or {}),
-                    }
-                )
+        exceptions = [
+            {
+                "timestamp": _ts_ns_to_iso(event.timestamp),
+                "attributes": dict(event.attributes or {}),
+            }
+            for event in span.events
+            if event.name == "exception"
+        ]
         if exceptions:
             typed_span.exceptions = exceptions
 
@@ -279,7 +278,7 @@ class HudSpanExporter(SpanExporter):
                 url = f"{self._base_url}/v2/task_runs/{run_id}/telemetry-upload"
                 telemetry_spans = [_span_to_dict(s) for s in span_batch]
                 payload = {
-                    "metadata": {},  # reserved – can be filled later
+                    "metadata": {},  # reserved - can be filled later
                     "telemetry": telemetry_spans,
                 }
 
@@ -298,9 +297,9 @@ class HudSpanExporter(SpanExporter):
         return SpanExportResult.SUCCESS
 
     def shutdown(self) -> None:  # type: ignore[override]
-        # Nothing to cleanup – httpx handled inside make_request_sync
+        # Nothing to cleanup - httpx handled inside make_request_sync
         pass
 
     def force_flush(self, timeout_millis: int | None = None) -> bool:  # type: ignore[override]
-        # Synchronous export – nothing buffered here
+        # Synchronous export - nothing buffered here
         return True

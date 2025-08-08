@@ -16,11 +16,11 @@ from opentelemetry.trace import SpanKind, Status, StatusCode
 from hud.agent import MCPAgent
 
 
-def _wrap_get_model_response(original_method):
+def _wrap_get_model_response(original_method: Any) -> Any:
     """Wrap get_model_response to emit telemetry."""
 
     @functools.wraps(original_method)
-    async def wrapper(self, messages: list[Any], **kwargs):
+    async def wrapper(self: Any, messages: list[Any], **kwargs: Any) -> Any:
         # Extract metadata
         provider = self.__class__.__name__.replace("Agent", "").lower()
         model_name = getattr(self, "model", getattr(self, "model_name", "unknown"))
@@ -79,11 +79,11 @@ def _wrap_get_model_response(original_method):
     return wrapper
 
 
-def _wrap_execute_tools(original_method):
+def _wrap_execute_tools(original_method: Any) -> Any:
     """Wrap execute_tools to emit telemetry."""
 
     @functools.wraps(original_method)
-    async def wrapper(self, *, tool_calls, **kwargs):
+    async def wrapper(self: Any, *, tool_calls: Any, **kwargs: Any) -> Any:
         provider = self.__class__.__name__.replace("Agent", "").lower()
 
         tracer = trace.get_tracer("hud-sdk")
@@ -146,7 +146,7 @@ def auto_instrument_agents() -> None:
     """
 
     # Find all subclasses of MCPAgent
-    def find_subclasses(cls):
+    def find_subclasses(cls: type) -> list[type]:
         all_subclasses = []
         for subclass in cls.__subclasses__():
             all_subclasses.append(subclass)
@@ -160,10 +160,10 @@ def auto_instrument_agents() -> None:
         except Exception as e:
             import logging
 
-            logging.getLogger(__name__).debug(f"Failed to instrument {agent_cls.__name__}: {e}")
+            logging.getLogger(__name__).debug("Failed to instrument %s: %s", agent_cls.__name__, e)
 
 
-def install_mcp_instrumentation(provider) -> None:
+def install_mcp_instrumentation(provider: Any) -> None:
     """Enable community MCP OpenTelemetry instrumentation if present.
 
     Args:
@@ -184,7 +184,7 @@ def install_mcp_instrumentation(provider) -> None:
         McpInstrumentor().instrument(tracer_provider=provider)
         logger.debug("MCP instrumentation installed with fastmcp compatibility patch")
     except ImportError:
-        logger.debug("opentelemetry-instrumentation-mcp not available – skipping")
+        logger.debug("opentelemetry-instrumentation-mcp not available - skipping")
     except Exception as exc:
         logger.warning("Failed to install MCP instrumentation: %s", exc)
 
@@ -192,14 +192,12 @@ def install_mcp_instrumentation(provider) -> None:
 def _patch_mcp_instrumentation() -> None:
     """Patch MCP instrumentation to handle 3-value transport yields correctly."""
     from contextlib import asynccontextmanager
-    from typing import Any, AsyncGenerator, Callable, Tuple, Union
+    from collections.abc import AsyncGenerator, Callable
     
     try:
         from opentelemetry.instrumentation.mcp.instrumentation import McpInstrumentor
         
-        original_transport_wrapper = McpInstrumentor._transport_wrapper
-        
-        def patched_transport_wrapper(self, tracer):
+        def patched_transport_wrapper(self: Any, tracer: Any) -> Any:
             @asynccontextmanager
             async def traced_method(
                 wrapped: Callable[..., Any], instance: Any, args: Any, kwargs: Any
@@ -238,4 +236,27 @@ def _patch_mcp_instrumentation() -> None:
     except Exception as e:
         import logging
         logger = logging.getLogger(__name__)
-        logger.warning(f"Failed to patch MCP instrumentation: {e}")
+        logger.warning("Failed to patch MCP instrumentation: %s", e)
+
+
+def patch_openai_instrumentation():
+    """Patch OpenAI instrumentation to avoid conflicts with our own telemetry."""
+    try:
+        import opentelemetry.instrumentation.mcp.instrumentation as mcp_instrumentation
+        
+        original_transport_wrapper = (
+            mcp_instrumentation.MCPInstrumentor._instrument_transport
+        )
+
+        def patched_transport_wrapper(self: Any, tracer: Any) -> Any:
+            """Patched transport wrapper that handles HUD-specific scenarios."""
+            return original_transport_wrapper(tracer)
+
+        mcp_instrumentation.MCPInstrumentor._instrument_transport = (
+            patched_transport_wrapper
+        )
+
+    except ImportError:
+        logger.debug("OpenAI MCP instrumentation not available for patching")
+    except Exception as e:
+        logger.warning("Failed to patch OpenAI instrumentation: %s", str(e))

@@ -10,7 +10,6 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from hud.tools.base import ToolResult
 from hud.types import TextContent
 from hud.tools.edit import EditTool, ToolError
 

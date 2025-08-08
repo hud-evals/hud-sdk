@@ -363,7 +363,8 @@ class MCPAgent(ABC):
         Args:
             prompt: The task to complete
             max_steps: Maximum number of steps (-1 for infinite)
-            initial_screenshot: Whether to capture initial screenshot (defaults to self.initial_screenshot)
+            initial_screenshot: Whether to capture initial screenshot
+                (defaults to self.initial_screenshot)
 
         Returns:
             Trace with reward, done, content fields and trace steps
