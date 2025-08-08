@@ -16,7 +16,7 @@ import pytest
 from mcp import types
 from mcp.types import CallToolRequestParams as MCPToolCall
 
-from hud.mcp.base import BaseMCPAgent
+from hud.agents.base import BaseMCPAgent
 from hud.tools.executors.base import BaseExecutor
 
 if TYPE_CHECKING:

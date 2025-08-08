@@ -8,7 +8,7 @@ import pytest
 from mcp import types
 from pydantic import AnyUrl
 
-from hud.mcp.client import MCPClient
+from hud.client import MCPClient
 
 
 class TestMCPClient:
@@ -24,8 +24,8 @@ class TestMCPClient:
         mock_instance.close_all_sessions = AsyncMock()
         mock_instance.get_all_active_sessions = MagicMock(return_value={})
 
-        # Patch MCPUseClient that's imported in hud.mcp.client
-        with patch("hud.mcp.client.MCPUseClient") as mock_class:
+        # Patch MCPUseClient that's imported in hud.client
+        with patch("hud.client.MCPUseClient") as mock_class:
             mock_class.from_dict = MagicMock(return_value=mock_instance)
             yield mock_instance
 
@@ -40,7 +40,7 @@ class TestMCPClient:
             }
         }
 
-        with patch("hud.mcp.client.MCPUseClient") as mock_use_client:
+        with patch("hud.client.MCPUseClient") as mock_use_client:
             client = MCPClient(mcp_config=mcp_config, verbose=True)
 
             assert client.verbose is True
