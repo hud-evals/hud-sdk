@@ -8,7 +8,6 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from anthropic import BadRequestError
 from mcp import types
-from hud.types import MCPToolCall, MCPToolResult
 
 from hud.agents.claude import (
     ClaudeMCPAgent,
@@ -16,9 +15,10 @@ from hud.agents.claude import (
     text_to_content_block,
     tool_use_content_block,
 )
+from hud.types import MCPToolCall, MCPToolResult
 
 if TYPE_CHECKING:
-    from anthropic.types.beta import BetaImageBlockParam, BetaMessageParam, BetaTextBlockParam
+    from anthropic.types.beta import BetaMessage
 
 
 class TestClaudeHelperFunctions:
@@ -45,7 +45,7 @@ class TestClaudeHelperFunctions:
     def test_tool_use_content_block(self):
         """Test tool result content block creation."""
         tool_use_id = "tool_123"
-        content: list[BetaTextBlockParam | BetaImageBlockParam] = [
+        content: list[BetaMessage] = [
             text_to_content_block("Result text")
         ]
 
@@ -182,7 +182,7 @@ class TestClaudeMCPAgent:
         mock_anthropic.beta.messages.create = AsyncMock(return_value=mock_response)
 
         messages = [
-            cast("BetaMessageParam", {"role": "user", "content": [{"type": "text", "text": "Hi"}]})
+            cast("BetaMessage", {"role": "user", "content": [{"type": "text", "text": "Hi"}]})
         ]
         response = await agent.get_model_response(messages)
 
@@ -211,7 +211,7 @@ class TestClaudeMCPAgent:
         mock_anthropic.beta.messages.create = AsyncMock(return_value=mock_response)
 
         messages = [
-            cast("BetaMessageParam", {"role": "user", "content": [{"type": "text", "text": "Hi"}]})
+            cast("BetaMessage", {"role": "user", "content": [{"type": "text", "text": "Hi"}]})
         ]
         response = await agent.get_model_response(messages)
 

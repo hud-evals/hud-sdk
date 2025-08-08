@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 from mcp import types
-from hud.types import MCPToolCall, MCPToolResult
 
 from hud.agents.openai import OpenAIMCPAgent
+from hud.types import MCPToolCall, MCPToolResult
 
 
 class TestOpenAIMCPAgent:

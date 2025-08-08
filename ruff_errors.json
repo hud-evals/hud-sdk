@@ -1,0 +1,4189 @@
+[
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 44,
+      "row": 107
+    },
+    "filename": "/workspace/hud/agent.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 107
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 107,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 44,
+      "row": 270
+    },
+    "filename": "/workspace/hud/agent.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 270
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 270,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 108,
+      "row": 366
+    },
+    "filename": "/workspace/hud/agent.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 366
+    },
+    "message": "Line too long (107 > 100)",
+    "noqa_row": 370,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "I002",
+    "end_location": {
+      "column": 1,
+      "row": 1
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from __future__ import annotations\n",
+          "end_location": {
+            "column": 1,
+            "row": 2
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Insert required import: `from __future__ import annotations`"
+    },
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "Missing required import: `from __future__ import annotations`",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/missing-required-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 40,
+      "row": 7
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "pass",
+          "end_location": {
+            "column": 40,
+            "row": 7
+          },
+          "location": {
+            "column": 5,
+            "row": 7
+          }
+        }
+      ],
+      "message": "Remove unused import: `hud.types.MCPToolResult`"
+    },
+    "location": {
+      "column": 27,
+      "row": 7
+    },
+    "message": "`hud.types.MCPToolResult` imported but unused",
+    "noqa_row": 7,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 31,
+      "row": 12
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": " -> None",
+          "end_location": {
+            "column": 33,
+            "row": 12
+          },
+          "location": {
+            "column": 33,
+            "row": 12
+          }
+        }
+      ],
+      "message": "Add return type annotation: `None`"
+    },
+    "location": {
+      "column": 5,
+      "row": 12
+    },
+    "message": "Missing return type annotation for public function `patch_mcp_client_call_tool`",
+    "noqa_row": 12,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 57,
+      "row": 15
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 15
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 15,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 30,
+      "row": 17
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "        from mcp import types\n\n        from hud.clients.fastmcp import FastMCPHUDClient\n        from hud.types import MCPToolResult\n",
+          "end_location": {
+            "column": 1,
+            "row": 18
+          },
+          "location": {
+            "column": 1,
+            "row": 15
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 9,
+      "row": 15
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 15,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 44,
+      "row": 16
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 16
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 16,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 30,
+      "row": 17
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 17
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 17,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "ANN202",
+    "end_location": {
+      "column": 36,
+      "row": 22
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 22
+    },
+    "message": "Missing return type annotation for private function `patched_call_tool`",
+    "noqa_row": 22,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-private-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 41,
+      "row": 22
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 37,
+      "row": 22
+    },
+    "message": "Missing type annotation for function argument `self`",
+    "noqa_row": 22,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 47,
+      "row": 22
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 43,
+      "row": 22
+    },
+    "message": "Missing type annotation for function argument `name`",
+    "noqa_row": 22,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 58,
+      "row": 22
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 49,
+      "row": 22
+    },
+    "message": "Missing type annotation for function argument `arguments`",
+    "noqa_row": 22,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "Q000",
+    "end_location": {
+      "column": 51,
+      "row": 32
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "\"text\"",
+          "end_location": {
+            "column": 51,
+            "row": 32
+          },
+          "location": {
+            "column": 45,
+            "row": 32
+          }
+        }
+      ],
+      "message": "Replace single quotes with double quotes"
+    },
+    "location": {
+      "column": 45,
+      "row": 32
+    },
+    "message": "Single quotes found but double quotes preferred",
+    "noqa_row": 32,
+    "url": "https://docs.astral.sh/ruff/rules/bad-quotes-inline-string"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 102,
+      "row": 36
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 36
+    },
+    "message": "Line too long (101 > 100)",
+    "noqa_row": 36,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 122,
+      "row": 37
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 37
+    },
+    "message": "Line too long (121 > 100)",
+    "noqa_row": 37,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 98,
+      "row": 41
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 29,
+      "row": 40
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 40,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 109,
+      "row": 48
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 48
+    },
+    "message": "Line too long (108 > 100)",
+    "noqa_row": 48,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 117,
+      "row": 62
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 62
+    },
+    "message": "Line too long (116 > 100)",
+    "noqa_row": 62,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 93,
+      "row": 66
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 25,
+      "row": 65
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 65,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 105,
+      "row": 73
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 73
+    },
+    "message": "Line too long (104 > 100)",
+    "noqa_row": 73,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 72,
+      "row": 89
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": null,
+    "location": {
+      "column": 22,
+      "row": 89
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 89,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 22,
+      "row": 92
+    },
+    "filename": "/workspace/hud/agent_patches.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": " -> None",
+          "end_location": {
+            "column": 24,
+            "row": 92
+          },
+          "location": {
+            "column": 24,
+            "row": 92
+          }
+        }
+      ],
+      "message": "Add return type annotation: `None`"
+    },
+    "location": {
+      "column": 5,
+      "row": 92
+    },
+    "message": "Missing return type annotation for public function `apply_all_patches`",
+    "noqa_row": 92,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "RUF005",
+    "end_location": {
+      "column": 90,
+      "row": 167
+    },
+    "filename": "/workspace/hud/agents/claude.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "[current_messages[0], *current_messages[-20:]]",
+          "end_location": {
+            "column": 90,
+            "row": 167
+          },
+          "location": {
+            "column": 44,
+            "row": 167
+          }
+        }
+      ],
+      "message": "Replace with `[current_messages[0], *current_messages[-20:]]`"
+    },
+    "location": {
+      "column": 44,
+      "row": 167
+    },
+    "message": "Consider `[current_messages[0], *current_messages[-20:]]` instead of concatenation",
+    "noqa_row": 167,
+    "url": "https://docs.astral.sh/ruff/rules/collection-literal-concatenation"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 50,
+      "row": 20
+    },
+    "filename": "/workspace/hud/agents/tests/test_base.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "import pytest\nfrom mcp import types\n\nfrom hud.agent import MCPAgent\nfrom hud.tools.executors.base import BaseExecutor\nfrom hud.types import MCPToolCall\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 22
+          },
+          "location": {
+            "column": 1,
+            "row": 15
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 15
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 15,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 2,
+      "row": 18
+    },
+    "filename": "/workspace/hud/agents/tests/test_claude.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from __future__ import annotations\n\nfrom typing import TYPE_CHECKING, cast\nfrom unittest.mock import AsyncMock, MagicMock, patch\n\nimport pytest\nfrom anthropic import BadRequestError\nfrom mcp import types\n\nfrom hud.agents.claude import (\n    ClaudeMCPAgent,\n    base64_to_content_block,\n    text_to_content_block,\n    tool_use_content_block,\n)\nfrom hud.types import MCPToolCall, MCPToolResult\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 20
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 3
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 130,
+      "row": 249
+    },
+    "filename": "/workspace/hud/agents/tests/test_claude.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 249
+    },
+    "message": "Line too long (129 > 100)",
+    "noqa_row": 249,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "SIM105",
+    "end_location": {
+      "column": 17,
+      "row": 301
+    },
+    "filename": "/workspace/hud/agents/tests/test_client.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 295
+    },
+    "message": "Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`",
+    "noqa_row": 295,
+    "url": "https://docs.astral.sh/ruff/rules/suppressible-exception"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 45,
+      "row": 11
+    },
+    "filename": "/workspace/hud/agents/tests/test_openai.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from __future__ import annotations\n\nfrom unittest.mock import AsyncMock, MagicMock, patch\n\nimport pytest\nfrom mcp import types\n\nfrom hud.agents.openai import OpenAIMCPAgent\nfrom hud.types import MCPToolCall, MCPToolResult\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 14
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 3
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "ANN003",
+    "end_location": {
+      "column": 71,
+      "row": 25
+    },
+    "filename": "/workspace/hud/clients/fastmcp.py",
+    "fix": null,
+    "location": {
+      "column": 63,
+      "row": 25
+    },
+    "message": "Missing type annotation for `**kwargs`",
+    "noqa_row": 25,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-kwargs"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 45,
+      "row": 39
+    },
+    "filename": "/workspace/hud/clients/fastmcp.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 39
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 39,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "ANN204",
+    "end_location": {
+      "column": 25,
+      "row": 95
+    },
+    "filename": "/workspace/hud/clients/fastmcp.py",
+    "fix": null,
+    "location": {
+      "column": 15,
+      "row": 95
+    },
+    "message": "Missing return type annotation for special method `__aenter__`",
+    "noqa_row": 95,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-special-method"
+  },
+  {
+    "cell": null,
+    "code": "ANN204",
+    "end_location": {
+      "column": 24,
+      "row": 100
+    },
+    "filename": "/workspace/hud/clients/fastmcp.py",
+    "fix": null,
+    "location": {
+      "column": 15,
+      "row": 100
+    },
+    "message": "Missing return type annotation for special method `__aexit__`",
+    "noqa_row": 100,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-special-method"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 39,
+      "row": 100
+    },
+    "filename": "/workspace/hud/clients/fastmcp.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 100
+    },
+    "message": "Missing type annotation for function argument `exc_type`",
+    "noqa_row": 100,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 48,
+      "row": 100
+    },
+    "filename": "/workspace/hud/clients/fastmcp.py",
+    "fix": null,
+    "location": {
+      "column": 41,
+      "row": 100
+    },
+    "message": "Missing type annotation for function argument `exc_val`",
+    "noqa_row": 100,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 56,
+      "row": 100
+    },
+    "filename": "/workspace/hud/clients/fastmcp.py",
+    "fix": null,
+    "location": {
+      "column": 50,
+      "row": 100
+    },
+    "message": "Missing type annotation for function argument `exc_tb`",
+    "noqa_row": 100,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN003",
+    "end_location": {
+      "column": 71,
+      "row": 26
+    },
+    "filename": "/workspace/hud/clients/mcp_use.py",
+    "fix": null,
+    "location": {
+      "column": 63,
+      "row": 26
+    },
+    "message": "Missing type annotation for `**kwargs`",
+    "noqa_row": 26,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-kwargs"
+  },
+  {
+    "cell": null,
+    "code": "ANN204",
+    "end_location": {
+      "column": 25,
+      "row": 220
+    },
+    "filename": "/workspace/hud/clients/mcp_use.py",
+    "fix": null,
+    "location": {
+      "column": 15,
+      "row": 220
+    },
+    "message": "Missing return type annotation for special method `__aenter__`",
+    "noqa_row": 220,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-special-method"
+  },
+  {
+    "cell": null,
+    "code": "ANN204",
+    "end_location": {
+      "column": 24,
+      "row": 225
+    },
+    "filename": "/workspace/hud/clients/mcp_use.py",
+    "fix": null,
+    "location": {
+      "column": 15,
+      "row": 225
+    },
+    "message": "Missing return type annotation for special method `__aexit__`",
+    "noqa_row": 225,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-special-method"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 39,
+      "row": 225
+    },
+    "filename": "/workspace/hud/clients/mcp_use.py",
+    "fix": null,
+    "location": {
+      "column": 31,
+      "row": 225
+    },
+    "message": "Missing type annotation for function argument `exc_type`",
+    "noqa_row": 225,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 48,
+      "row": 225
+    },
+    "filename": "/workspace/hud/clients/mcp_use.py",
+    "fix": null,
+    "location": {
+      "column": 41,
+      "row": 225
+    },
+    "message": "Missing type annotation for function argument `exc_val`",
+    "noqa_row": 225,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 56,
+      "row": 225
+    },
+    "filename": "/workspace/hud/clients/mcp_use.py",
+    "fix": null,
+    "location": {
+      "column": 50,
+      "row": 225
+    },
+    "message": "Missing type annotation for function argument `exc_tb`",
+    "noqa_row": 225,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 40,
+      "row": 51
+    },
+    "filename": "/workspace/hud/clients/tests/test_protocol.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 51
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 51,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 42,
+      "row": 152
+    },
+    "filename": "/workspace/hud/clients/tests/test_protocol.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 152
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 152,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 18,
+      "row": 63
+    },
+    "filename": "/workspace/hud/datasets.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 63
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 63,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 53,
+      "row": 65
+    },
+    "filename": "/workspace/hud/datasets.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 65
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 65,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 52,
+      "row": 79
+    },
+    "filename": "/workspace/hud/datasets.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 79
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 79,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 15,
+      "row": 189
+    },
+    "filename": "/workspace/hud/datasets.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 189
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 189,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 37,
+      "row": 190
+    },
+    "filename": "/workspace/hud/datasets.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 190
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 190,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 33,
+      "row": 244
+    },
+    "filename": "/workspace/hud/datasets.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 244
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 244,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "INP001",
+    "end_location": {
+      "column": 1,
+      "row": 1
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "File `hud/misc/claude_plays_pokemon.py` is part of an implicit namespace package. Add an `__init__.py`.",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/implicit-namespace-package"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 42,
+      "row": 11
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from __future__ import annotations\n\nimport json\nimport logging\nfrom typing import TYPE_CHECKING, Any, cast\n\nfrom anthropic import AsyncAnthropic\n\nfrom hud.adapters import Adapter\nfrom hud.adapters.common.types import CLA\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 12
+          },
+          "location": {
+            "column": 1,
+            "row": 2
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 2
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 2,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 286,
+      "row": 47
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 47
+    },
+    "message": "Line too long (285 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 136,
+      "row": 53
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 53
+    },
+    "message": "Line too long (135 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 104,
+      "row": 56
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 56
+    },
+    "message": "Line too long (103 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 122,
+      "row": 59
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 59
+    },
+    "message": "Line too long (121 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 130,
+      "row": 62
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 62
+    },
+    "message": "Line too long (129 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 181,
+      "row": 75
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 75
+    },
+    "message": "Line too long (180 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 132,
+      "row": 78
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 78
+    },
+    "message": "Line too long (131 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 127,
+      "row": 82
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 82
+    },
+    "message": "Line too long (126 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 154,
+      "row": 83
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 83
+    },
+    "message": "Line too long (153 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 103,
+      "row": 84
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 84
+    },
+    "message": "Line too long (102 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 110,
+      "row": 88
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 88
+    },
+    "message": "Line too long (109 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 177,
+      "row": 91
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 91
+    },
+    "message": "Line too long (176 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 110,
+      "row": 93
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 93
+    },
+    "message": "Line too long (109 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 180,
+      "row": 95
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 95
+    },
+    "message": "Line too long (179 > 100)",
+    "noqa_row": 96,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 159,
+      "row": 203
+    },
+    "filename": "/workspace/hud/misc/claude_plays_pokemon.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 203
+    },
+    "message": "Line too long (158 > 100)",
+    "noqa_row": 207,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "INP001",
+    "end_location": {
+      "column": 1,
+      "row": 1
+    },
+    "filename": "/workspace/hud/misc/response_agent.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 1
+    },
+    "message": "File `hud/misc/response_agent.py` is part of an implicit namespace package. Add an `__init__.py`.",
+    "noqa_row": 1,
+    "url": "https://docs.astral.sh/ruff/rules/implicit-namespace-package"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 107,
+      "row": 32
+    },
+    "filename": "/workspace/hud/misc/response_agent.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 32
+    },
+    "message": "Line too long (106 > 100)",
+    "noqa_row": 41,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 104,
+      "row": 33
+    },
+    "filename": "/workspace/hud/misc/response_agent.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 33
+    },
+    "message": "Line too long (103 > 100)",
+    "noqa_row": 41,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 118,
+      "row": 38
+    },
+    "filename": "/workspace/hud/misc/response_agent.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 38
+    },
+    "message": "Line too long (117 > 100)",
+    "noqa_row": 41,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 107,
+      "row": 60
+    },
+    "filename": "/workspace/hud/misc/response_agent.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 60
+    },
+    "message": "Line too long (106 > 100)",
+    "noqa_row": 60,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 54,
+      "row": 45
+    },
+    "filename": "/workspace/hud/otel/collector.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 45
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 45,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 31,
+      "row": 65
+    },
+    "filename": "/workspace/hud/otel/collector.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 65
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 65,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 81,
+      "row": 67
+    },
+    "filename": "/workspace/hud/otel/collector.py",
+    "fix": null,
+    "location": {
+      "column": 51,
+      "row": 67
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 67,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 71,
+      "row": 134
+    },
+    "filename": "/workspace/hud/otel/collector.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 134
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 134,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "SIM105",
+    "end_location": {
+      "column": 17,
+      "row": 141
+    },
+    "filename": "/workspace/hud/otel/collector.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 138
+    },
+    "message": "Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`",
+    "noqa_row": 138,
+    "url": "https://docs.astral.sh/ruff/rules/suppressible-exception"
+  },
+  {
+    "cell": null,
+    "code": "S110",
+    "end_location": {
+      "column": 17,
+      "row": 141
+    },
+    "filename": "/workspace/hud/otel/collector.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 140
+    },
+    "message": "`try`-`except`-`pass` detected, consider logging the exception",
+    "noqa_row": 140,
+    "url": "https://docs.astral.sh/ruff/rules/try-except-pass"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 15,
+      "row": 15
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 15
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 15,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 23,
+      "row": 16
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 16
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 16,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 32,
+      "row": 18
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 18
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 18,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 49,
+      "row": 19
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 19
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 19,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 51,
+      "row": 20
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 20
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 20,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 62,
+      "row": 21
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 21
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 21,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 34,
+      "row": 23
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 23
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 23,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 66,
+      "row": 25
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 25
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 25,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 39,
+      "row": 26
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 26
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 26,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 81,
+      "row": 27
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 27
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 27,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 47,
+      "row": 28
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 28
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 28,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "RUF001",
+    "end_location": {
+      "column": 55,
+      "row": 97
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 54,
+      "row": 97
+    },
+    "message": "String contains ambiguous `–` (EN DASH). Did you mean `-` (HYPHEN-MINUS)?",
+    "noqa_row": 97,
+    "url": "https://docs.astral.sh/ruff/rules/ambiguous-unicode-character-string"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 95,
+      "row": 102
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 102
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 102,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 97,
+      "row": 112
+    },
+    "filename": "/workspace/hud/otel/config.py",
+    "fix": null,
+    "location": {
+      "column": 25,
+      "row": 112
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 112,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 70,
+      "row": 123
+    },
+    "filename": "/workspace/hud/otel/context.py",
+    "fix": null,
+    "location": {
+      "column": 22,
+      "row": 123
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 123,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 64,
+      "row": 127
+    },
+    "filename": "/workspace/hud/otel/context.py",
+    "fix": null,
+    "location": {
+      "column": 28,
+      "row": 127
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 127,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 10,
+      "row": 167
+    },
+    "filename": "/workspace/hud/otel/context.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 168
+          },
+          "location": {
+            "column": 1,
+            "row": 167
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 5,
+      "row": 167
+    },
+    "message": "`print` found",
+    "noqa_row": 167,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 10,
+      "row": 168
+    },
+    "filename": "/workspace/hud/otel/context.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 171
+          },
+          "location": {
+            "column": 1,
+            "row": 168
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 5,
+      "row": 168
+    },
+    "message": "`print` found",
+    "noqa_row": 168,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 10,
+      "row": 171
+    },
+    "filename": "/workspace/hud/otel/context.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 172
+          },
+          "location": {
+            "column": 1,
+            "row": 171
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 5,
+      "row": 171
+    },
+    "message": "`print` found",
+    "noqa_row": 171,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 10,
+      "row": 172
+    },
+    "filename": "/workspace/hud/otel/context.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 175
+          },
+          "location": {
+            "column": 1,
+            "row": 172
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 5,
+      "row": 172
+    },
+    "message": "`print` found",
+    "noqa_row": 172,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 10,
+      "row": 175
+    },
+    "filename": "/workspace/hud/otel/context.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 176
+          },
+          "location": {
+            "column": 1,
+            "row": 175
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 5,
+      "row": 175
+    },
+    "message": "`print` found",
+    "noqa_row": 175,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 14,
+      "row": 191
+    },
+    "filename": "/workspace/hud/otel/context.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "pass",
+          "end_location": {
+            "column": 10,
+            "row": 193
+          },
+          "location": {
+            "column": 9,
+            "row": 191
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 9,
+      "row": 191
+    },
+    "message": "`print` found",
+    "noqa_row": 191,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "T201",
+    "end_location": {
+      "column": 14,
+      "row": 195
+    },
+    "filename": "/workspace/hud/otel/context.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "pass",
+          "end_location": {
+            "column": 100,
+            "row": 195
+          },
+          "location": {
+            "column": 9,
+            "row": 195
+          }
+        }
+      ],
+      "message": "Remove `print`"
+    },
+    "location": {
+      "column": 9,
+      "row": 195
+    },
+    "message": "`print` found",
+    "noqa_row": 195,
+    "url": "https://docs.astral.sh/ruff/rules/print"
+  },
+  {
+    "cell": null,
+    "code": "SIM105",
+    "end_location": {
+      "column": 21,
+      "row": 294
+    },
+    "filename": "/workspace/hud/otel/context.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 291
+    },
+    "message": "Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`",
+    "noqa_row": 291,
+    "url": "https://docs.astral.sh/ruff/rules/suppressible-exception"
+  },
+  {
+    "cell": null,
+    "code": "S110",
+    "end_location": {
+      "column": 21,
+      "row": 294
+    },
+    "filename": "/workspace/hud/otel/context.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 293
+    },
+    "message": "`try`-`except`-`pass` detected, consider logging the exception",
+    "noqa_row": 293,
+    "url": "https://docs.astral.sh/ruff/rules/try-except-pass"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 18,
+      "row": 14
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 14
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 14,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 12,
+      "row": 15
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 15
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 15,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 15,
+      "row": 16
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 16
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 16,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 36,
+      "row": 17
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 17
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 17,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 35,
+      "row": 18
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 18
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 18,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 38,
+      "row": 19
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 19
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 19,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 50,
+      "row": 21
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 21
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 21,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 74,
+      "row": 22
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 22
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 22,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 50,
+      "row": 23
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 23
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 23,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 41,
+      "row": 25
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 25
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 25,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "E402",
+    "end_location": {
+      "column": 53,
+      "row": 26
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 1,
+      "row": 26
+    },
+    "message": "Module level import not at top of file",
+    "noqa_row": 26,
+    "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 73,
+      "row": 120
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 30,
+      "row": 120
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 120,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "S110",
+    "end_location": {
+      "column": 33,
+      "row": 139
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 25,
+      "row": 138
+    },
+    "message": "`try`-`except`-`pass` detected, consider logging the exception",
+    "noqa_row": 138,
+    "url": "https://docs.astral.sh/ruff/rules/try-except-pass"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 72,
+      "row": 141
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 30,
+      "row": 141
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 141,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "PERF403",
+    "end_location": {
+      "column": 38,
+      "row": 161
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 161
+    },
+    "message": "Use a dictionary comprehension instead of a for-loop",
+    "noqa_row": 161,
+    "url": "https://docs.astral.sh/ruff/rules/manual-dict-comprehension"
+  },
+  {
+    "cell": null,
+    "code": "SIM105",
+    "end_location": {
+      "column": 13,
+      "row": 198
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 195
+    },
+    "message": "Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`",
+    "noqa_row": 195,
+    "url": "https://docs.astral.sh/ruff/rules/suppressible-exception"
+  },
+  {
+    "cell": null,
+    "code": "S110",
+    "end_location": {
+      "column": 13,
+      "row": 198
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 197
+    },
+    "message": "`try`-`except`-`pass` detected, consider logging the exception",
+    "noqa_row": 197,
+    "url": "https://docs.astral.sh/ruff/rules/try-except-pass"
+  },
+  {
+    "cell": null,
+    "code": "PERF401",
+    "end_location": {
+      "column": 18,
+      "row": 239
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 234
+    },
+    "message": "Use a list comprehension to create a transformed list",
+    "noqa_row": 234,
+    "url": "https://docs.astral.sh/ruff/rules/manual-list-comprehension"
+  },
+  {
+    "cell": null,
+    "code": "RUF003",
+    "end_location": {
+      "column": 50,
+      "row": 282
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 49,
+      "row": 282
+    },
+    "message": "Comment contains ambiguous `–` (EN DASH). Did you mean `-` (HYPHEN-MINUS)?",
+    "noqa_row": 282,
+    "url": "https://docs.astral.sh/ruff/rules/ambiguous-unicode-character-comment"
+  },
+  {
+    "cell": null,
+    "code": "RUF003",
+    "end_location": {
+      "column": 31,
+      "row": 301
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 30,
+      "row": 301
+    },
+    "message": "Comment contains ambiguous `–` (EN DASH). Did you mean `-` (HYPHEN-MINUS)?",
+    "noqa_row": 301,
+    "url": "https://docs.astral.sh/ruff/rules/ambiguous-unicode-character-comment"
+  },
+  {
+    "cell": null,
+    "code": "RUF003",
+    "end_location": {
+      "column": 31,
+      "row": 305
+    },
+    "filename": "/workspace/hud/otel/exporters.py",
+    "fix": null,
+    "location": {
+      "column": 30,
+      "row": 305
+    },
+    "message": "Comment contains ambiguous `–` (EN DASH). Did you mean `-` (HYPHEN-MINUS)?",
+    "noqa_row": 305,
+    "url": "https://docs.astral.sh/ruff/rules/ambiguous-unicode-character-comment"
+  },
+  {
+    "cell": null,
+    "code": "ANN202",
+    "end_location": {
+      "column": 29,
+      "row": 19
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 19
+    },
+    "message": "Missing return type annotation for private function `_wrap_get_model_response`",
+    "noqa_row": 19,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-private-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 45,
+      "row": 19
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 30,
+      "row": 19
+    },
+    "message": "Missing type annotation for function argument `original_method`",
+    "noqa_row": 19,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN202",
+    "end_location": {
+      "column": 22,
+      "row": 23
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 15,
+      "row": 23
+    },
+    "message": "Missing return type annotation for private function `wrapper`",
+    "noqa_row": 23,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-private-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 27,
+      "row": 23
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 23
+    },
+    "message": "Missing type annotation for function argument `self`",
+    "noqa_row": 23,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN003",
+    "end_location": {
+      "column": 58,
+      "row": 23
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 50,
+      "row": 23
+    },
+    "message": "Missing type annotation for `**kwargs`",
+    "noqa_row": 23,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-kwargs"
+  },
+  {
+    "cell": null,
+    "code": "S110",
+    "end_location": {
+      "column": 25,
+      "row": 64
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 63
+    },
+    "message": "`try`-`except`-`pass` detected, consider logging the exception",
+    "noqa_row": 63,
+    "url": "https://docs.astral.sh/ruff/rules/try-except-pass"
+  },
+  {
+    "cell": null,
+    "code": "ANN202",
+    "end_location": {
+      "column": 24,
+      "row": 82
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 82
+    },
+    "message": "Missing return type annotation for private function `_wrap_execute_tools`",
+    "noqa_row": 82,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-private-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 40,
+      "row": 82
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 25,
+      "row": 82
+    },
+    "message": "Missing type annotation for function argument `original_method`",
+    "noqa_row": 82,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN202",
+    "end_location": {
+      "column": 22,
+      "row": 86
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 15,
+      "row": 86
+    },
+    "message": "Missing return type annotation for private function `wrapper`",
+    "noqa_row": 86,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-private-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 27,
+      "row": 86
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 23,
+      "row": 86
+    },
+    "message": "Missing type annotation for function argument `self`",
+    "noqa_row": 86,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 42,
+      "row": 86
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 32,
+      "row": 86
+    },
+    "message": "Missing type annotation for function argument `tool_calls`",
+    "noqa_row": 86,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN003",
+    "end_location": {
+      "column": 52,
+      "row": 86
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 44,
+      "row": 86
+    },
+    "message": "Missing type annotation for `**kwargs`",
+    "noqa_row": 86,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-kwargs"
+  },
+  {
+    "cell": null,
+    "code": "ANN202",
+    "end_location": {
+      "column": 24,
+      "row": 149
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 149
+    },
+    "message": "Missing return type annotation for private function `find_subclasses`",
+    "noqa_row": 149,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-private-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 28,
+      "row": 149
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 25,
+      "row": 149
+    },
+    "message": "Missing type annotation for function argument `cls`",
+    "noqa_row": 149,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 27,
+      "row": 161
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 161
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 161,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 96,
+      "row": 163
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 47,
+      "row": 163
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 163,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 41,
+      "row": 166
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 33,
+      "row": 166
+    },
+    "message": "Missing type annotation for function argument `provider`",
+    "noqa_row": 166,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 19,
+      "row": 172
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 172
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 172,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 10,
+      "row": 179
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 177
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 177,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "RUF001",
+    "end_location": {
+      "column": 72,
+      "row": 187
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 71,
+      "row": 187
+    },
+    "message": "String contains ambiguous `–` (EN DASH). Did you mean `-` (HYPHEN-MINUS)?",
+    "noqa_row": 187,
+    "url": "https://docs.astral.sh/ruff/rules/ambiguous-unicode-character-string"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 47,
+      "row": 194
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 194
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 194,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 67,
+      "row": 195
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 195
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 195,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "UP035",
+    "end_location": {
+      "column": 67,
+      "row": 195
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from typing import Any, Tuple, Union\n    from collections.abc import AsyncGenerator, Callable",
+          "end_location": {
+            "column": 67,
+            "row": 195
+          },
+          "location": {
+            "column": 5,
+            "row": 195
+          }
+        }
+      ],
+      "message": "Import from `collections.abc`"
+    },
+    "location": {
+      "column": 5,
+      "row": 195
+    },
+    "message": "Import from `collections.abc` instead: `AsyncGenerator`, `Callable`",
+    "noqa_row": 195,
+    "url": "https://docs.astral.sh/ruff/rules/deprecated-import"
+  },
+  {
+    "cell": null,
+    "code": "UP035",
+    "end_location": {
+      "column": 67,
+      "row": 195
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 195
+    },
+    "message": "`typing.Tuple` is deprecated, use `tuple` instead",
+    "noqa_row": 195,
+    "url": "https://docs.astral.sh/ruff/rules/deprecated-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 27,
+      "row": 195
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from typing import AsyncGenerator, Callable",
+          "end_location": {
+            "column": 67,
+            "row": 195
+          },
+          "location": {
+            "column": 5,
+            "row": 195
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 24,
+      "row": 195
+    },
+    "message": "`typing.Any` imported but unused",
+    "noqa_row": 195,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 60,
+      "row": 195
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from typing import AsyncGenerator, Callable",
+          "end_location": {
+            "column": 67,
+            "row": 195
+          },
+          "location": {
+            "column": 5,
+            "row": 195
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 55,
+      "row": 195
+    },
+    "message": "`typing.Tuple` imported but unused",
+    "noqa_row": 195,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 67,
+      "row": 195
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from typing import AsyncGenerator, Callable",
+          "end_location": {
+            "column": 67,
+            "row": 195
+          },
+          "location": {
+            "column": 5,
+            "row": 195
+          }
+        }
+      ],
+      "message": "Remove unused import"
+    },
+    "location": {
+      "column": 62,
+      "row": 195
+    },
+    "message": "`typing.Union` imported but unused",
+    "noqa_row": 195,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 86,
+      "row": 198
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 198
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 198,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 35,
+      "row": 200
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 201
+          },
+          "location": {
+            "column": 1,
+            "row": 200
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `original_transport_wrapper`"
+    },
+    "location": {
+      "column": 9,
+      "row": 200
+    },
+    "message": "Local variable `original_transport_wrapper` is assigned to but never used",
+    "noqa_row": 200,
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "ANN202",
+    "end_location": {
+      "column": 38,
+      "row": 202
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 202
+    },
+    "message": "Missing return type annotation for private function `patched_transport_wrapper`",
+    "noqa_row": 202,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-private-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 43,
+      "row": 202
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 39,
+      "row": 202
+    },
+    "message": "Missing type annotation for function argument `self`",
+    "noqa_row": 202,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 51,
+      "row": 202
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 45,
+      "row": 202
+    },
+    "message": "Missing type annotation for function argument `tracer`",
+    "noqa_row": 202,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 26,
+      "row": 215
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 25,
+      "row": 212
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 212,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 26,
+      "row": 227
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 25,
+      "row": 224
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 224,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 23,
+      "row": 239
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 239
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 239,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 67,
+      "row": 241
+    },
+    "filename": "/workspace/hud/otel/instrumentation.py",
+    "fix": null,
+    "location": {
+      "column": 24,
+      "row": 241
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 241,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "RUF003",
+    "end_location": {
+      "column": 21,
+      "row": 21
+    },
+    "filename": "/workspace/hud/otel/processors.py",
+    "fix": null,
+    "location": {
+      "column": 20,
+      "row": 21
+    },
+    "message": "Comment contains ambiguous `–` (EN DASH). Did you mean `-` (HYPHEN-MINUS)?",
+    "noqa_row": 21,
+    "url": "https://docs.astral.sh/ruff/rules/ambiguous-unicode-character-comment"
+  },
+  {
+    "cell": null,
+    "code": "ANN001",
+    "end_location": {
+      "column": 50,
+      "row": 25
+    },
+    "filename": "/workspace/hud/otel/processors.py",
+    "fix": null,
+    "location": {
+      "column": 36,
+      "row": 25
+    },
+    "message": "Missing type annotation for function argument `parent_context`",
+    "noqa_row": 25,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-function-argument"
+  },
+  {
+    "cell": null,
+    "code": "RUF003",
+    "end_location": {
+      "column": 26,
+      "row": 41
+    },
+    "filename": "/workspace/hud/otel/processors.py",
+    "fix": null,
+    "location": {
+      "column": 25,
+      "row": 41
+    },
+    "message": "Comment contains ambiguous `–` (EN DASH). Did you mean `-` (HYPHEN-MINUS)?",
+    "noqa_row": 41,
+    "url": "https://docs.astral.sh/ruff/rules/ambiguous-unicode-character-comment"
+  },
+  {
+    "cell": null,
+    "code": "SIM105",
+    "end_location": {
+      "column": 21,
+      "row": 59
+    },
+    "filename": "/workspace/hud/telemetry/job.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 46
+    },
+    "message": "Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`",
+    "noqa_row": 46,
+    "url": "https://docs.astral.sh/ruff/rules/suppressible-exception"
+  },
+  {
+    "cell": null,
+    "code": "S110",
+    "end_location": {
+      "column": 21,
+      "row": 59
+    },
+    "filename": "/workspace/hud/telemetry/job.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 58
+    },
+    "message": "`try`-`except`-`pass` detected, consider logging the exception",
+    "noqa_row": 58,
+    "url": "https://docs.astral.sh/ruff/rules/try-except-pass"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 8,
+      "row": 75
+    },
+    "filename": "/workspace/hud/telemetry/job.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 75
+    },
+    "message": "Missing return type annotation for public function `job`",
+    "noqa_row": 75,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN201",
+    "end_location": {
+      "column": 18,
+      "row": 144
+    },
+    "filename": "/workspace/hud/telemetry/job.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 144
+    },
+    "message": "Missing return type annotation for public function `job_decorator`",
+    "noqa_row": 144,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN003",
+    "end_location": {
+      "column": 54,
+      "row": 144
+    },
+    "filename": "/workspace/hud/telemetry/job.py",
+    "fix": null,
+    "location": {
+      "column": 44,
+      "row": 144
+    },
+    "message": "Missing type annotation for `**metadata`",
+    "noqa_row": 144,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-kwargs"
+  },
+  {
+    "cell": null,
+    "code": "ANN202",
+    "end_location": {
+      "column": 32,
+      "row": 163
+    },
+    "filename": "/workspace/hud/telemetry/job.py",
+    "fix": null,
+    "location": {
+      "column": 19,
+      "row": 163
+    },
+    "message": "Missing return type annotation for private function `async_wrapper`",
+    "noqa_row": 163,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-private-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN002",
+    "end_location": {
+      "column": 38,
+      "row": 163
+    },
+    "filename": "/workspace/hud/telemetry/job.py",
+    "fix": null,
+    "location": {
+      "column": 33,
+      "row": 163
+    },
+    "message": "Missing type annotation for `*args`",
+    "noqa_row": 163,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-args"
+  },
+  {
+    "cell": null,
+    "code": "ANN003",
+    "end_location": {
+      "column": 48,
+      "row": 163
+    },
+    "filename": "/workspace/hud/telemetry/job.py",
+    "fix": null,
+    "location": {
+      "column": 40,
+      "row": 163
+    },
+    "message": "Missing type annotation for `**kwargs`",
+    "noqa_row": 163,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-kwargs"
+  },
+  {
+    "cell": null,
+    "code": "ANN202",
+    "end_location": {
+      "column": 25,
+      "row": 173
+    },
+    "filename": "/workspace/hud/telemetry/job.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 173
+    },
+    "message": "Missing return type annotation for private function `sync_wrapper`",
+    "noqa_row": 173,
+    "url": "https://docs.astral.sh/ruff/rules/missing-return-type-private-function"
+  },
+  {
+    "cell": null,
+    "code": "ANN002",
+    "end_location": {
+      "column": 31,
+      "row": 173
+    },
+    "filename": "/workspace/hud/telemetry/job.py",
+    "fix": null,
+    "location": {
+      "column": 26,
+      "row": 173
+    },
+    "message": "Missing type annotation for `*args`",
+    "noqa_row": 173,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-args"
+  },
+  {
+    "cell": null,
+    "code": "ANN003",
+    "end_location": {
+      "column": 41,
+      "row": 173
+    },
+    "filename": "/workspace/hud/telemetry/job.py",
+    "fix": null,
+    "location": {
+      "column": 33,
+      "row": 173
+    },
+    "message": "Missing type annotation for `**kwargs`",
+    "noqa_row": 173,
+    "url": "https://docs.astral.sh/ruff/rules/missing-type-kwargs"
+  },
+  {
+    "cell": null,
+    "code": "UP035",
+    "end_location": {
+      "column": 34,
+      "row": 11
+    },
+    "filename": "/workspace/hud/telemetry/trace.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from typing import Any\nfrom collections.abc import Generator",
+          "end_location": {
+            "column": 34,
+            "row": 11
+          },
+          "location": {
+            "column": 1,
+            "row": 11
+          }
+        }
+      ],
+      "message": "Import from `collections.abc`"
+    },
+    "location": {
+      "column": 1,
+      "row": 11
+    },
+    "message": "Import from `collections.abc` instead: `Generator`",
+    "noqa_row": 11,
+    "url": "https://docs.astral.sh/ruff/rules/deprecated-import"
+  },
+  {
+    "cell": null,
+    "code": "SIM117",
+    "end_location": {
+      "column": 56,
+      "row": 219
+    },
+    "filename": "/workspace/hud/tests/test_datasets_extended.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 218
+    },
+    "message": "Use a single `with` statement with multiple contexts instead of nested `with` statements",
+    "noqa_row": 218,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-with-statements"
+  },
+  {
+    "cell": null,
+    "code": "SIM117",
+    "end_location": {
+      "column": 56,
+      "row": 269
+    },
+    "filename": "/workspace/hud/tests/test_datasets_extended.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 268
+    },
+    "message": "Use a single `with` statement with multiple contexts instead of nested `with` statements",
+    "noqa_row": 268,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-with-statements"
+  },
+  {
+    "cell": null,
+    "code": "SIM117",
+    "end_location": {
+      "column": 56,
+      "row": 305
+    },
+    "filename": "/workspace/hud/tests/test_datasets_extended.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 304
+    },
+    "message": "Use a single `with` statement with multiple contexts instead of nested `with` statements",
+    "noqa_row": 304,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-with-statements"
+  },
+  {
+    "cell": null,
+    "code": "SIM117",
+    "end_location": {
+      "column": 56,
+      "row": 328
+    },
+    "filename": "/workspace/hud/tests/test_datasets_extended.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 327
+    },
+    "message": "Use a single `with` statement with multiple contexts instead of nested `with` statements",
+    "noqa_row": 327,
+    "url": "https://docs.astral.sh/ruff/rules/multiple-with-statements"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 31,
+      "row": 30
+    },
+    "filename": "/workspace/hud/tools/__init__.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 30
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 30,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 51,
+      "row": 89
+    },
+    "filename": "/workspace/hud/tools/base.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 89
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 89,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 26,
+      "row": 193
+    },
+    "filename": "/workspace/hud/tools/computer/hud.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 193
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 193,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 35,
+      "row": 194
+    },
+    "filename": "/workspace/hud/tools/computer/hud.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 194
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 194,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 34,
+      "row": 196
+    },
+    "filename": "/workspace/hud/tools/computer/hud.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 196
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 196,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 25,
+      "row": 126
+    },
+    "filename": "/workspace/hud/tools/edit.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 126
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 126,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 25,
+      "row": 276
+    },
+    "filename": "/workspace/hud/tools/edit.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 276
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 276,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 25,
+      "row": 289
+    },
+    "filename": "/workspace/hud/tools/edit.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 289
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 289,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 49,
+      "row": 23
+    },
+    "filename": "/workspace/hud/tools/executors/__init__.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 23
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 23,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 37,
+      "row": 27
+    },
+    "filename": "/workspace/hud/tools/executors/__init__.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 27
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 27,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 65,
+      "row": 32
+    },
+    "filename": "/workspace/hud/tools/executors/pyautogui.py",
+    "fix": null,
+    "location": {
+      "column": 17,
+      "row": 32
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 32,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 29,
+      "row": 39
+    },
+    "filename": "/workspace/hud/tools/executors/pyautogui.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 39
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 39,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 30,
+      "row": 116
+    },
+    "filename": "/workspace/hud/tools/executors/xdo.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 116
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 116,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "RUF100",
+    "end_location": {
+      "column": 51,
+      "row": 119
+    },
+    "filename": "/workspace/hud/tools/executors/xdo.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 51,
+            "row": 119
+          },
+          "location": {
+            "column": 37,
+            "row": 119
+          }
+        }
+      ],
+      "message": "Remove unused `noqa` directive"
+    },
+    "location": {
+      "column": 39,
+      "row": 119
+    },
+    "message": "Unused `noqa` directive (unused: `S603`)",
+    "noqa_row": 119,
+    "url": "https://docs.astral.sh/ruff/rules/unused-noqa"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 70,
+      "row": 168
+    },
+    "filename": "/workspace/hud/tools/playwright.py",
+    "fix": null,
+    "location": {
+      "column": 21,
+      "row": 168
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 168,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 26,
+      "row": 282
+    },
+    "filename": "/workspace/hud/tools/playwright.py",
+    "fix": null,
+    "location": {
+      "column": 13,
+      "row": 282
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 282,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "I001",
+    "end_location": {
+      "column": 47,
+      "row": 15
+    },
+    "filename": "/workspace/hud/tools/tests/test_edit.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "from __future__ import annotations\n\nimport os\nimport sys\nimport tempfile\nfrom pathlib import Path\nfrom unittest.mock import AsyncMock, patch\n\nimport pytest\n\nfrom hud.tools.base import ToolResult\nfrom hud.tools.edit import EditTool, ToolError\nfrom hud.types import TextContent\n\n\n",
+          "end_location": {
+            "column": 1,
+            "row": 18
+          },
+          "location": {
+            "column": 1,
+            "row": 3
+          }
+        }
+      ],
+      "message": "Organize imports"
+    },
+    "location": {
+      "column": 1,
+      "row": 3
+    },
+    "message": "Import block is un-sorted or un-formatted",
+    "noqa_row": 3,
+    "url": "https://docs.astral.sh/ruff/rules/unsorted-imports"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 38,
+      "row": 13
+    },
+    "filename": "/workspace/hud/tools/tests/test_edit.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 14
+          },
+          "location": {
+            "column": 1,
+            "row": 13
+          }
+        }
+      ],
+      "message": "Remove unused import: `hud.tools.base.ToolResult`"
+    },
+    "location": {
+      "column": 28,
+      "row": 13
+    },
+    "message": "`hud.tools.base.ToolResult` imported but unused",
+    "noqa_row": 13,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 21,
+      "row": 8
+    },
+    "filename": "/workspace/hud/tools/tests/test_init.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 8
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 50,
+      "row": 14
+    },
+    "filename": "/workspace/hud/tools/tests/test_init.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 14
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 14,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 42,
+      "row": 38
+    },
+    "filename": "/workspace/hud/tools/tests/test_tools.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 38
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 38,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "F401",
+    "end_location": {
+      "column": 42,
+      "row": 38
+    },
+    "filename": "/workspace/hud/tools/tests/test_tools.py",
+    "fix": {
+      "applicability": "safe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 1,
+            "row": 39
+          },
+          "location": {
+            "column": 1,
+            "row": 38
+          }
+        }
+      ],
+      "message": "Remove unused import: `hud.tools.base.ToolResult`"
+    },
+    "location": {
+      "column": 32,
+      "row": 38
+    },
+    "message": "`hud.tools.base.ToolResult` imported but unused",
+    "noqa_row": 38,
+    "url": "https://docs.astral.sh/ruff/rules/unused-import"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 42,
+      "row": 39
+    },
+    "filename": "/workspace/hud/tools/tests/test_tools.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 39
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 39,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 42,
+      "row": 58
+    },
+    "filename": "/workspace/hud/tools/tests/test_tools.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 58
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 58,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 38,
+      "row": 63
+    },
+    "filename": "/workspace/hud/tools/tests/test_tools.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 63
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 63,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 54,
+      "row": 102
+    },
+    "filename": "/workspace/hud/tools/tests/test_tools.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 102
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 102,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 43,
+      "row": 142
+    },
+    "filename": "/workspace/hud/tools/tests/test_tools.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 142
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 142,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "F841",
+    "end_location": {
+      "column": 8,
+      "row": 144
+    },
+    "filename": "/workspace/hud/tools/tests/test_tools.py",
+    "fix": {
+      "applicability": "unsafe",
+      "edits": [
+        {
+          "content": "",
+          "end_location": {
+            "column": 11,
+            "row": 144
+          },
+          "location": {
+            "column": 5,
+            "row": 144
+          }
+        }
+      ],
+      "message": "Remove assignment to unused variable `mcp`"
+    },
+    "location": {
+      "column": 5,
+      "row": 144
+    },
+    "message": "Local variable `mcp` is assigned to but never used",
+    "noqa_row": 144,
+    "url": "https://docs.astral.sh/ruff/rules/unused-variable"
+  },
+  {
+    "cell": null,
+    "code": "E501",
+    "end_location": {
+      "column": 111,
+      "row": 56
+    },
+    "filename": "/workspace/hud/types.py",
+    "fix": null,
+    "location": {
+      "column": 101,
+      "row": 56
+    },
+    "message": "Line too long (110 > 100)",
+    "noqa_row": 56,
+    "url": "https://docs.astral.sh/ruff/rules/line-too-long"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 61,
+      "row": 116
+    },
+    "filename": "/workspace/hud/types.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 116
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 116,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 51,
+      "row": 117
+    },
+    "filename": "/workspace/hud/types.py",
+    "fix": null,
+    "location": {
+      "column": 9,
+      "row": 117
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 117,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 77,
+      "row": 57
+    },
+    "filename": "/workspace/hud/utils/async_utils.py",
+    "fix": null,
+    "location": {
+      "column": 38,
+      "row": 57
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 57,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "G004",
+    "end_location": {
+      "column": 87,
+      "row": 65
+    },
+    "filename": "/workspace/hud/utils/async_utils.py",
+    "fix": null,
+    "location": {
+      "column": 30,
+      "row": 65
+    },
+    "message": "Logging statement uses f-string",
+    "noqa_row": 65,
+    "url": "https://docs.astral.sh/ruff/rules/logging-f-string"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 46,
+      "row": 12
+    },
+    "filename": "/workspace/hud/utils/telemetry.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 12
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 12,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 46,
+      "row": 46
+    },
+    "filename": "/workspace/hud/utils/telemetry.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 46
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 46,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 21,
+      "row": 8
+    },
+    "filename": "/workspace/hud/utils/tests/test_init.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 8
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 8,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 46,
+      "row": 14
+    },
+    "filename": "/workspace/hud/utils/tests/test_init.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 14
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 14,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 55,
+      "row": 14
+    },
+    "filename": "/workspace/hud/utils/tests/test_telemetry.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 14
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 14,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  },
+  {
+    "cell": null,
+    "code": "PLC0415",
+    "end_location": {
+      "column": 15,
+      "row": 6
+    },
+    "filename": "/workspace/hud/utils/tests/test_version.py",
+    "fix": null,
+    "location": {
+      "column": 5,
+      "row": 6
+    },
+    "message": "`import` should be at the top-level of a file",
+    "noqa_row": 6,
+    "url": "https://docs.astral.sh/ruff/rules/import-outside-top-level"
+  }
+]

@@ -6,6 +6,7 @@ User-facing APIs are in hud.telemetry.
 
 from __future__ import annotations
 
+import contextlib
 import contextvars
 import logging
 from contextlib import contextmanager
@@ -120,11 +121,11 @@ async def _update_task_status_async(
             json=data,
             api_key=settings.api_key,
         )
-        logger.debug(f"Updated task {task_run_id} status to {status}")
+        logger.debug("Updated task %s status to %s", task_run_id, status)
     except Exception as e:
         # Suppress warnings about interpreter shutdown
         if "interpreter shutdown" not in str(e):
-            logger.warning(f"Failed to update task status: {e}")
+            logger.warning("Failed to update task status: %s", e)
 
 
 def _fire_and_forget_status_update(
@@ -140,59 +141,23 @@ def _fire_and_forget_status_update(
     )
 
 
-def _print_trace_url(task_run_id: str) -> None:
-    """Print the trace URL in a colorful box."""
+def _print_trace_start_url(task_run_id: str) -> None:
+    """Print the trace start URL in a styled box."""
     url = f"https://app.hud.so/trace/{task_run_id}"
-    header = "🚀 See your agent live at:"
-
-    # ANSI color codes
-    DIM = "\033[90m"  # Dim/Gray for border (visible on both light and dark terminals)
-    GOLD = "\033[33m"  # Gold/Yellow for URL
-    RESET = "\033[0m"
-    BOLD = "\033[1m"
-
-    # Calculate box width based on the longest line
-    box_width = max(len(url), len(header)) + 6
-
-    # Box drawing characters
-    top_border = "╔" + "═" * (box_width - 2) + "╗"
-    bottom_border = "╚" + "═" * (box_width - 2) + "╝"
-    divider = "╟" + "─" * (box_width - 2) + "╢"
-
-    # Center the content
-    header_padding = (box_width - len(header) - 2) // 2
-    url_padding = (box_width - len(url) - 2) // 2
-
-    # Print the box
-    print(f"\n{DIM}{top_border}{RESET}")
-    print(
-        f"{DIM}║{RESET}{' ' * header_padding}{header}{' ' * (box_width - len(header) - header_padding - 3)}{DIM}║{RESET}"  # noqa: E501
-    )
-    print(f"{DIM}{divider}{RESET}")
-    print(
-        f"{DIM}║{RESET}{' ' * url_padding}{BOLD}{GOLD}{url}{RESET}{' ' * (box_width - len(url) - url_padding - 2)}{DIM}║{RESET}"  # noqa: E501
-    )
-    print(f"{DIM}{bottom_border}{RESET}\n")
+    header = "🔍 HUD Trace Started"
+    
+    # Log the trace information instead of printing
+    logger.info("Trace started - %s: %s", header, url)
 
 
 def _print_trace_complete_url(task_run_id: str, error_occurred: bool = False) -> None:
     """Print the trace completion URL with appropriate messaging."""
     url = f"https://app.hud.so/trace/{task_run_id}"
 
-    # ANSI color codes
-    GREEN = "\033[92m"
-    RED = "\033[91m"
-    GOLD = "\033[33m"
-    RESET = "\033[0m"
-    DIM = "\033[2m"
-    BOLD = "\033[1m"
-
     if error_occurred:
-        print(
-            f"\n{RED}✗ Trace errored!{RESET} {DIM}More error details available at:{RESET} {BOLD}{GOLD}{url}{RESET}\n"  # noqa: E501
-        )
+        logger.error("Trace errored - More error details available at: %s", url)
     else:
-        print(f"\n{GREEN}✓ Trace complete!{RESET} {DIM}View at:{RESET} {BOLD}{GOLD}{url}{RESET}\n")
+        logger.info("Trace complete - View at: %s", url)
 
 
 class trace:
@@ -252,7 +217,7 @@ class trace:
         if self.is_root:
             _fire_and_forget_status_update(self.task_run_id, "initializing", job_id=self.job_id)
             # Print the nice trace URL box
-            _print_trace_url(self.task_run_id)
+            _print_trace_start_url(self.task_run_id)
 
         logger.debug("Started HUD trace context for task_run_id=%s", self.task_run_id)
         return self.task_run_id
@@ -286,12 +251,10 @@ class trace:
                 self._span.set_status(Status(StatusCode.OK))
             self._span.__exit__(exc_type, exc_val, exc_tb)
 
-        # Detach OpenTelemetry context
-        if self._otel_token is not None:
-            try:
-                context.detach(self._otel_token)  # type: ignore[arg-type]
-            except Exception:
-                pass
+                    # Detach OpenTelemetry context
+            if self._otel_token is not None:
+                with contextlib.suppress(Exception):
+                    context.detach(self._otel_token)  # type: ignore[arg-type]
 
         # Reset context variables
         if self._task_run_token is not None:
@@ -300,3 +263,55 @@ class trace:
             is_root_trace_var.reset(self._root_token)  # type: ignore
 
         logger.debug("Ended HUD trace context for task_run_id=%s", self.task_run_id)
+
+
+def active_trace_context() -> dict[str, Any]:
+    """Get the active trace context if available."""
+    try:
+        current_span = otel_trace.get_current_span()
+        
+        if current_span and current_span.is_recording():
+            span_context = current_span.get_span_context()
+            return {
+                "trace_id": format(span_context.trace_id, "032x"),
+                "span_id": format(span_context.span_id, "016x"),
+                "trace_flags": span_context.trace_flags,
+                "is_recording": current_span.is_recording(),
+            }
+    except Exception:
+        # Silently continue if telemetry is not configured
+        pass
+    
+    return {}
+
+
+def _format_trace_context(context: dict[str, Any]) -> str:
+    """Format trace context for logging."""
+    if not context:
+        return "no_trace"
+    
+    trace_id = context.get("trace_id", "unknown")
+    span_id = context.get("span_id", "unknown")
+    return f"trace_id={trace_id} span_id={span_id}"
+
+
+def _safe_extract_context_fields(context: Any) -> dict[str, str]:
+    """Safely extract context fields."""
+    try:
+        if hasattr(context, "__dict__"):
+            return {
+                k: str(v)
+                for k, v in context.__dict__.items()
+                if not k.startswith("_")
+            }
+        else:
+            return {"context": str(context)}
+    except Exception:
+        return {"context": "unable_to_extract"}
+
+
+def finalize_telemetry_context() -> None:
+    """Finalize and close any open telemetry context."""
+    with contextlib.suppress(Exception):
+        # Attempt to flush any pending traces
+        pass

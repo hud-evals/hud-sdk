@@ -2,7 +2,14 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+import pytest
+from mcp import types
+
+from hud.agent import MCPAgent
+from hud.tools.executors.base import BaseExecutor
+from hud.types import MCPToolCall
+
+import typing
 from unittest.mock import MagicMock
 
 # Import AsyncMock from unittest.mock if available (Python 3.8+)
@@ -12,21 +19,15 @@ except ImportError:
     # Fallback for older Python versions
     from unittest.mock import MagicMock as AsyncMock
 
-import pytest
-from mcp import types
-from hud.types import MCPToolCall
 
-from hud.agent import MCPAgent
-from hud.tools.executors.base import BaseExecutor
-
-if TYPE_CHECKING:
+if typing.TYPE_CHECKING:
     from hud.datasets import TaskConfig as Task
 
 
 class MockMCPAgent(MCPAgent):
     """Concrete implementation of BaseMCPAgent for testing."""
 
-    def __init__(self, mcp_client: Any = None, **kwargs: Any) -> None:
+    def __init__(self, mcp_client: typing.Any = None, **kwargs: typing.Any) -> None:
         if mcp_client is None:
             # Create a mock client if none provided
             mcp_client = MagicMock()
@@ -36,29 +37,29 @@ class MockMCPAgent(MCPAgent):
         self.executor = BaseExecutor()  # Use simulated executor
         self._messages = []
 
-    async def run(self, task: Task) -> list[dict[str, Any]]:
+    async def run(self, task: typing.Any) -> list[dict[str, typing.Any]]:
         """Mock run method."""
         return self._messages
 
     def create_initial_messages(
         self, prompt: str, screenshot: str | None = None
-    ) -> list[dict[str, Any]]:
+    ) -> list[dict[str, typing.Any]]:
         """Mock create initial messages."""
         messages = [{"role": "user", "content": prompt}]
         if screenshot:
             messages.append({"role": "assistant", "content": f"Screenshot: {screenshot}"})
         return messages
 
-    def get_model_response(self, messages: list[dict[str, Any]]) -> dict[str, Any]:
+    def get_model_response(self, messages: list[dict[str, typing.Any]]) -> dict[str, typing.Any]:
         """Mock get model response."""
         return {"role": "assistant", "content": "Mock response"}
 
     def format_tool_results(
         self,
-        results: list[tuple[str, Any]],
+        results: list[tuple[str, typing.Any]],
         screenshot: str | None = None,
-        assistant_msg: dict[str, Any] | None = None,
-    ) -> list[dict[str, Any]]:
+        assistant_msg: dict[str, typing.Any] | None = None,
+    ) -> list[dict[str, typing.Any]]:
         """Mock format tool results."""
         formatted = []
         for tool_name, result in results:
@@ -67,7 +68,7 @@ class MockMCPAgent(MCPAgent):
             formatted.append({"role": "screenshot", "content": screenshot})
         return formatted
 
-    async def create_user_message(self, text: str) -> Any:
+    async def create_user_message(self, text: str) -> typing.Any:
         """Mock create user message."""
         return {"role": "user", "content": text}
 
@@ -118,15 +119,15 @@ class TestBaseMCPAgent:
         class TestAgent(MCPAgent):
             def create_initial_messages(
                 self, prompt: str, screenshot: str | None = None
-            ) -> list[dict[str, Any]]:
+            ) -> list[dict[str, typing.Any]]:
                 return []
 
             def format_tool_results(
-                self, results: list[tuple[str, Any]], screenshot: str | None = None
-            ) -> list[dict[str, Any]]:
+                self, results: list[tuple[str, typing.Any]], screenshot: str | None = None
+            ) -> list[dict[str, typing.Any]]:
                 return []
 
-            async def get_model_response(self, messages: list[dict[str, Any]]) -> dict[str, Any]:
+            async def get_model_response(self, messages: list[dict[str, typing.Any]]) -> dict[str, typing.Any]:
                 return {"content": "test"}
 
         with pytest.raises(ValueError, match="MCPClient is required"):

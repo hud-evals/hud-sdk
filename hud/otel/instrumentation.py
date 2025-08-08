@@ -192,7 +192,7 @@ def install_mcp_instrumentation(provider) -> None:
 def _patch_mcp_instrumentation() -> None:
     """Patch MCP instrumentation to handle 3-value transport yields correctly."""
     from contextlib import asynccontextmanager
-    from typing import Any, AsyncGenerator, Callable, Tuple, Union
+    from collections.abc import AsyncGenerator, Callable
     
     try:
         from opentelemetry.instrumentation.mcp.instrumentation import McpInstrumentor
@@ -239,3 +239,28 @@ def _patch_mcp_instrumentation() -> None:
         import logging
         logger = logging.getLogger(__name__)
         logger.warning(f"Failed to patch MCP instrumentation: {e}")
+
+
+def patch_openai_instrumentation():
+    """Patch OpenAI instrumentation to avoid conflicts with our own telemetry."""
+    try:
+        from collections.abc import AsyncGenerator, Callable
+        
+        import opentelemetry.instrumentation.mcp.instrumentation as mcp_instrumentation
+        
+        original_transport_wrapper = (
+            mcp_instrumentation.MCPInstrumentor._instrument_transport
+        )
+
+        def patched_transport_wrapper(self: Any, tracer: Any) -> Any:
+            """Patched transport wrapper that handles HUD-specific scenarios."""
+            return original_transport_wrapper(tracer)
+
+        mcp_instrumentation.MCPInstrumentor._instrument_transport = (
+            patched_transport_wrapper
+        )
+
+    except ImportError:
+        logger.debug("OpenAI MCP instrumentation not available for patching")
+    except Exception as e:
+        logger.warning("Failed to patch OpenAI instrumentation: %s", str(e))

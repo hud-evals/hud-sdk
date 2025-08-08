@@ -9,20 +9,19 @@ from anthropic import AsyncAnthropic
 
 from hud.adapters import Adapter
 from hud.adapters.common.types import CLA
-# Update import to current API; if this script is legacy, keep it optional
+
+# Import Agent class
 try:
     from hud.agent import MCPAgent as Agent  # type: ignore[assignment]
-except Exception:  # pragma: no cover - optional example script
+except ImportError:
     from hud.agent import MCPAgent as Agent  # fallback
+
+# Import settings
 from hud.settings import settings
 
 if TYPE_CHECKING:
-    from anthropic.types.beta import (
-        BetaImageBlockParam,
-        BetaMessageParam,
-        BetaTextBlockParam,
-    )
-
+    from anthropic.types.beta import BetaMessageParam
+    
     from hud.env.environment import Observation
 
 logger = logging.getLogger(__name__)
@@ -35,31 +34,35 @@ DEFAULT_TEMPERATURE = 0.7
 DEFAULT_MAX_MESSAGE_MEMORY = 20
 
 
-def generate_system_prompt(game_name: str) -> str:
-    """Generate the system prompt for the AI agent.
-
-    Args:
-        game_name: Name of the game being played
-
+def create_system_prompt() -> str:
+    """Create the system prompt for the Pokémon playing AI agent.
+    
     Returns:
         str: The system prompt for the AI agent
     """
-    return """You are a specialized AI assistant designed to play Pokémon games via screenshot analysis and text instructions. Your task is to understand the current game state from visual input, determine appropriate actions, and respond with structured outputs that control the game.
+    return """You are a specialized AI assistant designed to play Pokémon games via \
+screenshot analysis and text instructions. Your task is to understand the current \
+game state from visual input, determine appropriate actions, and respond with \
+structured outputs that control the game.
 
 For each turn, you will receive:
 1. A screenshot of the current game state
 2. Contextual information about the game progress, recent events, and objectives
 
-Based on this information, you must analyze the situation, determine the best course of action, and provide a structured JSON response.
+Based on this information, you must analyze the situation, determine the best \
+course of action, and provide a structured JSON response.
 
 ## Response Format
-Your response MUST follow this exact JSON format with no additional markers, tags, or block delimiters:
+Your response MUST follow this exact JSON format with no additional markers, \
+tags, or block delimiters:
 
 {
-  "analysis": "Brief analysis of the current game situation, visible UI elements, and important context (1-3 sentences)",
+  "analysis": "Brief analysis of the current game situation, visible UI elements, \
+and important context (1-3 sentences)",
   "current_objective": "The immediate goal based on the game state (single sentence)",
   "reasoning": "Step-by-step logic explaining your chosen action sequence (2-4 sentences)",
-  "progress_assessment": "Evaluation of whether previous action(s) achieved their intended goal and why/why not (1-2 sentences)",
+  "progress_assessment": "Evaluation of whether previous action(s) achieved their \
+intended goal and why/why not (1-2 sentences)",
   "actions": [
     {
       "type": "press",
@@ -72,27 +75,39 @@ Your response MUST follow this exact JSON format with no additional markers, tag
   ]
 }
 
-IMPORTANT: Do not include any conversation markers like <<ASSISTANT_CONVERSATION_START>> or <<ASSISTANT_CONVERSATION_END>> around your response. Provide only the clean JSON object.
+IMPORTANT: Do not include any conversation markers like <<ASSISTANT_CONVERSATION_START>> \
+or <<ASSISTANT_CONVERSATION_END>> around your response. Provide only the clean JSON object.
 
 ## Action Types
-- Button presses: {"type": "press", "keys": ["button_name"]} - Valid buttons are: up, down, left, right, a, b, start, select, pause
+- Button presses: {"type": "press", "keys": ["button_name"]} - Valid buttons are: \
+up, down, left, right, a, b, start, select, pause
 - Wait for processing: {"type": "wait", "time": milliseconds}
 
 ## Important Rules
-1. Never use "wait" commands while the game is paused. The game state will not change while paused, so waiting is ineffective.
-2. If you detect the game is paused, your next action should be to unpause by using {"type": "press", "keys": ["pause"]} before attempting other actions.
-3. Maintain awareness of whether the game is in a paused state based on visual cues in the screenshot.
+1. Never use "wait" commands while the game is paused. The game state will not \
+change while paused, so waiting is ineffective.
+2. If you detect the game is paused, your next action should be to unpause by \
+using {"type": "press", "keys": ["pause"]} before attempting other actions.
+3. Maintain awareness of whether the game is in a paused state based on visual \
+cues in the screenshot.
 
 ## Game Play Guidelines
 1. **Navigation**: Use directional buttons to move the character or navigate menus
-2. **Interaction**: Use 'a' to confirm selections and interact with objects/NPCs, 'b' to cancel or exit menus
+2. **Interaction**: Use 'a' to confirm selections and interact with objects/NPCs, \
+'b' to cancel or exit menus
 3. **Menu Access**: Use 'start' to access the game menu
-4. **Battle Strategy**: Analyze Pokémon types, moves, and stats to make optimal battle decisions
-5. **Progressive Play**: Work toward completing the current objective while being mindful of longer-term goals like leveling Pokémon, collecting badges, and advancing the story
+4. **Battle Strategy**: Analyze Pokémon types, moves, and stats to make optimal \
+battle decisions
+5. **Progressive Play**: Work toward completing the current objective while being \
+mindful of longer-term goals like leveling Pokémon, collecting badges, and \
+advancing the story
 6. **Resource Management**: Monitor and manage HP, PP, items, and Pokéballs effectively
-7. **Memory**: Maintain awareness of the game history and your previous actions to avoid repetitive behaviors
+7. **Memory**: Maintain awareness of the game history and your previous actions to \
+avoid repetitive behaviors
 
-Always provide thoughtful analysis and clear reasoning for your decisions. If you're uncertain about the best course of action, prioritize safe moves that gather more information.
+Always provide thoughtful analysis and clear reasoning for your decisions. If you're \
+uncertain about the best course of action, prioritize safe moves that gather more \
+information.
 """
 
 
@@ -187,20 +202,23 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, CLA]):
         self.system_prompts: list[BetaMessageParam] = [
             {
                 "role": "assistant",
-                "content": generate_system_prompt("Pokemon Red"),
+                "content": create_system_prompt(),
             }
         ]
 
         self.messages: list[BetaMessageParam] = []
 
-    async def fetch_response(self, observation: Observation) -> tuple[list[dict[str, Any]], bool]:
+    async def fetch_response(
+        self, observation: Observation
+    ) -> tuple[list[dict[str, Any]], bool]:
         """Fetch a response from Claude based on the current observation.
 
         Args:
             observation: The current game observation
 
         Returns:
-            tuple[list[dict[str, Any]], bool, list[LogType] | None]: List of actions, whether the game is done, and a list of strings or dictionaries of logs.
+            tuple[list[dict[str, Any]], bool, list[LogType] | None]: List of actions,
+            whether the game is done, and a list of strings or dictionaries of logs.
 
         Raises:
             ValueError: If client is not initialized
@@ -208,7 +226,7 @@ class ClaudePlaysPokemon(Agent[AsyncAnthropic, CLA]):
         if not self.client:
             raise ValueError("Client is not initialized")
 
-        user_content: list[BetaTextBlockParam | BetaImageBlockParam] = []
+        user_content: list[dict[str, Any]] = []
 
         if observation.text:
             user_content.append(

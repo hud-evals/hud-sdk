@@ -1,0 +1,2830 @@
+{
+    "version": "1.1.403",
+    "time": "1754630661438",
+    "generalDiagnostics": [
+        {
+            "file": "/workspace/hud/agent.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 7
+                },
+                "end": {
+                    "line": 9,
+                    "character": 16
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agent_patches.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 16,
+                    "character": 13
+                },
+                "end": {
+                    "line": 16,
+                    "character": 16
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/claude.py",
+            "severity": "warning",
+            "message": "Import \"anthropic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 5
+                },
+                "end": {
+                    "line": 8,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/claude.py",
+            "severity": "warning",
+            "message": "Import \"anthropic.types.beta\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 11,
+                    "character": 9
+                },
+                "end": {
+                    "line": 11,
+                    "character": 29
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/claude.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 21,
+                    "character": 7
+                },
+                "end": {
+                    "line": 21,
+                    "character": 16
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/claude.py",
+            "severity": "error",
+            "message": "\"beta\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 159,
+                    "character": 55
+                },
+                "end": {
+                    "line": 159,
+                    "character": 59
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        },
+        {
+            "file": "/workspace/hud/agents/langchain.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 7
+                },
+                "end": {
+                    "line": 7,
+                    "character": 16
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/langchain.py",
+            "severity": "warning",
+            "message": "Import \"langchain.agents\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 5
+                },
+                "end": {
+                    "line": 8,
+                    "character": 21
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/langchain.py",
+            "severity": "warning",
+            "message": "Import \"langchain.prompts\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 5
+                },
+                "end": {
+                    "line": 9,
+                    "character": 22
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/langchain.py",
+            "severity": "warning",
+            "message": "Import \"langchain.schema\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 10,
+                    "character": 5
+                },
+                "end": {
+                    "line": 10,
+                    "character": 21
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/langchain.py",
+            "severity": "warning",
+            "message": "Import \"mcp_use.adapters.langchain_adapter\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 11,
+                    "character": 5
+                },
+                "end": {
+                    "line": 11,
+                    "character": 39
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/langchain.py",
+            "severity": "warning",
+            "message": "Import \"langchain.schema.language_model\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 14,
+                    "character": 9
+                },
+                "end": {
+                    "line": 14,
+                    "character": 40
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/langchain.py",
+            "severity": "warning",
+            "message": "Import \"langchain_core.tools\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 15,
+                    "character": 9
+                },
+                "end": {
+                    "line": 15,
+                    "character": 29
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/openai.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 7
+                },
+                "end": {
+                    "line": 7,
+                    "character": 16
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/openai.py",
+            "severity": "warning",
+            "message": "Import \"openai.types.responses\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 5
+                },
+                "end": {
+                    "line": 9,
+                    "character": 27
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/openai.py",
+            "severity": "error",
+            "message": "Module cannot be used as a type",
+            "range": {
+                "start": {
+                    "line": 37,
+                    "character": 22
+                },
+                "end": {
+                    "line": 37,
+                    "character": 33
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/workspace/hud/agents/openai.py",
+            "severity": "error",
+            "message": "Module is not callable",
+            "range": {
+                "start": {
+                    "line": 62,
+                    "character": 27
+                },
+                "end": {
+                    "line": 62,
+                    "character": 55
+                }
+            },
+            "rule": "reportCallIssue"
+        },
+        {
+            "file": "/workspace/hud/agents/tests/test_base.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 14,
+                    "character": 7
+                },
+                "end": {
+                    "line": 14,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/tests/test_base.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 15,
+                    "character": 5
+                },
+                "end": {
+                    "line": 15,
+                    "character": 8
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/tests/test_claude.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 7
+                },
+                "end": {
+                    "line": 7,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/tests/test_claude.py",
+            "severity": "warning",
+            "message": "Import \"anthropic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 5
+                },
+                "end": {
+                    "line": 8,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/tests/test_claude.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 5
+                },
+                "end": {
+                    "line": 9,
+                    "character": 8
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/tests/test_claude.py",
+            "severity": "warning",
+            "message": "Import \"anthropic.types.beta\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 20,
+                    "character": 9
+                },
+                "end": {
+                    "line": 20,
+                    "character": 29
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/tests/test_client.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 7
+                },
+                "end": {
+                    "line": 6,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/tests/test_client.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 5
+                },
+                "end": {
+                    "line": 7,
+                    "character": 8
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/tests/test_client.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 5
+                },
+                "end": {
+                    "line": 8,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/tests/test_openai.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 7
+                },
+                "end": {
+                    "line": 6,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/agents/tests/test_openai.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 5
+                },
+                "end": {
+                    "line": 7,
+                    "character": 8
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/base.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 10,
+                    "character": 11
+                },
+                "end": {
+                    "line": 10,
+                    "character": 20
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/fastmcp.py",
+            "severity": "error",
+            "message": "\"Client\" is unknown import symbol",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 20
+                },
+                "end": {
+                    "line": 8,
+                    "character": 26
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/clients/fastmcp.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 5
+                },
+                "end": {
+                    "line": 9,
+                    "character": 8
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/fastmcp.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 16,
+                    "character": 9
+                },
+                "end": {
+                    "line": 16,
+                    "character": 17
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/fastmcp.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 38,
+                    "character": 13
+                },
+                "end": {
+                    "line": 38,
+                    "character": 22
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/mcp_use.py",
+            "severity": "warning",
+            "message": "Import \"mcp.shared.exceptions\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 5
+                },
+                "end": {
+                    "line": 7,
+                    "character": 26
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/mcp_use.py",
+            "severity": "warning",
+            "message": "Import \"mcp_use.client\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 5
+                },
+                "end": {
+                    "line": 8,
+                    "character": 19
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/mcp_use.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 5
+                },
+                "end": {
+                    "line": 9,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/mcp_use.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 16,
+                    "character": 9
+                },
+                "end": {
+                    "line": 16,
+                    "character": 12
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/mcp_use.py",
+            "severity": "warning",
+            "message": "Import \"mcp_use.session\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 17,
+                    "character": 9
+                },
+                "end": {
+                    "line": 17,
+                    "character": 24
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/tests/test_client_integration.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 4,
+                    "character": 7
+                },
+                "end": {
+                    "line": 4,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/tests/test_protocol.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 7
+                },
+                "end": {
+                    "line": 6,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/tests/test_protocol.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 5
+                },
+                "end": {
+                    "line": 7,
+                    "character": 8
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/tests/test_protocol.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 50,
+                    "character": 17
+                },
+                "end": {
+                    "line": 50,
+                    "character": 25
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/clients/tests/test_protocol.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 151,
+                    "character": 13
+                },
+                "end": {
+                    "line": 151,
+                    "character": 22
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/datasets.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 11,
+                    "character": 5
+                },
+                "end": {
+                    "line": 11,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/datasets.py",
+            "severity": "error",
+            "message": "Module cannot be used as a type",
+            "range": {
+                "start": {
+                    "line": 92,
+                    "character": 28
+                },
+                "end": {
+                    "line": 92,
+                    "character": 35
+                }
+            },
+            "rule": "reportGeneralTypeIssues"
+        },
+        {
+            "file": "/workspace/hud/datasets.py",
+            "severity": "error",
+            "message": "\"Module(\"datasets\")\" is not iterable",
+            "range": {
+                "start": {
+                    "line": 115,
+                    "character": 19
+                },
+                "end": {
+                    "line": 115,
+                    "character": 26
+                }
+            },
+            "rule": "reportGeneralTypeIssues"
+        },
+        {
+            "file": "/workspace/hud/datasets.py",
+            "severity": "error",
+            "message": "Module cannot be used as a type",
+            "range": {
+                "start": {
+                    "line": 149,
+                    "character": 13
+                },
+                "end": {
+                    "line": 149,
+                    "character": 20
+                }
+            },
+            "rule": "reportInvalidTypeForm"
+        },
+        {
+            "file": "/workspace/hud/datasets.py",
+            "severity": "error",
+            "message": "\"from_list\" is not a known attribute of module \"datasets\"",
+            "range": {
+                "start": {
+                    "line": 283,
+                    "character": 22
+                },
+                "end": {
+                    "line": 283,
+                    "character": 31
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/misc/claude_plays_pokemon.py",
+            "severity": "warning",
+            "message": "Import \"anthropic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 5
+                },
+                "end": {
+                    "line": 7,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/misc/claude_plays_pokemon.py",
+            "severity": "warning",
+            "message": "Import \"hud.adapters\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 5
+                },
+                "end": {
+                    "line": 9,
+                    "character": 17
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/misc/claude_plays_pokemon.py",
+            "severity": "warning",
+            "message": "Import \"hud.adapters.common.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 10,
+                    "character": 5
+                },
+                "end": {
+                    "line": 10,
+                    "character": 30
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/misc/claude_plays_pokemon.py",
+            "severity": "warning",
+            "message": "Import \"anthropic.types.beta\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 19,
+                    "character": 9
+                },
+                "end": {
+                    "line": 19,
+                    "character": 29
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/misc/claude_plays_pokemon.py",
+            "severity": "warning",
+            "message": "Import \"hud.env.environment\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 25,
+                    "character": 9
+                },
+                "end": {
+                    "line": 25,
+                    "character": 28
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/misc/claude_plays_pokemon.py",
+            "severity": "error",
+            "message": "Expected no type arguments for class \"MCPAgent\"",
+            "range": {
+                "start": {
+                    "line": 139,
+                    "character": 31
+                },
+                "end": {
+                    "line": 139,
+                    "character": 45
+                }
+            },
+            "rule": "reportInvalidTypeArguments"
+        },
+        {
+            "file": "/workspace/hud/misc/claude_plays_pokemon.py",
+            "severity": "error",
+            "message": "No parameter named \"client\"",
+            "range": {
+                "start": {
+                    "line": 176,
+                    "character": 12
+                },
+                "end": {
+                    "line": 176,
+                    "character": 18
+                }
+            },
+            "rule": "reportCallIssue"
+        },
+        {
+            "file": "/workspace/hud/misc/claude_plays_pokemon.py",
+            "severity": "error",
+            "message": "No parameter named \"adapter\"",
+            "range": {
+                "start": {
+                    "line": 177,
+                    "character": 12
+                },
+                "end": {
+                    "line": 177,
+                    "character": 19
+                }
+            },
+            "rule": "reportCallIssue"
+        },
+        {
+            "file": "/workspace/hud/misc/claude_plays_pokemon.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"client\" for class \"ClaudePlaysPokemon*\"\n  Attribute \"client\" is unknown",
+            "range": {
+                "start": {
+                    "line": 207,
+                    "character": 20
+                },
+                "end": {
+                    "line": 207,
+                    "character": 26
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/misc/claude_plays_pokemon.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"client\" for class \"ClaudePlaysPokemon*\"\n  Attribute \"client\" is unknown",
+            "range": {
+                "start": {
+                    "line": 244,
+                    "character": 30
+                },
+                "end": {
+                    "line": 244,
+                    "character": 36
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/misc/response_agent.py",
+            "severity": "warning",
+            "message": "Import \"openai\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 5,
+                    "character": 5
+                },
+                "end": {
+                    "line": 5,
+                    "character": 11
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/collector.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 13,
+                    "character": 5
+                },
+                "end": {
+                    "line": 13,
+                    "character": 18
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/collector.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.sdk.trace.export\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 14,
+                    "character": 5
+                },
+                "end": {
+                    "line": 14,
+                    "character": 35
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/collector.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.sdk.trace\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 19,
+                    "character": 9
+                },
+                "end": {
+                    "line": 19,
+                    "character": 32
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/collector.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.sdk.trace.export\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 133,
+                    "character": 13
+                },
+                "end": {
+                    "line": 133,
+                    "character": 43
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/config.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 17,
+                    "character": 5
+                },
+                "end": {
+                    "line": 17,
+                    "character": 18
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/config.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.sdk.resources\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 18,
+                    "character": 5
+                },
+                "end": {
+                    "line": 18,
+                    "character": 32
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/config.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.sdk.trace\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 19,
+                    "character": 5
+                },
+                "end": {
+                    "line": 19,
+                    "character": 28
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/config.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.sdk.trace.export\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 20,
+                    "character": 5
+                },
+                "end": {
+                    "line": 20,
+                    "character": 35
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/config.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.exporter.otlp.proto.grpc.trace_exporter\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 101,
+                    "character": 17
+                },
+                "end": {
+                    "line": 101,
+                    "character": 70
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/context.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 13,
+                    "character": 5
+                },
+                "end": {
+                    "line": 13,
+                    "character": 18
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/context.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 14,
+                    "character": 5
+                },
+                "end": {
+                    "line": 14,
+                    "character": 18
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/context.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.trace\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 15,
+                    "character": 5
+                },
+                "end": {
+                    "line": 15,
+                    "character": 24
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/context.py",
+            "severity": "error",
+            "message": "\"__enter__\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 248,
+                    "character": 19
+                },
+                "end": {
+                    "line": 248,
+                    "character": 28
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        },
+        {
+            "file": "/workspace/hud/otel/exporters.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 20,
+                    "character": 5
+                },
+                "end": {
+                    "line": 20,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/exporters.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.sdk.trace.export\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 21,
+                    "character": 5
+                },
+                "end": {
+                    "line": 21,
+                    "character": 35
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/exporters.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 22,
+                    "character": 5
+                },
+                "end": {
+                    "line": 22,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/exporters.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.sdk.trace\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 28,
+                    "character": 9
+                },
+                "end": {
+                    "line": 28,
+                    "character": 32
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/instrumentation.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 12,
+                    "character": 5
+                },
+                "end": {
+                    "line": 12,
+                    "character": 18
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/instrumentation.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.trace\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 13,
+                    "character": 5
+                },
+                "end": {
+                    "line": 13,
+                    "character": 24
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/instrumentation.py",
+            "severity": "error",
+            "message": "Cannot assign to attribute \"_telemetry_wrapped\" for class \"_Wrapped[(self: MCPAgent, messages: list[Any]), CoroutineType[Any, Any, AgentResponse], (self: Unknown, messages: list[Any], **kwargs: Unknown), CoroutineType[Any, Any, AgentResponse]]\"\n  Attribute \"_telemetry_wrapped\" is unknown",
+            "range": {
+                "start": {
+                    "line": 130,
+                    "character": 16
+                },
+                "end": {
+                    "line": 130,
+                    "character": 34
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/otel/instrumentation.py",
+            "severity": "error",
+            "message": "Cannot assign to attribute \"_telemetry_wrapped\" for class \"_Wrapped[(self: MCPAgent, *, tool_calls: list[MCPToolCall]), CoroutineType[Any, Any, list[MCPToolResult]], (self: Unknown, *, tool_calls: Unknown, **kwargs: Unknown), CoroutineType[Any, Any, list[MCPToolResult]]]\"\n  Attribute \"_telemetry_wrapped\" is unknown",
+            "range": {
+                "start": {
+                    "line": 136,
+                    "character": 16
+                },
+                "end": {
+                    "line": 136,
+                    "character": 34
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/otel/instrumentation.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.instrumentation.mcp.instrumentation\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 197,
+                    "character": 13
+                },
+                "end": {
+                    "line": 197,
+                    "character": 62
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/instrumentation.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.instrumentation.mcp.instrumentation\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 211,
+                    "character": 29
+                },
+                "end": {
+                    "line": 211,
+                    "character": 78
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/instrumentation.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.instrumentation.mcp.instrumentation\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 223,
+                    "character": 29
+                },
+                "end": {
+                    "line": 223,
+                    "character": 78
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/processors.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 4,
+                    "character": 5
+                },
+                "end": {
+                    "line": 4,
+                    "character": 18
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/otel/processors.py",
+            "severity": "warning",
+            "message": "Import \"opentelemetry.sdk.trace\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 5,
+                    "character": 5
+                },
+                "end": {
+                    "line": 5,
+                    "character": 28
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/server/exceptions.py",
+            "severity": "warning",
+            "message": "Import \"httpx\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 11
+                },
+                "end": {
+                    "line": 8,
+                    "character": 16
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/server/requests.py",
+            "severity": "warning",
+            "message": "Import \"httpx\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 12,
+                    "character": 7
+                },
+                "end": {
+                    "line": 12,
+                    "character": 12
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/server/requests.py",
+            "severity": "error",
+            "message": "\"request\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 115,
+                    "character": 40
+                },
+                "end": {
+                    "line": 115,
+                    "character": 47
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        },
+        {
+            "file": "/workspace/hud/server/requests.py",
+            "severity": "error",
+            "message": "\"aclose\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 154,
+                    "character": 25
+                },
+                "end": {
+                    "line": 154,
+                    "character": 31
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        },
+        {
+            "file": "/workspace/hud/server/requests.py",
+            "severity": "error",
+            "message": "\"request\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 205,
+                    "character": 34
+                },
+                "end": {
+                    "line": 205,
+                    "character": 41
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        },
+        {
+            "file": "/workspace/hud/server/requests.py",
+            "severity": "error",
+            "message": "\"close\" is not a known attribute of \"None\"",
+            "range": {
+                "start": {
+                    "line": 263,
+                    "character": 19
+                },
+                "end": {
+                    "line": 263,
+                    "character": 24
+                }
+            },
+            "rule": "reportOptionalMemberAccess"
+        },
+        {
+            "file": "/workspace/hud/server/tests/test_requests.py",
+            "severity": "warning",
+            "message": "Import \"httpx\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 7
+                },
+                "end": {
+                    "line": 8,
+                    "character": 12
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/server/tests/test_requests.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 7
+                },
+                "end": {
+                    "line": 9,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/settings.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 2,
+                    "character": 5
+                },
+                "end": {
+                    "line": 2,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/settings.py",
+            "severity": "warning",
+            "message": "Import \"pydantic_settings\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 3,
+                    "character": 5
+                },
+                "end": {
+                    "line": 3,
+                    "character": 22
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tests/test_datasets_extended.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 7
+                },
+                "end": {
+                    "line": 8,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tests/test_datasets_extended.py",
+            "severity": "error",
+            "message": "Argument of type \"list[Unknown]\" cannot be assigned to parameter \"dataset\" of type \"Module(\"datasets\")\" in function \"to_taskconfigs\"\n  Type \"list[Unknown]\" is not assignable to type \"Module(\"datasets\")\"",
+            "range": {
+                "start": {
+                    "line": 140,
+                    "character": 31
+                },
+                "end": {
+                    "line": 140,
+                    "character": 43
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/hud/tests/test_datasets_extended.py",
+            "severity": "error",
+            "message": "Argument of type \"list[dict[str, str]]\" cannot be assigned to parameter \"dataset\" of type \"Module(\"datasets\")\" in function \"to_taskconfigs\"\n  Type \"list[dict[str, str]]\" is not assignable to type \"Module(\"datasets\")\"",
+            "range": {
+                "start": {
+                    "line": 157,
+                    "character": 27
+                },
+                "end": {
+                    "line": 157,
+                    "character": 39
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/hud/tests/test_datasets_extended.py",
+            "severity": "error",
+            "message": "Argument of type \"MagicMock\" cannot be assigned to parameter \"agent_class\" of type \"type[MCPAgent]\" in function \"run_dataset\"\n  Type \"MagicMock\" is not assignable to type \"type[MCPAgent]\"",
+            "range": {
+                "start": {
+                    "line": 195,
+                    "character": 16
+                },
+                "end": {
+                    "line": 195,
+                    "character": 27
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/hud/tests/test_datasets_extended.py",
+            "severity": "error",
+            "message": "Argument of type \"MagicMock\" cannot be assigned to parameter \"agent_class\" of type \"type[MCPAgent]\" in function \"run_dataset\"\n  Type \"MagicMock\" is not assignable to type \"type[MCPAgent]\"",
+            "range": {
+                "start": {
+                    "line": 230,
+                    "character": 20
+                },
+                "end": {
+                    "line": 230,
+                    "character": 36
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/hud/tests/test_datasets_extended.py",
+            "severity": "error",
+            "message": "Argument of type \"MagicMock\" cannot be assigned to parameter \"agent_class\" of type \"type[MCPAgent]\" in function \"run_dataset\"\n  Type \"MagicMock\" is not assignable to type \"type[MCPAgent]\"",
+            "range": {
+                "start": {
+                    "line": 278,
+                    "character": 64
+                },
+                "end": {
+                    "line": 278,
+                    "character": 80
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/hud/tests/test_datasets_extended.py",
+            "severity": "error",
+            "message": "Argument of type \"MagicMock\" cannot be assigned to parameter \"agent_class\" of type \"type[MCPAgent]\" in function \"run_dataset\"\n  Type \"MagicMock\" is not assignable to type \"type[MCPAgent]\"",
+            "range": {
+                "start": {
+                    "line": 310,
+                    "character": 56
+                },
+                "end": {
+                    "line": 310,
+                    "character": 72
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/hud/tests/test_datasets_extended.py",
+            "severity": "error",
+            "message": "Argument of type \"MagicMock\" cannot be assigned to parameter \"agent_class\" of type \"type[MCPAgent]\" in function \"run_dataset\"\n  Type \"MagicMock\" is not assignable to type \"type[MCPAgent]\"",
+            "range": {
+                "start": {
+                    "line": 337,
+                    "character": 24
+                },
+                "end": {
+                    "line": 337,
+                    "character": 40
+                }
+            },
+            "rule": "reportArgumentType"
+        },
+        {
+            "file": "/workspace/hud/tools/base.py",
+            "severity": "warning",
+            "message": "Import \"fastmcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 5,
+                    "character": 5
+                },
+                "end": {
+                    "line": 5,
+                    "character": 12
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/base.py",
+            "severity": "error",
+            "message": "\"ContentBlock\" is unknown import symbol",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 28
+                },
+                "end": {
+                    "line": 7,
+                    "character": 40
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/base.py",
+            "severity": "warning",
+            "message": "Import \"fastmcp.tools\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 12,
+                    "character": 9
+                },
+                "end": {
+                    "line": 12,
+                    "character": 22
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/base.py",
+            "severity": "warning",
+            "message": "Import \"fastmcp.tools.tool\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 13,
+                    "character": 9
+                },
+                "end": {
+                    "line": 13,
+                    "character": 27
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/base.py",
+            "severity": "warning",
+            "message": "Import \"fastmcp.tools\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 88,
+                    "character": 17
+                },
+                "end": {
+                    "line": 88,
+                    "character": 30
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/bash.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 11,
+                    "character": 9
+                },
+                "end": {
+                    "line": 11,
+                    "character": 18
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/anthropic.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 5
+                },
+                "end": {
+                    "line": 6,
+                    "character": 8
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/anthropic.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 5
+                },
+                "end": {
+                    "line": 7,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/anthropic.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 5
+                },
+                "end": {
+                    "line": 8,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/anthropic.py",
+            "severity": "warning",
+            "message": "Import \".types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 12,
+                    "character": 5
+                },
+                "end": {
+                    "line": 12,
+                    "character": 11
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/anthropic.py",
+            "severity": "warning",
+            "message": "Import \"anthropic.types.beta\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 15,
+                    "character": 9
+                },
+                "end": {
+                    "line": 15,
+                    "character": 29
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/hud.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 5
+                },
+                "end": {
+                    "line": 7,
+                    "character": 8
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/hud.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 5
+                },
+                "end": {
+                    "line": 8,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/hud.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 5
+                },
+                "end": {
+                    "line": 9,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/hud.py",
+            "severity": "warning",
+            "message": "Import \".base\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 15,
+                    "character": 5
+                },
+                "end": {
+                    "line": 15,
+                    "character": 10
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/hud.py",
+            "severity": "warning",
+            "message": "Import \".types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 17,
+                    "character": 5
+                },
+                "end": {
+                    "line": 17,
+                    "character": 11
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/hud.py",
+            "severity": "warning",
+            "message": "Import \"PIL\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 195,
+                    "character": 17
+                },
+                "end": {
+                    "line": 195,
+                    "character": 20
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/openai.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 5
+                },
+                "end": {
+                    "line": 6,
+                    "character": 8
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/openai.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 5
+                },
+                "end": {
+                    "line": 7,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/openai.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 5
+                },
+                "end": {
+                    "line": 8,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/settings.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 2,
+                    "character": 5
+                },
+                "end": {
+                    "line": 2,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/computer/settings.py",
+            "severity": "warning",
+            "message": "Import \"pydantic_settings\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 3,
+                    "character": 5
+                },
+                "end": {
+                    "line": 3,
+                    "character": 22
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/edit.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 11,
+                    "character": 9
+                },
+                "end": {
+                    "line": 11,
+                    "character": 18
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/executors/pyautogui.py",
+            "severity": "warning",
+            "message": "Import \"pyautogui\" could not be resolved from source",
+            "range": {
+                "start": {
+                    "line": 38,
+                    "character": 19
+                },
+                "end": {
+                    "line": 38,
+                    "character": 28
+                }
+            },
+            "rule": "reportMissingModuleSource"
+        },
+        {
+            "file": "/workspace/hud/tools/executors/tests/test_base_executor.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 7
+                },
+                "end": {
+                    "line": 6,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/executors/tests/test_base_executor.py",
+            "severity": "error",
+            "message": "\"ToolResult\" is unknown import symbol",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 27
+                },
+                "end": {
+                    "line": 8,
+                    "character": 37
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/executors/tests/test_pyautogui_executor.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 7
+                },
+                "end": {
+                    "line": 6,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/executors/tests/test_pyautogui_executor.py",
+            "severity": "error",
+            "message": "\"ToolResult\" is unknown import symbol",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 27
+                },
+                "end": {
+                    "line": 8,
+                    "character": 37
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/helper/server_initialization.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 29,
+                    "character": 7
+                },
+                "end": {
+                    "line": 29,
+                    "character": 16
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/helper/server_initialization.py",
+            "severity": "warning",
+            "message": "Import \"mcp.server.session\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 30,
+                    "character": 5
+                },
+                "end": {
+                    "line": 30,
+                    "character": 23
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/helper/server_initialization.py",
+            "severity": "warning",
+            "message": "Import \"mcp.shared.session\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 35,
+                    "character": 9
+                },
+                "end": {
+                    "line": 35,
+                    "character": 27
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/playwright.py",
+            "severity": "warning",
+            "message": "Import \"mcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 5
+                },
+                "end": {
+                    "line": 8,
+                    "character": 8
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/playwright.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 9,
+                    "character": 5
+                },
+                "end": {
+                    "line": 9,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/playwright.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 10,
+                    "character": 5
+                },
+                "end": {
+                    "line": 10,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/playwright.py",
+            "severity": "warning",
+            "message": "Import \"playwright.async_api\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 16,
+                    "character": 9
+                },
+                "end": {
+                    "line": 16,
+                    "character": 29
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/playwright.py",
+            "severity": "warning",
+            "message": "Import \"playwright.async_api\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 167,
+                    "character": 25
+                },
+                "end": {
+                    "line": 167,
+                    "character": 45
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_bash.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 7
+                },
+                "end": {
+                    "line": 6,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_bash.py",
+            "severity": "error",
+            "message": "\"ToolResult\" is unknown import symbol",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 27
+                },
+                "end": {
+                    "line": 8,
+                    "character": 37
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_bash.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"_session\" for class \"BashTool\"\n  Attribute \"_session\" is unknown",
+            "range": {
+                "start": {
+                    "line": 81,
+                    "character": 20
+                },
+                "end": {
+                    "line": 81,
+                    "character": 28
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_bash.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"output\" for class \"list[Unknown]\"\n  Attribute \"output\" is unknown",
+            "range": {
+                "start": {
+                    "line": 100,
+                    "character": 26
+                },
+                "end": {
+                    "line": 100,
+                    "character": 32
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_bash.py",
+            "severity": "error",
+            "message": "Cannot assign to attribute \"_session\" for class \"BashTool\"\n  Attribute \"_session\" is unknown",
+            "range": {
+                "start": {
+                    "line": 112,
+                    "character": 13
+                },
+                "end": {
+                    "line": 112,
+                    "character": 21
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_bash.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"system\" for class \"list[Unknown]\"\n  Attribute \"system\" is unknown",
+            "range": {
+                "start": {
+                    "line": 122,
+                    "character": 26
+                },
+                "end": {
+                    "line": 122,
+                    "character": 32
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_bash.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"_session\" for class \"BashTool\"\n  Attribute \"_session\" is unknown",
+            "range": {
+                "start": {
+                    "line": 125,
+                    "character": 24
+                },
+                "end": {
+                    "line": 125,
+                    "character": 32
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_bash.py",
+            "severity": "error",
+            "message": "Cannot assign to attribute \"_session\" for class \"BashTool\"\n  Attribute \"_session\" is unknown",
+            "range": {
+                "start": {
+                    "line": 145,
+                    "character": 13
+                },
+                "end": {
+                    "line": 145,
+                    "character": 21
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_bash.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"output\" for class \"list[Unknown]\"\n  Attribute \"output\" is unknown",
+            "range": {
+                "start": {
+                    "line": 150,
+                    "character": 22
+                },
+                "end": {
+                    "line": 150,
+                    "character": 28
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_computer.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 2,
+                    "character": 7
+                },
+                "end": {
+                    "line": 2,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_computer.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 3,
+                    "character": 5
+                },
+                "end": {
+                    "line": 3,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_computer_actions.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 2,
+                    "character": 7
+                },
+                "end": {
+                    "line": 2,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_computer_actions.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 3,
+                    "character": 5
+                },
+                "end": {
+                    "line": 3,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_edit.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 10,
+                    "character": 7
+                },
+                "end": {
+                    "line": 10,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_edit.py",
+            "severity": "error",
+            "message": "\"ToolResult\" is unknown import symbol",
+            "range": {
+                "start": {
+                    "line": 12,
+                    "character": 27
+                },
+                "end": {
+                    "line": 12,
+                    "character": 37
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_edit.py",
+            "severity": "error",
+            "message": "\"TextContent\" is unknown import symbol",
+            "range": {
+                "start": {
+                    "line": 13,
+                    "character": 22
+                },
+                "end": {
+                    "line": 13,
+                    "character": 33
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_playwright_tool.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 7
+                },
+                "end": {
+                    "line": 6,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_playwright_tool.py",
+            "severity": "warning",
+            "message": "Import \"mcp.shared.exceptions\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 5
+                },
+                "end": {
+                    "line": 7,
+                    "character": 26
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_playwright_tool.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 8,
+                    "character": 5
+                },
+                "end": {
+                    "line": 8,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_tools.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 5,
+                    "character": 7
+                },
+                "end": {
+                    "line": 5,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_tools.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 6,
+                    "character": 5
+                },
+                "end": {
+                    "line": 6,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_tools.py",
+            "severity": "error",
+            "message": "\"ToolResult\" is unknown import symbol",
+            "range": {
+                "start": {
+                    "line": 37,
+                    "character": 31
+                },
+                "end": {
+                    "line": 37,
+                    "character": 41
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_tools.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"system\" for class \"list[Unknown]\"\n  Attribute \"system\" is unknown",
+            "range": {
+                "start": {
+                    "line": 68,
+                    "character": 15
+                },
+                "end": {
+                    "line": 68,
+                    "character": 21
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_tools.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"output\" for class \"list[Unknown]\"\n  Attribute \"output\" is unknown",
+            "range": {
+                "start": {
+                    "line": 84,
+                    "character": 34
+                },
+                "end": {
+                    "line": 84,
+                    "character": 40
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_tools.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"output\" for class \"list[Unknown]\"\n  Attribute \"output\" is unknown",
+            "range": {
+                "start": {
+                    "line": 88,
+                    "character": 27
+                },
+                "end": {
+                    "line": 88,
+                    "character": 33
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_tools.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"output\" for class \"list[Unknown]\"\n  Attribute \"output\" is unknown",
+            "range": {
+                "start": {
+                    "line": 92,
+                    "character": 37
+                },
+                "end": {
+                    "line": 92,
+                    "character": 43
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_tools.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"output\" for class \"list[Unknown]\"\n  Attribute \"output\" is unknown",
+            "range": {
+                "start": {
+                    "line": 119,
+                    "character": 18
+                },
+                "end": {
+                    "line": 119,
+                    "character": 24
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_tools.py",
+            "severity": "error",
+            "message": "Cannot access attribute \"output\" for class \"list[Unknown]\"\n  Attribute \"output\" is unknown",
+            "range": {
+                "start": {
+                    "line": 120,
+                    "character": 38
+                },
+                "end": {
+                    "line": 120,
+                    "character": 44
+                }
+            },
+            "rule": "reportAttributeAccessIssue"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_tools.py",
+            "severity": "warning",
+            "message": "Import \"mcp.server.fastmcp\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 141,
+                    "character": 9
+                },
+                "end": {
+                    "line": 141,
+                    "character": 27
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/tests/test_utils.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 7,
+                    "character": 7
+                },
+                "end": {
+                    "line": 7,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/types.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 4,
+                    "character": 5
+                },
+                "end": {
+                    "line": 4,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/tools/types.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 5,
+                    "character": 5
+                },
+                "end": {
+                    "line": 5,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/types.py",
+            "severity": "warning",
+            "message": "Import \"mcp.types\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 4,
+                    "character": 5
+                },
+                "end": {
+                    "line": 4,
+                    "character": 14
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/types.py",
+            "severity": "warning",
+            "message": "Import \"pydantic\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 5,
+                    "character": 5
+                },
+                "end": {
+                    "line": 5,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/utils/telemetry.py",
+            "severity": "warning",
+            "message": "Import \"IPython.display\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 11,
+                    "character": 9
+                },
+                "end": {
+                    "line": 11,
+                    "character": 24
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/utils/telemetry.py",
+            "severity": "warning",
+            "message": "Import \"IPython.display\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 45,
+                    "character": 9
+                },
+                "end": {
+                    "line": 45,
+                    "character": 24
+                }
+            },
+            "rule": "reportMissingImports"
+        },
+        {
+            "file": "/workspace/hud/utils/tests/test_progress.py",
+            "severity": "warning",
+            "message": "Import \"pytest\" could not be resolved",
+            "range": {
+                "start": {
+                    "line": 4,
+                    "character": 7
+                },
+                "end": {
+                    "line": 4,
+                    "character": 13
+                }
+            },
+            "rule": "reportMissingImports"
+        }
+    ],
+    "summary": {
+        "filesAnalyzed": 84,
+        "errorCount": 47,
+        "warningCount": 129,
+        "informationCount": 0,
+        "timeInSec": 1.96
+    }
+}
+
