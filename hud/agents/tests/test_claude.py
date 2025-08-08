@@ -10,7 +10,7 @@ from anthropic import BadRequestError
 from mcp import types
 from mcp.types import CallToolRequestParams as MCPToolCall
 
-from hud.mcp.claude import (
+from hud.agents.claude import (
     ClaudeMCPAgent,
     base64_to_content_block,
     text_to_content_block,
@@ -70,7 +70,7 @@ class TestClaudeMCPAgent:
     @pytest.fixture
     def mock_anthropic(self):
         """Create a mock Anthropic client."""
-        with patch("hud.mcp.claude.AsyncAnthropic") as mock:
+        with patch("hud.agents.claude.AsyncAnthropic") as mock:
             client = AsyncMock()
             # Add beta attribute with messages
             client.beta = AsyncMock()
@@ -97,7 +97,7 @@ class TestClaudeMCPAgent:
     @pytest.mark.asyncio
     async def test_init_without_model_client(self, mock_mcp_client):
         """Test agent initialization without model client."""
-        with patch("hud.mcp.claude.settings.anthropic_api_key", "test_key"):
+        with patch("hud.agents.claude.settings.anthropic_api_key", "test_key"):
             agent = ClaudeMCPAgent(mcp_client=mock_mcp_client, model="claude-3-opus-20240229")
 
             assert agent.model_name == "claude-3-opus-20240229"
