@@ -140,7 +140,7 @@ def create_job(name: str, metadata: dict[str, Any] | None = None) -> Job:
     return Job(job_id, name, metadata)
 
 
-def job_decorator(name: str | None = None, **metadata):
+def job_decorator(name: str | None = None, **metadata: Any) -> Any:
     """Decorator for functions that should be tracked as jobs.
 
     Args:
@@ -159,7 +159,7 @@ def job_decorator(name: str | None = None, **metadata):
         job_name = name or func.__name__
 
         @wraps(func)
-        async def async_wrapper(*args, **kwargs):
+        async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
             with job(job_name, metadata) as job_obj:
                 # Store job ID in function for access
                 func._current_job_id = job_obj.id
@@ -169,7 +169,7 @@ def job_decorator(name: str | None = None, **metadata):
                     delattr(func, "_current_job_id")
 
         @wraps(func)
-        def sync_wrapper(*args, **kwargs):
+        def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
             with job(job_name, metadata) as job_obj:
                 # Store job ID in function for access
                 func._current_job_id = job_obj.id

@@ -65,7 +65,7 @@ class TraceCollector:
                 # Log but don't fail the whole trace
                 import logging
 
-                logging.getLogger(__name__).debug(f"Failed to convert span: {e}")
+                logging.getLogger(__name__).debug("Failed to convert span: %s", e)
 
         return trace
 
