@@ -413,17 +413,36 @@ def create_remote_config(
 
     # Case 3: Check for task.config
     if hasattr(task, "config") and task.config:
-        # Ensure task.config is a dictionary before adding id
-        final_args = task.config.copy() if isinstance(task.config, dict) else {}
-        if task.id:
-            final_args["id"] = task.id  # for remote IDs
-        if env and env.final_response:
-            # Append response, ensuring args exists and is a list
-            if "args" not in final_args:
-                final_args["args"] = []
-            if not isinstance(final_args["args"], list):
-                final_args["args"] = [final_args["args"]]
-            final_args["args"].append(env.final_response)
+        # The server expects a dictionary for evaluation requests, but task.config
+        # can be either a dict or a list (e.g., OSWorld-Verified uses lists)
+        if isinstance(task.config, dict):
+            # For dict configs, we can modify it directly
+            final_args = task.config.copy()
+            if task.id:
+                final_args["id"] = task.id  # for remote IDs
+            if env and env.final_response:
+                # Append response, ensuring args exists and is a list
+                if "args" not in final_args:
+                    final_args["args"] = []
+                if not isinstance(final_args["args"], list):
+                    final_args["args"] = [final_args["args"]]
+                final_args["args"].append(env.final_response)
+        elif isinstance(task.config, list):
+            # For list configs (like OSWorld-Verified), wrap in a dict
+            # The server expects a dict, so we preserve the list under a 'config' key
+            final_args = {"config": task.config}
+            if task.id:
+                final_args["id"] = task.id
+            if env and env.final_response:
+                final_args["args"] = [env.final_response]
+        else:
+            # For other types, convert to dict to ensure server compatibility
+            final_args = {"config": task.config}
+            if task.id:
+                final_args["id"] = task.id
+            if env and env.final_response:
+                final_args["args"] = [env.final_response]
+        
         return [FunctionConfig(function=function, args=[final_args], metadata=metadata)]
 
     # Case 4: Use task.id
