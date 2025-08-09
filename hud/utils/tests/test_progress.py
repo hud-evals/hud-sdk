@@ -223,3 +223,31 @@ def test_complex_workflow():
 
     assert tracker.is_finished()
     assert tracker.get_progress()[2] == 100.0
+
+
+def test_display_eta_when_finished(tracker, mocker):
+    """Test that ETA shows 0:00 when progress is finished."""
+    mock_time = mocker.patch("time.monotonic")
+    mock_time.return_value = 100.0
+
+    # Start and complete all tasks
+    tracker.start_task("task1")
+    for _ in range(10):
+        tracker.increment_step("task1")
+    tracker.finish_task("task1")
+
+    tracker.start_task("task2")
+    for _ in range(10):
+        tracker.increment_step("task2")
+    tracker.finish_task("task2")
+
+    # Some time has passed
+    mock_time.return_value = 120.0
+
+    display = tracker.display()
+
+    # When finished, ETA should be 0:00 (not ??:??)
+    assert tracker.is_finished()
+    assert "0:00" in display
+    assert "100%" in display
+    assert "20/20" in display
